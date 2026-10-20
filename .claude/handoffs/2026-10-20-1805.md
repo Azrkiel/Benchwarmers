@@ -45,7 +45,7 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - **Detailed phase briefs with lead-decided conventions** (option ids `three|two|ft|other`, `home|away|none`, `over|under`; AiSink; fixed ids) → AI, engine and TV built in parallel and fit on first merge.
 - **Verify the branch, not the report**: lead re-ran typecheck/tests/scope on every branch before merging; real-server smoke tests caught the "worker missed seeded parties" gap.
 - **Fixture mode for UI** (`?fixture=`) let the TV be built without the server.
-- **CDP screenshot/eval harness** (session scratchpad `tools/shot.mjs`, `tools/voicetest.mjs`, `tools/tts.ps1`) gave real-browser verification without the user's Chrome. (Scratchpad is session-local; recreate if needed: launch headless Chrome with `--remote-debugging-port`, navigate, wait, `Page.captureScreenshot` / `Runtime.evaluate`.)
+- **CDP screenshot/eval harness** (now committed: `tools/screenshot.mjs`, `tools/voice-test.mjs`, `tools/tts-clips.ps1`) gave real-browser verification without the user's Chrome.
 
 ## 6. What went badly and why
 - **Hit the 5-hour usage limit mid wave 2** → both managers died with 429; MCP had uncommitted files. Resumed the same agents after reset via SendMessage; worked, but cost time. Cause: three opus managers + workers in parallel.
@@ -84,7 +84,6 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - Voice ID: default WavLM threshold 0.85 rejected one true clip (0.788) → should be ~0.70; embed 7.4 s/clip; transformers.js fetches ORT wasm from jsDelivr (27 MB local copy in dist unused) — offline hosting needs `env.backends.onnx.wasm.wasmPaths`.
 - Season `points` = pick points, `fantasyPoints` = draft points (naming is confusing but tested).
 - No `npm run demo`, README, DEMO_SCRIPT, PRODUCT_FEEDBACK, SUBMISSION yet.
-- `docs/ORCHESTRATION.md` phase list predates the Codex split for frontend.
 
 ## 11. Open questions for the human
 - **Who builds the device page** (`/device/:household`: mic, TTS, transcript, agent trace, MCP App via app-bridge, voice enrollment)? Claude or Codex? (User said "I'll see what you cook up and compare" — default assumption: Claude builds the backend `/api/assistant` first, then may build a device page on its own branch for comparison.)
@@ -101,6 +100,9 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - `docs/` FRICTION_LOG (10 entries), AWS.md, VOICE_ID.md, ORCHESTRATION.md, HANDOFF.md
 
 ## 13. Next steps (ordered; smallest first)
+**How to run them:** each item has a ready-to-paste phase-manager brief in `docs/ORCHESTRATION.md` §5 (4a, 7b, 2b, 4b, 3b, 6),
+plus the lead procedure (§3) and brief template (§4). Waves: A = 4a + 7b in parallel → B = 2b → C = 4b (if assigned) → D = 6.
+Test helpers committed in `tools/` (screenshot.mjs, voice-test.mjs, tts-clips.ps1).
 1. **Assistant backend (phase 4a)** — `server/src/assistant/`: MCP client (`@modelcontextprotocol/client` StreamableHTTP + bearer) to our own `/mcp`; `ASSISTANT_MODE=offline` rule-based router mapping the plan §8 demo utterances to tools (uses `speaker.memberName` when no "I'm X"); `ASSISTANT_MODE=bedrock` Converse tool-use loop (tools/list → toolConfig, ≤3 rounds, reuse `ai/bedrock.ts` client); returns `AssistantResponse {reply, toolCalls, uiResource, partyCode, mode}`; mount `POST /api/assistant` in index.ts above the /api router. Done = vitest covers each demo utterance offline + mocked Bedrock loop, latency logged, typecheck green.
 2. **Voice ID tuning** — `web/src/voiceid/`: WavLM threshold 0.70, crop clips to ≤3 s, COOP/COEP headers in `web/vite.config.ts` for threaded WASM, MFCC instant first guess. Done = a two-voice test (Windows TTS David vs Zira, 3-clip enroll, 2 held-out each) accepts all 4 held-out clips and embed < 3 s/clip.
 3. **Manual MCP checks** — MCP Inspector (`npx @modelcontextprotocol/inspector`, URL `http://localhost:3001/mcp`, Bearer header) + ext-apps basic-host (`git clone https://github.com/modelcontextprotocol/ext-apps` → `examples/basic-host`) renders the widget; cloudflared tunnel (`~/Downloads/cloudflared-windows-amd64.exe tunnel --url http://localhost:3001`). Done = screenshots + friction entries.
