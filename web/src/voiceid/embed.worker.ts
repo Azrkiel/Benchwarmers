@@ -1,5 +1,6 @@
 // Module worker: speaker embeddings. WavLM x-vector via transformers.js, MFCC fallback.
 // Typed via a local ctx cast so the DOM lib (web/tsconfig.json) stays the only global lib.
+import { prepareForEmbedding } from './audio';
 import { l2normalize } from './match';
 import { mfccEmbedding } from './mfcc';
 import { MFCC_MODEL_ID, WAVLM_MODEL_ID, type Backend } from './types';
@@ -85,7 +86,8 @@ ctx.onmessage = (e: MessageEvent<ToWorker>) => {
   (async () => {
     // Wait for an in-flight load so an embed sent right after load is not run on the wrong backend.
     if (loading) await loading;
-    const embedding = backend === 'wavlm' && extractor ? await extractor(msg.audio) : mfccEmbedding(msg.audio);
+    const embedding =
+      backend === 'wavlm' && extractor ? await extractor(prepareForEmbedding(msg.audio)) : mfccEmbedding(msg.audio);
     const out = new Float32Array(embedding);
     ctx.postMessage({ type: 'embedding', id: msg.id, embedding: out }, [out.buffer]);
   })().catch((err) => ctx.postMessage({ type: 'error', id: msg.id, message: errMessage(err) }));

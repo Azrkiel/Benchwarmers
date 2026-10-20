@@ -156,7 +156,7 @@ describe('useVoiceId', () => {
     expect(detail.tooShort).toBe(false);
     expect(detail.result).not.toBeNull();
     expect(detail.result!.accepted).toBe(false);
-    expect(detail.result!.reason).toBe('below-threshold');
+    expect(detail.result!.reason).toBe('small-margin');
     expect(detail.hint).toBeNull();
   });
 
