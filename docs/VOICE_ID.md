@@ -106,7 +106,7 @@ Defaults from `DEFAULT_MATCH` in `match.ts`:
 
 | Backend | threshold | margin |
 | --- | --- | --- |
-| `wavlm` | 0.85 | 0.05 |
+| `wavlm` | 0.70 | 0.05 |
 | `mfcc` | 0.90 | 0.02 |
 
 Accept rule: `best.score >= threshold` AND (there is no runner-up OR `best.score - runnerUp.score >= margin`). Otherwise `accepted` is false, with `reason` `'below-threshold'` or `'small-margin'`. Scores are cosine similarity against the member centroid.
@@ -138,6 +138,28 @@ Slider values are held in memory by `setMatchOptions`. They are not persisted. A
 - Clearing: the Clear buttons in `EnrollPanel` (per member; `useVoiceId.clear()` with no argument clears the whole household), or clearing the site's data in the browser. The model cache is separate (browser Cache API) and is also cleared with site data.
 - Profiles live in one browser profile on one device. They are not shared between devices.
 
+### 5a. Phase 7b tuning (measured)
+
+Real-model run (`tools/voice-test.mjs`, Windows TTS David vs Zira, 3-clip centroid, headless Chrome):
+
+| Quantity | Before 7b | After 7b |
+| --- | --- | --- |
+| WavLM default threshold | 0.85 (rejected a true clip) | 0.70 |
+| Same-speaker scores | 0.788 to 0.974 | 0.804 to 0.970 (4 held-out clips, own centroid) |
+| Cross-speaker scores | 0.245 to 0.409 | 0.414 to 0.701 (4 held-out clips, other centroid) |
+| Embed time per clip | about 7.4 s | about 1.3 s (perClipMs 1302) |
+| First model load | about 3 min (102 MB download) | 20 s once cached |
+| MFCC (for reference) | same 0.978 to 0.987, cross 0.930 to 0.947 | unchanged (threshold 0.90) |
+
+Held-out after-scores (own / other speaker centroid): david-3 0.853 / 0.414, david-4 0.804 / 0.701, zira-3 0.970 / 0.422, zira-4 0.958 / 0.446. All four rank their own speaker first and clear 0.70. david-4 scores 0.701 against the other speaker's centroid, so the margin rule (0.804 - 0.701 = 0.103 >= 0.05) is what separates it, not the threshold. Raise the threshold to 0.75 if impostors get accepted.
+
+What changed:
+- Each clip is silence-trimmed, then cropped to its loudest window of at most 3 s (`prepareForEmbedding` in `audio.ts`) before WavLM sees it. Enrollment and identify both go through the worker, so both are cropped. MFCC is not cropped. Shorter input is the main speed-up; the multi-threaded WASM setting is the other, and the two were not measured separately.
+- The Vite dev and preview servers send `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: credentialless`, and the worker sets `env.backends.onnx.wasm.numThreads = min(4, hardwareConcurrency)`. `credentialless`, not `require-corp`, because HuggingFace model downloads carry no CORP header. The model still loaded and embedded under these headers.
+- `identifyDetailed` returns `engine: 'wavlm' | 'mfcc' | 'mfcc-quick'` and `provisional: boolean`. While WavLM is still loading, enrolled members get an instant MFCC guess from a second set of "quick" MFCC profiles (localStorage key `bw.voiceid.<household>.mfcc`, written at every enrollment) with `provisional: true`. Members enrolled before 7b have no quick profile until they enroll again. Treat provisional hints as weaker: MFCC separates voices poorly.
+
+COOP/COEP risk for the device page: the device page will embed an MCP App iframe, and the dev proxy serves `/api` and `/mcp`. With COEP `credentialless`, cross-origin subresources load without credentials, and cross-origin iframes must themselves be embeddable under the policy (they need a compatible COEP or CORP). A same-origin proxied iframe is fine; an iframe served from another origin (for example a tunnel hostname or a sandbox origin) may be blocked, and COOP `same-origin` severs `window.opener` for popups. Not tested with a real MCP App iframe. If the iframe breaks, drop the headers: voice ID then falls back to single-thread WASM (slower, about 7 s per clip before the crop). In production hosting the headers must be set by the host, not Vite.
+
 ## 7. Limits
 
 - Similar voices (siblings, parent and child) score close together. Expect the margin rule to reject or confuse them.
@@ -148,7 +170,7 @@ Slider values are held in memory by `setMatchOptions`. They are not persisted. A
 - First-load download is about 102 MB plus the runtime. On a slow network that takes a long time, and until it finishes (or fails and falls back) voice ID is not ready.
 - Low-end devices: inference is on the CPU through WASM. Expect noticeable latency per utterance on weak hardware.
 - Not anti-spoofing. A recording or a similar voice can pass. Treat the hint as a convenience for attribution, never as authentication or authorization.
-- Testing: automated tests use mocked embedders. Real-model inference was not exercised in automated tests, and the real model was not run against real voices in this phase.
+- Testing: automated tests use mocked embedders. Real-model inference is exercised only by the manual `tools/voice-test.mjs` run (TTS voices, not real people, see 5a).
 - Not tested against a real Alexa device.
 
 ## 8. Mapping to Alexa+ in a real deployment

@@ -90,3 +90,12 @@ Template:
 - Severity: Minor
 - Workaround: `types: ["node", "vite/client"]` in the widget tsconfig; fixed `input` in `vite.config.ts`.
 - Suggestion: ship a minimal documented Vite config (no env var) and note the bundle size / tree-shaking expectation in the ext-apps README.
+
+### [2026-10-20 23:30] WavLM x-vector speaker ID: default threshold too high, single-thread WASM slow
+- Tool/SDK + version: `@huggingface/transformers` (`Xenova/wavlm-base-plus-sv`, q8, WASM), headless Chrome.
+- Task attempted: live-turn speaker identification in the browser.
+- Steps taken: ran `tools/voice-test.mjs` with Windows TTS voices (David, Zira), 3-clip centroids.
+- Expected vs actual: expected the commonly cited 0.85 cosine threshold to accept true speakers. Actual: same-speaker scores were 0.788 to 0.974 and a true clip was rejected; cross-speaker 0.245 to 0.409. Embedding took about 7.4 s per clip single-threaded.
+- Severity: Moderate
+- Workaround: threshold 0.70, crop to the loudest 3 s, COOP same-origin + COEP credentialless headers with `onnx.wasm.numThreads = min(4, cores)`; about 1.3 s per clip afterwards.
+- Suggestion: model card for wavlm-base-plus-sv should give a realistic cosine range per speaker pair and note that the first load is about 102 MB; transformers.js docs should say WASM threads need cross-origin isolation (and that `credentialless` works with HF downloads).
