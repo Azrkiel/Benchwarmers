@@ -1,14 +1,26 @@
 // MCP server factory: tools, prompt, resources. One fresh McpServer per HTTP request (stateless).
 import fs from 'node:fs/promises';
 import { McpServer, type CallToolResult } from '@modelcontextprotocol/server';
-import { registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
+import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { GameError, playerLabel } from '../game/engine.js';
 import { GAMES } from '../game/games.js';
 import type { Store } from '../game/store.js';
 import type { PartyStateResponse, WatchParty } from '../shared/types.js';
 import { ROSTER_SIZE } from '../shared/types.js';
-import { matchCrew, matchGame, matchHousehold, matchMember, type MatchResult } from './match.js';
+import { projectionOf } from '../game/projections.js';
+import type { Position } from '../shared/types.js';
+import {
+  matchCrew,
+  matchGame,
+  matchHousehold,
+  matchMember,
+  matchPlayer,
+  matchPosition,
+  matchPropOption,
+  matchTeam,
+  type MatchResult,
+} from './match.js';
 import { rulesMarkdown } from './rules.js';
 
 export const BOARD_URI = 'ui://benchwarmers/board.html';
@@ -104,6 +116,41 @@ const nickOf = (name: string): string => name.split(' ').pop() ?? name;
 
 const secondsOf = (real: number | undefined): number => Math.max(1, Math.round(real ?? 0));
 
+// ---------- speech helpers for the UI tools ----------
+
+const POSITION_NAMES: Record<Position, string> = {
+  PG: 'point guard',
+  SG: 'shooting guard',
+  SF: 'small forward',
+  PF: 'power forward',
+  C: 'center',
+};
+
+/** "Harbor Hawks" -> "Harbor" for the side. */
+const teamWord = (state: PartyStateResponse, side: 'home' | 'away'): string => state.game[side].name.split(' ')[0];
+
+/** Speakable number: at most one decimal. */
+const num = (n: number): string => String(Math.round(n * 10) / 10);
+
+const pts = (n: number): string => `${num(n)} ${num(n) === '1' ? 'point' : 'points'}`;
+
+const endSentence = (s: string): string => {
+  const t = s.trim();
+  return /[.!?]$/.test(t) ? t : `${t}.`;
+};
+
+function ordinal(n: number): string {
+  const v = n % 100;
+  if (v >= 11 && v <= 13) return `${n}th`;
+  return `${n}${({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th'}`;
+}
+
+function requireGame(store: Store, state: PartyStateResponse) {
+  const game = store.getGame(state.game.id);
+  if (!game) throw new ToolError("I couldn't find the game for this party.", 'NOT_FOUND');
+  return game;
+}
+
 // ---------- views ----------
 
 function householdViews(state: PartyStateResponse) {
@@ -135,8 +182,11 @@ export function createServer(store: Store): McpServer {
       instructions:
         'Benchwarmers runs a one-night fantasy draft and live pick-em for a watch party. ' +
         'Tools: setup_watch_party (start a party for a crew), join_watch_party (add a household), ' +
-        'start_watch_party (tip off, fill empty slots), get_game_status (score, clock, open question), ' +
-        "explain_last_result (last settled question), get_my_roster (a person's players and points). " +
+        'list_available_players (undrafted players, by team or position), draft_player (a person drafts a player by name, nickname, number or position), ' +
+        "get_my_roster (a person's players and points), start_watch_party (tip off, fill empty slots), " +
+        'get_game_status (score, clock, open question), make_pick (a person answers the open question), ' +
+        'get_leaderboard (tonight\'s standings), get_season_standings (season totals for the crew), ' +
+        'explain_last_result (last settled question). ' +
         "The party code is optional; it defaults to the Sunday Crew's current party. Free to play, no real money.",
     },
   );
@@ -374,6 +424,242 @@ export function createServer(store: Store): McpServer {
         }
         const list = joinNames(players.map((p) => `${p.name} with ${p.points} points`));
         return ok(`${member.name}, you have ${list}. That's ${draftPoints} draft points, rank ${rank} tonight.`, content);
+      }),
+  );
+
+  // ---------- MCP App (UI) tools: every result carries what the board widget needs ----------
+
+  const uiMeta = { ui: { resourceUri: BOARD_URI } };
+
+  registerAppTool(
+    server,
+    'list_available_players',
+    {
+      title: 'List available players',
+      description:
+        'Use when someone asks who is still available to draft, or who the best players left are. Optionally filter by team or position. ' +
+        'Examples: "Who\'s still available?", "Show me the Hawks\' guards", "Who are the best centers left?". ' +
+        'Shows the draft board and returns the top undrafted players.',
+      inputSchema: z.object({
+        code: codeField,
+        team: z.string().optional().describe('Filter by team, e.g. "Harbor", "Hawks", "Foxes" or "SUM". Optional.'),
+        position: z.string().optional().describe('Filter by position, e.g. "point guard", "C" or "center". Optional.'),
+      }),
+      _meta: uiMeta,
+    },
+    async ({ code, team, position }) =>
+      wrap(() => {
+        const partyCode = resolveCode(store, code);
+        const state = store.getState(partyCode);
+        const game = requireGame(store, state);
+        const side = team?.trim() ? unwrapMatch(matchTeam(team, game)) : undefined;
+        const pos: Position | undefined = position?.trim() ? unwrapMatch(matchPosition(position)) : undefined;
+        const available = state.draftBoard
+          .filter((e) => !e.ownerMemberId && (!side || e.side === side) && (!pos || e.player.position === pos))
+          .sort((a, b) => projectionOf(b.player.id) - projectionOf(a.player.id) || (a.player.id < b.player.id ? -1 : 1));
+        const players = available.map((e) => ({
+          id: e.player.id,
+          name: e.player.name,
+          nickname: e.player.nickname,
+          number: e.player.number,
+          position: e.player.position,
+          team: e.teamShort,
+          projection: projectionOf(e.player.id),
+          ...(e.scoutingNote ? { scoutingNote: e.scoutingNote } : {}),
+        }));
+        const content = { view: 'draft', code: partyCode, state, players };
+        if (available.length === 0) {
+          return ok(side || pos ? 'No one matching that is left. Try a different team or position.' : 'Everyone has been drafted.', content);
+        }
+        const spoken = available.slice(0, 5).map((e) => {
+          const head = `${playerLabel(e.player)}, ${teamWord(state, e.side)} ${POSITION_NAMES[e.player.position]}.`;
+          return e.scoutingNote ? `${head} ${endSentence(e.scoutingNote)}` : head;
+        });
+        return ok(`Top available: ${spoken.join(' ')}`, content);
+      }),
+  );
+
+  registerAppTool(
+    server,
+    'draft_player',
+    {
+      title: 'Draft a player',
+      description:
+        'Use when someone drafts a player for their roster. Fuzzy-matches names, nicknames ("Big Mo"), jersey numbers ("number 7") ' +
+        'and position plus team ("Harbor\'s point guard"). ' +
+        'Examples: "I\'m Maya, draft Big Mo", "Sam wants Harbor\'s point guard", "Draft number 7 for Maya". ' +
+        'If the player is taken, the error lists two alternatives to offer.',
+      inputSchema: z.object({
+        code: codeField,
+        memberName: z.string().describe('Who is drafting, e.g. "Maya". Use the first name the speaker gives.'),
+        player: z.string().describe('The player: a name, nickname, jersey number or position plus team, e.g. "Big Mo", "number 7", "Harbor\'s point guard".'),
+      }),
+      _meta: uiMeta,
+    },
+    async ({ code, memberName, player }) =>
+      wrap(() => {
+        const partyCode = resolveCode(store, code);
+        const member = resolveMember(store, partyCode, memberName);
+        const before = store.getState(partyCode);
+        const game = requireGame(store, before);
+        const takenIds = before.draftBoard.filter((e) => e.ownerMemberId).map((e) => e.player.id);
+        const found = unwrapMatch(matchPlayer(player, game, { takenIds }));
+        const pick = store.draft(partyCode, member.memberId, found.id);
+        const state = store.getState(partyCode);
+        const entry = state.draftBoard.find((e) => e.player.id === found.id);
+        const mine = state.draftBoard.filter((e) => e.ownerMemberId === member.memberId).length;
+        const side = entry?.side ?? (found.teamId === game.home.id ? 'home' : 'away');
+        const tail = mine >= ROSTER_SIZE ? `${member.name}'s roster is full.` : `That's ${mine} of ${ROSTER_SIZE}.`;
+        return ok(
+          `${member.name} drafted ${playerLabel(found)}, ${teamWord(state, side)}'s ${POSITION_NAMES[found.position]}. ${tail}`,
+          {
+            view: 'draft',
+            code: partyCode,
+            state,
+            drafted: {
+              memberId: member.memberId,
+              memberName: member.name,
+              playerId: found.id,
+              playerName: playerLabel(found),
+              round: pick.round,
+            },
+          },
+        );
+      }),
+  );
+
+  registerAppTool(
+    server,
+    'make_pick',
+    {
+      title: 'Make a pick',
+      description:
+        'Use when someone answers the open question. Fuzzy-matches the choice to an option ("the over", "Hawks", "home", "a three", "free throw") ' +
+        'and defaults to the question that is open now. ' +
+        'Examples: "I\'m Sam, put me down for the Hawks", "Maya says the over", "Sam, a three".',
+      inputSchema: z.object({
+        code: codeField,
+        memberName: z.string().describe('Who is picking, e.g. "Sam". Use the first name the speaker gives.'),
+        choice: z.string().describe('Their answer, e.g. "the over", "Hawks", "home", "a three", "free throw".'),
+        propId: z.string().optional().describe('Question id. Optional: defaults to the open question.'),
+        source: z.enum(['voice', 'screen']).optional().describe('Where the pick came from. Defaults to voice; the widget passes screen for taps.'),
+      }),
+      _meta: uiMeta,
+    },
+    async ({ code, memberName, choice, propId, source }) =>
+      wrap(() => {
+        const partyCode = resolveCode(store, code);
+        const member = resolveMember(store, partyCode, memberName);
+        const how = source ?? 'voice';
+        const before = store.getState(partyCode);
+        const prop = propId ? before.props.find((p) => p.id === propId) : before.activeProp;
+        if (!prop || prop.status !== 'open') {
+          // The store raises the friendly "Picks are locked..." (or not-found) error.
+          store.pick(partyCode, member.memberId, '', propId, how);
+          throw new ToolError('Picks are locked right now.', 'PICKS_LOCKED');
+        }
+        const game = requireGame(store, before);
+        const option = unwrapMatch(matchPropOption(choice, prop, game));
+        store.pick(partyCode, member.memberId, option.id, prop.id, how);
+        const state = store.getState(partyCode);
+        const after = state.props.find((p) => p.id === prop.id);
+        const left = after?.realSecondsToLock !== undefined ? ` Locks in about ${secondsOf(after.realSecondsToLock)} seconds.` : '';
+        return ok(`Got it, ${member.name}: ${option.label}.${left}`, {
+          view: 'tonight',
+          code: partyCode,
+          state,
+          pick: { memberId: member.memberId, memberName: member.name, propId: prop.id, optionId: option.id, label: option.label },
+        });
+      }),
+  );
+
+  registerAppTool(
+    server,
+    'get_leaderboard',
+    {
+      title: 'Get the leaderboard',
+      description:
+        "Use when someone asks who is winning tonight or for the standings. Examples: \"Who's winning?\", \"Show the leaderboard\", \"Where do I stand?\". " +
+        'Shows tonight\'s standings: draft points plus pick points.',
+      inputSchema: z.object({ code: codeField }),
+      _meta: uiMeta,
+    },
+    async ({ code }) =>
+      wrap(() => {
+        const partyCode = resolveCode(store, code);
+        const state = store.getState(partyCode);
+        const standings = state.standings.map((s) => ({
+          rank: s.rank,
+          name: s.name,
+          household: s.household,
+          total: s.total,
+          draftPoints: s.draftPoints,
+          pickPoints: s.pickPoints,
+          streak: s.streak,
+        }));
+        const content = { view: 'tonight', code: partyCode, state, standings };
+        const top = standings.slice(0, 3);
+        if (top.length === 0 || top.every((r) => r.total === 0)) {
+          return ok('Nobody has scored yet.', content);
+        }
+        const [first, ...rest] = top;
+        const parts = [
+          `${first.name} leads with ${pts(first.total)}: ${num(first.draftPoints)} draft, ${num(first.pickPoints)} from picks.`,
+          ...rest.map((r, i) => `${r.name} is ${i === 0 ? 'second' : 'third'} with ${num(r.total)}.`),
+        ];
+        return ok(parts.join(' '), content);
+      }),
+  );
+
+  registerAppTool(
+    server,
+    'get_season_standings',
+    {
+      title: 'Get season standings',
+      description:
+        'Use when someone asks about the season, the long-run rankings, streaks or nights won. ' +
+        'Examples: "Who\'s winning the season?", "Where am I in the season, Maya?", "Season standings for the Seattle crew". ' +
+        'Crew name is optional and defaults to the Sunday Crew.',
+      inputSchema: z.object({
+        crewName: z.string().optional().describe('Crew name or household city, e.g. "the Seattle crew". Optional.'),
+        memberName: z.string().optional().describe('A person to report on, e.g. "Maya". Optional.'),
+      }),
+      _meta: uiMeta,
+    },
+    async ({ crewName, memberName }) =>
+      wrap(() => {
+        const crewId = crewName?.trim() ? unwrapMatch(matchCrew(crewName, store.listCrews(), store.listHouseholds())).id : DEFAULT_CREW_ID;
+        const season = store.getSeason(crewId);
+        const total = (r: { points: number; fantasyPoints: number }) => r.points + r.fantasyPoints;
+        if (memberName?.trim()) {
+          const m = unwrapMatch(
+            matchMember(
+              memberName,
+              season.rows.map((r) => ({ memberId: r.memberId, name: r.name, household: r.household, householdId: r.householdId })),
+            ),
+          );
+          const row = season.rows.find((r) => r.memberId === m.memberId)!;
+          const content = {
+            view: 'season',
+            season,
+            member: { memberId: row.memberId, name: row.name, household: row.household, rank: row.rank, points: Math.round(total(row) * 10) / 10 },
+          };
+          return ok(
+            `${row.name}, you're ${ordinal(row.rank)} this season with ${pts(total(row))}. Best streak ${row.bestStreak}, ${row.nightsWon} ${row.nightsWon === 1 ? 'night' : 'nights'} won.`,
+            content,
+          );
+        }
+        const top = season.rows.slice(0, 3);
+        const content = { view: 'season', season };
+        if (top.length === 0 || top.every((r) => total(r) === 0)) {
+          return ok(`No season points yet for ${season.crew.name}.`, content);
+        }
+        const [first, ...rest] = top;
+        const parts = [
+          `${first.name} leads the season with ${pts(total(first))}.`,
+          ...rest.map((r, i) => `${r.name} is ${i === 0 ? 'second' : 'third'} with ${num(total(r))}.`),
+        ];
+        return ok(parts.join(' '), content);
       }),
   );
 

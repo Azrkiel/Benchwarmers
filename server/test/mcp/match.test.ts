@@ -9,7 +9,9 @@ import {
   matchHousehold,
   matchMember,
   matchPlayer,
+  matchPosition,
   matchPropOption,
+  matchTeam,
   normalize,
   type MemberCandidate,
 } from '../../src/mcp/match.js';
@@ -393,5 +395,56 @@ describe('matchGame', () => {
   it('no games -> NOT_FOUND', () => {
     const r = matchGame(undefined, []);
     expect(r.ok).toBe(false);
+  });
+});
+
+describe('matchTeam', () => {
+  it.each([
+    ['Harbor', 'home'],
+    ['the Hawks', 'home'],
+    ["Harbor's", 'home'],
+    ['home', 'home'],
+    ['Foxes', 'away'],
+    ['Summit Foxes', 'away'],
+    ['SUM', 'away'],
+    ['away', 'away'],
+  ])('%s -> %s', (input, side) => {
+    expect(val(matchTeam(input, game))).toBe(side);
+  });
+  it('is NOT_FOUND for an unknown team, listing both teams', () => {
+    const r = matchTeam('the Lakers', game);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.code).toBe('NOT_FOUND');
+      expect(r.options).toEqual([game.home.name, game.away.name]);
+    }
+  });
+  it('is NOT_FOUND when both teams are named', () => {
+    expect(matchTeam('Hawks Foxes', game).ok).toBe(false);
+  });
+});
+
+describe('matchPosition', () => {
+  it.each([
+    ['point guard', 'PG'],
+    ['Point Guards', 'PG'],
+    ['PG', 'PG'],
+    ['shooting guard', 'SG'],
+    ['small forward', 'SF'],
+    ['power forward', 'PF'],
+    ['C', 'C'],
+    ['center', 'C'],
+    ['the centers', 'C'],
+    ['big man', 'C'],
+  ])('%s -> %s', (input, pos) => {
+    expect(val(matchPosition(input))).toBe(pos);
+  });
+  it('is NOT_FOUND for nonsense and lists examples', () => {
+    const r = matchPosition('goalie');
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.code).toBe('NOT_FOUND');
+      expect(r.options?.length).toBeGreaterThan(0);
+    }
   });
 });

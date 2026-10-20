@@ -414,3 +414,25 @@ export function matchGame(input: string | undefined, games: Game[]): MatchResult
   const titles = games.map((g) => g.title);
   return notFound(`I couldn't find a game called ${raw}. The games are: ${titles.join(', ')}.`, titles);
 }
+
+// ---------- teams / positions (list filters) ----------
+
+/** Which side a spoken team name means: "Harbor", "Hawks", "Foxes", "SUM", "home", "away". */
+export function matchTeam(input: string, game: Game): MatchResult<'home' | 'away'> {
+  const t = toks(input).filter((w) => !FILLER.has(w) || w === 's');
+  const words = toks(input);
+  if (words.length === 1 && (words[0] === 'home' || words[0] === 'away')) return ok(words[0]);
+  const { team } = extractTeam(t.length ? t : words, game);
+  if (team) return ok(team.id === game.home.id ? 'home' : 'away');
+  const names = [game.home.name, game.away.name];
+  return notFound(`I couldn't find a team called ${input.trim()}. The teams are ${orList(names)}.`, names);
+}
+
+/** A spoken position ("point guard", "C", "centers") to a Position code. */
+export function matchPosition(input: string): MatchResult<Position> {
+  const t = toks(input).filter((w) => w !== 'the' && w !== 'a' && w !== 'an' && w !== 'player' && w !== 'players');
+  const pos = parsePosition(t);
+  if (pos) return ok(pos);
+  const options = ['point guard', 'shooting guard', 'small forward', 'power forward', 'center'];
+  return notFound(`I don't know the position ${input.trim()}. Try ${orList(options)}.`, options);
+}

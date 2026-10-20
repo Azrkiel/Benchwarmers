@@ -179,10 +179,15 @@ describe('protocol', () => {
       const { tools } = await client.listTools();
       expect(tools.map((t) => t.name).sort()).toEqual(
         [
+          'draft_player',
           'explain_last_result',
           'get_game_status',
+          'get_leaderboard',
           'get_my_roster',
+          'get_season_standings',
           'join_watch_party',
+          'list_available_players',
+          'make_pick',
           'setup_watch_party',
           'start_watch_party',
         ].sort(),
