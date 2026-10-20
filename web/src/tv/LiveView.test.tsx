@@ -1,6 +1,7 @@
+import { StrictMode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render, screen } from '@testing-library/react';
-import type { EventView, PartyStateResponse } from '@shared/types';
+import type { EventView, PartyStateResponse, PropView } from '@shared/types';
 import { LiveView } from './LiveView';
 import { liveFixture } from '../lib/fixtures';
 
@@ -79,6 +80,46 @@ describe('LiveView', () => {
     act(() => {
       vi.advanceTimersByTime(3000);
     });
+    expect(container.querySelectorAll('.tv-pop-float')).toHaveLength(0);
+  });
+
+  it('shows the locked prop while picks are closed and the result is pending', () => {
+    const { activeProp, ...rest } = liveFixture;
+    const lockedProp: PropView = { ...activeProp!, status: 'locked', secondsToLock: 0, realSecondsToLock: undefined };
+    const state: PartyStateResponse = {
+      ...rest,
+      props: [liveFixture.props[0]!, lockedProp, liveFixture.props[2]!],
+    };
+    render(<LiveView state={state} serverNow={now} />);
+    expect(screen.getByText('LOCKED — waiting for the result')).toBeTruthy();
+    expect(screen.getByText('Will the next score be a 3-pointer?')).toBeTruthy();
+    expect(screen.getByText('41%')).toBeTruthy();
+    expect(screen.getByText('59%')).toBeTruthy();
+    expect(screen.getAllByText('2 picks').length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Answer:/)).toBeNull();
+    expect(screen.queryByText('Who scores first after halftime?')).toBeNull();
+  });
+
+  it('prefers the open prop over a locked one', () => {
+    const locked: PropView = { ...liveFixture.activeProp!, id: 'prop-9', status: 'locked', realSecondsToLock: undefined };
+    render(<LiveView state={{ ...liveFixture, props: [locked, liveFixture.activeProp!] }} serverNow={now} />);
+    expect(screen.getByText('0:12')).toBeTruthy();
+    expect(screen.queryByText('LOCKED — waiting for the result')).toBeNull();
+  });
+
+  it('does not pop fantasy for events already present on the first load, even under StrictMode', () => {
+    vi.useFakeTimers();
+    const { container, rerender } = render(
+      <StrictMode>
+        <LiveView state={liveFixture} serverNow={now} />
+      </StrictMode>,
+    );
+    expect(container.querySelectorAll('.tv-pop-float')).toHaveLength(0);
+    rerender(
+      <StrictMode>
+        <LiveView state={{ ...liveFixture, serverNow: liveFixture.serverNow + 1000 }} serverNow={now} />
+      </StrictMode>,
+    );
     expect(container.querySelectorAll('.tv-pop-float')).toHaveLength(0);
   });
 });

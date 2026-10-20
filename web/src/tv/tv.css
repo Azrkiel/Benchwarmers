@@ -536,7 +536,6 @@ html.tv-kiosk ::-webkit-scrollbar {
   }
 }
 .tv-pbp {
-  position: relative;
   align-self: stretch;
   min-width: 0;
   min-height: 0;
@@ -599,10 +598,15 @@ html.tv-kiosk ::-webkit-scrollbar {
   font-size: 28px;
   font-weight: 900;
 }
+/* Floats over the court column (left 580px of .tv-live-court), never over the play-by-play text. */
 .tv-pop-layer {
   position: absolute;
-  inset: 0;
+  top: 12px;
+  bottom: 12px;
+  left: 12px;
+  width: 580px;
   pointer-events: none;
+  overflow: hidden;
 }
 .tv-pop-float {
   position: absolute;
@@ -676,6 +680,11 @@ html.tv-kiosk ::-webkit-scrollbar {
 .tv-pick-answer {
   color: var(--good);
   font-weight: 800;
+}
+.tv-pick-locked {
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 .tv-pick-explain {
   font-size: 26px;
