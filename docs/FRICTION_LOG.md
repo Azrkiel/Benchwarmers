@@ -36,3 +36,21 @@ Template:
 - Expected vs actual: `LATEST_PROTOCOL_VERSION = "2025-11-25"`. As expected, but only discoverable by reading bundled dist code.
 - Severity: Minor
 - Suggestion: export and document `SUPPORTED_PROTOCOL_VERSIONS` in the v2 README.
+
+### [2026-10-20 18:30] onnxruntime-web WASM default: CDN fetch while Vite bundles an unused ~27 MB copy
+- Tool/SDK + version: `@huggingface/transformers` 4.3.1 (onnxruntime-web 1.31.0-dev), Vite 8
+- Task attempted: run `Xenova/wavlm-base-plus-sv` (q8, WASM) in a Web Worker for in-browser voice ID.
+- Steps taken: built `web/` and inspected `dist/assets`.
+- Expected vs actual: expected the ONNX Runtime WASM binary to come from the bundle. Actual: transformers.js fetches `ort-wasm*` from cdn.jsdelivr.net at runtime, while Vite also emits `dist/assets/ort-wasm-simd-threaded.asyncify-*.wasm` (26,861 kB, gzip 6,763 kB) that nothing loads unless `env.backends.onnx.wasm.wasmPaths` is set.
+- Severity: Minor
+- Workaround: accept the CDN fetch (needs network on first use; the MFCC fallback covers offline).
+- Suggestion: document the `wasmPaths` / bundler setup for Vite prominently.
+
+### [2026-10-20 18:35] microsoft/wavlm-base-plus-sv has no machine-readable license
+- Tool/SDK + version: Hugging Face model `microsoft/wavlm-base-plus-sv` (ONNX copy `Xenova/wavlm-base-plus-sv`)
+- Task attempted: confirm the license before shipping a model-based feature.
+- Steps taken: read the model card, followed its link to github.com/microsoft/UniSpeech.
+- Expected vs actual: expected a license tag. Actual: no tag; the card only refers to the UniSpeech repository, whose LICENSE is CC BY-SA 3.0.
+- Severity: Minor
+- Workaround: record the license by hand in `docs/VOICE_ID.md`; we do not redistribute the weights.
+- Suggestion: add a `license` field to the model card metadata so tooling can read it.
