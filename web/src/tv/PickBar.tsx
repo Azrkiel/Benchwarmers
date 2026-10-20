@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { PartyStateResponse } from '@shared/types';
+import type { PartyStateResponse, PropView } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 import { findMember } from './pops';
 import { formatCountdown, lockDeadline, secondsLeft } from '../lib/usePartyState';
@@ -12,17 +12,18 @@ export function PickBar({ state, serverNow }: { state: PartyStateResponse; serve
     return () => clearInterval(id);
   }, []);
 
-  const active = state.activeProp;
+  // Priority: open (active) > locked (picks closed, result pending) > last resolved.
+  const locked = state.activeProp ? undefined : state.props.find((p) => p.status === 'locked');
   let body;
-  if (active) {
+  if (state.activeProp) {
+    const active = state.activeProp;
     const deadline = lockDeadline(state);
     const sec = secondsLeft(deadline, serverNow());
     const timed = deadline !== undefined && sec > 0;
     const open = active.status === 'open' && (timed || deadline === undefined);
-    const picks = state.picks.filter((p) => p.propId === active.id);
     body = (
       <>
-        <div className="tv-pick-q">{active.question}</div>
+        <PropOptions state={state} prop={active} />
         <div className="tv-pick-status">
           {timed ? (
             <>
@@ -34,38 +35,14 @@ export function PickBar({ state, serverNow }: { state: PartyStateResponse; serve
             <span className="tv-muted">{open ? 'Open' : 'Locked'}</span>
           )}
         </div>
-        <div className="tv-pick-options">
-          {active.options.map((o) => {
-            const pct = o.probability !== undefined ? Math.round(o.probability * 100) : undefined;
-            const count = active.pickCounts[o.id] ?? 0;
-            const who = picks.filter((p) => p.optionId === o.id);
-            return (
-              <div className="tv-pick-opt" key={o.id}>
-                <div className="tv-pick-opt-top">
-                  <span className="tv-pick-label">{o.label}</span>
-                  <span className="tv-pick-pct">{pct !== undefined ? `${pct}%` : '—'}</span>
-                </div>
-                <div className="tv-pick-bar"><span style={{ width: `${pct ?? 0}%` }} /></div>
-                <div className="tv-pick-count">{`${count} ${count === 1 ? 'pick' : 'picks'}`}</div>
-                <div className="tv-pick-who">
-                  {who.map((p) => {
-                    const found = findMember(state.households, p.memberId);
-                    return (
-                      <span className="tv-pick-who-item" key={`${p.memberId}-${p.at}`}>
-                        <Avatar
-                          avatar={found?.member.avatar}
-                          name={p.memberName}
-                          color={householdColor(state.households, found?.household.id)}
-                          size={40}
-                        />
-                        <span>{p.memberName}</span>
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+      </>
+    );
+  } else if (locked) {
+    body = (
+      <>
+        <PropOptions state={state} prop={locked} />
+        <div className="tv-pick-status">
+          <span className="tv-pick-locked">LOCKED — waiting for the result</span>
         </div>
       </>
     );
@@ -90,5 +67,48 @@ export function PickBar({ state, serverNow }: { state: PartyStateResponse; serve
       <div className="tv-pick-kicker">LIVE PICK</div>
       {body}
     </section>
+  );
+}
+
+/** Question plus per-option probability, pick counts and who picked what. */
+function PropOptions({ state, prop }: { state: PartyStateResponse; prop: PropView }) {
+  const picks = state.picks.filter((p) => p.propId === prop.id);
+  return (
+    <>
+      <div className="tv-pick-q">{prop.question}</div>
+      <div className="tv-pick-options">
+        {prop.options.map((o) => {
+          const pct = o.probability !== undefined ? Math.round(o.probability * 100) : undefined;
+          const count = prop.pickCounts[o.id] ?? 0;
+          const who = picks.filter((p) => p.optionId === o.id);
+          return (
+            <div className="tv-pick-opt" key={o.id}>
+              <div className="tv-pick-opt-top">
+                <span className="tv-pick-label">{o.label}</span>
+                <span className="tv-pick-pct">{pct !== undefined ? `${pct}%` : '—'}</span>
+              </div>
+              <div className="tv-pick-bar"><span style={{ width: `${pct ?? 0}%` }} /></div>
+              <div className="tv-pick-count">{`${count} ${count === 1 ? 'pick' : 'picks'}`}</div>
+              <div className="tv-pick-who">
+                {who.map((p) => {
+                  const found = findMember(state.households, p.memberId);
+                  return (
+                    <span className="tv-pick-who-item" key={`${p.memberId}-${p.at}`}>
+                      <Avatar
+                        avatar={found?.member.avatar}
+                        name={p.memberName}
+                        color={householdColor(state.households, found?.household.id)}
+                        size={40}
+                      />
+                      <span>{p.memberName}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
