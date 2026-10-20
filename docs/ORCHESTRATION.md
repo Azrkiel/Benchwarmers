@@ -14,7 +14,7 @@ lead procedure, ownership, and ready-to-paste phase-manager briefs for the remai
 | Area | Owner |
 |---|---|
 | `web/src/tv/**` (TV view) | **Codex** (user's decision, 2026-10-20). Claude must not edit. Codex works in its own clone `C:\Users\jiang\Benchwarmers` on port 5173. |
-| `web/src/device/**` (simulated device page) | **Undecided** — ask the user. User said they'll compare Claude's and Codex's frontends, so Claude may build it on its own branch. |
+| `web/src/device/**` (simulated device page) | **Claude**, on `phase/4b-device` (user's decision, 2026-10-20). User will compare with Codex's frontend. |
 | Contract `server/src/shared/types.ts`, `server/src/index.ts` mounts | Lead |
 | Everything else (server, MCP, AI, assistant, voice ID, docs) | Claude phases below |
 
@@ -57,8 +57,7 @@ Helpers: `tools/screenshot.mjs`, `tools/voice-test.mjs`, `tools/tts-clips.ps1` (
 
 ## 5. Remaining phases (ready-to-paste briefs)
 
-Waves: **A** = 4a + 7b (parallel, disjoint files) · **B** = 2b manual MCP checks (after 4a) · **C** = 4b device page (if the user
-assigns it) · **D** = 6 polish · **3b** real Bedrock whenever AWS creds exist.
+Waves: **A** = 4a + 7b (parallel, disjoint files) · **B** = 2b manual MCP checks (after 4a) · **C** = 4b device page (assigned to Claude) · **D** = 6 polish · **3b** real Bedrock whenever AWS creds exist.
 
 ### 4a — Assistant backend (`phase/4a-assistant`, wave A, model: opus)
 - Goal: `POST /api/assistant` turns a text utterance (+ optional voice-ID speaker) into MCP tool calls against our own `/mcp`
@@ -124,7 +123,7 @@ assigns it) · **D** = 6 polish · **3b** real Bedrock whenever AWS creds exist.
 - Acceptance: MCP_HOSTS.md with screenshots of all three widget tabs in basic-host and the Inspector tool list; tunnel initialize
   returns protocolVersion 2025-11-25.
 
-### 4b — Device page (`phase/4b-device`, wave C, model: opus) — only if the user assigns it to Claude
+### 4b — Device page (`phase/4b-device`, wave C, model: opus) — assigned to Claude 2026-10-20
 - Goal: plan §8 `/device/:household`: neutral smart-display frame, wake/mic button (Web Speech API) + typed fallback, transcript,
   spoken reply (`speechSynthesis`), "Show agent trace" toggle, MCP App rendered in the widget area via
   `@modelcontextprotocol/ext-apps/app-bridge` (follow ext-apps `examples/basic-host`; fallback: native card from
