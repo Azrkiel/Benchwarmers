@@ -559,7 +559,8 @@ export class Store implements AiSink {
     const active = views.filter((v) => v.status === 'open').sort((a, b) => a.locksAt - b.locksAt)[0];
     const lastResolved = views.filter((v) => v.status === 'resolved').sort((a, b) => b.resolvesAt - a.resolvesAt)[0];
 
-    const shown = new Set([active?.id, lastResolved?.id].filter((x): x is string => !!x));
+    const locked = views.filter((v) => v.status === 'locked').map((v) => v.id);
+    const shown = new Set([active?.id, lastResolved?.id, ...locked].filter((x): x is string => !!x));
     const picks = r.picks
       .filter((p) => shown.has(p.propId))
       .map((p) => {
