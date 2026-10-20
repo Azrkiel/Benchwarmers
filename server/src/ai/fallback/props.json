@@ -1,0 +1,231 @@
+[
+  {
+    "id": "fb-1",
+    "gameId": "harbor-vs-summit",
+    "question": "Who scores first?",
+    "options": [
+      {
+        "id": "home",
+        "label": "Hawks",
+        "probability": 0.5
+      },
+      {
+        "id": "away",
+        "label": "Foxes",
+        "probability": 0.5
+      }
+    ],
+    "opensAt": 0,
+    "locksAt": 40,
+    "resolvesAt": 60,
+    "resolver": {
+      "kind": "teamScoresFirst",
+      "afterT": 40,
+      "untilT": 60
+    },
+    "explanation": "Hawks got there first: Jet Reyes floated in a layup off a Dime Cho pass for the first points of the night.",
+    "source": "fallback"
+  },
+  {
+    "id": "fb-2",
+    "gameId": "harbor-vs-summit",
+    "question": "Next basket: three-pointer or something else?",
+    "options": [
+      {
+        "id": "three",
+        "label": "Three-pointer",
+        "probability": 0.35
+      },
+      {
+        "id": "other",
+        "label": "Anything else",
+        "probability": 0.65
+      }
+    ],
+    "opensAt": 60,
+    "locksAt": 100,
+    "resolvesAt": 120,
+    "resolver": {
+      "kind": "nextScoreType",
+      "afterT": 100
+    },
+    "explanation": "It was a three-pointer. Splash Okafor drained a long shot right after the lock, worth three points.",
+    "source": "fallback"
+  },
+  {
+    "id": "fb-3",
+    "gameId": "harbor-vs-summit",
+    "question": "Will the total be over 41.5 points midway through the second quarter?",
+    "options": [
+      {
+        "id": "over",
+        "label": "Over 41.5",
+        "probability": 0.5
+      },
+      {
+        "id": "under",
+        "label": "Under 41.5",
+        "probability": 0.5
+      }
+    ],
+    "opensAt": 120,
+    "locksAt": 160,
+    "resolvesAt": 180,
+    "resolver": {
+      "kind": "totalPointsOver",
+      "atT": 180,
+      "line": 41.5
+    },
+    "explanation": "Under 41.5: both teams together had only 39 points at that moment, so the total stayed below the line.",
+    "source": "fallback"
+  },
+  {
+    "id": "fb-4",
+    "gameId": "harbor-vs-summit",
+    "question": "Which team scores first in the next stretch?",
+    "options": [
+      {
+        "id": "home",
+        "label": "Hawks",
+        "probability": 0.45
+      },
+      {
+        "id": "away",
+        "label": "Foxes",
+        "probability": 0.45
+      },
+      {
+        "id": "none",
+        "label": "Nobody",
+        "probability": 0.1
+      }
+    ],
+    "opensAt": 180,
+    "locksAt": 220,
+    "resolvesAt": 240,
+    "resolver": {
+      "kind": "teamScoresFirst",
+      "afterT": 220,
+      "untilT": 240
+    },
+    "explanation": "Foxes got there first: Ice Mercer hit a corner three right after the lock, with a pass from Quick Kai.",
+    "source": "fallback"
+  },
+  {
+    "id": "fb-5",
+    "gameId": "harbor-vs-summit",
+    "question": "Next basket: three, two or a free throw?",
+    "options": [
+      {
+        "id": "three",
+        "label": "Three-pointer",
+        "probability": 0.3
+      },
+      {
+        "id": "two",
+        "label": "Two-pointer",
+        "probability": 0.55
+      },
+      {
+        "id": "ft",
+        "label": "Free throw",
+        "probability": 0.15
+      }
+    ],
+    "opensAt": 240,
+    "locksAt": 280,
+    "resolvesAt": 300,
+    "resolver": {
+      "kind": "nextScoreType",
+      "afterT": 280
+    },
+    "explanation": "Free throw: after a foul, The Viking stepped to the line and hit the next point, which was worth one.",
+    "source": "fallback"
+  },
+  {
+    "id": "fb-6",
+    "gameId": "harbor-vs-summit",
+    "question": "Will the total be over 78.5 points at the end of the third quarter?",
+    "options": [
+      {
+        "id": "over",
+        "label": "Over 78.5",
+        "probability": 0.5
+      },
+      {
+        "id": "under",
+        "label": "Under 78.5",
+        "probability": 0.5
+      }
+    ],
+    "opensAt": 300,
+    "locksAt": 340,
+    "resolvesAt": 360,
+    "resolver": {
+      "kind": "totalPointsOver",
+      "atT": 360,
+      "line": 78.5
+    },
+    "explanation": "Over 78.5: the two teams had scored 81 points together by the end of the third quarter.",
+    "source": "fallback"
+  },
+  {
+    "id": "fb-7",
+    "gameId": "harbor-vs-summit",
+    "question": "Who scores first in the next stretch of the fourth quarter?",
+    "options": [
+      {
+        "id": "home",
+        "label": "Hawks",
+        "probability": 0.5
+      },
+      {
+        "id": "away",
+        "label": "Foxes",
+        "probability": 0.45
+      },
+      {
+        "id": "none",
+        "label": "Nobody",
+        "probability": 0.05
+      }
+    ],
+    "opensAt": 360,
+    "locksAt": 400,
+    "resolvesAt": 420,
+    "resolver": {
+      "kind": "teamScoresFirst",
+      "afterT": 400,
+      "untilT": 420
+    },
+    "explanation": "Foxes got there first: Bucket Brooks hit a big three right after the lock to put Summit on top of this stretch.",
+    "source": "fallback"
+  },
+  {
+    "id": "fb-8",
+    "gameId": "harbor-vs-summit",
+    "question": "Will the total be over 115.5 points at the final buzzer?",
+    "options": [
+      {
+        "id": "over",
+        "label": "Over 115.5",
+        "probability": 0.5
+      },
+      {
+        "id": "under",
+        "label": "Under 115.5",
+        "probability": 0.5
+      }
+    ],
+    "opensAt": 420,
+    "locksAt": 460,
+    "resolvesAt": 480,
+    "resolver": {
+      "kind": "totalPointsOver",
+      "atT": 480,
+      "line": 115.5
+    },
+    "explanation": "Under 115.5: the game ended 57 to 56, which is 113 points in all, just short of the line.",
+    "source": "fallback"
+  }
+]
