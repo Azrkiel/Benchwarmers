@@ -1,0 +1,391 @@
+/* Voice ID UI. Every selector sits under .vid-root / .vid-* so nothing leaks into other pages. */
+
+.vid-root {
+  --vid-bg: #0b0f17;
+  --vid-panel: #141b28;
+  --vid-line: #2a3750;
+  --vid-text: #f2f4f8;
+  --vid-muted: #aab5c9;
+  --vid-accent: #7fb6ff;
+  --vid-ok: #7fe0a3;
+  --vid-warn: #ffcf70;
+  --vid-bad: #ff9b9b;
+  --vid-on-accent: #0b0f17;
+  color: var(--vid-text);
+}
+
+.vid-root *,
+.vid-root *::before,
+.vid-root *::after {
+  box-sizing: border-box;
+}
+
+.vid-root.vid-page {
+  background: var(--vid-bg);
+  min-height: 100vh;
+  padding: 32px 16px 64px;
+  font-size: 20px;
+  line-height: 1.45;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vid-root h1 {
+  font-size: 2.4rem;
+  margin: 0 0 8px;
+  line-height: 1.15;
+}
+
+.vid-root h2 {
+  font-size: 1.4rem;
+  margin: 0 0 12px;
+}
+
+.vid-root h3 {
+  font-size: 1.3rem;
+  margin: 0;
+  flex: 1;
+}
+
+.vid-head {
+  margin-bottom: 20px;
+}
+
+.vid-privacy {
+  color: var(--vid-ok);
+  margin: 0;
+}
+
+.vid-note {
+  color: var(--vid-muted);
+  font-size: 0.95rem;
+  margin: 12px 0 0;
+}
+
+.vid-hint {
+  color: var(--vid-warn);
+  margin: 0 0 16px;
+}
+
+.vid-notice {
+  color: var(--vid-warn);
+  margin: 12px 0 0;
+}
+
+.vid-root .vid-card {
+  background: var(--vid-panel);
+  border: 1px solid var(--vid-line);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.vid-root .vid-panel {
+  color: var(--vid-text);
+}
+
+.vid-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.vid-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.vid-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--vid-accent);
+  color: var(--vid-on-accent);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.vid-status {
+  margin-left: auto;
+  color: var(--vid-muted);
+  font-size: 0.95rem;
+}
+
+.vid-status-done {
+  color: var(--vid-ok);
+  font-weight: 600;
+}
+
+.vid-sentences {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.vid-sentences li {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--vid-line);
+  color: var(--vid-muted);
+}
+
+.vid-sentences li.vid-next {
+  color: var(--vid-text);
+  border-color: var(--vid-accent);
+}
+
+.vid-sentences li.vid-done {
+  color: var(--vid-ok);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.vid-btn {
+  min-height: 56px;
+  min-width: 56px;
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--vid-text);
+  background: transparent;
+  border: 2px solid var(--vid-line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.vid-btn:hover:not(:disabled) {
+  border-color: var(--vid-accent);
+}
+
+.vid-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vid-btn-primary {
+  background: var(--vid-accent);
+  border-color: var(--vid-accent);
+  color: var(--vid-on-accent);
+}
+
+.vid-btn-stop {
+  background: var(--vid-bad);
+  border-color: var(--vid-bad);
+  color: var(--vid-on-accent);
+}
+
+.vid-big-btn {
+  width: 100%;
+  min-height: 72px;
+  font-size: 1.5rem;
+}
+
+.vid-seg {
+  flex: 1 1 200px;
+}
+
+.vid-seg.is-on {
+  background: var(--vid-accent);
+  border-color: var(--vid-accent);
+  color: var(--vid-on-accent);
+}
+
+.vid-segment {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vid-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.vid-actions .vid-btn {
+  flex: 1 1 120px;
+}
+
+.vid-recording {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.vid-listening {
+  margin: 0;
+  color: var(--vid-accent);
+  font-weight: 600;
+}
+
+.vid-meter {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--vid-bg);
+  border: 1px solid var(--vid-line);
+  overflow: hidden;
+}
+
+.vid-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--vid-ok);
+  transition: width 80ms linear;
+}
+
+.vid-dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0 0 12px;
+}
+
+.vid-dl dt {
+  color: var(--vid-muted);
+}
+
+.vid-dl dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.vid-progress {
+  width: 100%;
+  height: 16px;
+  accent-color: var(--vid-accent);
+}
+
+.vid-result {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--vid-bg);
+  border: 1px solid var(--vid-line);
+}
+
+.vid-result p {
+  margin: 0;
+}
+
+.vid-big {
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 6px !important;
+}
+
+.vid-accepted {
+  color: var(--vid-ok);
+}
+
+.vid-not-sure {
+  color: var(--vid-warn);
+}
+
+.vid-ranked {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  display: grid;
+  gap: 10px;
+}
+
+.vid-rank {
+  display: grid;
+  grid-template-columns: minmax(70px, max-content) 1fr max-content;
+  align-items: center;
+  gap: 12px;
+}
+
+.vid-rank-score {
+  font-variant-numeric: tabular-nums;
+  color: var(--vid-muted);
+  min-width: 4.5em;
+  text-align: right;
+}
+
+.vid-bar-track {
+  position: relative;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--vid-bg);
+  border: 1px solid var(--vid-line);
+  overflow: hidden;
+}
+
+.vid-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--vid-accent);
+  border-radius: 10px;
+}
+
+.vid-bar-threshold {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 3px;
+  margin-left: -1px;
+  background: var(--vid-warn);
+}
+
+.vid-slider {
+  margin-bottom: 18px;
+}
+
+.vid-slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.vid-slider-head output {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.vid-root input[type='range'] {
+  width: 100%;
+  min-height: 40px;
+  accent-color: var(--vid-accent);
+}
+
+.vid-root button:focus-visible,
+.vid-root input:focus-visible {
+  outline: 3px solid var(--vid-accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .vid-root.vid-page {
+    font-size: 18px;
+    padding: 24px 16px 48px;
+  }
+
+  .vid-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vid-big {
+    font-size: 2rem;
+  }
+
+  .vid-rank {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .vid-rank-score {
+    text-align: left;
+  }
+}
