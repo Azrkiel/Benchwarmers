@@ -90,3 +90,12 @@ Template:
 - Severity: Minor
 - Workaround: `types: ["node", "vite/client"]` in the widget tsconfig; fixed `input` in `vite.config.ts`.
 - Suggestion: ship a minimal documented Vite config (no env var) and note the bundle size / tree-shaking expectation in the ext-apps README.
+
+### [2026-10-20 20:10] Avast loopback proxy intermittently freezes vitest workers doing `/mcp` HTTP for ~10 s
+- Tool/SDK + version: Avast Web Shield (`wsc_proxy`) on Windows; vitest 5.0.5 (forks pool); `@modelcontextprotocol/client` 2.3.1; Node 22.
+- Task attempted: phase 4a assistant tests (real server on an ephemeral port + real `/mcp` over loopback, many short-lived servers/clients).
+- Steps taken: looped `npm test -w server`; added a temporary event-loop stall detector (100 ms interval) to every worker plus one standalone Node monitor process outside vitest; compared loopback latency for `/mcp` vs `/other`, `/mcp?x=1`, `/mcp/`, `/MCP` and `[::1]`.
+- Expected vs actual: expected a stable suite. Actual: roughly 1 full run in 8, every vitest worker's event loop stalls for ~10 s at the same moment while the standalone monitor (no network) does not stall. Tests then fail with `Hook timed out in 10000ms` or `TypeError: fetch failed` / `SocketError: other side closed` (UND_ERR_SOCKET), in new and pre-existing files (`test/mcp/http.test.ts` 405 test, `test/api/rest.test.ts`). Without the assistant tests, 0 of 10 runs failed. `/mcp` loopback requests take about 2x as long as `/other`; a query string, trailing slash, upper case or IPv6 loopback do not avoid the proxy.
+- Severity: Major (flaky CI-style runs on this machine)
+- Workaround: re-run the suite; the failures are timing-only. No code workaround found inside phase-owned files.
+- Suggestion: Avast: do not proxy loopback HTTP, or make the "/mcp" filter opt-in. MCP SDK docs: mention AV loopback proxies (freezes, `other side closed`) in troubleshooting.
