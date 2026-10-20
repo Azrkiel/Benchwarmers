@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useVoiceId, type VoiceId } from './useVoiceId';
 import type { Embedder, LoadInfo } from './embedder';
 import { DEFAULT_MATCH } from './match';
-import { storageKey } from './profiles';
+import { quickStorageKey, storageKey } from './profiles';
 import { MFCC_MODEL_ID, MIN_SPEECH_SECONDS, WAVLM_MODEL_ID, type Backend, SAMPLE_RATE } from './types';
 
 const HH = 'garcias';
@@ -285,5 +285,84 @@ describe('useVoiceId', () => {
     const { result } = renderHook(() => useVoiceId(HH, { embedder: m.embedder, storage }));
     await waitFor(() => expect(result.current.status).toBe('error'));
     expect(result.current.error).toBe('model download failed');
+  });
+
+  describe('quick MFCC path', () => {
+    const toneAt = (hz: number, seconds = 2) => {
+      const x = new Float32Array(Math.round(seconds * SAMPLE_RATE));
+      for (let i = 0; i < x.length; i++) {
+        x[i] = 0.5 * Math.sin((2 * Math.PI * hz * i) / SAMPLE_RATE) + 0.2 * Math.sin((2 * Math.PI * hz * 2.5 * i) / SAMPLE_RATE);
+      }
+      VECTORS.set(x, hz < 500 ? MAYA_BASE : LEO_BASE);
+      return x;
+    };
+
+    async function enrollQuick() {
+      const m = mockEmbedder();
+      const { result, unmount } = renderHook(() => useVoiceId(HH, { embedder: m.embedder, storage }));
+      await ready(result);
+      await enrollMany(result, MAYA, [toneAt(200), toneAt(205)]);
+      await enrollMany(result, LEO, [toneAt(1500), toneAt(1520)]);
+      unmount();
+    }
+
+    it('answers provisionally with MFCC while the model loads, then switches to the backend', async () => {
+      await enrollQuick();
+      expect(storage.getItem(quickStorageKey(HH))).not.toBeNull();
+
+      const m = mockEmbedder({ hold: true });
+      const { result } = renderHook(() => useVoiceId(HH, { embedder: m.embedder, storage }));
+      expect(result.current.status).toBe('loading');
+
+      let early!: Awaited<ReturnType<VoiceId['identifyDetailed']>>;
+      await act(async () => {
+        early = await result.current.identifyDetailed(toneAt(202));
+      });
+      expect(early.engine).toBe('mfcc-quick');
+      expect(early.provisional).toBe(true);
+      expect(early.hint?.memberName).toBe('Maya');
+      expect(m.embed).not.toHaveBeenCalled();
+
+      await act(async () => m.open());
+      await ready(result);
+
+      let late!: Awaited<ReturnType<VoiceId['identifyDetailed']>>;
+      await act(async () => {
+        late = await result.current.identifyDetailed(toneAt(202));
+      });
+      expect(late.engine).toBe('wavlm');
+      expect(late.provisional).toBe(false);
+    });
+
+    it('does not duplicate quick profiles when the backend is already mfcc', async () => {
+      const m = mockEmbedder({ backend: 'mfcc', modelId: MFCC_MODEL_ID });
+      const { result } = renderHook(() => useVoiceId(HH, { embedder: m.embedder, storage }));
+      await ready(result);
+      await enrollMany(result, MAYA, [toneAt(200)]);
+      expect(storage.getItem(quickStorageKey(HH))).toBeNull();
+    });
+
+    it('returns the no-candidate outcome while loading with no quick profiles', async () => {
+      const m = mockEmbedder({ hold: true });
+      const { result } = renderHook(() => useVoiceId(HH, { embedder: m.embedder, storage }));
+      let out!: Awaited<ReturnType<VoiceId['identifyDetailed']>>;
+      await act(async () => {
+        out = await result.current.identifyDetailed(toneAt(200));
+      });
+      expect(out.hint).toBeNull();
+      expect(out.provisional).toBe(false);
+      await act(async () => m.open());
+    });
+
+    it('clears quick profiles pre-load without wiping the main storage', async () => {
+      await enrollQuick();
+      const mainBefore = storage.getItem(storageKey(HH));
+      const m = mockEmbedder({ hold: true });
+      const { result } = renderHook(() => useVoiceId(HH, { embedder: m.embedder, storage }));
+      act(() => result.current.clear());
+      expect(JSON.parse(storage.getItem(quickStorageKey(HH))!).profiles).toEqual([]);
+      expect(storage.getItem(storageKey(HH))).toBe(mainBefore);
+      await act(async () => m.open());
+    });
   });
 });

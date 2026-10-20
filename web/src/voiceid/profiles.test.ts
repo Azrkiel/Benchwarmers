@@ -1,10 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  addQuickSample,
   addSample,
   loadProfiles,
+  loadQuickProfiles,
   MAX_SAMPLES,
+  quickStorageKey,
   removeProfile,
   saveProfiles,
+  saveQuickProfiles,
   storageKey,
 } from './profiles';
 import type { VoiceProfile } from './profiles';
@@ -308,5 +312,24 @@ describe('household isolation', () => {
     expect(loadProfiles('garcias', 'mfcc', MFCC, store).map((p) => p.memberId)).toEqual(['maya']);
     expect(loadProfiles('sams-place', 'mfcc', MFCC, store).map((p) => p.memberId)).toEqual(['sam']);
     expect(loadProfiles('unknown', 'mfcc', MFCC, store)).toEqual([]);
+  });
+
+  it('stores quick MFCC profiles under a separate key without touching the main profiles', () => {
+    const store = new MemoryStorage();
+    saveProfiles(HH, [profile('maya', 'wavlm', WAVLM)], store);
+    const quick = addQuickSample([], { id: 'maya', name: 'Maya' }, [1, 2, 3]);
+    expect(quickStorageKey(HH)).toBe(`${storageKey(HH)}.mfcc`);
+    expect(saveQuickProfiles(HH, quick, store)).toBe(true);
+    expect(store.getItem(quickStorageKey(HH))).not.toBeNull();
+    expect(loadQuickProfiles(HH, store).map((p) => [p.memberId, p.backend, p.modelId])).toEqual([['maya', 'mfcc', MFCC]]);
+    expect(loadProfiles(HH, 'wavlm', WAVLM, store).map((p) => p.memberId)).toEqual(['maya']);
+    expect(loadProfiles(HH, 'mfcc', MFCC, store)).toEqual([]);
+  });
+
+  it('returns no quick profiles when the quick key is absent or corrupt', () => {
+    const store = new MemoryStorage();
+    expect(loadQuickProfiles(HH, store)).toEqual([]);
+    store.setItem(quickStorageKey(HH), '{nope');
+    expect(loadQuickProfiles(HH, store)).toEqual([]);
   });
 });
