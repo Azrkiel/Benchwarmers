@@ -3,6 +3,9 @@ import { fileURLToPath } from 'node:url';
 import cors from 'cors';
 import express from 'express';
 import { createApiRouter } from './api/routes.js';
+import { startAiWorker } from './ai/worker.js';
+import { createAiProvider } from './ai/providers.js';
+import { GAMES } from './game/games.js';
 import { Store } from './game/store.js';
 
 export function createApp(opts: { store: Store }): express.Express {
@@ -31,7 +34,17 @@ export async function main(): Promise<void> {
     console.log(`Benchwarmers server listening on http://localhost:${port}`);
   });
 
-  // lead: start the AI worker here (startAiWorker(store, provider))
+  // Background AI worker: never in a request path. Seeded parties were created before it
+  // subscribed, so warm scouting notes for every known game once at startup.
+  const provider = createAiProvider();
+  const worker = startAiWorker({ sink: store, provider, log: (m) => console.warn('[ai]', m) });
+  console.log(`AI mode: ${provider.mode}`);
+  for (const game of Object.values(GAMES)) {
+    provider
+      .scoutingNotes(game)
+      .then((notes) => store.setScoutingNotes(game.id, notes))
+      .catch((err) => console.warn('[ai] scouting notes failed', err));
+  }
 
   const timer = setInterval(() => {
     try {
@@ -43,6 +56,7 @@ export async function main(): Promise<void> {
 
   const shutdown = () => {
     clearInterval(timer);
+    worker.stop();
     server.close(() => process.exit(0));
   };
   process.on('SIGINT', shutdown);
