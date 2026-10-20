@@ -216,9 +216,11 @@ export function draftPlayer(args: {
     const label = playerLabel(player);
     if (owner.memberId === memberId) throw new GameError('PLAYER_TAKEN', `You already have ${label}.`);
     let alts = alternativesFor(game, drafts, player.position, 2);
-    if (alts.length === 0) {
-      const taken = new Set(drafts.map((d) => d.playerId));
-      alts = allPlayers(game).filter((p) => !taken.has(p.id)).sort(byProjection).slice(0, 2);
+    if (alts.length < 2) {
+      // Same position first; pad with the best remaining players overall so there are two options.
+      const taken = new Set([...drafts.map((d) => d.playerId), ...alts.map((p) => p.id)]);
+      const extra = allPlayers(game).filter((p) => !taken.has(p.id)).sort(byProjection);
+      alts = [...alts, ...extra].slice(0, 2);
     }
     const ownerName = memberNames?.[owner.memberId];
     const who = ownerName ? `${ownerName}'s` : "someone else's";

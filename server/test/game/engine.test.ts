@@ -375,6 +375,19 @@ describe('draft', () => {
     }
   });
 
+  it('PLAYER_TAKEN keeps the one same-position player first and pads to two', () => {
+    const drafts = [dp('a', 'har-c-34'), dp('b', 'sum-c-50')];
+    try {
+      draftPlayer({ ...base, drafts, memberId: 'c', playerId: 'har-c-34' });
+      expect.unreachable();
+    } catch (e) {
+      const alts = (e as GameError).alternatives ?? [];
+      expect(alts).toHaveLength(2);
+      expect(alts[0].id).toBe('har-c-44');
+      expect(alts[1].id).not.toBe('har-c-44');
+    }
+  });
+
   it('ROSTER_FULL, BAD_STATUS, NOT_FOUND and check order', () => {
     const full = [dp('sam', 'har-pg-1', 1), dp('sam', 'har-sg-7', 2), dp('sam', 'har-c-34', 3)];
     const code = (fn: () => unknown) => {
