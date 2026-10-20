@@ -27,6 +27,9 @@ async function loadWavlm(modelId: string): Promise<Extractor> {
   // Dynamic import: the fallback path and tests never pull transformers.js in.
   const tf = await import('@huggingface/transformers');
   tf.env.allowLocalModels = false;
+  const hc = (self as unknown as { navigator?: { hardwareConcurrency?: number } }).navigator?.hardwareConcurrency ?? 1;
+  const onnxWasm = tf.env.backends.onnx.wasm;
+  if (onnxWasm) onnxWasm.numThreads = Math.max(1, Math.min(4, hc));
   const progress_callback = (info: { status: string; file?: string; progress?: number }) => {
     if (info.status === 'progress' && info.file?.endsWith('.onnx') && typeof info.progress === 'number') {
       ctx.postMessage({ type: 'progress', file: info.file, progress: info.progress / 100 });
