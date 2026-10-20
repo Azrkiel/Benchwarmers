@@ -63,3 +63,30 @@ Template:
 - Severity: Minor
 - Workaround: record the license by hand in `docs/VOICE_ID.md`; we do not redistribute the weights.
 - Suggestion: add a `license` field to the model card metadata so tooling can read it.
+
+### [2026-10-20 17:30] Avast Web Shield breaks every MCP client on loopback `/mcp`
+- Tool/SDK + version: Avast Web Shield (`wsc_proxy`) on Windows; `@modelcontextprotocol/node` 2.1.1, `@modelcontextprotocol/client` 2.3.1, Node 22.
+- Task attempted: serve the MCP endpoint over Streamable HTTP on localhost and connect a client.
+- Steps taken: ran the MCP server and connected with the SDK client (vitest over real HTTP); reduced it to a plain `node:http` server returning a fixed `Content-Length` body on different paths.
+- Expected vs actual: expected normal responses. Actual: for any path ending in `/mcp` (case-insensitive, e.g. `/mcp`, `/foo/mcp`), the proxy rewrites responses that carry `Content-Length` into `transfer-encoding: chunked` without chunk framing. Clients fail with `HPE_INVALID_CHUNK_SIZE`, or hang on the empty `202` responses. `/mcp/x` is unaffected.
+- Severity: Major
+- Workaround: `server/src/mcp/http.ts` forces chunked framing itself on `/mcp` responses.
+- Suggestion: MCP SDK/docs: add AV HTTP filtering (loopback proxying) to the troubleshooting page, with `HPE_INVALID_CHUNK_SIZE` as the symptom. For Avast: do not rewrite framing on loopback traffic.
+
+### [2026-10-20 17:35] `createMcpExpressApp()` silently enables DNS-rebinding Host validation
+- Tool/SDK + version: `@modelcontextprotocol/express` 2.0.2
+- Task attempted: expose the MCP server through a cloudflared tunnel.
+- Steps taken: read the `createMcpExpressApp()` options and typings (`host` defaults to `127.0.0.1`) before mounting /mcp.
+- Expected vs actual: expected a plain app. Actual: the default host is `127.0.0.1`, which turns on Host-header validation, so behind a tunnel (Host = tunnel hostname) requests would be rejected. Only visible in the .d.ts comments.
+- Severity: Minor
+- Workaround: mount the MCP handler into our own Express app; validate Host only when `ALLOWED_HOSTS` is set.
+- Suggestion: document that the default host implies Host validation, and what to pass (`allowedHosts`) when running behind a tunnel or proxy; consider a log line when validation is active.
+
+### [2026-10-20 18:05] ext-apps 2.0.3 / Vite 8 widget build notes
+- Tool/SDK + version: `@modelcontextprotocol/ext-apps` 2.0.3, `vite` 8.3.x, `vite-plugin-singlefile` 2.3.x, TypeScript 7.
+- Task attempted: bundle a vanilla-TS MCP App into one HTML file and typecheck it separately from the server.
+- Steps taken: followed `examples/basic-server-vanillajs` (its `vite.config.ts` throws unless an `INPUT` env var is set, which is awkward cross-platform), wrote a config with a fixed input and `root`.
+- Expected vs actual: build works (about 1 s) but the single file is about 246 kB, because `App` pulls the MCP client, zod and schemas into the bundle. `import './styles.css'` fails `tsc` with TS2882 unless `vite/client` is in `types`; the example tsconfig has it but this is not mentioned in the docs. Top-level `await app.connect()` works in a module script, but `ontoolresult` must be set before it, as documented only in an example comment.
+- Severity: Minor
+- Workaround: `types: ["node", "vite/client"]` in the widget tsconfig; fixed `input` in `vite.config.ts`.
+- Suggestion: ship a minimal documented Vite config (no env var) and note the bundle size / tree-shaking expectation in the ext-apps README.

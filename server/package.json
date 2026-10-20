@@ -7,9 +7,12 @@
   "scripts": {
     "dev": "cross-env SPEED=4 tsx watch src/index.ts",
     "start": "tsx src/index.ts",
+    "pretest": "npm run build:widget",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
-    "play": "tsx scripts/play-party.ts"
+    "typecheck": "tsc --noEmit && npm run typecheck:widget",
+    "play": "tsx scripts/play-party.ts",
+    "build:widget": "vite build --config src/mcp/widget/vite.config.ts",
+    "typecheck:widget": "tsc -p src/mcp/widget/tsconfig.json"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1153.0",
