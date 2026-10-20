@@ -9,6 +9,8 @@ export default defineConfig({
   resolve: {
     alias: { '@shared': fileURLToPath(new URL('../server/src/shared', import.meta.url)) },
   },
+  worker: { format: 'es' },
+  optimizeDeps: { exclude: ['@huggingface/transformers'] },
   server: {
     port: 5173,
     proxy: { '/api': API, '/mcp': API, '/healthz': API },
