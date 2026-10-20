@@ -10,3 +10,5 @@ export type { VoiceProfile } from './profiles';
 export { useVoiceId } from './useVoiceId';
 export type { VoiceId, VoiceIdOptions, VoiceIdStatus, IdentifyOutcome } from './useVoiceId';
 export { useUtteranceCapture } from './useUtteranceCapture';
+export { EnrollPanel } from './EnrollPanel';
+export { VoiceLabPage } from './VoiceLabPage';
