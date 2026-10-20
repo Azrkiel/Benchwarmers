@@ -81,6 +81,7 @@ html.tv-kiosk ::-webkit-scrollbar {
 .tv-view {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 }
 .tv-connecting {
   position: absolute;
@@ -453,23 +454,29 @@ html.tv-kiosk ::-webkit-scrollbar {
   position: relative;
   flex: 1;
   min-height: 0;
+  display: grid;
+  grid-template-columns: 580px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  box-sizing: border-box;
   border-radius: 20px;
   border: 1px solid var(--border);
   background: rgba(7, 10, 18, 0.6);
   overflow: hidden;
 }
 .tv-court {
-  position: absolute;
-  inset: 12px;
-  width: calc(100% - 24px);
-  height: calc(100% - 24px);
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  align-self: center;
 }
 .tv-court-half {
-  opacity: 0.1;
+  opacity: 0.24;
   transition: opacity 0.8s ease;
 }
 .tv-court-half.is-hot {
-  opacity: 0.32;
+  opacity: 0.5;
 }
 .tv-court-lines {
   stroke: rgba(255, 255, 255, 0.28);
@@ -509,15 +516,16 @@ html.tv-kiosk ::-webkit-scrollbar {
   }
 }
 .tv-pbp {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 0 28px 20px;
+  justify-content: center;
+  padding: 0;
   box-sizing: border-box;
   pointer-events: none;
-  background: linear-gradient(180deg, transparent 35%, rgba(7, 10, 18, 0.92) 70%);
 }
 .tv-pbp-list {
   margin: 0;
@@ -531,13 +539,14 @@ html.tv-kiosk ::-webkit-scrollbar {
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 8px 18px 8px 22px;
+  flex-wrap: wrap;
+  row-gap: 0;
+  padding: 6px 16px 8px 20px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.05);
   border-left: 8px solid var(--team, var(--muted));
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 700;
-  white-space: nowrap;
   overflow: hidden;
 }
 .tv-pbp-row:first-child {
@@ -545,15 +554,22 @@ html.tv-kiosk ::-webkit-scrollbar {
 }
 .tv-pbp-time {
   color: var(--muted);
-  font-size: 26px;
+  order: 1;
+  font-size: 24px;
   font-weight: 700;
-  min-width: 150px;
 }
 .tv-pbp-text {
-  flex: 1;
+  order: 3;
+  flex: 1 1 100%;
   min-width: 0;
+  line-height: 1.15;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tv-pbp-row .tv-chip {
+  order: 2;
+  margin-left: auto;
 }
 .tv-chip {
   flex: none;
@@ -600,26 +616,32 @@ html.tv-kiosk ::-webkit-scrollbar {
 
 /* Pick bar */
 .tv-pickbar {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 14px 24px;
+  display: grid;
+  grid-template-columns: 640px minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  column-gap: 24px;
+  row-gap: 4px;
+  align-content: start;
+  padding: 12px 24px 14px;
   border-radius: 20px;
   background: linear-gradient(90deg, rgba(255, 185, 56, 0.2), rgba(255, 185, 56, 0.03));
   border: 1px solid rgba(255, 185, 56, 0.5);
 }
 .tv-pick-kicker {
+  grid-column: 1;
   font-size: 26px;
   font-weight: 900;
   letter-spacing: 0.1em;
   color: var(--accent);
 }
 .tv-pick-q {
-  font-size: 40px;
+  grid-column: 1;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1.15;
 }
 .tv-pick-status {
+  grid-column: 1;
   display: flex;
   align-items: baseline;
   gap: 12px;
@@ -640,8 +662,13 @@ html.tv-kiosk ::-webkit-scrollbar {
   color: var(--muted);
 }
 .tv-pick-options {
+  grid-column: 2;
+  grid-row: 1 / span 3;
   display: flex;
-  gap: 16px;
+  gap: 14px;
+}
+.tv-pickbar > .tv-pick-explain {
+  grid-column: 1 / -1;
 }
 .tv-pick-opt {
   flex: 1;
@@ -659,7 +686,7 @@ html.tv-kiosk ::-webkit-scrollbar {
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 800;
 }
 .tv-pick-pct {
@@ -819,7 +846,7 @@ html.tv-kiosk ::-webkit-scrollbar {
 }
 .tv-stand-row {
   display: grid;
-  grid-template-columns: 44px 32px 56px minmax(0, 1fr) 100px 76px;
+  grid-template-columns: 40px 30px 68px minmax(0, 1fr) 104px 72px;
   align-items: center;
   gap: 8px;
   height: 104px;
@@ -1025,7 +1052,7 @@ html.tv-kiosk ::-webkit-scrollbar {
   min-width: 0;
 }
 .tv-roster-name {
-  font-size: 40px;
+  font-size: 38px;
   font-weight: 800;
   line-height: 1.1;
   white-space: nowrap;
@@ -1033,7 +1060,7 @@ html.tv-kiosk ::-webkit-scrollbar {
   text-overflow: ellipsis;
 }
 .tv-roster-hh {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -1071,7 +1098,7 @@ html.tv-kiosk ::-webkit-scrollbar {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 10px 12px 10px 14px;
   border-radius: 14px;
   background: var(--panel-2);
   border-left: 8px solid var(--team, var(--muted));
@@ -1093,7 +1120,7 @@ html.tv-kiosk ::-webkit-scrollbar {
 }
 .tv-rp-meta,
 .tv-rp-stat {
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1.15;
   color: var(--muted);
   white-space: nowrap;
@@ -1105,7 +1132,7 @@ html.tv-kiosk ::-webkit-scrollbar {
   font-weight: 600;
 }
 .tv-rp-pts {
-  font-size: 64px;
+  font-size: 56px;
   font-weight: 900;
   color: var(--good);
 }
@@ -1338,17 +1365,17 @@ html.tv-kiosk ::-webkit-scrollbar {
 .tv-season-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 28px;
+  font-size: 32px;
 }
 .tv-season-table th {
   text-align: left;
   font-weight: 700;
   color: var(--muted);
-  padding: 2px 8px;
+  padding: 6px 8px 10px;
   border-bottom: 1px solid var(--border);
 }
 .tv-season-table td {
-  padding: 4px 8px;
+  padding: 12px 8px;
   font-weight: 600;
   white-space: nowrap;
 }
