@@ -963,3 +963,427 @@ html.tv-kiosk ::-webkit-scrollbar {
     animation: none !important;
   }
 }
+
+/* ===== Rosters ===== */
+.tv-rosters {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 40px 28px;
+  gap: 18px;
+}
+.tv-rosters-head {
+  display: flex;
+  align-items: baseline;
+  gap: 36px;
+  height: 56px;
+}
+.tv-rosters-head h2 {
+  margin: 0;
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.tv-rosters-score {
+  font-size: 32px;
+  font-weight: 700;
+}
+.tv-rosters-clock {
+  margin-left: auto;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.tv-rosters-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.tv-roster-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  border-top: 6px solid var(--hh, var(--accent));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--hh, #fff) 14%, var(--panel)), var(--panel) 40%);
+  overflow: hidden;
+}
+.tv-roster-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.tv-roster-id {
+  flex: 1;
+  min-width: 0;
+}
+.tv-roster-name {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tv-roster-hh {
+  font-size: 28px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tv-roster-rank {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.05;
+}
+.tv-roster-rank-n {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.tv-roster-total {
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--accent);
+}
+.tv-roster-players {
+  flex: 1;
+  min-height: 0;
+  list-style: none;
+  margin: 0;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tv-roster-player {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--panel-2);
+  border-left: 8px solid var(--team, var(--muted));
+}
+.tv-rp-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tv-rp-nick {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tv-rp-meta,
+.tv-rp-stat {
+  font-size: 28px;
+  line-height: 1.15;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tv-rp-stat {
+  color: var(--text);
+  font-weight: 600;
+}
+.tv-rp-pts {
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--good);
+}
+.tv-roster-player.is-cold {
+  background: linear-gradient(135deg, #131a2c, #0f1626);
+  border-left-color: #5a6b8c;
+  box-shadow: inset 0 0 0 2px rgba(120, 160, 255, 0.35);
+}
+.tv-roster-player.is-cold .tv-rp-nick,
+.tv-roster-player.is-cold .tv-rp-meta {
+  opacity: 0.6;
+}
+.tv-roster-player.is-cold .tv-rp-pts {
+  color: #8fb2ff;
+}
+.tv-benchwarmer-tag {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #cfe0ff;
+  background: rgba(110, 150, 255, 0.2);
+  border: 1px solid rgba(140, 175, 255, 0.6);
+}
+
+/* ===== Final ===== */
+.tv-final {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  padding: 20px 48px 28px;
+  overflow: hidden;
+}
+.tv-final-left,
+.tv-final-right {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.tv-final-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tv-final-head h2 {
+  margin: 0;
+  font-size: 96px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.tv-final-score {
+  display: flex;
+  gap: 20px;
+  align-items: baseline;
+  font-size: 34px;
+  font-weight: 600;
+}
+.tv-final-team {
+  opacity: 0.7;
+}
+.tv-final-team b {
+  font-size: 48px;
+  font-weight: 900;
+}
+.tv-final-team.is-winner {
+  opacity: 1;
+  text-shadow: 0 0 24px currentColor;
+}
+.tv-final-team.is-winner b {
+  font-size: 60px;
+}
+.tv-podium {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  align-items: end;
+  gap: 16px;
+}
+.tv-podium-block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+.tv-podium-crown {
+  font-size: 56px;
+  line-height: 1;
+  animation: tv-pulse 2.4s ease-in-out infinite;
+}
+.tv-podium-name {
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.tv-podium-hh {
+  font-size: 28px;
+  font-weight: 600;
+}
+.tv-podium-total {
+  font-size: 52px;
+  font-weight: 900;
+  color: var(--accent);
+}
+.tv-podium-step {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 8px;
+  border-radius: 16px 16px 0 0;
+  font-size: 64px;
+  font-weight: 900;
+  color: rgba(0, 0, 0, 0.55);
+  background: linear-gradient(180deg, #c9d2e4, #7c879e);
+  height: 140px;
+}
+.tv-podium-1 .tv-podium-step {
+  height: 230px;
+  background: linear-gradient(180deg, #ffe27a, #d9961a);
+  box-shadow: 0 0 60px rgba(255, 185, 56, 0.45);
+}
+.tv-podium-1 .tv-podium-total {
+  font-size: 64px;
+  text-shadow: 0 0 28px rgba(255, 185, 56, 0.7);
+}
+.tv-podium-1 .tv-avatar {
+  box-shadow: 0 0 0 6px rgba(255, 185, 56, 0.35), 0 0 48px rgba(255, 185, 56, 0.6);
+  animation: tv-final-glow 2.8s ease-in-out infinite;
+}
+.tv-podium-2 .tv-podium-step {
+  height: 170px;
+}
+.tv-podium-3 .tv-podium-step {
+  height: 120px;
+  background: linear-gradient(180deg, #e0a070, #94603a);
+}
+.tv-final-rest {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 24px;
+}
+.tv-final-rest li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 20px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  font-size: 28px;
+}
+.tv-final-rest-rank {
+  font-weight: 800;
+  color: var(--muted);
+}
+.tv-final-rest-name {
+  font-weight: 700;
+}
+.tv-final-rest-pts {
+  font-weight: 800;
+  color: var(--accent);
+}
+.tv-recap,
+.tv-bench-night,
+.tv-season {
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 16px 24px;
+}
+.tv-final h3 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.tv-recap blockquote {
+  margin: 0;
+  padding-left: 20px;
+  border-left: 6px solid var(--accent);
+  font-size: 28px;
+  line-height: 1.35;
+  font-style: italic;
+}
+.tv-bench-night {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: linear-gradient(135deg, rgba(110, 150, 255, 0.18), var(--panel));
+  border-color: rgba(140, 175, 255, 0.45);
+}
+.tv-bench-emoji {
+  font-size: 72px;
+  line-height: 1;
+}
+.tv-bench-body {
+  flex: 1;
+}
+.tv-bench-line {
+  font-size: 36px;
+}
+.tv-bench-line b {
+  font-weight: 900;
+}
+.tv-bench-pts {
+  font-size: 64px;
+  font-weight: 900;
+  color: #8fb2ff;
+}
+.tv-season {
+  flex: 1;
+  min-height: 0;
+}
+.tv-season-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 28px;
+}
+.tv-season-table th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 2px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.tv-season-table td {
+  padding: 4px 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tv-season-who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tv-season-loading {
+  font-size: 28px;
+  color: var(--muted);
+  padding: 24px 0;
+}
+.tv-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.tv-confetti i {
+  position: absolute;
+  top: -30px;
+  width: 14px;
+  height: 28px;
+  border-radius: 3px;
+  opacity: 0;
+  animation: tv-confetti-fall 5.6s linear infinite;
+}
+@keyframes tv-confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.85; }
+  100% { transform: translateY(1060px) rotate(540deg); opacity: 0; }
+}
+@keyframes tv-final-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}

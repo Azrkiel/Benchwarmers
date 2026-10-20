@@ -39,6 +39,20 @@ describe('TvPage', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('shows the benchwarmer panel and podium leader from the final fixture', () => {
+    const { container } = renderAt('/tv/DEMO?fixture=final');
+    expect(screen.getByText('Benchwarmer of the night')).toBeTruthy();
+    expect(container.querySelector('[data-place="1"] .tv-podium-name')!.textContent).toBe('Maya');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('renders the rosters view when forced', () => {
+    const { container } = renderAt('/tv/DEMO?fixture=live&mode=rosters');
+    expect(container.querySelector('.tv-rosters')).toBeTruthy();
+    expect(screen.getByText('Rosters')).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('adds tv-kiosk in kiosk mode', () => {
     renderAt('/tv/DEMO?fixture=live&kiosk=1');
     expect(document.documentElement.classList.contains('tv-kiosk')).toBe(true);
