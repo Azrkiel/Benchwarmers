@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { createCapture, downmix, resample, rms, speechSeconds, trimSilence } from './audio';
+import {
+  createCapture,
+  cropLoudest,
+  downmix,
+  prepareForEmbedding,
+  resample,
+  rms,
+  speechSeconds,
+  trimSilence,
+} from './audio';
 
 function sine(freq: number, rate: number, seconds: number, amp = 0.5): Float32Array {
   const n = Math.round(rate * seconds);
@@ -126,5 +135,37 @@ describe('createCapture', () => {
     cap.dispose();
     unsub();
     expect(cap.level$.get()).toBe(0);
+  });
+});
+
+describe('cropLoudest', () => {
+  it('returns input unchanged when short', () => {
+    const x = sine(200, 16000, 2);
+    expect(cropLoudest(x, 3, 16000)).toBe(x);
+  });
+
+  it('picks the loud window from quiet 4 s then loud 2 s', () => {
+    const x = new Float32Array(16000 * 6);
+    x.set(sine(200, 16000, 4, 0.01), 0);
+    x.set(sine(200, 16000, 2, 0.8), 16000 * 4);
+    const out = cropLoudest(x, 2, 16000);
+    expect(out.length).toBe(32000);
+    expect(rms(out)).toBeGreaterThan(0.5);
+  });
+
+  it('outputs maxSeconds * rate samples when longer', () => {
+    const out = cropLoudest(sine(200, 16000, 7), 3, 16000);
+    expect(out.length).toBe(48000);
+  });
+});
+
+describe('prepareForEmbedding', () => {
+  it('falls back to the input for all-zero audio', () => {
+    const x = new Float32Array(16000);
+    expect(prepareForEmbedding(x)).toBe(x);
+  });
+
+  it('caps long speech at 3 s', () => {
+    expect(prepareForEmbedding(sine(200, 16000, 8)).length).toBe(48000);
   });
 });

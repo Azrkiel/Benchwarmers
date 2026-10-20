@@ -104,7 +104,7 @@ describe('toSpeakerHint', () => {
 
 describe('DEFAULT_MATCH', () => {
   it('has per-backend defaults', () => {
-    expect(DEFAULT_MATCH.wavlm).toEqual({ threshold: 0.85, margin: 0.05 });
+    expect(DEFAULT_MATCH.wavlm).toEqual({ threshold: 0.70, margin: 0.05 });
     expect(DEFAULT_MATCH.mfcc).toEqual({ threshold: 0.9, margin: 0.02 });
   });
 });

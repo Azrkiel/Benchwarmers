@@ -1,4 +1,5 @@
 import type { Backend } from './types';
+import { MFCC_MODEL_ID } from './types';
 import { centroid, l2normalize } from './match';
 
 export type VoiceProfile = {
@@ -17,6 +18,11 @@ const VERSION = 1;
 
 export function storageKey(householdId: string): string {
   return `bw.voiceid.${householdId}`;
+}
+
+/** Separate key for the small MFCC "quick" profile set used while the main model loads. */
+export function quickStorageKey(householdId: string): string {
+  return `${storageKey(householdId)}.mfcc`;
 }
 
 function defaultStorage(): Storage | undefined {
@@ -49,10 +55,11 @@ export function loadProfiles(
   backend: Backend,
   modelId: string,
   storage: Storage | undefined = defaultStorage(),
+  key: string = storageKey(householdId),
 ): VoiceProfile[] {
   if (!storage) return [];
   try {
-    const raw = storage.getItem(storageKey(householdId));
+    const raw = storage.getItem(key);
     if (raw === null) return [];
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return [];
@@ -69,10 +76,11 @@ export function saveProfiles(
   householdId: string,
   profiles: VoiceProfile[],
   storage: Storage | undefined = defaultStorage(),
+  key: string = storageKey(householdId),
 ): boolean {
   if (!storage) return false;
   try {
-    storage.setItem(storageKey(householdId), JSON.stringify({ version: VERSION, profiles }));
+    storage.setItem(key, JSON.stringify({ version: VERSION, profiles }));
     return true;
   } catch {
     return false;
@@ -107,4 +115,24 @@ export function addSample(
 export function removeProfile(profiles: VoiceProfile[], memberId?: string): VoiceProfile[] {
   if (memberId === undefined) return [];
   return profiles.filter((p) => p.memberId !== memberId);
+}
+
+export function loadQuickProfiles(householdId: string, storage: Storage | undefined = defaultStorage()): VoiceProfile[] {
+  return loadProfiles(householdId, 'mfcc', MFCC_MODEL_ID, storage, quickStorageKey(householdId));
+}
+
+export function saveQuickProfiles(
+  householdId: string,
+  profiles: VoiceProfile[],
+  storage: Storage | undefined = defaultStorage(),
+): boolean {
+  return saveProfiles(householdId, profiles, storage, quickStorageKey(householdId));
+}
+
+export function addQuickSample(
+  profiles: VoiceProfile[],
+  member: { id: string; name: string },
+  embedding: ArrayLike<number>,
+): VoiceProfile[] {
+  return addSample(profiles, member, embedding, 'mfcc', MFCC_MODEL_ID);
 }

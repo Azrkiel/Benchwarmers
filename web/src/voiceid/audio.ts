@@ -98,6 +98,33 @@ export function trimSilence(
   return x.slice(start, end);
 }
 
+/** Return the maxSeconds-long window with the most energy (hop 100 ms). */
+export function cropLoudest(x: Float32Array, maxSeconds = 3, sampleRate: number = SAMPLE_RATE): Float32Array {
+  const win = Math.round(maxSeconds * sampleRate);
+  if (x.length <= win) return x;
+  const cum = new Float64Array(x.length + 1);
+  for (let i = 0; i < x.length; i++) cum[i + 1] = cum[i] + x[i] * x[i];
+  const hop = Math.max(1, Math.round(sampleRate / 10));
+  const last = x.length - win;
+  let best = 0;
+  let bestE = -1;
+  for (let s = 0; ; s = Math.min(s + hop, last)) {
+    const e = cum[s + win] - cum[s];
+    if (e > bestE) {
+      bestE = e;
+      best = s;
+    }
+    if (s >= last) break;
+  }
+  return x.slice(best, best + win);
+}
+
+/** Trim silence, then keep the loudest 3 s. Falls back to the input if nothing survives trimming. */
+export function prepareForEmbedding(x: Float32Array): Float32Array {
+  const trimmed = trimSilence(x);
+  return trimmed.length === 0 ? x : cropLoudest(trimmed);
+}
+
 export function speechSeconds(x: Float32Array, sampleRate: number = SAMPLE_RATE): number {
   return trimSilence(x, { sampleRate }).length / sampleRate;
 }

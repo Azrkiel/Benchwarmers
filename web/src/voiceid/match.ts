@@ -4,7 +4,7 @@ import type { Backend } from './types';
 export type MatchOptions = { threshold: number; margin: number };
 
 export const DEFAULT_MATCH: Record<Backend, MatchOptions> = {
-  wavlm: { threshold: 0.85, margin: 0.05 },
+  wavlm: { threshold: 0.70, margin: 0.05 },
   mfcc: { threshold: 0.9, margin: 0.02 },
 };
 

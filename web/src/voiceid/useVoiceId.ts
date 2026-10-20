@@ -3,7 +3,16 @@ import type { SpeakerHint } from '@shared/types';
 import { speechSeconds } from './audio';
 import { getSharedEmbedder, type Embedder, type LoadInfo } from './embedder';
 import { DEFAULT_MATCH, identify as matchIdentify, toSpeakerHint, type Candidate, type MatchOptions, type MatchResult } from './match';
-import { addSample, loadProfiles, removeProfile, saveProfiles, type VoiceProfile } from './profiles';
+import { mfccEmbedding } from './mfcc';
+import {
+  addQuickSample,
+  addSample,
+  loadProfiles,
+  loadQuickProfiles,
+  removeProfile,
+  saveProfiles,
+  saveQuickProfiles, type VoiceProfile,
+} from './profiles';
 import { MIN_SPEECH_SECONDS, type Backend } from './types';
 
 export type VoiceIdStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -13,6 +22,9 @@ export type IdentifyOutcome = {
   result: MatchResult | null;
   speechSeconds: number;
   tooShort: boolean;
+  engine: 'wavlm' | 'mfcc' | 'mfcc-quick';
+  /** true when answered by the quick MFCC profiles while the main model was still loading */
+  provisional: boolean;
 };
 
 export type VoiceIdOptions = {
@@ -64,6 +76,7 @@ export function useVoiceId(householdId: string, opts: VoiceIdOptions = {}): Voic
   const embedderRef = useRef<Embedder | null>(null);
   const infoRef = useRef<LoadInfo | null>(null);
   const profilesRef = useRef<VoiceProfile[]>([]);
+  const quickRef = useRef<VoiceProfile[]>([]);
   const matchRef = useRef<MatchOptions>(DEFAULT_MATCH.wavlm);
   const inflightRef = useRef<Promise<LoadInfo> | null>(null);
 
@@ -84,6 +97,11 @@ export function useVoiceId(householdId: string, opts: VoiceIdOptions = {}): Voic
   const commit = (next: VoiceProfile[]): void => {
     setProfiles(next);
     saveProfiles(householdRef.current, next, optsRef.current.storage);
+  };
+
+  const commitQuick = (next: VoiceProfile[]): void => {
+    quickRef.current = next;
+    saveQuickProfiles(householdRef.current, next, optsRef.current.storage);
   };
 
   const reloadProfiles = (hid: string, i: LoadInfo): void => {
@@ -144,6 +162,7 @@ export function useVoiceId(householdId: string, opts: VoiceIdOptions = {}): Voic
   useEffect(() => {
     const i = infoRef.current;
     setProfiles([]);
+    quickRef.current = loadQuickProfiles(householdId, optsRef.current.storage);
     if (i) {
       reloadProfiles(householdId, i);
     } else if (optsRef.current.autoLoad ?? true) {
@@ -166,27 +185,45 @@ export function useVoiceId(householdId: string, opts: VoiceIdOptions = {}): Voic
     // Read the latest profiles here (not a captured snapshot) so concurrent enrolls both land.
     const next = addSample(profilesRef.current, member, embedding, i.backend, i.modelId);
     commit(next);
+    if (i.backend !== 'mfcc') {
+      commitQuick(addQuickSample(quickRef.current, member, mfccEmbedding(clip)));
+    }
     return next.find((p) => p.memberId === member.id)!;
   };
 
   const identifyDetailed = async (clip: Float32Array): Promise<IdentifyOutcome> => {
     const sec = speechSeconds(clip);
-    if (sec < MIN_SPEECH_SECONDS) return { hint: null, result: null, speechSeconds: sec, tooShort: true };
+    const base = { speechSeconds: sec, engine: 'wavlm' as const, provisional: false };
+    if (sec < MIN_SPEECH_SECONDS) {
+      return { ...base, hint: null, result: null, tooShort: true, engine: infoRef.current?.backend ?? 'wavlm' };
+    }
+    if (!infoRef.current && quickRef.current.length > 0) {
+      const quick: Candidate[] = quickRef.current.map((p) => ({
+        memberId: p.memberId,
+        memberName: p.memberName,
+        centroid: p.centroid,
+      }));
+      const result = matchIdentify(mfccEmbedding(clip), quick, DEFAULT_MATCH.mfcc);
+      return { ...base, hint: toSpeakerHint(result), result, tooShort: false, engine: 'mfcc-quick', provisional: true };
+    }
+    const engine = infoRef.current?.backend ?? 'wavlm';
     const candidates: Candidate[] = profilesRef.current.map((p) => ({
       memberId: p.memberId,
       memberName: p.memberName,
       centroid: p.centroid,
     }));
-    if (candidates.length === 0) return { hint: null, result: null, speechSeconds: sec, tooShort: false };
+    if (candidates.length === 0) return { ...base, hint: null, result: null, tooShort: false, engine };
     const embedding = await getEmbedder().embed(clip);
     const result = matchIdentify(embedding, candidates, matchRef.current);
-    return { hint: toSpeakerHint(result), result, speechSeconds: sec, tooShort: false };
+    return { ...base, hint: toSpeakerHint(result), result, tooShort: false, engine };
   };
 
   const identify = async (clip: Float32Array): Promise<SpeakerHint | null> =>
     (await identifyDetailed(clip)).hint;
 
   const clear = (memberId?: string): void => {
+    // Quick profiles are always in memory, so clearing them is safe pre-load.
+    commitQuick(removeProfile(quickRef.current, memberId));
     // Before load the household's stored profiles are not in memory; saving now would wipe them.
     if (!infoRef.current) return;
     commit(removeProfile(profilesRef.current, memberId));
