@@ -17,9 +17,20 @@ Deadline: Fri 2026-10-23 12:00 PM PT (submit by 10:00 AM PT).
 | 3 AI/Bedrock | phase/3-ai | merged (71 tests; mocked Bedrock) + lead wired worker in index.ts main() |
 | 5 TV view | phase/5-tv, phase/5b-tv-polish | merged (83 web tests; verified against real server via headless CDP screenshot) |
 | 2 MCP + widget | phase/2-mcp | wave 2 — in progress |
-| 7 voice ID | phase/7-voiceid | wave 2 — in progress |
+| 7 voice ID | phase/7-voiceid | merged (94 web tests). Real-model check done (see below); tuning queued |
 | 4 device + assistant | phase/4-device | wave 3 — not started |
 | 6 polish/submission | phase/6-polish | wave 4 — not started |
+
+## Ownership change (user, 2026-10-20 evening)
+- **TV view (`web/src/tv/**`) is now being worked on by Codex.** Claude sessions must not edit it. Claude focuses on backend
+  (MCP server, assistant loop, Bedrock) and voice ID.
+
+## Voice ID real-model results (headless Chrome, Windows TTS voices David vs Zira, 3-clip centroid)
+- WavLM q8: same-speaker 0.79–0.97, cross-speaker 0.25–0.41 → separates well; 0.85 default threshold too strict
+  (rejected one true clip at 0.788) → use ~0.70. Load ≈3 min first time (102 MB), embed ≈7.4 s/clip single-thread WASM.
+- MFCC fallback: same 0.978–0.987 vs cross 0.930–0.947 → works but thin margins.
+- Queued tuning: threshold 0.70, crop clips to ≤3 s, COOP/COEP headers for threaded WASM, MFCC as instant first guess.
+- Test tools: scratchpad `tools/tts.ps1` (makes clips) + `tools/voicetest.mjs` (CDP harness).
 
 ## Human-only items (🧑)
 - AWS account + Bedrock model access + `aws configure` (none on the build machine yet). Set `AI_MODE=bedrock`,
