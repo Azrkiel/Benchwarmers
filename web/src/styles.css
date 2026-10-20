@@ -1,0 +1,9 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  background: #0b0f17;
+  color: #f2f4f8;
+}
+body { margin: 0; }
+.home { max-width: 640px; margin: 48px auto; padding: 0 16px; }
+.home a { color: #7fb6ff; }

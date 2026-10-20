@@ -1,0 +1,39 @@
+{
+  "id": "harbor-vs-summit",
+  "title": "Harbor Hawks vs. Summit Foxes",
+  "durationSec": 480,
+  "periods": 4,
+  "home": {
+    "id": "harbor",
+    "name": "Harbor Hawks",
+    "short": "HAR",
+    "color": "#1F7AE0",
+    "roster": [
+      { "id": "har-pg-1", "teamId": "harbor", "name": "Jalen Reyes", "number": 3, "position": "PG", "nickname": "Jet" },
+      { "id": "har-sg-7", "teamId": "harbor", "name": "Tommy Okafor", "number": 7, "position": "SG", "nickname": "Splash" },
+      { "id": "har-sf-11", "teamId": "harbor", "name": "Andre Lindqvist", "number": 11, "position": "SF", "nickname": "The Viking" },
+      { "id": "har-pf-21", "teamId": "harbor", "name": "Marcus Bell", "number": 21, "position": "PF", "nickname": "Doorbell" },
+      { "id": "har-c-34", "teamId": "harbor", "name": "Moses Adeyemi", "number": 34, "position": "C", "nickname": "Big Mo" },
+      { "id": "har-pg-5", "teamId": "harbor", "name": "Danny Cho", "number": 5, "position": "PG", "nickname": "Dime" },
+      { "id": "har-sf-23", "teamId": "harbor", "name": "Luis Navarro", "number": 23, "position": "SF", "nickname": "Lefty" },
+      { "id": "har-c-44", "teamId": "harbor", "name": "Grant Whitfield", "number": 44, "position": "C", "nickname": "The Wall" }
+    ]
+  },
+  "away": {
+    "id": "summit",
+    "name": "Summit Foxes",
+    "short": "SUM",
+    "color": "#E8642C",
+    "roster": [
+      { "id": "sum-pg-2", "teamId": "summit", "name": "Kai Thompson", "number": 2, "position": "PG", "nickname": "Quick Kai" },
+      { "id": "sum-sg-10", "teamId": "summit", "name": "Rafael Duarte", "number": 10, "position": "SG", "nickname": "Rafa" },
+      { "id": "sum-sf-14", "teamId": "summit", "name": "Owen Mercer", "number": 14, "position": "SF", "nickname": "Ice" },
+      { "id": "sum-pf-32", "teamId": "summit", "name": "DeShawn Pike", "number": 32, "position": "PF", "nickname": "Pike" },
+      { "id": "sum-c-50", "teamId": "summit", "name": "Viktor Halvorsen", "number": 50, "position": "C", "nickname": "Tower" },
+      { "id": "sum-sg-4", "teamId": "summit", "name": "Eli Brooks", "number": 4, "position": "SG", "nickname": "Bucket" },
+      { "id": "sum-pf-15", "teamId": "summit", "name": "Nate Kimura", "number": 15, "position": "PF", "nickname": "Hustle" },
+      { "id": "sum-sf-8", "teamId": "summit", "name": "Caleb Frost", "number": 8, "position": "SF", "nickname": "Frosty" }
+    ]
+  },
+  "events": []
+}

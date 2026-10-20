@@ -1,0 +1,9 @@
+node_modules/
+dist/
+data/
+!data/.gitkeep
+.env
+*.log
+coverage/
+.DS_Store
+server/src/mcp/widget/dist/
