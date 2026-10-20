@@ -147,7 +147,7 @@ Real-model run (`tools/voice-test.mjs`, Windows TTS David vs Zira, 3-clip centro
 | WavLM default threshold | 0.85 (rejected a true clip) | 0.70 |
 | Same-speaker scores | 0.788 to 0.974 | 0.804 to 0.970 (4 held-out clips, own centroid) |
 | Cross-speaker scores | 0.245 to 0.409 | 0.414 to 0.701 (4 held-out clips, other centroid) |
-| Embed time per clip | about 7.4 s | about 1.3 s (perClipMs 1302) |
+| Embed time per clip | about 7.4 s | 0.9 to 1.3 s (perClipMs 907 and 1302 in two runs) |
 | First model load | about 3 min (102 MB download) | 20 s once cached |
 | MFCC (for reference) | same 0.978 to 0.987, cross 0.930 to 0.947 | unchanged (threshold 0.90) |
 
