@@ -221,7 +221,7 @@ export type PartyStateResponse = {
   lastResolvedProp?: PropView;
   /** Upcoming + resolved props, in opensAt order. */
   props: PropView[];
-  /** Picks for activeProp and lastResolvedProp. */
+  /** Picks for activeProp, any locked prop, and lastResolvedProp. */
   picks: (Pick & { memberName: string; optionLabel: string; correct?: boolean })[];
   standings: StandingRow[];
   draftBoard: DraftBoardEntry[];
