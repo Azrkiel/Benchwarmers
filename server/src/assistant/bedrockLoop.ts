@@ -88,6 +88,9 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 
 class MalformedResponse extends Error {}
 
+/** Tools that change party state; never re-run them via the offline fallback in the same turn. */
+const MUTATING_TOOLS = new Set(['setup_watch_party', 'join_watch_party', 'start_watch_party', 'draft_player', 'make_pick']);
+
 export async function runBedrock(req: AssistantRequest, opts: BedrockLoopOptions): Promise<AssistantResponse> {
   const started = Date.now();
   const maxRounds = opts.maxRounds ?? 3;
@@ -181,11 +184,17 @@ export async function runBedrock(req: AssistantRequest, opts: BedrockLoopOptions
     );
     return response;
   } catch (err) {
-    // Tool calls already made this turn are discarded: the offline router re-plans from the raw
-    // utterance and its response only carries its own calls.
-    logTurn(
-      `mode=bedrock error=${err instanceof Error ? err.message : String(err)} rounds=${rounds} converseCalls=${converseCalls} ms=${Date.now() - started}; falling back to offline`,
-    );
+    const msg = err instanceof Error ? err.message : String(err);
+    // A state change already happened this turn: re-planning offline would repeat it (e.g. a second
+    // draft of the same player comes back "taken"), so answer from what was done instead.
+    if (calls.some((c) => c.trace.ok && MUTATING_TOOLS.has(c.trace.name))) {
+      logTurn(`mode=bedrock error=${msg} rounds=${rounds} converseCalls=${converseCalls} ms=${Date.now() - started}; answering from tool results`);
+      const reply = toolText(calls[calls.length - 1].result) || 'Done.';
+      return buildResponse({ reply, calls, mode: 'bedrock', requestPartyCode: req.partyCode });
+    }
+    // Only reads ran (or none): the offline router re-plans from the raw utterance and its
+    // response only carries its own calls.
+    logTurn(`mode=bedrock error=${msg} rounds=${rounds} converseCalls=${converseCalls} ms=${Date.now() - started}; falling back to offline`);
     return runOffline(req, opts.mcp);
   }
 }

@@ -167,6 +167,16 @@ describe('fallback to offline', () => {
     expect(res.toolCalls.map((c) => c.name)).toEqual(['draft_player']);
   });
 
+  it('does not repeat a state change when Bedrock fails after it', async () => {
+    const { send } = scripted([tu(toolUse('t1', 'draft_player', { memberName: 'Maya', player: 'Big Mo' })), new Error('ThrottlingException')]);
+    const res = await runBedrock(req("I'm Maya, draft Big Mo"), { mcp, client: { send }, modelId: 'test-model' });
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(res.mode).toBe('bedrock');
+    expect(res.toolCalls.map((c) => [c.name, c.ok])).toEqual([['draft_player', true]]);
+    expect(res.reply.length).toBeGreaterThan(0);
+    expect(res.uiResource?.uri).toBe('ui://benchwarmers/board.html');
+  });
+
   it('falls back without calling send when modelId is missing', async () => {
     const send = vi.fn();
     const res = await runBedrock(req("I'm Maya, draft Big Mo"), { mcp, client: { send }, modelId: '' });
