@@ -13,11 +13,11 @@ Deadline: Fri 2026-10-23 12:00 PM PT (submit by 10:00 AM PT).
 | Phase | Branch | Status |
 |---|---|---|
 | 0 contract/scaffold | dev | done (types, rosters, web scaffold, CLAUDE.md, friction log) |
-| 1 engine/store/REST | phase/1-engine | wave 1 — in progress |
-| 3 AI/Bedrock | phase/3-ai | wave 1 — in progress |
+| 1 engine/store/REST | phase/1-engine | merged (92 tests; play script; REST) |
+| 3 AI/Bedrock | phase/3-ai | merged (71 tests; mocked Bedrock) + lead wired worker in index.ts main() |
 | 5 TV view | phase/5-tv | wave 1 — in progress |
-| 2 MCP + widget | phase/2-mcp | wave 2 — not started |
-| 7 voice ID | phase/7-voiceid | wave 2 — not started |
+| 2 MCP + widget | phase/2-mcp | wave 2 — in progress |
+| 7 voice ID | phase/7-voiceid | wave 2 — in progress |
 | 4 device + assistant | phase/4-device | wave 3 — not started |
 | 6 polish/submission | phase/6-polish | wave 4 — not started |
 
@@ -26,7 +26,16 @@ Deadline: Fri 2026-10-23 12:00 PM PT (submit by 10:00 AM PT).
   `ASSISTANT_MODE=bedrock`, `BEDROCK_MODEL_ID`, `AWS_REGION` once available.
 - Optional: Node 24, Alexa+ Local Inspector access, OBS recording, YouTube upload, Devpost submission.
 
+## Facts learned (wave 1)
+- REST state with `since` == current version returns **204 no body**.
+- `DATA_FILE` resolves against cwd (`npm start -w server` → `server/data/store.json`).
+- Prop windows: fb-k opens 60(k-1), locks +40, resolves +60 (game s). fb-1 open during draft.
+- PropView hides explanation/correctOptionId until resolved.
+- Seeded parties emit `party_created` before the worker subscribes → main() warms scouting notes at startup.
+- Smoke: SPEED=80 full party via REST → final 57-56, recap + benchwarmer (Big Mo) + scouting notes present.
+
 ## Challenges + workarounds so far
+- CRLF: repo files get CRLF on Windows (autocrlf); string-replace edits must normalise line endings.
 - No AWS creds → fallback/offline modes are first-class; Bedrock paths tested with mocks.
 - `@alexa-ai/addon-local-inspector` 404 on npm → MCP Inspector + basic-host + own device sim.
 - Node 22 instead of 24 → fine for MCP SDK v2 (protocol 2025-11-25 confirmed in `@modelcontextprotocol/core`).
