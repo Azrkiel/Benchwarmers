@@ -27,10 +27,12 @@ function Card({ e, state }: { e: DraftBoardEntry; state: PartyStateResponse }) {
         <div className="tv-flip-face tv-flip-back" style={{ background: owned ? color : undefined }}>
           {owned ? (
             <>
-              <Avatar avatar={memberAvatar(state, e.ownerMemberId)} name={e.ownerName ?? ''} color="#fff" size={72} />
-              <div className="tv-owner">{e.ownerName}</div>
-              <div className="tv-round">
-                Round {e.round}
+              <div className="tv-back-top">#{e.player.number} {e.player.position} · {e.teamShort}</div>
+              <div className="tv-back-nick">{e.player.nickname ?? e.player.name}</div>
+              <div className="tv-back-owner">
+                <Avatar avatar={memberAvatar(state, e.ownerMemberId)} name={e.ownerName ?? ''} color="#fff" size={44} />
+                <span className="tv-owner">{e.ownerName}</span>
+                <span className="tv-round">R{e.round}</span>
                 {e.auto ? <span className="tv-auto">auto</span> : null}
               </div>
             </>

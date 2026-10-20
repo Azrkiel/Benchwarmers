@@ -297,17 +297,37 @@ html.tv-kiosk ::-webkit-scrollbar {
   font-size: 20px;
   color: var(--muted);
 }
+.tv-back-top {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
+  opacity: 0.8;
+}
+.tv-back-nick {
+  max-width: 100%;
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tv-back-owner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .tv-owner {
-  font-size: 40px;
+  font-size: 32px;
   font-weight: 900;
   line-height: 1;
 }
 .tv-round {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
 }
 .tv-auto {
-  margin-left: 10px;
+  margin-left: 0;
   padding: 0 10px;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.25);
@@ -1060,11 +1080,9 @@ html.tv-kiosk ::-webkit-scrollbar {
   text-overflow: ellipsis;
 }
 .tv-roster-hh {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.1;
 }
 .tv-roster-rank {
   display: flex;

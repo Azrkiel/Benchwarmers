@@ -58,7 +58,7 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
                       <div className="tv-rp-main">
                         <div className="tv-rp-nick">{nick}</div>
                         <div className="tv-rp-meta">
-                          {info ? `${info.player.name} · #${info.player.number} ${info.player.position} · ${info.teamShort}` : r.playerId}
+                          {info ? `#${info.player.number} ${info.player.position} · ${info.teamShort}` : r.playerId}
                         </div>
                         <div className="tv-rp-stat">{r.statLine}</div>
                         {isWorst ? <span className="tv-benchwarmer-tag">🪑 Benchwarmer</span> : null}

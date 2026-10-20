@@ -20,4 +20,12 @@ describe('RostersView', () => {
     expect(tags[0]!.closest('.tv-roster-col')!.getAttribute('data-member')).toBe(w.memberId);
     expect(tags[0]!.closest('.tv-roster-player')!.getAttribute('data-player')).toBe(w.playerId);
   });
+
+  it('shows the jersey number in the meta line for Big Mo', () => {
+    const { container } = render(<RostersView state={liveFixture} serverNow={() => 0} />);
+    const card = container.querySelector('[data-player="har-c-34"]');
+    expect(card).toBeTruthy();
+    expect(card!.textContent).toContain('Big Mo');
+    expect(card!.textContent).toContain('#34');
+  });
 });
