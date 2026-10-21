@@ -108,3 +108,30 @@ Template:
 - Severity: Major (flaky CI-style runs on this machine)
 - Workaround: re-run the suite; the failures are timing-only. No code workaround found inside phase-owned files.
 - Suggestion: Avast: do not proxy loopback HTTP, or make the "/mcp" filter opt-in. MCP SDK docs: mention AV loopback proxies (freezes, `other side closed`) in troubleshooting.
+
+### [2026-10-20 21:00] ext-apps basic-host: no auth header, hardcoded sandbox port, needs bun, tsc fails
+- Tool/SDK + version: `modelcontextprotocol/ext-apps` v2.0.3 `examples/basic-host`, Windows, Node 22.
+- Task attempted: render our MCP App against a bearer-protected `/mcp`.
+- Steps taken: cloned the tag, `npm install`, `npm start`.
+- Expected vs actual: expected it to run against any server URL. Actual: no way to send an Authorization header; sandbox URL hardcoded to `localhost:8081`; `npm start` requires `bun`; `npm run build` fails (`tsc` missing `@types/cors`); "Call Tool" is the second submit button (first is the theme toggle).
+- Severity: Minor
+- Workaround: patched the temp clone (requestInit headers, sandbox port 8181), `vite build` for both entries, ran `serve.ts` with `tsx`.
+- Suggestion: accept optional headers via `SERVERS` config, make the sandbox port an env var, declare `@types/cors`, document a Node-only start.
+
+### [2026-10-20 21:05] MCP Inspector 2.x CLI/UI differences
+- Tool/SDK + version: `@modelcontextprotocol/inspector` 2.11.0.
+- Task attempted: run the Checkpoint 2 flow and screenshot the tool list.
+- Steps taken: UI via CDP; `--cli --method tools/call`.
+- Expected vs actual: expected a "List Tools" button and readable tool errors. Actual: tools list on connect; custom headers only in Server Settings; CLI prints only `{"error":{"code":"tool_is_error"}}` with exit 5 on `isError` (message is in stdout JSON); `npx` start-up ~2.5 s per call.
+- Severity: Minor
+- Workaround: call the CLI `index.js` directly; read stdout JSON.
+- Suggestion: print `content[].text` for `isError` results in CLI mode; allow `--header` in the UI's Add dialog.
+
+### [2026-10-20 21:10] Widget season rows had no separators between stats
+- Tool/SDK + version: our widget, seen through ext-apps basic-host v2.0.3.
+- Task attempted: screenshot the season view at 800 and 1280 px.
+- Steps taken: `get_season_standings` in basic-host.
+- Expected vs actual: expected readable stats. Actual: five adjacent spans ran together and wrapped without spacing. A CSS `::before` separator left dangling dots on wrapped lines.
+- Severity: Minor
+- Workaround: one span with `&middot;` separators in `render.ts`.
+- Suggestion: for wrapping inline stat lists, put separators in the text, not in CSS pseudo-elements.
