@@ -233,9 +233,22 @@ describe('FallbackProvider', () => {
     const text = await new FallbackProvider().recap(recapCtx);
     expect(text).toContain('Jet');
     expect(text).toContain('Leo drafted Big Mo, who spent the night warming the bench');
-    expect(text).toContain('Maya leads');
-    expect(text).toContain('20 ahead of Leo');
+    // Season rank is by total (pick points + draft points): Maya 120 + 90 = 210, Leo 100 + 70 = 170.
+    expect(text).toContain('Maya leads with 210 points');
+    expect(text).toContain('40 ahead of Leo');
     expect(checkText(text).ok).toBe(true);
+  });
+
+  it('recap season gap follows the season rank, never negative', async () => {
+    // Fresh-clone demo run: Maya ranked 1st on total while Sam had more pick points -> "-63.5 ahead".
+    const [maya, leo] = recapCtx.season;
+    const season = [
+      { ...maya!, points: 300, fantasyPoints: 200 },
+      { ...leo!, memberId: 'sam', name: 'Sam', points: 363.5, fantasyPoints: 100 },
+    ];
+    const text = await new FallbackProvider().recap({ ...recapCtx, season });
+    expect(text).toContain('Maya leads with 500 points, 36.5 ahead of Sam');
+    expect(text).not.toMatch(/-\d/);
   });
 
   it('recap names the best bonus call only when one exists', async () => {

@@ -32,5 +32,7 @@ Bonuses apply to the basketball `DEMO` too, so bonus chips are the most visible 
 5. No bonus chips on resolved picks (both games).
 6. Football positions are not shown on Top of the Bench or the draft view.
 7. No yes/no layout for drive questions.
+8. Season table (final view): the "Pts" column shows `rows[].points` (pick points only), but rows are ranked by
+   `points + fantasyPoints`, so a lower "Pts" can sit above a higher one. Show the total (or both columns). Seen on a fresh-clone run.
 
 Copy rules: points, multiplier, call. Never bet, wager, payout or "odds boost". Fictional teams only.
