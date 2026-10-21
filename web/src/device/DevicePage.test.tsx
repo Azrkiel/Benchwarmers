@@ -194,6 +194,18 @@ describe('DeviceScreen', () => {
     expect(screen.getByText('No tool calls yet')).toBeTruthy();
   });
 
+  it('mode badge renders any mode string the server reports', async () => {
+    stubFetch();
+    // A newer contract adds modes (e.g. 'gemini'); the badge must not depend on a fixed union.
+    const mode = 'gemini' as unknown as AssistantResponse['mode'];
+    const send = vi.fn(async () => response({ reply: 'Hi there.', mode }));
+    render(<DeviceScreen household="garcias" deps={{ send, synth: fakeSynth(), recognizerFactory: null }} />);
+    await waitForParty('DEMO');
+    typeAndSubmit('hi');
+    await screen.findByText('Hi there.');
+    expect(screen.getByTestId('mode-badge').textContent).toBe('gemini');
+  });
+
   it('adopts the party code from the response and sends it next time', async () => {
     stubFetch();
     const send = vi.fn(async (_req: AssistantRequest) => response({ reply: 'Party is up.', partyCode: 'XYZ1' }));

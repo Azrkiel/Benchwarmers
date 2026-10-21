@@ -1,4 +1,4 @@
-import type { AssistantRequest, ChatTurn, SpeakerHint, ToolCallTrace } from '@shared/types';
+import type { AssistantRequest, AssistantResponse, ChatTurn, SpeakerHint, ToolCallTrace } from '@shared/types';
 
 /** Most recent turns sent as history with each request. */
 export const HISTORY_TURNS = 6;
@@ -12,7 +12,8 @@ export type DeviceTurn = {
   text: string;
   speaker?: SpeakerHint;
   toolCalls?: ToolCallTrace[];
-  mode?: 'bedrock' | 'offline';
+  /** Any mode string the server reports (offline, bedrock, gemini, ...). */
+  mode?: AssistantResponse['mode'];
   error?: boolean;
 };
 
