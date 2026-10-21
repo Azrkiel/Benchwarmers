@@ -166,7 +166,7 @@ export function renderTonight(state: PartyStateResponse, now: number, lockAt?: n
 export function renderSeason(season: SeasonResponse): string {
   const rows = season.rows.map((r) => {
     const h = householdOf(season.households, r.householdId);
-    return `<li class="standing"><span class="rank">${r.rank}</span><span class="name">${e(r.name)}</span>${badge(r.household, h?.color)}<span class="total">${r.points + r.fantasyPoints}</span><span class="split">picks ${r.points} + fantasy ${r.fantasyPoints}</span><span class="split">best streak ${r.bestStreak}</span><span class="split">nights won ${r.nightsWon}</span><span class="split">${r.correct}/${r.total} correct</span></li>`;
+    return `<li class="standing"><span class="rank">${r.rank}</span><span class="name">${e(r.name)}</span>${badge(r.household, h?.color)}<span class="total">${r.points + r.fantasyPoints}</span><span class="split">picks ${r.points} + fantasy ${r.fantasyPoints} &middot; best streak ${r.bestStreak} &middot; nights won ${r.nightsWon} &middot; ${r.correct}/${r.total} correct</span></li>`;
   });
   return `<section class="card"><h2>${e(season.crew.name)} season</h2><ol class="standings">${rows.join('')}</ol></section>`;
 }
