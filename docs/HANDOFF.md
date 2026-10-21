@@ -118,4 +118,6 @@ Test helpers committed in `tools/` (screenshot.mjs, voice-test.mjs, tts-clips.ps
 5. **Real Bedrock run** — blocked on 🧑 AWS creds. Done = Checkpoint 3 with `AI_MODE=bedrock` and token counts logged in AWS.md.
 6. ✅ DONE (session 2) — **Phase 6** — `npm run demo` (server SPEED=4 + web + cloudflared hint), README (architecture, protocol 2025-11-25, run steps, env table, known gaps: Alexa+ Preview/OAuth), PRODUCT_FEEDBACK (from FRICTION_LOG), DEMO_SCRIPT, SUBMISSION; PR `dev` → `main`. Done = fresh clone → demo in < 15 min.
 
+7. **Drive odds model (phase 8, added by Kevin)** — plan.md §10c. Blocked on a decision: NFL drive data vs the basketball game (see its open questions).
+
 Retro: none written (use `xvant-retro` if wanted).
