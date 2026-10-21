@@ -364,3 +364,75 @@ describe('AiSink', () => {
     s.setRecap('nope', 'x');
   });
 });
+
+describe('phase 8 pick scoring wiring', () => {
+  it('stamps gameT on a pick', () => {
+    const s = mk();
+    s.start('DEMO');
+    t += 5_000; // gameT 20
+    const pk = s.pick('DEMO', 'sam', 'home');
+    expect(pk.gameT).toBeCloseTo(20);
+    expect(s.getState('DEMO').picks.find((p) => p.memberId === 'sam')?.gameT).toBeCloseTo(20);
+  });
+
+  it('keeps the original pick on a same-option re-pick, with no extra ticker line', () => {
+    const s = mk();
+    s.start('DEMO');
+    t += 2_000;
+    const first = s.pick('DEMO', 'sam', 'home');
+    const tickerBefore = s.getState('DEMO').ticker.length;
+    t += 3_000;
+    const again = s.pick('DEMO', 'sam', 'home');
+    expect(again.at).toBe(first.at);
+    expect(again.gameT).toBe(first.gameT);
+    const st = s.getState('DEMO');
+    expect(st.picks.filter((p) => p.memberId === 'sam')).toHaveLength(1);
+    expect(st.picks.find((p) => p.memberId === 'sam')?.at).toBe(first.at);
+    expect(st.picks.find((p) => p.memberId === 'sam')?.gameT).toBe(first.gameT);
+    expect(st.ticker).toHaveLength(tickerBefore);
+  });
+
+  it('a different option updates at and gameT and adds a ticker line', () => {
+    const s = mk();
+    s.start('DEMO');
+    t += 2_000;
+    const first = s.pick('DEMO', 'sam', 'home');
+    const tickerBefore = s.getState('DEMO').ticker.length;
+    t += 3_000;
+    const second = s.pick('DEMO', 'sam', 'away');
+    expect(second.optionId).toBe('away');
+    expect(second.at).toBe(t);
+    expect(second.at).toBeGreaterThan(first.at);
+    expect(second.gameT).toBeGreaterThan(first.gameT!);
+    expect(s.getState('DEMO').ticker).toHaveLength(tickerBefore + 1);
+  });
+
+  it('exposes score on picks for the last resolved prop only', () => {
+    const s = mk();
+    s.start('DEMO');
+    s.pick('DEMO', 'sam', 'home');
+    s.pick('DEMO', 'maya', 'away');
+    let st = s.getState('DEMO');
+    expect(st.picks.every((p) => p.score === undefined)).toBe(true);
+    for (let i = 0; i < 400 && !st.lastResolvedProp; i++) {
+      t += 1_250;
+      s.tick();
+      st = s.getState('DEMO');
+    }
+    const resolvedId = st.lastResolvedProp!.id;
+    const onResolved = st.picks.filter((p) => p.propId === resolvedId);
+    expect(onResolved.length).toBeGreaterThan(0);
+    for (const p of onResolved) {
+      expect(p.score).toBeDefined();
+      expect(p.score!.propId).toBe(resolvedId);
+      expect(p.score!.memberId).toBe(p.memberId);
+      expect(p.score!.optionId).toBe(p.optionId);
+      expect(typeof p.score!.factor).toBe('number');
+      expect(typeof p.score!.points).toBe('number');
+      expect(Array.isArray(p.score!.bonuses)).toBe(true);
+      expect(p.score!.correct).toBe(p.correct);
+    }
+    for (const p of st.picks.filter((x) => x.propId !== resolvedId)) expect(p.score).toBeUndefined();
+  });
+});
+

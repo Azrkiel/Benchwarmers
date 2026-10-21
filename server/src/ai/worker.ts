@@ -27,6 +27,8 @@ export function startAiWorker(opts: AiWorkerOptions): AiWorker {
   async function genProps(partyId: string): Promise<void> {
     const ctx = sink.getPartyContext(partyId);
     if (!ctx) return;
+    // Football drive props are scripted; the AI never generates props for football.
+    if (ctx.game.sport === 'football') return;
     const props = await provider.generateProps({ game: ctx.game, gameT: ctx.gameT, score: ctx.score, existing: ctx.props });
     if (props.length > 0 && !stopped) sink.addProps(partyId, props);
   }

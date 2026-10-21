@@ -7,9 +7,10 @@ function readJson<T>(url: URL): T {
 }
 
 const harbor = readJson<Game>(new URL('./games/harbor-vs-summit.json', import.meta.url));
+const riverton = readJson<Game>(new URL('./games/riverton-vs-ironwood.json', import.meta.url));
 const FALLBACK_PROPS = readJson<Prop[]>(new URL('../ai/fallback/props.json', import.meta.url));
 
-export const GAMES: Record<string, Game> = { [harbor.id]: harbor };
+export const GAMES: Record<string, Game> = { [harbor.id]: harbor, [riverton.id]: riverton };
 
 export function getGame(id: string): Game | undefined {
   return GAMES[id];

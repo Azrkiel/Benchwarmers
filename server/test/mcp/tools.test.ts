@@ -6,6 +6,7 @@ import type { McpServer } from '@modelcontextprotocol/server';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Store } from '../../src/game/store.js';
 import { createServer } from '../../src/mcp/server.js';
+import { BONUS_COPY } from '../../src/shared/types.js';
 
 // Tool behaviour is exercised over an in-process transport: the HTTP path is covered by http.test.ts.
 
@@ -232,6 +233,57 @@ describe('explain_last_result', () => {
   });
 });
 
+describe('phase 8 pick bonus lines', () => {
+  const BANNED = /(bet|bets|betting|payout|wager|wagers)|odds boost/i;
+
+  /** Maya alone calls Hawks (correct); Leo and Sam pick Foxes. Then fb-1 resolves. */
+  async function loneCallScenario(): Promise<string> {
+    const code = await setupParty();
+    await call('start_watch_party', { code });
+    advance(5);
+    await call('make_pick', { code, memberName: 'Maya', choice: 'Hawks' });
+    await call('make_pick', { code, memberName: 'Leo', choice: 'Foxes' });
+    await call('make_pick', { code, memberName: 'Sam', choice: 'Foxes' });
+    advance(60 / SPEED + 1);
+    return code;
+  }
+
+  it('explain_last_result names the lone call and its points', async () => {
+    const code = await loneCallScenario();
+    const score = store.getState(code).standings.find((s) => s.memberId === 'maya')!.lastPickScore!;
+    expect(score.bonuses).toContain('lone_call');
+    const res = await call('explain_last_result', { code });
+    const text = textOf(res);
+    expect(text).toContain(`Maya's ${BONUS_COPY.lone_call.toLowerCase()} earned ${score.points} points.`);
+    expect(res.structuredContent!.bonus).toMatchObject({ memberName: 'Maya', points: score.points });
+    expect(text).not.toMatch(BANNED);
+  });
+
+  it('get_leaderboard and get_my_roster mention the bonus; others do not name it', async () => {
+    const code = await loneCallScenario();
+    const score = store.getState(code).standings.find((s) => s.memberId === 'maya')!.lastPickScore!;
+    const board = textOf(await call('get_leaderboard', { code }));
+    expect(board).toContain(`Maya's ${BONUS_COPY[score.bonuses[0]!].toLowerCase()} earned`);
+    expect(board).not.toMatch(BANNED);
+    const mine = textOf(await call('get_my_roster', { code, memberName: 'Maya' }));
+    expect(mine).toContain(`Your last ${BONUS_COPY[score.bonuses[0]!].toLowerCase()} earned ${score.points} points.`);
+    expect(mine).not.toMatch(BANNED);
+    const leo = textOf(await call('get_my_roster', { code, memberName: 'Leo' }));
+    expect(leo).not.toContain('Your last');
+  });
+
+  it('adds no bonus line when nobody earned a bonus', async () => {
+    const code = await setupParty();
+    await call('start_watch_party', { code });
+    advance(60 / SPEED + 1);
+    const text = textOf(await call('explain_last_result', { code }));
+    expect(text).not.toContain('earned');
+    expect(text).not.toMatch(BANNED);
+    const sc = (await call('explain_last_result', { code })).structuredContent!;
+    expect(sc.bonus).toBeUndefined();
+  });
+});
+
 describe('default party code', () => {
   it('uses the newest party for the Sunday Crew when code is omitted', async () => {
     const code = await setupParty();
@@ -249,5 +301,73 @@ describe('default party code', () => {
     // The seed creates the DEMO party for the Sunday Crew, so a default party always exists.
     expect(res.isError).not.toBe(true);
     expect(res.structuredContent!.code).toBe('DEMO');
+  });
+});
+
+describe('football party (phase 8) voice tools', () => {
+  async function footballParty(): Promise<string> {
+    const res = await call('setup_watch_party', { crewName: 'Sunday Crew', gameTitle: 'football' });
+    expect(res.isError).not.toBe(true);
+    expect(res.structuredContent!.game).toEqual({ id: 'riverton-vs-ironwood', title: 'Riverton Otters at Ironwood Forge' });
+    return res.structuredContent!.code as string;
+  }
+
+  it('start speaks kickoff, not tip-off', async () => {
+    const code = await footballParty();
+    const res = await call('start_watch_party', { code });
+    expect(res.isError).not.toBe(true);
+    expect(textOf(res).startsWith('Kickoff!')).toBe(true);
+    expect(textOf(res)).not.toContain('Tip-off');
+  });
+
+  it('get_game_status speaks the drive and the historical odds of the open drive question', async () => {
+    const code = await footballParty();
+    await call('start_watch_party', { code });
+    advance(12.5); // 50 game seconds: drive 2 (Forge, own 30) is under way; its touchdown question is open
+    const res = await call('get_game_status', { code });
+    expect(res.isError).not.toBe(true);
+    expect(textOf(res)).toBe(
+      'Forge 0, Otters 7, Q1 8:45. Forge ball at their own 30, 1st quarter. Latest: Forge take over at their own 30. ' +
+        'Open question: Will the Forge get a touchdown on this drive? Drives like this get a touchdown 26% of the time. Locks in about 7 seconds.',
+    );
+    expect(res.structuredContent!.drive).toEqual({ team: 'home', yardline100: 70, quarter: 1 });
+    expect(res.structuredContent!.activeProp.odds).toEqual({ percentYes: 26, outcome: 'td', sampleSize: 9782 });
+  });
+
+  it('get_game_status names the opponent side when the ball is past midfield for the other team', async () => {
+    const code = await footballParty();
+    await call('start_watch_party', { code });
+    advance(37.5); // game second 150: Forge take over at the Otters' 41 (Q2); the touchdown question for it is open
+    const res = await call('get_game_status', { code });
+    expect(textOf(res)).toContain("Forge ball at the Otters' 41, 2nd quarter.");
+    expect(textOf(res)).toContain('Drives like this get a touchdown 33% of the time.');
+    expect(res.structuredContent!.drive).toEqual({ team: 'home', yardline100: 41, quarter: 2 });
+  });
+
+  it('make_pick takes the drive words: "they get stopped" is No, "they score" is Yes', async () => {
+    const code = await footballParty();
+    await call('start_watch_party', { code });
+    advance(5); // game second 20: the first drive question (ff-1) is open
+    const yes = await call('make_pick', { code, memberName: 'Maya', choice: 'they score' });
+    expect(yes.isError).not.toBe(true);
+    expect(textOf(yes)).toBe('Got it, Maya: Yes. Locks in about 3 seconds.');
+    const no = await call('make_pick', { code, memberName: 'Leo', choice: 'they get stopped' });
+    expect(textOf(no)).toBe('Got it, Leo: No. Locks in about 3 seconds.');
+    const noScore = await call('make_pick', { code, memberName: 'Sam', choice: 'no score' });
+    expect(textOf(noScore)).toBe('Got it, Sam: No. Locks in about 3 seconds.');
+  });
+
+  it('list_available_players filters by football position and names football positions when it misses', async () => {
+    const code = await footballParty();
+    const qbs = await call('list_available_players', { code, position: 'quarterback' });
+    expect(qbs.isError).not.toBe(true);
+    const players = qbs.structuredContent!.players as { position: string }[];
+    expect(players.length).toBe(2);
+    expect(players.every((p) => p.position === 'QB')).toBe(true);
+    expect(textOf(qbs)).toContain('quarterback');
+
+    const miss = await call('list_available_players', { code, position: 'goalie' });
+    expect(miss.isError).toBe(true);
+    expect(textOf(miss)).toBe("I don't know the position goalie. Try quarterback, running back, wide receiver, tight end or kicker.");
   });
 });

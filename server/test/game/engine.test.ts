@@ -8,6 +8,7 @@ import {
   type Player,
   type Position,
   type Prop,
+  type PropOdds,
   type StatType,
 } from '../../src/shared/types.js';
 import {
@@ -27,7 +28,9 @@ import {
   resolveProp,
   rollRanks,
   round1,
+  roundHalf,
   scoreAt,
+  scorePick,
   statLine,
   tallyPicks,
   upsertPick,
@@ -300,9 +303,10 @@ describe('projections', () => {
   it('covers all 16 players, distinct, Big Mo highest', () => {
     const ids = allPlayers(game).map((p) => p.id);
     for (const id of ids) expect(projectionOf(id)).toBeGreaterThan(0);
-    expect(Object.keys(PLAYER_PROJECTIONS)).toHaveLength(16);
-    expect(new Set(Object.values(PLAYER_PROJECTIONS)).size).toBe(16);
-    const max = Math.max(...Object.values(PLAYER_PROJECTIONS));
+    const hoops = Object.entries(PLAYER_PROJECTIONS).filter(([id]) => !/^(riv|irn)-/.test(id));
+    expect(hoops).toHaveLength(16);
+    expect(new Set(hoops.map(([, v]) => v)).size).toBe(16);
+    const max = Math.max(...hoops.map(([, v]) => v));
     expect(PLAYER_PROJECTIONS['har-c-34']).toBe(max);
     expect(projectionOf('sum-pg-2')).toBeGreaterThan(19);
     expect(projectionOf('har-sg-7')).toBeGreaterThan(19);
@@ -489,11 +493,120 @@ describe('fantasy', () => {
     expect(round1(0.1 + 0.2)).toBe(0.3);
   });
   it('statLine', () => {
-    const z = { pts2: 0, pts3: 0, ft: 0, reb: 0, ast: 0, stl: 0, blk: 0, tov: 0 };
+    const z = Object.fromEntries(Object.keys(FANTASY_SCORING).map((k) => [k, 0])) as Record<StatType, number>;
     expect(statLine(z)).toBe('0 PTS');
     expect(statLine(undefined)).toBe('0 PTS');
     expect(statLine({ ...z, pts2: 3, pts3: 1, ft: 3, reb: 5, ast: 3, stl: 1 })).toBe('12 PTS, 5 REB, 3 AST, 1 STL');
     expect(statLine({ ...z, blk: 2, tov: 1 })).toBe('0 PTS, 2 BLK, 1 TOV');
+  });
+});
+
+// ---------- phase 8 pick bonuses ----------
+
+describe('scorePick', () => {
+  // opensAt 0, locksAt 100 so gameT == f * 100
+  const prop = mkProp('b1', { opensAt: 0, locksAt: 100, resolvesAt: 110 });
+  const at = (gameT: number | undefined, member = 'm', option = 'two'): Pick => ({
+    ...pick(member, 'b1', option),
+    ...(gameT !== undefined ? { gameT } : {}),
+  });
+  const odds = (p: Record<string, number>): PropOdds => ({ source: 'drive_odds', bucket: 'b', n: 10, p });
+  // 2 of 5 pick 'two' (share 0.4 < 0.5 -> minority); `p` is one of them
+  const minorityParty = (p: Pick): Pick[] => [p, pick('b', 'b1', 'two'), pick('c', 'b1', 'ft'), pick('d', 'b1', 'ft'), pick('e', 'b1', 'ft')];
+  const score = (p: Pick, o: { partyPicks?: Pick[]; streakBefore?: number; prop?: Prop; outcome?: string } = {}) =>
+    scorePick({ prop: o.prop ?? prop, pick: p, partyPicks: o.partyPicks ?? [p], streakBefore: o.streakBefore ?? 0, outcome: o.outcome ?? 'two' });
+
+  it('roundHalf', () => {
+    expect(roundHalf(13.2)).toBe(13);
+    expect(roundHalf(12.5)).toBe(12.5);
+    expect(roundHalf(12.8)).toBe(13);
+    expect(roundHalf(12.74)).toBe(12.5);
+  });
+
+  it('speed buckets: boundaries, clamp, missing gameT, zero window', () => {
+    expect(score(at(25))).toMatchObject({ speed: 1.25, points: 12.5, bonuses: ['early_call'] });
+    expect(score(at(60))).toMatchObject({ speed: 1.1, points: 11, bonuses: ['quick_call'] });
+    expect(score(at(60.1))).toMatchObject({ speed: 1, points: 10, bonuses: [] });
+    expect(score(at(500))).toMatchObject({ speed: 1, bonuses: [] }); // f clamps to 1
+    expect(score(at(-50))).toMatchObject({ speed: 1.25, bonuses: ['early_call'] }); // f clamps to 0
+    expect(score(at(undefined))).toMatchObject({ speed: 1, bonuses: [] });
+    const flat = mkProp('b1', { opensAt: 50, locksAt: 50, resolvesAt: 60 });
+    const s = score(at(50), { prop: flat });
+    expect(Number.isFinite(s.factor)).toBe(true);
+    expect(s.speed).toBe(1.25);
+  });
+
+  it('contrarian: 1-of-2, 2-of-4, 1-of-3, 2-of-5, single picker', () => {
+    const party = (opts: string[]) => opts.map((o, i) => pick(`x${i}`, 'b1', o));
+    const mine = pick('x0', 'b1', 'two');
+    const c = (opts: string[]) => score(mine, { partyPicks: party(opts) });
+    // exactly half is not a minority (share must be < 0.5), so 1-of-2 and 2-of-4 are both x1
+    expect(c(['two', 'ft'])).toMatchObject({ contrarian: 1, bonuses: [] });
+    expect(c(['two', 'two', 'ft', 'ft'])).toMatchObject({ contrarian: 1, bonuses: [] });
+    expect(c(['two', 'ft', 'ft'])).toMatchObject({ contrarian: 1.5, bonuses: ['lone_call'] });
+    expect(c(['two', 'two', 'ft', 'ft', 'ft'])).toMatchObject({ contrarian: 1.2, bonuses: ['against_the_room'] });
+    expect(c(['two'])).toMatchObject({ contrarian: 1, bonuses: [] });
+    // picks on other props are ignored
+    expect(score(mine, { partyPicks: [mine, pick('y', 'other', 'ft')] }).contrarian).toBe(1);
+  });
+
+  it('odds: clamp both ends, missing p, no odds', () => {
+    const withP = (p: Record<string, number>): Prop => ({ ...prop, odds: odds(p) });
+    const o = (p: Record<string, number>) => score(at(undefined), { prop: withP(p) });
+    expect(o({ two: 0.1 })).toMatchObject({ odds: 2, bonuses: ['bold_call'], points: 20 });
+    expect(o({ two: 0.9 }).odds).toBeCloseTo(0.5 / 0.9, 10);
+    expect(o({ two: 0.9 }).bonuses).toEqual([]);
+    expect(o({ two: 5 }).odds).toBe(0.5); // floor
+    expect(o({ ft: 0.3 }).odds).toBe(2); // p missing -> max
+    expect(o({ two: 0 }).odds).toBe(2);
+    expect(score(at(undefined)).odds).toBe(1);
+  });
+
+  it('factor cap: streak 2 x odds 2 x early 1.25 x lone 1.5 -> x5 -> 50', () => {
+    const p = at(10);
+    const party = [p, pick('b', 'b1', 'ft'), pick('c', 'b1', 'ft')];
+    const s = score(p, { partyPicks: party, streakBefore: 2, prop: { ...prop, odds: odds({ two: 0.1 }) } });
+    expect(s).toMatchObject({ streak: 2, odds: 2, speed: 1.25, contrarian: 1.5, factor: 5, points: 50 });
+    expect(s.bonuses).toEqual(['bold_call', 'lone_call', 'early_call']);
+  });
+
+  it('rounds points to nearest 0.5', () => {
+    const p = at(50); // quick 1.1
+    expect(score(p, { partyPicks: minorityParty(p) }).points).toBe(13); // 10 x 1.1 x 1.2 = 13.2
+    expect(score(at(10)).points).toBe(12.5);
+  });
+
+  it('bonus ordering: biggest factor first, ties speed > contrarian > bold', () => {
+    const p = at(50); // quick 1.1
+    const party = minorityParty(p); // minority 1.2
+    const odds15: Prop = { ...prop, odds: odds({ two: 0.5 / 1.3 }) }; // odds 1.3
+    expect(score(p, { partyPicks: party, prop: odds15 }).bonuses).toEqual(['bold_call', 'against_the_room', 'quick_call']);
+  });
+
+  it('wrong pick: 0 points, no bonuses, factors still reported', () => {
+    const p = at(10);
+    const s = score(p, { partyPicks: minorityParty(p), outcome: 'ft', streakBefore: 1 });
+    expect(s).toMatchObject({ correct: false, points: 0, bonuses: [], streak: 1.5, speed: 1.25, contrarian: 1.2 });
+    expect(s.factor).toBeCloseTo(1.5 * 1.25 * 1.2, 10);
+  });
+
+  it('tallyPicks exposes scores and lastScore; standings carry lastPickScore', () => {
+    const p1 = mkProp('t1', { opensAt: 0, locksAt: 10, resolvesAt: 15, resolver: { kind: 'nextScoreType', afterT: 10 } });
+    const evs = [scoreEv(12, 'home', 'pts2')];
+    const mine = { ...pick('m', 't1', 'two'), gameT: 1 };
+    const party = [mine, pick('o', 't1', 'two'), pick('q', 't1', 'ft'), pick('r', 't1', 'ft'), pick('s', 't1', 'ft')];
+    const t = tallyPicks('m', [p1], party, evs, 100);
+    expect(t.pickPoints).toBe(15); // 10 x early 1.25 x minority 1.2 (2 of 5)
+    expect(t.scores).toHaveLength(1);
+    expect(t.lastScore).toBe(t.scores[0]);
+    const none = tallyPicks('m', [p1], [], evs, 100);
+    expect(none.scores).toEqual([]);
+    expect('lastScore' in none).toBe(false);
+    const members = [{ memberId: 'm', name: 'M', avatar: 'x', household: 'H', householdId: 'h' }];
+    const rows = computeStandings({ members, drafts: [], props: [p1], picks: party, events: evs, gameT: 100, prevRanks: {} });
+    expect(rows[0].lastPickScore).toMatchObject({ propId: 't1', points: 15 });
+    const rows2 = computeStandings({ members, drafts: [], props: [], picks: [], events: [], gameT: 0, prevRanks: {} });
+    expect('lastPickScore' in rows2[0]).toBe(false);
   });
 });
 

@@ -1,8 +1,8 @@
 # Handoff — Benchwarmers (resume here)
 
 ## 1. Metadata
-- Written: 2026-10-20 18:05 ET, end of Claude Code session 1; updated in session 2 after waves A–C (4a, 7b, 2b, 4b merged). Lead model: Claude Opus 5.5 (orchestrator); phase managers opus/sonnet, workers via model-router.
-- Repo: https://github.com/Azrkiel/Benchwarmers (public, MIT). Working branch: **`dev`** (all merged work). `main` = only the original plan.
+- Written: 2026-10-20 18:05 ET, end of Claude Code session 1; updated in session 2 after waves A–D (4a, 7b, 2b, 4b, 6 merged); updated 2026-10-21 in session 3 after Phase 8 (8a, 8b, 8c merged). Lead model: Claude Opus 5.5 (orchestrator); phase managers opus/sonnet, workers via model-router.
+- Repo: https://github.com/Azrkiel/Benchwarmers (public, MIT). Working branch: **`dev`** (all merged work). `main` = dev as of PR #2 (phase 6); Phase 8 is on `dev` only until the next PR.
 - Spec: `plan.md` (now marked up with ✅/🟡/⬜ status per phase). Orchestration + file ownership: `docs/ORCHESTRATION.md`.
 - Deadline: **Fri 2026-10-23 12:00 PM PT; submit by 10:00 AM PT** (Devpost "Build, Ship, Shape", Alexa+ track + AWS Builder mini).
 
@@ -20,8 +20,9 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - Resume commands (Git Bash):
   ```bash
   cd ~/Downloads/xvant/Benchwarmers && git checkout dev && git pull && npm ci
-  npm run typecheck && npm test          # expect: server 519 passed, web 274 passed (server suite ~1-in-8 flaky on this machine: Avast loopback stalls; re-run)
+  npm run typecheck && npm test          # expect: server 667 passed, web 278 passed (vitest maxWorkers 6; ~1-in-10 Avast loopback stall remains; re-run)
   npm run play -w server                 # full scripted party → standings table, "Benchwarmer of the night: Big Mo"
+  npm run play -w server -- --game riverton-vs-ironwood   # football: IRN 20 – RIV 24, "Benchwarmer of the night: Plow"
   cd server && PORT=3001 SPEED=4 npx tsx src/index.ts   # REST /api, MCP /mcp (Bearer dev-token-change-me), /healthz
   ```
 - Seed/test data: crew `sunday-crew`; households `garcias` (Austin: maya, leo) and `sams-place` (Seattle: sam, priya); party `DEMO` (drafting).
@@ -43,6 +44,10 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 | Phase 2b (session 2): MCP Inspector (11 tools, Checkpoint 2 via CLI), ext-apps basic-host screenshots (3 tabs × 800/1280 px), cloudflared tunnel initialize → 2025-11-25; season-row fix | manually verified (docs/MCP_HOSTS.md, docs/img/) |
 | Phase 4b (session 2): device page `/device/:household` (speech in/out, typed, trace, app-bridge widget in srcdoc sandbox + fallback card, voice ID + screen speaker picker) | tested (86 web tests) + Checkpoint 4 headless (`tools/device-sync.mjs`): sync 0.98 s, season after restart; **real mic / Web Speech / live voice ID untested** |
 | plan.md marked up with status | written |
+| Phase 8 (session 3): lead contract `195c5ac` (sport, football positions/stats, drive state, `driveResult` resolver, `PropOdds`, `Pick.gameT`, `PickScore`, bonus constants) | typecheck + all tests green |
+| 8a: `tools/odds/build_drive_odds.py` (stdlib; nflverse 2015–2025, 64,085 drives) → `server/src/game/odds/drive_odds.json` (17 buckets; two-minute 1–40 merged), `getOdds`/`driveOddsProp` | tested (15 tests) + script run, sanity checks pass |
+| 8b: `scorePick` (streak × odds × speed × contrarian, cap ×5, roundHalf), `picks[].score`, `lastPickScore`, same-option re-pick keeps gameT, bonus copy in MCP text/rules/recap | tested + live: Leo lone+early call 19 pts |
+| 8c: football game `riverton-vs-ironwood` (12 drives, 8 drive props ff-1..ff-8 with odds, built by `server/scripts/build-football-props.ts`), football engine/clock/statLine, AI skip + drive explanations, MCP/assistant football words + drive status, widget + device fallback card: drive-odds line + bonus chips, `play --game` | tested (667 server / 278 web) + live assistant run (Maya 17.5 bold+early, Sam 15.5); basketball play output unchanged |
 
 ## 5. What went well and why
 - **Contract-first + file ownership** (types, rosters, web scaffold committed before any manager started) → 3 parallel phases merged with zero code conflicts (only `docs/FRICTION_LOG.md` append conflicts).
@@ -89,13 +94,18 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - Device: single srcdoc iframe (opaque origin) instead of ext-apps' second-origin sandbox proxy (COEP for voice ID blocks it). Vite proxy truncates the 202 for `notifications/initialized` → one harmless `ERR_INCOMPLETE_CHUNKED_ENCODING` per page (likely forceChunked; see FRICTION_LOG). Web main chunk 665 kB + transformers 543 kB.
 - Voice ID: transformers.js fetches ORT wasm from jsDelivr (27 MB local copy in dist unused) — offline hosting needs `env.backends.onnx.wasm.wasmPaths`. COOP/COEP headers set only by Vite dev/preview; may block a cross-origin MCP App iframe (VOICE_ID.md §5a). `crossOriginIsolated`/thread use not confirmed. Pre-7b enrollments lack quick-MFCC profiles until re-enroll.
 - Assistant: "Priya takes the over" against DEMO → `make_pick` ok:false (first open prop is scoring-first, no over/under) — routing correct. Bedrock path untested for empty forced-final text; never run on real Bedrock.
-- Server test suite flaky ~1 in 8 runs (Avast loopback proxy freezes workers ~10 s on /mcp traffic) — FRICTION_LOG; re-run.
+- Server test suite: ~1 in 10 runs still stalls (Avast loopback proxy freezes /mcp traffic ~10 s) — FRICTION_LOG; re-run. Worker cap `maxWorkers: 6` in `server/vitest.config.ts` is needed: uncapped (≈15 workers) the <500 ms latency asserts fail from CPU contention.
+- Phase 8: no two-minute drive questions (a drive starting under 2:00 has < 30 game-seconds of window). "put me down for yes" without voice ID or a name → "Who's picking?". A drive explanation (with the historical %) arrives from the background worker a moment after resolution. `matchGame("the game")` is now ambiguous (two games) → asks which; empty / "tonight's game" → basketball.
+- **TV (Codex) not football-aware** — loads and doesn't crash on a football party (clock, scores, statLines, drive explanation show). Gaps for Codex: (1) field panel draws a basketball court; (2) play-by-play text truncated "…"; (3) no drive context ("Otters ball at their own 25"); (4) live pick card lacks the odds line (`prop.odds.p.yes` → "Drives like this score 36% of the time"); (5) no bonus chips (`picks[].score.bonuses`, `standings[].lastPickScore`, `BONUS_COPY`); (6) football positions not shown on Top of the Bench / draft; (7) no yes/no drive-question layout. Bonuses apply to basketball too, so (5) matters for `DEMO`.
 - Season `points` = pick points, `fantasyPoints` = draft points (naming is confusing but tested).
 - Demo script not rehearsed live; offline router does one tool call per turn; setup creates a new party code (TV must move to `/tv/<CODE>`). See DEMO_SCRIPT findings.
 
 ## 11. Open questions for the human
 - ~~Who builds the device page?~~ **Answered 2026-10-20: Claude, on `phase/4b-device`.**
 - 🧑 AWS (user: "we'll figure it out when we get there"): account + Bedrock model access + `aws configure` + `BEDROCK_MODEL_ID` (Haiku-tier inference profile id) + $5 budget alarm. Needed for the AWS Builder mini challenge proof and a real `AI_MODE=bedrock` / `ASSISTANT_MODE=bedrock` run.
+- ~~Phase 8: when to build it~~ — built in session 3 (2026-10-21).
+- PR `dev` → `main` for Phase 8? (main last updated via PR #2.)
+- Hand the TV gap list (§10) to Codex? Should the demo video show the football game?
 - 🧑 Demo video (OBS), YouTube upload, Devpost submission, optional Alexa+ Local Inspector access.
 
 ## 12. Files touched (map)
@@ -117,5 +127,22 @@ Test helpers committed in `tools/` (screenshot.mjs, voice-test.mjs, tts-clips.ps
 4. ✅ DONE (session 2) — **Device page (phase 4b)**. `/device/:household`: Web Speech in/out, typed fallback, agent trace toggle, app-bridge widget render, EnrollPanel + `useUtteranceCapture` → `speaker`. Done = Checkpoint 4 (two windows sync ≤2 s; season answer after restart).
 5. **Real Bedrock run** — blocked on 🧑 AWS creds. Done = Checkpoint 3 with `AI_MODE=bedrock` and token counts logged in AWS.md.
 6. ✅ DONE (session 2) — **Phase 6** — `npm run demo` (server SPEED=4 + web + cloudflared hint), README (architecture, protocol 2025-11-25, run steps, env table, known gaps: Alexa+ Preview/OAuth), PRODUCT_FEEDBACK (from FRICTION_LOG), DEMO_SCRIPT, SUBMISSION; PR `dev` → `main`. Done = fresh clone → demo in < 15 min.
+
+7. ✅ DONE (session 3, 2026-10-21; user: "continue where it's left off") — **Phase 8 — drive odds model + bonuses** — spec plan.md §10c,
+   orchestration + briefs `docs/ORCHESTRATION.md` §5b. Lead contract commit `195c5ac` (all additive). Wave E merged: `phase/8a-odds`
+   (64,085 drives → 17 buckets; two-minute bands 1–40 merged) and `phase/8b-bonuses` (scorePick, PickScore in state/standings,
+   bonus copy; 1-of-2 contrarian = ×1 per plan's `< 0.5`). Wave F merged: `phase/8c-football` (stalled once, resumed). All worktrees removed.
+   If a manager died: its worktree keeps uncommitted work → resume via SendMessage or re-brief from §5b.
+   Decisions made: (a) add a **second, football** replay game that uses an NFL drive-odds table (nflverse 2015–2025 → `drive_odds.json`,
+   buckets = 10-yard band × normal/two-minute, merge buckets < 200 drives); basketball `harbor-vs-summit`/`DEMO` stays; (b) **speed buckets**
+   (early ×1.25 / quick ×1.10 / late ×1.0 by fraction of the open window) and **contrarian bonus** (lone call ×1.5 / minority ×1.2) apply to
+   **both** games, stacked with streak and the football-only odds multiplier `clamp(0.5/p, 0.5, 2.0)`, combined factor capped ×5.
+   Needs a lead contract change first (`Game.sport`, football positions, `Prop.odds`, `Pick.gameT`, per-pick bonus breakdown); TV football
+   rendering is Codex's. Suggested split: one manager for the Python odds script + JSON, one for engine/game/MCP after the contract commit.
+   Open: wording stays "points multiplier" (no payout/bet language).
+
+8. **Next (smallest first):** PR dev → main (on user's ask) · Codex: TV football/bonus view from the §10 gap list · DEMO_SCRIPT: optional
+   football beat ("set up a watch party for the football game…", a drive question with its %, a "Lone call" bonus) · 3b real Bedrock
+   (AWS creds) · 🧑 rehearse demo, record video, Devpost (deadline Fri 2026-10-23 10:00 AM PT).
 
 Retro: none written (use `xvant-retro` if wanted).

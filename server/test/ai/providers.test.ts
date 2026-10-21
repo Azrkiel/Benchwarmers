@@ -238,6 +238,21 @@ describe('FallbackProvider', () => {
     expect(checkText(text).ok).toBe(true);
   });
 
+  it('recap names the best bonus call only when one exists', async () => {
+    const plain = await new FallbackProvider().recap(recapCtx);
+    expect(plain).not.toContain('Best call of the night');
+    const score = {
+      propId: 'p', memberId: 'leo', optionId: 'home', correct: true, base: 10, streak: 1, odds: 1, speed: 1,
+      contrarian: 1.5, factor: 1.5, points: 15, bonuses: ['lone_call' as const],
+    };
+    const withBonus = await new FallbackProvider().recap({
+      ...recapCtx,
+      standings: recapCtx.standings.map((s) => (s.memberId === 'leo' ? { ...s, lastPickScore: score } : s)),
+    });
+    expect(withBonus).toContain("Best call of the night: Leo's lone call earned 15 points.");
+    expect(checkText(withBonus).ok).toBe(true);
+  });
+
   it('scouting.json covers all 16 roster ids with clean lines', () => {
     const file = JSON.parse(readFileSync(new URL('../../src/ai/fallback/scouting.json', import.meta.url), 'utf8')) as Record<string, string>;
     const ids = [...realGame.home.roster, ...realGame.away.roster].map((p) => p.id);

@@ -1,5 +1,5 @@
 // Pure fuzzy matching for voice MCP tools. No store, no I/O: callers pass data in.
-import type { Crew, Game, Household, Player, Position, Prop, PropOption, Team } from '../shared/types.js';
+import type { Crew, Game, Household, Player, Position, Prop, PropOption, Sport, Team } from '../shared/types.js';
 import { projectionOf } from '../game/projections.js';
 
 export type MatchOk<T> = { ok: true; value: T };
@@ -266,6 +266,12 @@ const POSITION_WORDS: Record<string, Position> = {
   'small forward': 'SF', sf: 'SF', 's f': 'SF', small: 'SF',
   'power forward': 'PF', pf: 'PF', 'p f': 'PF', power: 'PF',
   center: 'C', centre: 'C', c: 'C', 'big man': 'C', bigman: 'C',
+  // Football (phase 8). "back" and "k" are safe here: no basketball word uses them.
+  quarterback: 'QB', qb: 'QB', 'q b': 'QB',
+  'running back': 'RB', rb: 'RB', 'r b': 'RB', back: 'RB', halfback: 'RB', tailback: 'RB',
+  'wide receiver': 'WR', receiver: 'WR', wr: 'WR', 'w r': 'WR', wideout: 'WR',
+  'tight end': 'TE', te: 'TE', 't e': 'TE',
+  kicker: 'K', placekicker: 'K', k: 'K',
 };
 
 function parsePosition(t: string[]): Position | null {
@@ -372,6 +378,12 @@ function propSynonyms(prop: Prop, game: Game): Record<string, string[]> {
         over: ['over', 'the over', 'more', 'higher', 'yes'],
         under: ['under', 'the under', 'less', 'fewer', 'lower', 'no'],
       };
+    case 'driveResult':
+      return {
+        // "score" alone means yes; "no score" must beat it (exact phrase tier), so both stay in their own lists.
+        yes: ['yes', 'yeah', 'they score', 'score', 'touchdown', 'td', 'points'],
+        no: ['no', 'nope', 'stopped', 'stop', 'punt', 'no score', 'no touchdown', 'they get stopped', 'get stopped', 'held'],
+      };
   }
 }
 
@@ -388,7 +400,8 @@ export function matchPropOption(input: string, prop: Prop, game: Game): MatchRes
 
 // ---------- games ----------
 
-const GAME_FILLER = new Set(['vs', 'versus', 'v', 'game', 'match', 'tonight', 'today', 'the']);
+// "tonight's game" normalises to "tonights game": the possessive forms must filler out too.
+const GAME_FILLER = new Set(['vs', 'versus', 'v', 'game', 'match', 'tonight', 'tonights', 'today', 'todays', 'the']);
 
 export function matchGame(input: string | undefined, games: Game[]): MatchResult<Game> {
   const raw = (input ?? '').trim();
@@ -396,10 +409,12 @@ export function matchGame(input: string | undefined, games: Game[]): MatchResult
     return games.length ? ok(games[0]) : notFound('There are no games available right now.', []);
   }
   const t = toks(raw).filter((w) => !GAME_FILLER.has(w) && !FILLER.has(w));
+  if (!t.length && games.length) return ok(games[0]); // "tonight's game" -> the default (first) game
   let top = 0;
   let winners: Game[] = [];
   for (const g of games) {
-    const bag = uniq([...toks(g.title), ...toks(g.id), ...teamWords(g.home), ...teamWords(g.away)]);
+    const sportWords = g.sport === 'football' ? ['football', 'gridiron', 'nfl'] : ['basketball', 'hoops'];
+    const bag = uniq([...toks(g.title), ...toks(g.id), ...teamWords(g.home), ...teamWords(g.away), ...sportWords]);
     let s = 0;
     for (const w of t) if (bag.some((b) => tokenTier(w, b, {}) > 0)) s++;
     if (s === 0) continue;
@@ -428,11 +443,22 @@ export function matchTeam(input: string, game: Game): MatchResult<'home' | 'away
   return notFound(`I couldn't find a team called ${input.trim()}. The teams are ${orList(names)}.`, names);
 }
 
-/** A spoken position ("point guard", "C", "centers") to a Position code. */
-export function matchPosition(input: string): MatchResult<Position> {
+const BASKETBALL_POSITION_EXAMPLES = ['point guard', 'shooting guard', 'small forward', 'power forward', 'center'];
+const FOOTBALL_POSITION_EXAMPLES = ['quarterback', 'running back', 'wide receiver', 'tight end', 'kicker'];
+
+/**
+ * A spoken position ("point guard", "C", "centers", "quarterback", "QB") to a Position code.
+ * `sport` only picks the examples in the not-found reply; with no sport the examples cover both games.
+ */
+export function matchPosition(input: string, sport?: Sport): MatchResult<Position> {
   const t = toks(input).filter((w) => w !== 'the' && w !== 'a' && w !== 'an' && w !== 'player' && w !== 'players');
   const pos = parsePosition(t);
   if (pos) return ok(pos);
-  const options = ['point guard', 'shooting guard', 'small forward', 'power forward', 'center'];
+  const options =
+    sport === 'football'
+      ? FOOTBALL_POSITION_EXAMPLES
+      : sport === 'basketball'
+        ? BASKETBALL_POSITION_EXAMPLES
+        : ['point guard', 'center', 'quarterback', 'running back', 'wide receiver', 'tight end', 'kicker'];
   return notFound(`I don't know the position ${input.trim()}. Try ${orList(options)}.`, options);
 }

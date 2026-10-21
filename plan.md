@@ -11,6 +11,7 @@
 > | 5 TV view | ✅ merged (`phase/5-tv`, `phase/5b-tv-polish`); 🔀 further TV work is Codex's |
 > | 6 Polish + submission | ✅ merged (`phase/6-polish`): `npm run demo` (fresh clone → running in ~35 s), README, DEMO_SCRIPT, PRODUCT_FEEDBACK, SUBMISSION draft; 🧑 video + Devpost links TODO |
 > | 7 (added) Voice ID — no "I'm Maya" needed | ✅ merged (`phase/7-voiceid`, `phase/7b-voiceid-tuning`), wired into device page; real-mic untested |
+> | 8 (added) Drive odds model — real-data odds per question + points multiplier | ✅ built session 3 (2026-10-21): 8a odds table (64,085 drives), 8b bonuses (both games), 8c football game `riverton-vs-ironwood`; TV football view is Codex's (gap list in HANDOFF) |
 > Full resume notes: `docs/HANDOFF.md`. Orchestration/ownership: `docs/ORCHESTRATION.md`.
 
 > **How to use this file:** put it at the root of an empty repo, open Claude Code there, and say:
@@ -381,6 +382,126 @@ A web page built for a TV across the room ("10-foot UI"): 1920×1080 layout, hug
 > (same 0.79–0.97 vs cross 0.25–0.41). Tuned (phase/7b): threshold 0.70 / margin 0.05,
 > loudest-3 s crop, COOP same-origin + COEP credentialless → threaded WASM, instant MFCC guess while WavLM loads; 0.9–2.1 s/clip
 > (was 7.4), held-out own-speaker ≥0.80. Wired into the device page (phase/4b).
+
+## 10c. Phase 8 (added by Kevin, 2026-10-20) — Drive odds model
+
+> **Status ✅ built 2026-10-21** (phases 8a/8b/8c, see docs/ORCHESTRATION.md §5b). No two-minute drive questions (too little game time). Source: "Drive Odds Model Plan" (Oct 20, 2026, Kevin Jiang). Estimated effort 2–3 h.
+>
+> **Open questions (lead, before building):**
+> 1. ~~Sport mismatch~~ **Decided 2026-10-20 (user): add a second, football replay game** that uses the NFL odds table; the basketball
+>    game `harbor-vs-summit` stays as is (and stays the default `DEMO`). Implications for the build:
+>    - Contract (lead): `Player.position` gains football positions (or becomes sport-specific), `Game` gets `sport: 'basketball' | 'football'`,
+>      props gain optional `odds {p, multiplier}`; drive state (`yardline_100`, half clock) on football events.
+>    - Engine: football event types (drive start/end, TD, FG, punt, turnover), football fantasy scoring, drive props
+>      ("Will they score on this drive?" / "…a touchdown?") resolved from `fixed_drive_result`-style events; odds precomputed into the
+>      replay JSON per prop (no live lookup).
+>    - New fictional game file `server/src/game/games/<football-game>.json` (fictional teams/players, ~8 per team, nicknames for voice).
+>    - MCP tools/widget, assistant router, device fallback card: show football positions and drive props; `setup_watch_party` takes a game.
+>    - TV view (`web/tv/**`) is Codex's — football rendering there needs Codex; until then the TV must at least not break on a football game.
+> 2. ~~Bonuses that don't exist yet~~ **Decided 2026-10-20 (user): define and add them** — speed buckets + contrarian bonus, see
+>    "Scoring bonuses" below. They apply to **both** games (basketball and football), not only drive props.
+> 3. **Wording.** Rules say no real money / wager language: call it a **points multiplier**, not a payout, in UI and voice copy.
+>    Real-league data is fine as a statistics source; the UI still shows only fictional teams.
+> 4. **Contract.** A per-question probability + multiplier on `Prop`/`PropView` is a change to `server/src/shared/types.ts` (lead-owned).
+
+### Goal
+Build a lookup table that answers "how often do drives like this one end in points?" and save it as a JSON file. The game server
+reads it to put a percentage on each question and adjust the points multiplier. Fits in one evening.
+
+### 1. Get the data
+nflverse play-by-play data: free, every play since 1999, hosted on GitHub.
+- Seasons **2015–2025**: recent enough to reflect how the game is played now, tens of thousands of drives.
+- Tool: a Python script using the `nflreadpy` package. Fallback: download the season files directly from the nflverse-data releases
+  on GitHub.
+
+### 2. Reduce to one row per drive
+Group plays by game and drive, keep the first play of each drive, and pull:
+
+| Column | What it holds |
+|---|---|
+| `yardline_100` | Yards from the end zone where the drive starts |
+| `half_seconds_remaining` | Time left in the half |
+| `fixed_drive_result` | How the drive ended: touchdown, field goal, punt, turnover, end of half, … |
+
+Drop drives with missing fields and kneel-down drives at the end of a half (they skew the numbers).
+
+### 3. Label outcomes
+- `scored`: the drive ended in a touchdown or field goal.
+- `td`: the drive ended in a touchdown.
+
+Both labels → "Will they score?" and "Will they get a touchdown?" with no extra work.
+
+### 4. Bucket and count
+- Field position: 10-yard bands, from own 1–10 up to the opponent's red zone.
+- Clock: two states — `normal`, and `two-minute` (under 120 s left in the half).
+- Per bucket store `p_score`, `p_td`, `n` (drives). Buckets with fewer than ~200 drives merge into a neighbour so a thin sample
+  doesn't distort the odds.
+- Skip score difference for now: it helps accuracy but multiplies the bucket count; not worth it before the deadline.
+
+### 5. Sanity checks
+- [ ] Scoring odds rise steadily as the drive starts closer to the end zone. A band that breaks the pattern → look for a filtering bug.
+- [ ] Touchdown odds are always ≤ scoring odds.
+- [ ] Spot-check two or three buckets against what you'd expect from watching football.
+
+### 6. Output and wiring
+Write `drive_odds.json`, shaped like:
+```json
+{ "40-49|normal": { "p_score": 0.42, "p_td": 0.25, "n": 1234 } }
+```
+- Game server: add `getOdds(yardline_100, half_seconds_remaining, type)` to look up the right bucket.
+- Demo: precompute the odds for each question in the replay JSON so nothing is calculated live (keeps MCP tools < 500 ms).
+- Points multiplier for correct picks stacks with the speed buckets and the contrarian bonus (see open question 2):
+
+  `multiplier = clamp(0.5 / p_pick, 0.5, 2.0)`
+
+  e.g. a 25 % pick → ×2.0, a 50 % pick → ×1.0, an 80 % pick → ×0.625.
+
+### Scoring bonuses (speed buckets + contrarian), stacked with streak and odds
+Today a correct pick scores `PICK_BASE_POINTS (10) × STREAK_MULTIPLIERS[streak]` (`[1, 1.5, 2]`, `server/src/shared/types.ts`, tallied in
+`tallyPicks` in `server/src/game/engine.ts`). Phase 8 adds three more factors. Wrong picks still score 0 and reset the streak.
+
+**1. Odds multiplier** (football drive props only; every other prop = ×1.0)
+`odds = clamp(0.5 / p_pick, 0.5, 2.0)`, where `p_pick` is the precomputed probability of the option the member picked
+(`p_score` / `1 − p_score`, `p_td` / `1 − p_td`). Stored on the prop in the replay JSON; never computed live.
+
+**2. Speed bucket** — reward calling it early. `f = (pickGameT − opensAt) / (locksAt − opensAt)` using the game clock at the time of
+the member's **last** change to that pick (changing your mind moves you to a later bucket).
+
+| Bucket | When (`f`) | Factor | Copy (voice/UI) |
+|---|---|---|---|
+| Early | `f ≤ 0.25` | ×1.25 | "Early call" |
+| On time | `0.25 < f ≤ 0.60` | ×1.10 | "Quick call" |
+| Late | `f > 0.60` | ×1.00 | — |
+
+**3. Contrarian bonus** — reward going against the room. Computed at resolution over everyone in the party who picked that prop
+(all households). `share` = fraction of pickers who chose the same option as this member.
+
+| Case | Condition | Factor | Copy |
+|---|---|---|---|
+| Lone call | only picker of that option and ≥ 3 pickers total | ×1.50 | "Lone call" |
+| Minority | `share < 0.5` and ≥ 2 pickers total | ×1.20 | "Against the room" |
+| Crowd | otherwise (incl. a single picker) | ×1.00 | — |
+
+**Stacking and caps**
+`points = round_half(PICK_BASE_POINTS × streak × odds × speed × contrarian)`, with the combined factor `streak × odds × speed ×
+contrarian` capped at **×5** (max 50 points per pick) so one lucky pick can't decide the night. `round_half` rounds to the nearest 0.5.
+- Example: Maya is on a 2-pick streak (×2), picks "No score" on a drive where `p_pick = 0.35` (odds ×1.43), at `f = 0.2` (×1.25),
+  and she is the only one of 4 pickers on that side (×1.5): factor 5.36 → capped ×5 → **50 points**.
+- Example: Leo, no streak (×1), basketball prop (×1), late (×1), with the crowd (×1): **10 points**, same as today.
+
+**Build notes (when Phase 8 is built)**
+- Contract (lead): `Pick` gains `gameT` (game clock at last change; `at` is wall-clock ms today, `opensAt`/`locksAt` are game
+  seconds); `Prop` gains optional `odds: Record<optionId, number>` (p per option); `PickTally`/standings expose a per-pick breakdown
+  `{base, streak, odds, speed, contrarian, points}` so the TV, widget and assistant can say *why* ("Early call ×1.25, Lone call ×1.5").
+- Engine: extend `tallyPicks`; contrarian needs all picks for the prop (the party's picks, not only the member's).
+- Existing tests with fixed pick totals (play script "Benchwarmer of the night", season seed) will change — update expectations
+  deliberately, don't weaken them; add unit tests for each bucket edge (`f = 0.25`, `0.60`; `share = 0.5`; 2 vs 3 pickers; cap).
+- Assistant/voice: mention at most one bonus per reply ("Lone call — 15 points").
+- No wager language: "points", "multiplier", "call" — never "payout", "odds boost", "bet".
+
+### Later: questions mid-drive
+The same data supports questions asked partway through a drive: use every play instead of only the first play of each drive, and add
+down and distance to the bucket key → "3rd and 7 at midfield — will they score?" A nice touch for the pitch if there's time Thursday.
 
 ## 11. Friction log template
 ```md

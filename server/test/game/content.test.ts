@@ -4,7 +4,9 @@ import type { Game, GameEvent, Prop } from '../../src/shared/types.js';
 import { fantasyByPlayer, resolveProp, scoreAt } from '../../src/game/engine.js';
 
 const game = JSON.parse(readFileSync(new URL('../../src/game/games/harbor-vs-summit.json', import.meta.url), 'utf8')) as Game;
-const props = JSON.parse(readFileSync(new URL('../../src/ai/fallback/props.json', import.meta.url), 'utf8')) as Prop[];
+const props = (JSON.parse(readFileSync(new URL('../../src/ai/fallback/props.json', import.meta.url), 'utf8')) as Prop[]).filter(
+  (p) => p.gameId === 'harbor-vs-summit',
+);
 const events: GameEvent[] = game.events;
 
 const teamOf = new Map<string, 'home' | 'away'>();
@@ -132,7 +134,7 @@ describe('fallback props', () => {
         expect(r.afterT).toBeGreaterThanOrEqual(p.id === 'fb-1' ? 40 : p.locksAt);
         expect(r.untilT).toBeLessThanOrEqual(p.resolvesAt);
         expect(r.afterT).toBeLessThan(r.untilT);
-      } else {
+      } else if (r.kind === 'totalPointsOver') {
         expect(r.atT).toBe(p.resolvesAt);
         expect(r.line % 1).toBe(0.5);
       }

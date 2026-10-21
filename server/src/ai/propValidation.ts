@@ -5,6 +5,7 @@ const OPTION_IDS: Record<ResolverSpec['kind'], { required: string[]; optional: s
   nextScoreType: { required: ['three', 'two', 'ft'], optional: ['other'] },
   teamScoresFirst: { required: ['home', 'away'], optional: ['none'] },
   totalPointsOver: { required: ['over', 'under'], optional: [] },
+  driveResult: { required: ['yes', 'no'], optional: [] },
 };
 
 const MIN_OPEN_WINDOW = 40;
@@ -60,6 +61,9 @@ function validateResolver(raw: unknown, p: { locksAt: number; resolvesAt: number
       return num(raw.atT) && num(raw.line) && raw.line > 0 && raw.atT >= p.locksAt && raw.atT <= p.resolvesAt
         ? { kind: 'totalPointsOver', atT: raw.atT, line: raw.line }
         : undefined;
+    case 'driveResult':
+      // Football drive props are scripted with historical odds; AI-generated ones are never accepted.
+      return undefined;
     default:
       return undefined;
   }

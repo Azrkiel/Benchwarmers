@@ -1,4 +1,5 @@
-import type { DraftBoardEntry, Household, PartyStateResponse, SeasonResponse } from '@shared/types';
+import { BONUS_COPY } from '@shared/types';
+import type { DraftBoardEntry, Household, PartyStateResponse, PropView, SeasonResponse } from '@shared/types';
 import './fallback.css';
 import type { FallbackModel } from './fallbackModel';
 
@@ -72,6 +73,39 @@ function Draft({ state, code }: { state: PartyStateResponse; code?: string }) {
   );
 }
 
+/** Football drive props carry historical odds; mirrors the server widget's oddsLine(). */
+export function oddsLine(prop: PropView): string {
+  const o = prop.odds;
+  if (!o || prop.resolver.kind !== 'driveResult') return '';
+  const p = o.p?.yes;
+  if (typeof p !== 'number' || !Number.isFinite(p)) return '';
+  const pct = Math.round(p * 100);
+  const late = o.bucket.includes('two-minute');
+  return prop.resolver.outcome === 'td'
+    ? `Drives like this get a touchdown ${pct}% of the time`
+    : `Drives like this${late ? ' late in the half' : ''} score ${pct}% of the time`;
+}
+
+function BonusChips({ state }: { state: PartyStateResponse }) {
+  const r = state.lastResolvedProp;
+  if (!r) return null;
+  const chips = state.picks.filter((p) => p.propId === r.id && p.score && p.score.correct && p.score.bonuses.length > 0);
+  if (chips.length === 0) return null;
+  return (
+    <div className="fb-bonuses" data-testid="bonus-chips">
+      {chips.map((p) => {
+        const sc = p.score!;
+        const labels = sc.bonuses.slice(0, 2).map((b) => BONUS_COPY[b] ?? b);
+        return (
+          <span className="fb-bonus" key={`${p.memberId}`}>
+            {p.memberName} {labels.join(' + ')} · {sc.points} pts
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 function Tonight({ state, householdId }: { state: PartyStateResponse; householdId?: string }) {
   const { away, home, clock } = state.game;
   return (
@@ -113,6 +147,12 @@ function Tonight({ state, householdId }: { state: PartyStateResponse; householdI
           <span className="fb-tag">Live question</span> {state.activeProp.question}
         </p>
       ) : null}
+      {state.activeProp && oddsLine(state.activeProp) ? (
+        <p className="fb-odds" data-testid="odds-line">
+          {oddsLine(state.activeProp)}
+        </p>
+      ) : null}
+      <BonusChips state={state} />
     </>
   );
 }

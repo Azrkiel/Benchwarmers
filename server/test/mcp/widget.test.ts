@@ -136,6 +136,59 @@ describe('widget views from real state', () => {
   });
 });
 
+describe('football positions, drive odds, bonus chips', () => {
+  const driveProp = (state: PartyStateResponse, outcome: 'score' | 'td', bucket: string, yes: number) => {
+    const s = structuredClone(state);
+    const prop = s.activeProp!;
+    prop.resolver = { kind: 'driveResult', driveId: 'd1', outcome } as any;
+    prop.odds = { source: 'drive_odds', bucket, n: 100, p: { yes, no: 1 - yes } };
+    return s;
+  };
+
+  it('shows football positions on draft cards', async () => {
+    const { state } = await liveState();
+    const s = structuredClone(state);
+    s.draftBoard[0].ownerMemberId = undefined;
+    const positions = ['QB', 'RB', 'WR', 'TE', 'K'];
+    positions.forEach((pos, i) => {
+      if (s.draftBoard[i]) s.draftBoard[i].player.position = pos as any;
+    });
+    const html = renderDraft(s);
+    for (const pos of positions.slice(0, Math.min(5, s.draftBoard.length))) expect(html).toContain(`<span class="pos">${pos}</span>`);
+  });
+
+  it('renders the drive-odds line for score and td props, with the late-half variant', async () => {
+    const { state } = await liveState();
+    expect(renderTonight(driveProp(state, 'score', '40-49|normal', 0.36), T0, T0 + 30_000)).toContain('Drives like this score 36% of the time');
+    expect(renderTonight(driveProp(state, 'td', '40-49|normal', 0.224), T0, T0 + 30_000)).toContain('Drives like this get a touchdown 22% of the time');
+    expect(renderTonight(driveProp(state, 'score', '40-49|two-minute', 0.41), T0, T0 + 30_000)).toContain('Drives like this late in the half score 41% of the time');
+  });
+
+  it('shows no odds line without odds or for non-drive props', async () => {
+    const { state } = await liveState();
+    expect(renderTonight(state, T0, T0 + 30_000)).not.toContain('Drives like this');
+    const s = driveProp(state, 'score', 'x|normal', 0.5);
+    delete s.activeProp!.odds;
+    expect(renderTonight(s, T0, T0 + 30_000)).not.toContain('Drives like this');
+  });
+
+  it('renders bonus chips for correct picks on the last resolved prop', async () => {
+    const { state } = await liveState();
+    const s = structuredClone(state);
+    const prev = s.activeProp!;
+    s.lastResolvedProp = { ...prev, status: 'resolved', correctOptionId: prev.options[0].id };
+    const base = { propId: prev.id, memberId: 'm1', optionId: prev.options[0].id, base: 10, streak: 1, odds: 1, speed: 1, contrarian: 1, factor: 1 };
+    s.picks = [
+      { ...s.picks[0], propId: prev.id, memberName: 'Sam', score: { ...base, correct: true, points: 19, bonuses: ['lone_call'] } },
+      { ...s.picks[0], propId: prev.id, memberName: 'Maya', score: { ...base, correct: false, points: 0, bonuses: [] } },
+    ] as any;
+    const html = renderTonight(s, T0, T0 + 30_000);
+    expect(html).toContain('Lone call · 19 pts');
+    expect(html).not.toContain('Maya</span> ');
+    expect((html.match(/class="bonus"/g) ?? []).length).toBe(1);
+  });
+});
+
 describe('built widget bundle', () => {
   const dist = new URL('../../src/mcp/widget/dist/benchwarmers.html', import.meta.url);
   const built = fs.existsSync(dist);
