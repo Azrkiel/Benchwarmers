@@ -11,7 +11,7 @@
 > | 5 TV view | ✅ merged (`phase/5-tv`, `phase/5b-tv-polish`); 🔀 further TV work is Codex's |
 > | 6 Polish + submission | ✅ merged (`phase/6-polish`): `npm run demo` (fresh clone → running in ~35 s), README, DEMO_SCRIPT, PRODUCT_FEEDBACK, SUBMISSION draft; 🧑 video + Devpost links TODO |
 > | 7 (added) Voice ID — no "I'm Maya" needed | ✅ merged (`phase/7-voiceid`, `phase/7b-voiceid-tuning`), wired into device page; real-mic untested |
-> | 8 (added) Drive odds model — real-data odds per question + points multiplier | ⬜ planned (§10c): second **football** replay game using NFL drive odds + speed/contrarian bonuses (both games); not started |
+> | 8 (added) Drive odds model — real-data odds per question + points multiplier | ✅ built session 3 (2026-10-21): 8a odds table (64,085 drives), 8b bonuses (both games), 8c football game `riverton-vs-ironwood`; TV football view is Codex's (gap list in HANDOFF) |
 > Full resume notes: `docs/HANDOFF.md`. Orchestration/ownership: `docs/ORCHESTRATION.md`.
 
 > **How to use this file:** put it at the root of an empty repo, open Claude Code there, and say:
@@ -385,7 +385,7 @@ A web page built for a TV across the room ("10-foot UI"): 1920×1080 layout, hug
 
 ## 10c. Phase 8 (added by Kevin, 2026-10-20) — Drive odds model
 
-> **Status ⬜ planned.** Source: "Drive Odds Model Plan" (Oct 20, 2026, Kevin Jiang). Estimated effort 2–3 h.
+> **Status ✅ built 2026-10-21** (phases 8a/8b/8c, see docs/ORCHESTRATION.md §5b). No two-minute drive questions (too little game time). Source: "Drive Odds Model Plan" (Oct 20, 2026, Kevin Jiang). Estimated effort 2–3 h.
 >
 > **Open questions (lead, before building):**
 > 1. ~~Sport mismatch~~ **Decided 2026-10-20 (user): add a second, football replay game** that uses the NFL odds table; the basketball

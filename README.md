@@ -120,6 +120,20 @@ Start the server, then use any of these. Step-by-step instructions, patches and 
 |---|---|
 | ![Tonight tab](docs/img/basic-host-tonight-1280.png) | ![Season tab](docs/img/basic-host-season-1280.png) |
 
+## Second game: football, drive odds and pick bonuses
+
+A second replay game, **Riverton Otters at Ironwood Forge** (`riverton-vs-ironwood`), is a fictional football game. Say "set up a watch party for the football game with the Sunday Crew". `DEMO` stays the basketball game. Its live questions are drive questions ("Will the Otters score on this drive?"). Each carries a historical percentage from a table of 64,085 real drives (nflverse play-by-play 2015–2025, CC-BY 4.0), bucketed by starting field position and clock. The table is built by `tools/odds/build_drive_odds.py`; see [tools/odds/README.md](tools/odds/README.md). Percentages are precomputed into the replay data, so no tool computes them live.
+
+Correct picks in both games earn points multipliers on top of the streak multiplier:
+
+| Bonus | When | Multiplier |
+|---|---|---|
+| Early call / Quick call | picked in the first 25% / 60% of the open window | ×1.25 / ×1.10 |
+| Lone call / Against the room | only picker of that option (3+ pickers) / under half the pickers (2+) | ×1.5 / ×1.2 |
+| Bold call (football drive questions) | `0.5 / p` of the option picked, clamped to 0.5–2 | up to ×2 |
+
+The combined multiplier is capped at ×5 (50 points per pick). Full rules: `benchwarmers://rules`, plan.md §10c.
+
 ## TV view
 
 `/tv/:code` is a big-screen display of a party. It shows the draft, live questions and results, rosters and final standings by polling the REST state; `/tv/latest` follows the newest party. Its look is being redesigned separately, so see the running app rather than screenshots.
@@ -139,9 +153,10 @@ If a model call fails, the assistant falls back to the offline router and conten
 ## Tests
 
 ```bash
-npm test                  # server (519 tests), then web (274 tests)
+npm test                  # server (667 tests), then web (278 tests)
 npm run typecheck
 npm run play -w server    # scripted full party, prints standings
+npm run play -w server -- --game riverton-vs-ironwood   # same, football
 ```
 
 Counts come from the last recorded run (`docs/HANDOFF.md`). The server suite was occasionally flaky on one machine with antivirus loopback interception; re-run if it stalls.
@@ -154,6 +169,7 @@ Counts come from the last recorded run (`docs/HANDOFF.md`). The server suite was
 - Real Bedrock has never been called; it is tested only with mocks.
 - Voice ID has not been tried with a real microphone or real people.
 - COOP/COEP headers (for threaded WASM) are set only by the Vite dev and preview servers.
+- The TV view is not football-aware yet (it draws a basketball court and shows no drive odds or bonus chips); the widget and device page are.
 
 ## Repository layout
 

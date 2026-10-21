@@ -240,3 +240,6 @@ Wave 2: 2-mcp (opus), 7-voiceid (opus) → rate-limited mid-run, resumed, merged
 Session 2: wave A 4a (opus) + 7b (sonnet) → merged (lead fixed a Bedrock-fallback double-mutation bug); 2b (sonnet) + 4b (opus)
 in parallel → 4b hit the usage limit, resumed via SendMessage, merged. Remaining: 6 polish, 3b real model run.
 Then wave D 6 (sonnet) → merged; PRs #1/#2 dev → main. Phase 8 planned (plan §10c) and, session 3, built as waves E (8a ∥ 8b) → F (8c).
+Session 3 detail: 8a (sonnet-tier) + 8b merged first try; 8c stalled once (stream watchdog) mid MCP task, resumed via SendMessage,
+merged. Lead fixes: contract `195c5ac`; vitest `maxWorkers: 6` (29 server files × own HTTP servers on 16 cores broke the <500 ms
+latency asserts). Remaining: 3b (AWS creds), Codex TV football view, human tasks.
