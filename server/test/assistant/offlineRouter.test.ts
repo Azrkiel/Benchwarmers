@@ -79,6 +79,11 @@ describe('parseUtterance', () => {
     { name: 'Sam says no score', text: 'Sam says no score', tool: 'make_pick', args: { memberName: 'Sam', choice: 'no score' }, code: true },
     { name: 'Priya says they get stopped', text: 'Priya says they get stopped', tool: 'make_pick', args: { memberName: 'Priya', choice: 'they get stopped' }, code: true },
     { name: 'will they score', text: 'will they score?', tool: 'get_game_status', args: {}, code: true },
+    { name: "I'm Sam, they score", text: "I'm Sam, they score", tool: 'make_pick', args: { memberName: 'Sam', choice: 'they score' }, code: true },
+    { name: "I'm Priya, no", text: "I'm Priya, no.", tool: 'make_pick', args: { memberName: 'Priya', choice: 'no' }, code: true },
+    { name: 'they get stopped + speaker', text: 'they get stopped', speaker: MAYA, tool: 'make_pick', args: { memberName: 'Maya', choice: 'they get stopped' }, code: true },
+    { name: 'touchdown + speaker', text: 'Touchdown!', speaker: MAYA, tool: 'make_pick', args: { memberName: 'Maya', choice: 'touchdown' }, code: true },
+    { name: "what's the score stays status", text: "I'm Sam, what's the score?", tool: 'get_game_status', args: {}, code: true },
   ];
 
   for (const c of cases) {

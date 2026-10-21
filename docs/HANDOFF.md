@@ -20,7 +20,7 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - Resume commands (Git Bash):
   ```bash
   cd ~/Downloads/xvant/Benchwarmers && git checkout dev && git pull && npm ci
-  npm run typecheck && npm test          # expect: server 667 passed, web 278 passed (vitest maxWorkers 6; ~1-in-10 Avast loopback stall remains; re-run)
+  npm run typecheck && npm test          # expect: server 672 passed, web 278 passed (vitest maxWorkers 6; ~1-in-10 Avast loopback stall remains; re-run)
   npm run play -w server                 # full scripted party → standings table, "Benchwarmer of the night: Big Mo"
   npm run play -w server -- --game riverton-vs-ironwood   # football: IRN 20 – RIV 24, "Benchwarmer of the night: Plow"
   cd server && PORT=3001 SPEED=4 npx tsx src/index.ts   # REST /api, MCP /mcp (Bearer dev-token-change-me), /healthz

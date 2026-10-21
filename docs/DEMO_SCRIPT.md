@@ -195,7 +195,7 @@ The game ends at 120 s. There is no open question between 48.25 and 61 s (12.75 
 ### Football quirks (observed)
 
 1. **Too early is a lock message.** A pick sent 0.2 s after `Start the game` (ff-1 opens at game second 2, 0.5 s real) returned `Picks are locked. The next question opens in about 1 seconds.` with `ok:false`. Wait about a second after `Start the game` before the first pick.
-2. **`I'm Sam, they score` does not make a pick.** It routes to `get_game_status` (the word "score"), so Sam gets the clock text above and no pick. A pick needs a verb the router knows: `Sam says they score` (router test `Leo says they score`), `put me down for yes`, `Priya says no`. Logged in `docs/FRICTION_LOG.md`.
+2. **Fixed after the capture run:** `I'm Sam, they score` used to route to `get_game_status` (the word "score"). Bare drive answers after a name (`I'm Sam, they score`, `I'm Priya, no`, or `touchdown` / `they get stopped` with voice ID) now make a pick (router tests `I'm Sam, they score` … `touchdown + speaker`). `I'm Sam, what's the score?` still gives the score.
 3. **"Locks in about N seconds" is in real seconds** and shrinks each turn: 7 for picks at 0.9 s, 4 for picks at 3.6 s.
 4. **Bonus chips only appear on correct picks.** Wrong picks keep `speed` and `odds` factors but `bonuses: []` and 0 points.
 5. **Maya and Priya as voice ID speakers are simulated here.** Same caveat as section 3, item 5.
@@ -233,7 +233,7 @@ Line numbers in the older rows are for the phase/6-polish branch; rows for the f
 | `Leo says no` | `make_pick` `{memberName:'Leo', choice:'no'}` | unit :77 |
 | `I'm Sam, put me down for no` | `make_pick` `{memberName:'Sam', choice:'no'}` | **untested phrase**; same path as unit :37 with choice `no` (`cleanChoice` leaves `no` alone) |
 | `Priya says no` + speaker Priya | `make_pick` `{memberName:'Priya', choice:'no'}` | **untested phrase**; same path as unit :77 (`Leo says no`) |
-| `I'm Sam, they score` | `get_game_status` `{code}` (not a pick) | **untested phrase**, and it does not pick: the `score` rule wins (`offlineRouter.ts` status regex). Unit :78 covers `Leo says they score`, which does pick |
+| `I'm Sam, they score` | `make_pick` `{memberName:'Sam', choice:'they score'}` | unit :82 (`BARE_ANSWER` in `parsePick`; fixed after the capture run, which still showed the old status reply) |
 | `Why did that one go the other way?` (football) | `explain_last_result` `{code}` | same as basketball unit :48; football conversation test :364-369 checks the answer and the right-pick line |
 | `What's the score?` (football) | `get_game_status` `{code}` | unit :62; conversation test :344-349 (`will they score?`) |
 | `Who's winning in our house?` (football) | `get_leaderboard` `{code}` | unit :46 |

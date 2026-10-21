@@ -153,7 +153,7 @@ If a model call fails, the assistant falls back to the offline router and conten
 ## Tests
 
 ```bash
-npm test                  # server (667 tests), then web (278 tests)
+npm test                  # server (672 tests), then web (278 tests)
 npm run typecheck
 npm run play -w server    # scripted full party, prints standings
 npm run play -w server -- --game riverton-vs-ironwood   # same, football

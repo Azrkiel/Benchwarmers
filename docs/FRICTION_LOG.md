@@ -189,3 +189,4 @@ Template:
 - Severity: Minor (demo phrasing only; `Sam says they score` picks correctly, router test `Leo says they score`).
 - Workaround: demo script uses `I'm Sam, put me down for no` / `Leo says no`.
 - Suggestion: in `parsePick`, treat `<name>, they score` / `they get stopped` as a pick when a drive question is open, or say so in the help reply.
+- Resolution (lead, same day): `parsePick` now accepts a bare yes/no drive answer after an optional "I'm X," prefix (`BARE_ANSWER`); tests added.
