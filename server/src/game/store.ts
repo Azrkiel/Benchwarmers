@@ -327,7 +327,9 @@ export class Store implements AiSink {
       }
       throw new GameError('PICKS_LOCKED', 'Picks are locked. That was the last question of the night.');
     }
-    const pick: Pick = { partyId: r.party.id, memberId, propId: target.id, optionId, at: this.now(), source };
+    const existing = r.picks.find((p) => p.memberId === memberId && p.propId === target.id);
+    if (existing && existing.optionId === optionId) return existing; // same option: keep original at/gameT
+    const pick: Pick = { partyId: r.party.id, memberId, propId: target.id, optionId, at: this.now(), gameT: gt, source };
     r.picks = engine.upsertPick(r.picks, pick, target, gt);
     const label = target.options.find((o) => o.id === optionId)?.label ?? optionId;
     this.addTicker(r, `${member.name} picked ${label}`);
@@ -571,6 +573,10 @@ export class Store implements AiSink {
           optionLabel: prop.options.find((o) => o.id === p.optionId)?.label ?? p.optionId,
         };
         if (lastResolved?.id === p.propId && prop.correctOptionId !== undefined) out.correct = p.optionId === prop.correctOptionId;
+        if (lastResolved?.id === p.propId) {
+          const sc = engine.tallyPicks(p.memberId, r.props, r.picks, game.events, gt).scores.find((x) => x.propId === p.propId);
+          if (sc) out.score = sc;
+        }
         return out;
       });
 
