@@ -20,7 +20,7 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - Resume commands (Git Bash):
   ```bash
   cd ~/Downloads/xvant/Benchwarmers && git checkout dev && git pull && npm ci
-  npm run typecheck && npm test          # expect: server 519 passed, web 274 passed (server suite ~1-in-8 flaky on this machine: Avast loopback stalls; re-run)
+  npm run typecheck && npm test          # expect: server 553 passed, web 274 passed (server suite ~1-in-8 flaky on this machine: Avast loopback stalls; re-run)
   npm run play -w server                 # full scripted party → standings table, "Benchwarmer of the night: Big Mo"
   cd server && PORT=3001 SPEED=4 npx tsx src/index.ts   # REST /api, MCP /mcp (Bearer dev-token-change-me), /healthz
   ```
@@ -120,8 +120,9 @@ Test helpers committed in `tools/` (screenshot.mjs, voice-test.mjs, tts-clips.ps
 6. ✅ DONE (session 2) — **Phase 6** — `npm run demo` (server SPEED=4 + web + cloudflared hint), README (architecture, protocol 2025-11-25, run steps, env table, known gaps: Alexa+ Preview/OAuth), PRODUCT_FEEDBACK (from FRICTION_LOG), DEMO_SCRIPT, SUBMISSION; PR `dev` → `main`. Done = fresh clone → demo in < 15 min.
 
 7. 🟡 IN PROGRESS (session 3, 2026-10-21; user: "continue where it's left off") — **Phase 8 — drive odds model + bonuses** — spec plan.md §10c,
-   orchestration + briefs `docs/ORCHESTRATION.md` §5b. Lead contract commit `195c5ac` (all additive). Wave E running: `phase/8a-odds`
-   (worktree `%LOCALAPPDATA%/Temp/bw-lanes/8a-odds`) ∥ `phase/8b-bonuses` (`bw-lanes/8b-bonuses`). Then wave F `phase/8c-football`.
+   orchestration + briefs `docs/ORCHESTRATION.md` §5b. Lead contract commit `195c5ac` (all additive). Wave E merged: `phase/8a-odds`
+   (64,085 drives → 17 buckets; two-minute bands 1–40 merged) and `phase/8b-bonuses` (scorePick, PickScore in state/standings,
+   bonus copy; 1-of-2 contrarian = ×1 per plan's `< 0.5`). Wave F running: `phase/8c-football` (worktree `bw-lanes/8c-football`).
    If a manager died: its worktree keeps uncommitted work → resume via SendMessage or re-brief from §5b.
    Decisions made: (a) add a **second, football** replay game that uses an NFL drive-odds table (nflverse 2015–2025 → `drive_odds.json`,
    buckets = 10-yard band × normal/two-minute, merge buckets < 200 drives); basketball `harbor-vs-summit`/`DEMO` stays; (b) **speed buckets**
