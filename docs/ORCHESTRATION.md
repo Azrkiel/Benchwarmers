@@ -202,7 +202,7 @@ Lead decisions (all phase 8 briefs):
   `tallyPicks` uses it, sums points, returns `scores: PickScore[]` and `lastScore?`; `computeStandings` sets `lastPickScore`.
   Keep `PickTally` fields the store/season already read. Fallback recap / tool text: "Lone call ×1.5" style, no wager words.
 - Acceptance: `npm run typecheck -w server` 0; `npm test -w server` green with new unit tests for every edge (`f` = 0.25 / 0.60
-  exactly, f > 1 clamps, no gameT, share = 0.5 with 2 pickers → ×1, 1-of-3 → lone, 2-of-5 → minority, 1-of-2 → minority, cap
+  exactly, f > 1 clamps, no gameT, share = 0.5 with 2 pickers → ×1, 1-of-3 → lone, 2-of-5 → minority, 1-of-2 → ×1 (share 0.5 is not < 0.5), cap
   at ×5 → 50, roundHalf, odds clamp both ends, same-option re-pick keeps gameT); `npm run play -w server` still prints
   "Benchwarmer of the night" and a standings table; live: server on 3016, a pick via `POST /api/parties/DEMO/picks` (or MCP),
   advance to resolution (SPEED=80), `GET …/state` shows `picks[].score` and `standings[].lastPickScore`. Stop by PID.
