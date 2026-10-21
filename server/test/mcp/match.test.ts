@@ -448,3 +448,94 @@ describe('matchPosition', () => {
     }
   });
 });
+
+describe('football (phase 8) matching', () => {
+  const fbGame = getGame('riverton-vs-ironwood') as Game;
+  const fbProps = fallbackProps('riverton-vs-ironwood');
+  const fbProp = (id: string): Prop => fbProps.find((p) => p.id === id) as Prop;
+  const fbOpt = (input: string, propId = 'ff-1') => {
+    const r = matchPropOption(input, fbProp(propId), fbGame);
+    return r.ok ? r.value.id : r.code;
+  };
+
+  it.each([
+    ['quarterback', 'QB'],
+    ['QB', 'QB'],
+    ['quarterbacks', 'QB'],
+    ['running back', 'RB'],
+    ['RB', 'RB'],
+    ['back', 'RB'],
+    ['receiver', 'WR'],
+    ['wide receiver', 'WR'],
+    ['WR', 'WR'],
+    ['tight end', 'TE'],
+    ['TE', 'TE'],
+    ['kicker', 'K'],
+    ['K', 'K'],
+  ])('position %s -> %s', (input, pos) => {
+    expect(val(matchPosition(input))).toBe(pos);
+    expect(val(matchPosition(input, 'football'))).toBe(pos);
+  });
+
+  it('basketball position words still map the same way with the sport given', () => {
+    expect(val(matchPosition('center', 'basketball'))).toBe('C');
+    expect(val(matchPosition('point guard', 'basketball'))).toBe('PG');
+    expect(val(matchPosition('C'))).toBe('C');
+  });
+
+  it('a miss lists the examples for the game sport, or both games when no sport is given', () => {
+    const fb = matchPosition('goalie', 'football');
+    expect(fb.ok).toBe(false);
+    if (!fb.ok) expect(fb.options).toEqual(['quarterback', 'running back', 'wide receiver', 'tight end', 'kicker']);
+    const bb = matchPosition('goalie', 'basketball');
+    if (!bb.ok) expect(bb.options).toEqual(['point guard', 'shooting guard', 'small forward', 'power forward', 'center']);
+    const any = matchPosition('goalie');
+    if (!any.ok) expect(any.options).toEqual(expect.arrayContaining(['point guard', 'quarterback']));
+  });
+
+  it.each([
+    ['yes', 'yes'],
+    ['they score', 'yes'],
+    ['touchdown', 'yes'],
+    ['score', 'yes'],
+    ['no', 'no'],
+    ['they get stopped', 'no'],
+    ['punt', 'no'],
+    ['stopped', 'no'],
+    ['no score', 'no'],
+    ['no touchdown', 'no'],
+  ])('drive prop: %s -> %s', (input, id) => {
+    expect(fbOpt(input)).toBe(id);
+    expect(fbOpt(input, 'ff-2')).toBe(id);
+  });
+
+  it('drive prop: "no score" is No even though it contains "score"', () => {
+    expect(fbOpt('no score')).toBe('no');
+    expect(fbOpt('they score')).toBe('yes');
+  });
+
+  it('drive prop: unrelated words are not an option', () => {
+    expect(fbOpt('the Otters')).toBe('NOT_FOUND');
+  });
+
+  it('finds football players by position and team, with nicknames and numbers', () => {
+    expect(playerIdIn("the Otters quarterback")).toBe('riv-qb-12');
+    expect(playerIdIn('Forge kicker')).toBe('irn-k-6');
+    expect(playerIdIn('Boots')).toBe('riv-k-3');
+    expect(playerIdIn('number 88')).toBe('riv-te-88');
+  });
+
+  it('the football game is found by sport or team words, basketball stays the default', () => {
+    const both = [getGame('harbor-vs-summit') as Game, fbGame];
+    expect(val<Game>(matchGame('the football game', both)).id).toBe('riverton-vs-ironwood');
+    expect(val<Game>(matchGame('Otters', both)).id).toBe('riverton-vs-ironwood');
+    expect(val<Game>(matchGame('Forge', both)).id).toBe('riverton-vs-ironwood');
+    expect(val<Game>(matchGame(undefined, both)).id).toBe('harbor-vs-summit');
+    expect(val<Game>(matchGame("tonight's game", both)).id).toBe('harbor-vs-summit');
+  });
+
+  function playerIdIn(input: string): string {
+    const r = matchPlayer(input, fbGame);
+    return r.ok ? r.value.id : `${r.code}: ${r.message}`;
+  }
+});

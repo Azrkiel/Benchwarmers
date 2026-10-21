@@ -303,3 +303,71 @@ describe('default party code', () => {
     expect(res.structuredContent!.code).toBe('DEMO');
   });
 });
+
+describe('football party (phase 8) voice tools', () => {
+  async function footballParty(): Promise<string> {
+    const res = await call('setup_watch_party', { crewName: 'Sunday Crew', gameTitle: 'football' });
+    expect(res.isError).not.toBe(true);
+    expect(res.structuredContent!.game).toEqual({ id: 'riverton-vs-ironwood', title: 'Riverton Otters at Ironwood Forge' });
+    return res.structuredContent!.code as string;
+  }
+
+  it('start speaks kickoff, not tip-off', async () => {
+    const code = await footballParty();
+    const res = await call('start_watch_party', { code });
+    expect(res.isError).not.toBe(true);
+    expect(textOf(res).startsWith('Kickoff!')).toBe(true);
+    expect(textOf(res)).not.toContain('Tip-off');
+  });
+
+  it('get_game_status speaks the drive and the historical odds of the open drive question', async () => {
+    const code = await footballParty();
+    await call('start_watch_party', { code });
+    advance(12.5); // 50 game seconds: drive 2 (Forge, own 30) is under way; its touchdown question is open
+    const res = await call('get_game_status', { code });
+    expect(res.isError).not.toBe(true);
+    expect(textOf(res)).toBe(
+      'Forge 0, Otters 7, Q1 8:45. Forge ball at their own 30, 1st quarter. Latest: Forge take over at their own 30. ' +
+        'Open question: Will the Forge get a touchdown on this drive? Drives like this get a touchdown 26% of the time. Locks in about 7 seconds.',
+    );
+    expect(res.structuredContent!.drive).toEqual({ team: 'home', yardline100: 70, quarter: 1 });
+    expect(res.structuredContent!.activeProp.odds).toEqual({ percentYes: 26, outcome: 'td', sampleSize: 9782 });
+  });
+
+  it('get_game_status names the opponent side when the ball is past midfield for the other team', async () => {
+    const code = await footballParty();
+    await call('start_watch_party', { code });
+    advance(37.5); // game second 150: Forge take over at the Otters' 41 (Q2); the touchdown question for it is open
+    const res = await call('get_game_status', { code });
+    expect(textOf(res)).toContain("Forge ball at the Otters' 41, 2nd quarter.");
+    expect(textOf(res)).toContain('Drives like this get a touchdown 33% of the time.');
+    expect(res.structuredContent!.drive).toEqual({ team: 'home', yardline100: 41, quarter: 2 });
+  });
+
+  it('make_pick takes the drive words: "they get stopped" is No, "they score" is Yes', async () => {
+    const code = await footballParty();
+    await call('start_watch_party', { code });
+    advance(5); // game second 20: the first drive question (ff-1) is open
+    const yes = await call('make_pick', { code, memberName: 'Maya', choice: 'they score' });
+    expect(yes.isError).not.toBe(true);
+    expect(textOf(yes)).toBe('Got it, Maya: Yes. Locks in about 3 seconds.');
+    const no = await call('make_pick', { code, memberName: 'Leo', choice: 'they get stopped' });
+    expect(textOf(no)).toBe('Got it, Leo: No. Locks in about 3 seconds.');
+    const noScore = await call('make_pick', { code, memberName: 'Sam', choice: 'no score' });
+    expect(textOf(noScore)).toBe('Got it, Sam: No. Locks in about 3 seconds.');
+  });
+
+  it('list_available_players filters by football position and names football positions when it misses', async () => {
+    const code = await footballParty();
+    const qbs = await call('list_available_players', { code, position: 'quarterback' });
+    expect(qbs.isError).not.toBe(true);
+    const players = qbs.structuredContent!.players as { position: string }[];
+    expect(players.length).toBe(2);
+    expect(players.every((p) => p.position === 'QB')).toBe(true);
+    expect(textOf(qbs)).toContain('quarterback');
+
+    const miss = await call('list_available_players', { code, position: 'goalie' });
+    expect(miss.isError).toBe(true);
+    expect(textOf(miss)).toBe("I don't know the position goalie. Try quarterback, running back, wide receiver, tight end or kicker.");
+  });
+});

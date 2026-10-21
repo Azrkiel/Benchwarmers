@@ -3,10 +3,10 @@ import fs from 'node:fs/promises';
 import { McpServer, type CallToolResult } from '@modelcontextprotocol/server';
 import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
-import { GameError, playerLabel } from '../game/engine.js';
+import { GameError, gameClock, playerLabel } from '../game/engine.js';
 import { GAMES } from '../game/games.js';
 import type { Store } from '../game/store.js';
-import type { PartyStateResponse, WatchParty } from '../shared/types.js';
+import type { Game, GameEvent, PartyStateResponse, Prop, WatchParty } from '../shared/types.js';
 import { BONUS_COPY, ROSTER_SIZE, type PickScore } from '../shared/types.js';
 import { projectionOf } from '../game/projections.js';
 import type { Position } from '../shared/types.js';
@@ -170,6 +170,38 @@ function ordinal(n: number): string {
   return `${n}${({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th'}`;
 }
 
+/** Football drive as spoken, from the latest drive start at or before the game time. */
+type DriveView = { team: 'home' | 'away'; yardline100: number; quarter: number; text: string };
+
+/** "Otters ball at their own 25, 2nd quarter". yardline100 counts yards to the opponent's end zone. */
+function currentDrive(game: Game, gameT: number): DriveView | undefined {
+  if (game.sport !== 'football') return undefined;
+  let start: GameEvent | undefined;
+  for (const e of game.events) {
+    if (e.type === 'drive' && e.drive && !e.driveResult && e.t <= gameT && (!start || e.t > start.t)) start = e;
+  }
+  if (!start?.drive) return undefined;
+  const d = start.drive;
+  const offense = d.team === 'home' ? game.home : game.away;
+  const defense = d.team === 'home' ? game.away : game.home;
+  const y = d.yardline100;
+  const theirs = nickOf(defense.name);
+  const possessive = theirs.endsWith('s') ? `${theirs}'` : `${theirs}'s`;
+  const spot = y === 50 ? 'midfield' : y > 50 ? `their own ${100 - y}` : `the ${possessive} ${y}`;
+  const quarter = gameClock(game, start.t, 'live').period;
+  return { team: d.team, yardline100: y, quarter, text: `${nickOf(offense.name)} ball at ${spot}, ${ordinal(quarter)} quarter` };
+}
+
+/** Historical odds carried on a football drive prop (never computed live). */
+function driveOdds(prop: Prop | undefined): { line: string; percentYes: number; outcome: 'score' | 'td'; sampleSize: number } | undefined {
+  if (!prop || prop.resolver.kind !== 'driveResult' || !prop.odds) return undefined;
+  const outcome = prop.resolver.outcome;
+  const percentYes = Math.round((prop.odds.p.yes ?? 0) * 100);
+  const line =
+    outcome === 'td' ? `Drives like this get a touchdown ${percentYes}% of the time.` : `Drives like this score ${percentYes}% of the time.`;
+  return { line, percentYes, outcome, sampleSize: prop.odds.n };
+}
+
 function requireGame(store: Store, state: PartyStateResponse) {
   const game = store.getGame(state.game.id);
   if (!game) throw new ToolError("I couldn't find the game for this party.", 'NOT_FOUND');
@@ -312,7 +344,8 @@ export function createServer(store: Store): McpServer {
           .map((e) => ({ memberName: e.ownerName as string, playerName: playerLabel(e.player) }));
         const n = autoFilled.length;
         const active = activePropView(state);
-        const parts = [n === 0 ? 'Tip-off! Everyone had a full roster.' : `Tip-off! The bench filled in ${n} ${n === 1 ? 'player' : 'players'}.`];
+        const opener = state.game.sport === 'football' ? 'Kickoff!' : 'Tip-off!';
+        const parts = [n === 0 ? `${opener} Everyone had a full roster.` : `${opener} The bench filled in ${n} ${n === 1 ? 'player' : 'players'}.`];
         if (active) parts.push(`First up: ${active.question} You have about ${active.secondsToLock} seconds.`);
         return ok(parts.join(' '), {
           code: partyCode,
@@ -344,6 +377,9 @@ export function createServer(store: Store): McpServer {
         const lastPlays = state.recentEvents.slice(0, 3).map((e) => e.text);
         const active = activePropView(state);
         const scoreLine = `${nickOf(home.name)} ${home.score}, ${nickOf(away.name)} ${away.score}`;
+        const game = requireGame(store, state);
+        const drive = currentDrive(game, state.game.gameT);
+        const odds = driveOdds(state.props.find((p) => p.id === state.activeProp?.id));
         const content = {
           code: partyCode,
           status: state.party.status,
@@ -351,7 +387,8 @@ export function createServer(store: Store): McpServer {
           clock: state.game.clock,
           period: state.game.period,
           lastPlays,
-          ...(active ? { activeProp: active } : {}),
+          ...(drive ? { drive: { team: drive.team, yardline100: drive.yardline100, quarter: drive.quarter } } : {}),
+          ...(active ? { activeProp: { ...active, ...(odds ? { odds: { percentYes: odds.percentYes, outcome: odds.outcome, sampleSize: odds.sampleSize } } : {}) } } : {}),
         };
 
         if (state.party.status === 'scheduled' || state.party.status === 'drafting') {
@@ -361,8 +398,13 @@ export function createServer(store: Store): McpServer {
           return ok(`Final: ${scoreLine}.`, content);
         }
         const parts = [`${scoreLine}, ${state.game.clock}.`];
+        if (drive) parts.push(`${drive.text}.`);
         if (lastPlays[0]) parts.push(`Latest: ${lastPlays[0]}`);
-        if (active) parts.push(`Open question: ${active.question} Locks in about ${active.secondsToLock} seconds.`);
+        if (active) {
+          parts.push(`Open question: ${active.question}`);
+          if (odds) parts.push(odds.line);
+          parts.push(`Locks in about ${active.secondsToLock} seconds.`);
+        }
         return ok(parts.join(' '), content);
       }),
   );
@@ -468,12 +510,15 @@ export function createServer(store: Store): McpServer {
       title: 'List available players',
       description:
         'Use when someone asks who is still available to draft, or who the best players left are. Optionally filter by team or position. ' +
-        'Examples: "Who\'s still available?", "Show me the Hawks\' guards", "Who are the best centers left?". ' +
+        'Examples: "Who\'s still available?", "Show me the Hawks\' guards", "Who are the best centers left?", "Who\'s left at quarterback?". ' +
         'Shows the draft board and returns the top undrafted players.',
       inputSchema: z.object({
         code: codeField,
-        team: z.string().optional().describe('Filter by team, e.g. "Harbor", "Hawks", "Foxes" or "SUM". Optional.'),
-        position: z.string().optional().describe('Filter by position, e.g. "point guard", "C" or "center". Optional.'),
+        team: z.string().optional().describe('Filter by team, e.g. "Harbor", "Hawks", "Foxes", "Otters" or "Forge". Optional.'),
+        position: z
+          .string()
+          .optional()
+          .describe('Filter by position, e.g. "point guard", "C", "center", "quarterback", "QB" or "tight end". Optional.'),
       }),
       _meta: uiMeta,
     },
@@ -483,7 +528,7 @@ export function createServer(store: Store): McpServer {
         const state = store.getState(partyCode);
         const game = requireGame(store, state);
         const side = team?.trim() ? unwrapMatch(matchTeam(team, game)) : undefined;
-        const pos: Position | undefined = position?.trim() ? unwrapMatch(matchPosition(position)) : undefined;
+        const pos: Position | undefined = position?.trim() ? unwrapMatch(matchPosition(position, game.sport)) : undefined;
         const available = state.draftBoard
           .filter((e) => !e.ownerMemberId && (!side || e.side === side) && (!pos || e.player.position === pos))
           .sort((a, b) => projectionOf(b.player.id) - projectionOf(a.player.id) || (a.player.id < b.player.id ? -1 : 1));
@@ -516,13 +561,15 @@ export function createServer(store: Store): McpServer {
       title: 'Draft a player',
       description:
         'Use when someone drafts a player for their roster. Fuzzy-matches names, nicknames ("Big Mo"), jersey numbers ("number 7") ' +
-        'and position plus team ("Harbor\'s point guard"). ' +
-        'Examples: "I\'m Maya, draft Big Mo", "Sam wants Harbor\'s point guard", "Draft number 7 for Maya". ' +
+        'and position plus team ("Harbor\'s point guard", "the Otters quarterback"). ' +
+        'Examples: "I\'m Maya, draft Big Mo", "Sam wants Harbor\'s point guard", "Draft number 7 for Maya", "Leo drafts the Otters quarterback". ' +
         'If the player is taken, the error lists two alternatives to offer.',
       inputSchema: z.object({
         code: codeField,
         memberName: z.string().describe('Who is drafting, e.g. "Maya". Use the first name the speaker gives.'),
-        player: z.string().describe('The player: a name, nickname, jersey number or position plus team, e.g. "Big Mo", "number 7", "Harbor\'s point guard".'),
+        player: z
+          .string()
+          .describe('The player: a name, nickname, jersey number or position plus team, e.g. "Big Mo", "number 7", "Harbor\'s point guard", "the Otters quarterback".'),
       }),
       _meta: uiMeta,
     },
@@ -564,9 +611,9 @@ export function createServer(store: Store): McpServer {
     {
       title: 'Make a pick',
       description:
-        'Use when someone answers the open question. Fuzzy-matches the choice to an option ("the over", "Hawks", "home", "a three", "free throw") ' +
+        'Use when someone answers the open question. Fuzzy-matches the choice to an option ("the over", "Hawks", "home", "a three", "free throw", "they score", "no score", "punt") ' +
         'and defaults to the question that is open now. ' +
-        'Examples: "I\'m Sam, put me down for the Hawks", "Maya says the over", "Sam, a three".',
+        'Examples: "I\'m Sam, put me down for the Hawks", "Maya says the over", "Sam, a three", "Leo says they get stopped".',
       inputSchema: z.object({
         code: codeField,
         memberName: z.string().describe('Who is picking, e.g. "Sam". Use the first name the speaker gives.'),

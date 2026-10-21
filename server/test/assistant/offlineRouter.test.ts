@@ -64,6 +64,21 @@ describe('parseUtterance', () => {
     { name: 'status', text: 'game status', tool: 'get_game_status', args: {}, code: true },
     { name: 'clock', text: "what's the clock", tool: 'get_game_status', args: {}, code: true },
     { name: 'question', text: "what's the question", tool: 'get_game_status', args: {}, code: true },
+    // Football (phase 8)
+    { name: 'football setup', text: 'set up a watch party for the football game with the Sunday Crew', tool: 'setup_watch_party', args: { crewName: 'Sunday Crew', gameTitle: 'football' } },
+    { name: 'football setup crew after game', text: 'set up a watch party for the Otters game with the Seattle crew', tool: 'setup_watch_party', args: { crewName: 'Seattle crew', gameTitle: 'Otters' } },
+    { name: 'available quarterback', text: "who's available at quarterback?", tool: 'list_available_players', args: { position: 'QB' }, code: true },
+    { name: 'available QB', text: 'who is still open at QB', tool: 'list_available_players', args: { position: 'QB' }, code: true },
+    { name: 'available running back', text: "who's left at running back?", tool: 'list_available_players', args: { position: 'RB' }, code: true },
+    { name: 'available kicker', text: "who's available at kicker", tool: 'list_available_players', args: { position: 'K' }, code: true },
+    { name: 'draft the Otters quarterback', text: 'draft the Otters quarterback', speaker: MAYA, tool: 'draft_player', args: { memberName: 'Maya', player: 'the Otters quarterback' }, code: true },
+    { name: 'draft nickname explicit', text: "I'm Leo, draft Boots", tool: 'draft_player', args: { memberName: 'Leo', player: 'Boots' }, code: true },
+    { name: 'put me down for yes', text: 'put me down for yes', speaker: MAYA, tool: 'make_pick', args: { memberName: 'Maya', choice: 'yes' }, code: true },
+    { name: 'Leo says no', text: 'Leo says no', tool: 'make_pick', args: { memberName: 'Leo', choice: 'no' }, code: true },
+    { name: 'Leo says they score', text: 'Leo says they score', tool: 'make_pick', args: { memberName: 'Leo', choice: 'they score' }, code: true },
+    { name: 'Sam says no score', text: 'Sam says no score', tool: 'make_pick', args: { memberName: 'Sam', choice: 'no score' }, code: true },
+    { name: 'Priya says they get stopped', text: 'Priya says they get stopped', tool: 'make_pick', args: { memberName: 'Priya', choice: 'they get stopped' }, code: true },
+    { name: 'will they score', text: 'will they score?', tool: 'get_game_status', args: {}, code: true },
   ];
 
   for (const c of cases) {
@@ -280,5 +295,77 @@ describe('runOffline against the real server', () => {
     expect(res.toolCalls).toEqual([]);
     expect(res.reply).toContain("can't reach the game");
     await dead.close();
+  });
+});
+
+describe('football party, offline conversation (real server, fake clock)', () => {
+  const T0 = 1_000_000;
+  let t = T0;
+  let srv: TestServer;
+  let mcp: AssistantMcp;
+
+  beforeAll(async () => {
+    srv = await startTestServer({ now: () => t, speed: 4 });
+    mcp = createMcpClient({ url: `${srv.base}/mcp`, token: srv.token });
+  });
+  afterAll(async () => {
+    await mcp.close();
+    await srv.close();
+  });
+
+  const say = (code: string | undefined, text: string, speaker?: typeof MAYA): Promise<AssistantResponse> =>
+    runOffline(req(text, { ...(code ? { partyCode: code } : {}), ...(speaker ? { speaker } : {}) }), mcp);
+
+  it('sets up the football party, drafts, starts and answers a drive question mid-drive', async () => {
+    const setup = await say(undefined, 'set up a watch party for the football game with the Sunday Crew');
+    expect(setup.toolCalls.map((c) => [c.name, c.args])).toEqual([['setup_watch_party', { crewName: 'Sunday Crew', gameTitle: 'football' }]]);
+    expect(setup.toolCalls[0].ok).toBe(true);
+    expect(setup.reply).toContain('Riverton Otters at Ironwood Forge');
+    const code = setup.partyCode!;
+    expect(code).toMatch(/^[A-Z0-9]{4}$/i);
+
+    const qb = await say(code, "I'm Maya, draft the Otters quarterback");
+    expect(qb.toolCalls[0].ok).toBe(true);
+    expect(qb.reply).toContain('quarterback');
+    const kicker = await say(code, "I'm Leo, draft Boots");
+    expect(kicker.toolCalls[0].ok).toBe(true);
+    expect(kicker.reply).toContain('kicker');
+
+    const left = await say(code, "who's available at quarterback?");
+    expect(left.toolCalls[0].ok).toBe(true);
+    expect(left.reply).not.toContain('Colt Mason');
+    expect(left.reply).toContain('quarterback');
+
+    const started = await say(code, 'start the party');
+    expect(started.toolCalls[0].ok).toBe(true);
+    expect(started.reply).toMatch(/^Kickoff!/);
+
+    t += 6_250; // 25 game seconds in: drive 1 (Otters, own 25) is under way and its question is open
+    const status = await say(code, "will they score?");
+    expect(status.toolCalls[0].name).toBe('get_game_status');
+    expect(status.toolCalls[0].ok).toBe(true);
+    expect(status.reply).toBe(
+      'Forge 0, Otters 0, Q1 11:53. Otters ball at their own 25, 1st quarter. Latest: Otters take over at their own 25. Kickoff is in the air. ' +
+        'Open question: Will the Otters score on this drive? Drives like this score 36% of the time. Locks in about 2 seconds.',
+    );
+
+    const leo = await say(code, 'Leo says they score');
+    expect(leo.toolCalls[0].ok).toBe(true);
+    expect(leo.reply).toBe('Got it, Leo: Yes. Locks in about 2 seconds.');
+    const sam = await say(code, 'Sam says no score');
+    expect(sam.toolCalls[0].ok).toBe(true);
+    expect(sam.reply).toBe('Got it, Sam: No. Locks in about 2 seconds.');
+
+    t += 2_000; // game second 33: the question has locked
+    const late = await say(code, 'Priya says yes');
+    expect(late.toolCalls[0].ok).toBe(false);
+    expect(late.reply).toMatch(/locked/i);
+
+    t += 2_000; // game second 41: the drive ends in a touchdown and the question resolves
+    const why = await say(code, 'why did that one go the other way?');
+    expect(why.toolCalls[0].ok).toBe(true);
+    expect(why.reply).toContain('Will the Otters score on this drive?');
+    expect(why.reply).toContain('The answer was Yes.');
+    expect(why.reply).toContain('Got it right: Leo.');
   });
 });
