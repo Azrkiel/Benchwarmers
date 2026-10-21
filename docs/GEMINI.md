@@ -58,7 +58,7 @@ The assistant and background worker share one process-local pool.
 4. Each key is attempted at most once per model request, within a total deadline. Cooling/disabled keys are skipped. If no key is available, content uses templates and the assistant uses its offline router.
 5. Bad request/model errors such as HTTP 400/404 fail immediately rather than cycling through keys. A malformed generated JSON reply gets one correction attempt.
 
-Defaults: `GEMINI_KEY_COOLDOWN_MS=60000`, `GEMINI_TIMEOUT_MS=15000`. There is no infinite retry loop, automatic quota increase or background polling. Keys belonging to the same Google project can share quotas; adding them does not multiply that project's allowance. Cooldowns are local to this server process and reset on restart.
+Defaults: `GEMINI_KEY_COOLDOWN_MS=60000`, `GEMINI_TIMEOUT_MS=60000`. Each attempt uses at most half the deadline when multiple keys are available, reserving time for failover. There is no infinite retry loop, automatic quota increase or background polling. Keys belonging to the same Google project can share quotas; adding them does not multiply that project's allowance. Cooldowns are local to this server process and reset on restart.
 
 Key switching retries only generation with the same conversation. Already-executed MCP tools are not replayed as part of transport retries. If generation ultimately fails after a successful draft/pick/setup, the assistant returns completed tool results instead of re-planning the turn offline. Thought signatures remain attached to the original model content.
 
@@ -89,6 +89,8 @@ References: [Gemini API request format](https://ai.google.dev/api/generate-conte
 
 ## Verification
 
-The integration is covered by mocked Google responses and a real HTTP/MCP/store checkpoint that performs and persists exactly one draft after key failover. No live Google request was made during implementation; credentials are supplied locally by the user.
+The integration is covered by mocked Google responses and a real HTTP/MCP/store checkpoint that performs and persists exactly one draft after key failover. Live Google model access and JSON generation were verified after the user supplied credentials locally.
 
-The full server suite passes with `npm run test -w server -- --maxWorkers=1` (517 tests). The web suite passes (188 tests), web production build passes, and server/widget/web typechecks pass. One parallel server run hit the already-documented Windows loopback timeout across both existing and new HTTP suites; serial execution passed without weakening tests or changing timeouts.
+On Windows, server startup adds the Windows certificate store to Node's default trust roots, retaining certificate verification. This supports locally installed HTTPS proxy/inspection certificates. Gemini 3.8 Flash uses `LOW` thinking; it rejects `MINIMAL`. A live connection test took about 22 seconds, so the default model-request deadline is 60 seconds rather than 15.
+
+The full server suite passes with `npm run test -w server -- --maxWorkers=1` (519 tests after the live-provider fixes). The web suite passes (188 tests), web production build passes, and server/widget/web typechecks pass. One parallel server run hit the already-documented Windows loopback timeout across both existing and new HTTP suites; serial execution passed without weakening tests or changing timeouts.

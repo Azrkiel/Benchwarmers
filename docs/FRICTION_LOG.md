@@ -1,5 +1,14 @@
 # Friction log
 
+### [2026-10-20 22:00] Live Gemini exposed Windows CA trust and model-specific thinking settings
+- Tool/SDK + version: Node 22.23.3 native fetch/TLS, Gemini 3.8 Flash REST generateContent.
+- Task attempted: verify real Gemini generation with user-supplied server credentials.
+- Steps taken: request model metadata and a small JSON response; compare normal Node trust with the Windows system store; retry the generation with LOW thinking.
+- Expected vs actual: metadata initially failed with UNABLE_TO_VERIFY_LEAF_SIGNATURE. With system CAs it returned HTTP 200. Generation then returned HTTP 400 because MINIMAL thinking is unsupported by Gemini 3.8 Flash. LOW succeeded, with the first successful call taking about 22 seconds.
+- Severity: Major (silent offline/template fallback masked live provider failures).
+- Workaround: load Windows system CAs while preserving default trust and TLS validation; select LOW for 3.8 Flash; reserve a 60-second model deadline with bounded failover. Added regression tests for retained certificate identities and model-specific thinking settings.
+- Suggestion: Google model setup should link the per-model supported thinking-level table; Windows Node setup should explain system-CA opt-in for machines with HTTPS inspection.
+
 Template:
 ```md
 ### [YYYY-MM-DD HH:MM] <short title>

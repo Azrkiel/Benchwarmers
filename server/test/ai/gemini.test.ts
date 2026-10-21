@@ -25,7 +25,7 @@ describe('Gemini key pool', () => {
     expect(fetch.mock.calls[0][0]).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent');
     expect(fetch.mock.calls[0][0]).not.toContain('first');
     expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({
-      ...request, generationConfig: { thinkingConfig: { thinkingLevel: 'MINIMAL' } },
+      ...request, generationConfig: { thinkingConfig: { thinkingLevel: 'LOW' } },
     });
     vi.stubEnv('GEMINI_API_KEYS', '');
     await createGeminiClient({ fetch }).generateContent(request);
@@ -140,7 +140,8 @@ describe('Gemini key pool', () => {
   });
 
   it.each([
-    ['gemini-3.8-flash', { thinkingLevel: 'MINIMAL' }],
+    ['gemini-3.8-flash', { thinkingLevel: 'LOW' }],
+    ['gemini-3.6-flash', { thinkingLevel: 'MINIMAL' }],
     ['gemini-3.1-pro-preview', { thinkingLevel: 'LOW' }],
     ['gemini-2.5-flash', { thinkingBudget: 0 }],
   ])('uses compatible short-answer thinking settings for %s', async (modelId, thinkingConfig) => {

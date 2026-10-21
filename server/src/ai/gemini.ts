@@ -66,7 +66,7 @@ export function createGeminiClient(opts: {
     .map((value) => ({ value, until: 0, disabled: false, failures: 0 }));
   const fetcher = opts.fetch ?? globalThis.fetch;
   const now = opts.now ?? Date.now;
-  const timeoutMs = positive(opts.timeoutMs ?? process.env.GEMINI_TIMEOUT_MS, 15000);
+  const timeoutMs = positive(opts.timeoutMs ?? process.env.GEMINI_TIMEOUT_MS, 60000);
   const cooldownMs = positive(opts.cooldownMs ?? process.env.GEMINI_KEY_COOLDOWN_MS, 60000);
   let current = 0;
 
@@ -75,7 +75,7 @@ export function createGeminiClient(opts: {
       if (!keys.length) throw new GeminiError('Set GEMINI_API_KEY or GEMINI_API_KEYS in the server environment');
       const deadline = now() + timeoutMs;
       // Reserve part of the total deadline for failover if a key's attempt hangs.
-      const attemptTimeoutMs = Math.max(1, Math.floor(timeoutMs / Math.min(keys.length, 3)));
+      const attemptTimeoutMs = Math.max(1, Math.floor(timeoutMs / Math.min(keys.length, 2)));
       const attempted = new Set<number>();
       while (attempted.size < keys.length && now() < deadline) {
         let i = -1;
@@ -91,7 +91,9 @@ export function createGeminiClient(opts: {
         const key = keys[i];
         attempted.add(i);
         // Thinking must leave room for the short answer, especially in the content JSON calls.
-        const thinkingConfig = /^gemini-[34]/.test(model) ? { thinkingLevel: /flash/.test(model) ? 'MINIMAL' : 'LOW' }
+        // Minimal thinking is model-specific; Gemini 3.8 Flash rejects it.
+        const supportsMinimal = /^gemini-(?:3-flash-preview|3\.(?:1|5)-flash-lite|3\.6-flash)/.test(model);
+        const thinkingConfig = /^gemini-[34]/.test(model) ? { thinkingLevel: supportsMinimal ? 'MINIMAL' : 'LOW' }
           : /^gemini-2\.5-flash/.test(model) ? { thinkingBudget: 0 } : undefined;
         const body: GeminiRequest = {
           ...request,
