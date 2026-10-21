@@ -276,14 +276,15 @@ export function createServer(store: Store): McpServer {
         const households = householdViews(state);
         const first = state.props[0];
         const firstProp = first ? { id: first.id, question: first.question, options: first.options.map((o) => o.label) } : undefined;
-        const nextSteps = [`Draft ${ROSTER_SIZE} players each. Say: draft Big Mo.`, 'Say: start the party when everyone is ready.'];
+        const eg = game.sport === 'football' ? 'Slingshot' : 'Big Mo';
+        const nextSteps = [`Draft ${ROSTER_SIZE} players each. Say: draft ${eg}.`, 'Say: start the party when everyone is ready.'];
         const invited = households.map((h) => `${h.name} in ${h.city}`);
         const people = households.flatMap((h) => h.members);
         const parts = [
           `Your watch party for ${game.title}${when ? ` for ${when}` : ''} is set. The code is ${party.code}.`,
           `I invited ${joinNames(invited)}: ${joinNames(people)}.`,
           `Everyone drafts ${ROSTER_SIZE} players, then I'll open the first question${firstProp ? `: ${firstProp.question}` : '.'}`,
-          "Say 'draft Big Mo' to start, or 'start the party' when everyone's ready.",
+          `Say 'draft ${eg}' to start, or 'start the party' when everyone's ready.`,
         ];
         return ok(parts.join(' '), {
           code: party.code,

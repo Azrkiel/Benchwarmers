@@ -171,3 +171,12 @@ Template:
 - Severity: Minor
 - Workaround: stdlib-only script, cache in `tools/odds/.cache/` (gitignored).
 - Suggestion: nflverse docs: mention the direct release URLs as a no-dependency path.
+
+### [2026-10-21 13:00] Parallel server test run: MCP latency budget (500 ms) fails under load (phase 8c)
+- Tool/SDK + version: vitest 3 (parallel files), Express 5 `/mcp` over loopback, Avast web shield.
+- Task attempted: `npm test` at the end of phase 8c (29 server test files).
+- Steps taken: ran the suite 4 times; compared with `vitest run --no-file-parallelism` and with the failing files alone.
+- Expected vs actual: expected green. Parallel runs failed 5-9 tests per run in `mcp/checkpoint`, `mcp/tools`, `mcp/ui-tools` with `setup_watch_party took 500-880 ms` (the 500 ms budget assertion) and follow-on failures; each failing file passes alone, and the whole suite passes serially (667/667).
+- Severity: Minor (test environment only; tool latency in isolation is well under budget)
+- Workaround: re-run, or `cd server && npx vitest run --no-file-parallelism`.
+- Suggestion: run the loopback `/mcp` test files in one serial vitest project, or measure the budget in-process.
