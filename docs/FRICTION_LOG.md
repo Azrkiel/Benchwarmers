@@ -162,3 +162,12 @@ Template:
 - Severity: Minor (console noise only)
 - Workaround: none needed for the demo.
 - Suggestion: server: skip `forceChunked` for empty-body 202 responses (send `Content-Length: 0`).
+
+### [2026-10-21 12:00] Python on this machine: `python` has no pip, nflreadpy unavailable
+- Tool/SDK + version: `py -3` (Python 3.14.5), nflverse-data `pbp` release files.
+- Task attempted: build the NFL drive-odds table (phase 8a).
+- Steps taken: skipped `nflreadpy`; wrote a stdlib-only script that downloads `play_by_play_{year}.csv.gz` with `urllib` and parses with `gzip` + `csv`.
+- Expected vs actual: Avast HTTPS interception did not block `urllib` with `ssl.create_default_context()` + `load_default_certs()` (Windows store); all 11 seasons downloaded with verification on.
+- Severity: Minor
+- Workaround: stdlib-only script, cache in `tools/odds/.cache/` (gitignored).
+- Suggestion: nflverse docs: mention the direct release URLs as a no-dependency path.
