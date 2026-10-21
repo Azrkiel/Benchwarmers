@@ -74,7 +74,8 @@ function decidingEvent(prop: Prop, events: GameEvent[]): GameEvent | undefined {
   let found: GameEvent | undefined;
   if (r.kind === 'nextScoreType') found = scores.find((e) => e.t >= r.afterT);
   else if (r.kind === 'teamScoresFirst') found = scores.find((e) => e.t >= r.afterT && e.t <= r.untilT);
-  else found = [...scores].reverse().find((e) => e.t <= r.atT);
+  else if (r.kind === 'totalPointsOver') found = [...scores].reverse().find((e) => e.t <= r.atT);
+  else found = events.find((e) => e.drive?.id === r.driveId && e.driveResult !== undefined);
   return found ?? events[events.length - 1];
 }
 
@@ -98,7 +99,9 @@ export class FallbackProvider implements AiContentProvider {
         ? 'This question asked what kind of score would come next after the pick window closed.'
         : r.kind === 'teamScoresFirst'
           ? 'This question asked which team would score first once the pick window closed.'
-          : `This question asked whether the combined score would pass ${r.line} points by the check time.`;
+          : r.kind === 'totalPointsOver'
+            ? `This question asked whether the combined score would pass ${r.line} points by the check time.`
+            : `This question asked whether the drive would end in ${r.outcome === 'td' ? 'a touchdown' : 'points'}.`;
     return clean(`The right answer was ${label}. ${how}${evPart}`, `The right answer was ${label}.`);
   }
 

@@ -372,6 +372,11 @@ function propSynonyms(prop: Prop, game: Game): Record<string, string[]> {
         over: ['over', 'the over', 'more', 'higher', 'yes'],
         under: ['under', 'the under', 'less', 'fewer', 'lower', 'no'],
       };
+    case 'driveResult':
+      return {
+        yes: ['yes', 'yeah', 'they score', 'score', 'touchdown', 'td', 'points'],
+        no: ['no', 'nope', 'stopped', 'stop', 'punt', 'no score', 'held'],
+      };
   }
 }
 

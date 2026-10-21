@@ -124,6 +124,11 @@ const POSITION_NAMES: Record<Position, string> = {
   SF: 'small forward',
   PF: 'power forward',
   C: 'center',
+  QB: 'quarterback',
+  RB: 'running back',
+  WR: 'wide receiver',
+  TE: 'tight end',
+  K: 'kicker',
 };
 
 /** "Harbor Hawks" -> "Harbor" for the side. */

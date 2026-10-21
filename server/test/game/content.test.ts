@@ -132,7 +132,7 @@ describe('fallback props', () => {
         expect(r.afterT).toBeGreaterThanOrEqual(p.id === 'fb-1' ? 40 : p.locksAt);
         expect(r.untilT).toBeLessThanOrEqual(p.resolvesAt);
         expect(r.afterT).toBeLessThan(r.untilT);
-      } else {
+      } else if (r.kind === 'totalPointsOver') {
         expect(r.atT).toBe(p.resolvesAt);
         expect(r.line % 1).toBe(0.5);
       }

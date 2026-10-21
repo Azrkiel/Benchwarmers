@@ -5,6 +5,7 @@ const OPTION_IDS: Record<ResolverSpec['kind'], { required: string[]; optional: s
   nextScoreType: { required: ['three', 'two', 'ft'], optional: ['other'] },
   teamScoresFirst: { required: ['home', 'away'], optional: ['none'] },
   totalPointsOver: { required: ['over', 'under'], optional: [] },
+  driveResult: { required: ['yes', 'no'], optional: [] },
 };
 
 const MIN_OPEN_WINDOW = 40;

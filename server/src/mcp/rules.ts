@@ -10,6 +10,16 @@ const STAT_LABELS: Record<StatType, string> = {
   stl: 'Steal',
   blk: 'Block',
   tov: 'Turnover',
+  pass_td: 'Passing touchdown',
+  rush_td: 'Rushing touchdown',
+  rec_td: 'Receiving touchdown',
+  fg: 'Field goal',
+  xp: 'Extra point',
+  pass_yds: 'Passing yard',
+  rush_yds: 'Rushing yard',
+  rec_yds: 'Receiving yard',
+  int: 'Interception thrown',
+  fumble: 'Fumble lost',
 };
 
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));

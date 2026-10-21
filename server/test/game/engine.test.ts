@@ -489,7 +489,7 @@ describe('fantasy', () => {
     expect(round1(0.1 + 0.2)).toBe(0.3);
   });
   it('statLine', () => {
-    const z = { pts2: 0, pts3: 0, ft: 0, reb: 0, ast: 0, stl: 0, blk: 0, tov: 0 };
+    const z = Object.fromEntries(Object.keys(FANTASY_SCORING).map((k) => [k, 0])) as Record<StatType, number>;
     expect(statLine(z)).toBe('0 PTS');
     expect(statLine(undefined)).toBe('0 PTS');
     expect(statLine({ ...z, pts2: 3, pts3: 1, ft: 3, reb: 5, ast: 3, stl: 1 })).toBe('12 PTS, 5 REB, 3 AST, 1 STL');
