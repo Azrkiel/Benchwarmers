@@ -13,6 +13,7 @@ import type {
   PropGenContext,
   RecapContext,
 } from '../shared/types.js';
+import { round1 } from '../game/engine.js';
 import { BONUS_COPY } from '../shared/types.js';
 import { converseJson, type BedrockLike, type ConverseJsonOptions } from './bedrock.js';
 import { generateGeminiJson, type GeminiLike } from './gemini.js';
@@ -186,10 +187,12 @@ export class FallbackProvider implements AiContentProvider {
     if (season.length > 0) {
       const lead = season[0]!;
       const second = season[1];
+      // Season rank is by total (pick + draft points), so the race line uses the same total.
+      const total = (r: (typeof season)[number]) => round1(r.points + r.fantasyPoints);
       lines.push(
         second
-          ? `Season race: ${lead.name} leads with ${lead.points} points, ${lead.points - second.points} ahead of ${second.name}.`
-          : `Season race: ${lead.name} leads with ${lead.points} points.`,
+          ? `Season race: ${lead.name} leads with ${total(lead)} points, ${round1(total(lead) - total(second))} ahead of ${second.name}.`
+          : `Season race: ${lead.name} leads with ${total(lead)} points.`,
       );
     }
     return clean(lines.join(' '), `${ctx.game.title} is in the books. Thanks for playing!`);
