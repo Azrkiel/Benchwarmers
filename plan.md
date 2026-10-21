@@ -1,16 +1,16 @@
 # Benchwarmers — Build Plan for Claude Code (Alexa+ track)
 
-> **STATUS (2026-10-20, end of Claude session 1)** — branch `dev` @ GitHub. Legend: ✅ done · 🟡 partial · ⬜ not started · 🔀 owned by Codex.
+> **STATUS (2026-10-20, Claude session 2)** — branch `dev` @ GitHub. Legend: ✅ done · 🟡 partial · ⬜ not started · 🔀 owned by Codex.
 > | Phase | Status |
 > |---|---|
 > | 0 Environment | 🟡 done except 🧑 items (AWS creds, OBS, Local Inspector not on npm) |
 > | 1 Engine, store, REST | ✅ merged (`phase/1-engine`) |
 > | 2 MCP server + MCP App | ✅ merged (`phase/2-mcp`); widget not yet viewed in basic-host / Inspector |
 > | 3 Bedrock | ✅ code + mocked tests merged (`phase/3-ai`); 🟡 never run against real Bedrock (no AWS creds) |
-> | 4 Simulated device + assistant | ⬜ next: `/api/assistant` backend first (Bedrock tool loop + offline router) |
+> | 4 Simulated device + assistant | 🟡 backend ✅ merged (`phase/4a-assistant`); device page ⬜ next (`phase/4b-device`, Claude) |
 > | 5 TV view | ✅ merged (`phase/5-tv`, `phase/5b-tv-polish`); 🔀 further TV work is Codex's |
 > | 6 Polish + submission | ⬜ |
-> | 7 (added) Voice ID — no "I'm Maya" needed | ✅ merged (`phase/7-voiceid`); 🟡 tuning queued |
+> | 7 (added) Voice ID — no "I'm Maya" needed | ✅ merged (`phase/7-voiceid`, `phase/7b-voiceid-tuning`); wire into device page |
 > Full resume notes: `docs/HANDOFF.md`. Orchestration/ownership: `docs/ORCHESTRATION.md`.
 
 > **How to use this file:** put it at the root of an empty repo, open Claude Code there, and say:
@@ -300,8 +300,9 @@ The rules allow a simulated Alexa+ experience in a web app; ours also drives the
 - "Show agent trace" toggle listing tool calls (judges like seeing the agentic flow).
 - Demo utterances: "Set up a watch party for tonight's game with the Sunday Crew" · "Who's available at center?" · "I'm Maya, draft Big Mo" · "I'm Sam, put me down for the Hawks scoring first" · "How's my roster doing?" · "Priya takes the over" · "Who's winning in our house?" · "Why did that one go the other way?" · "How am I doing this season?"
 
-> **Status ⬜** — next up. Backend first: `server/src/assistant/` (MCP client → /mcp, Bedrock Converse tool loop ≤3 rounds,
-> offline rule-based router for zero-AWS demos, speaker hint from voice ID). Device page UI: user to decide owner (Codex is on the frontend).
+> **Status 🟡** — backend ✅ (phase/4a-assistant): `POST /api/assistant`, `server/src/assistant/` (MCP client → own /mcp,
+> offline rule-based router for the demo utterances, Bedrock Converse tool loop ≤3 rounds with offline fallback that never repeats a
+> state change, speaker hint from voice ID); 105 tests, mocked Bedrock only. Device page ⬜ next — Claude builds it on `phase/4b-device`.
 
 **Checkpoint 4:** Two Chrome windows (Austin and Seattle devices): a voice pick in one appears in the other's widget within ~1–2 s; the season question answers from persisted stats after a server restart.
 
@@ -372,11 +373,12 @@ A web page built for a TV across the room ("10-foot UI"): 1920×1080 layout, hug
 ---
 
 ## 10b. Phase 7 (added by the user) — voice ID instead of saying your name
-> **Status ✅ merged, 🟡 tuning.** `web/src/voiceid/`: mic capture @16 kHz, WavLM x-vector (`Xenova/wavlm-base-plus-sv`, q8, in a
+> **Status ✅ merged + tuned.** `web/src/voiceid/`: mic capture @16 kHz, WavLM x-vector (`Xenova/wavlm-base-plus-sv`, q8, in a
 > worker via transformers.js) with MFCC fallback, per-household enrollment (localStorage), nearest-centroid + margin match →
 > `SpeakerHint` for `AssistantRequest.speaker`; `/voice-lab` calibration page; docs/VOICE_ID.md. Real-model check passed
-> (same 0.79–0.97 vs cross 0.25–0.41). To do: threshold → ~0.70, crop to ≤3 s, COOP/COEP for threaded WASM (7.4 s/clip now),
-> wire into the device page.
+> (same 0.79–0.97 vs cross 0.25–0.41). Tuned (phase/7b): threshold 0.70 / margin 0.05,
+> loudest-3 s crop, COOP same-origin + COEP credentialless → threaded WASM, instant MFCC guess while WavLM loads; 0.9–2.1 s/clip
+> (was 7.4), held-out own-speaker ≥0.80. To do: wire into the device page.
 
 ## 11. Friction log template
 ```md
