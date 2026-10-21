@@ -240,7 +240,7 @@ export type ApiError = { error: string; code: string };
 
 // ---------- AI content contract (phase 3 implements, store consumes) ----------
 
-export type AiMode = 'fallback' | 'bedrock';
+export type AiMode = 'fallback' | 'bedrock' | 'gemini';
 
 export type PropGenContext = {
   game: Game;
@@ -258,7 +258,7 @@ export type RecapContext = {
   season: SeasonRow[];
 };
 
-/** Source of generated text. Implementations: fallback (committed JSON/templates) and Bedrock. */
+/** Source of generated text: committed fallback JSON/templates, Bedrock, or Gemini. */
 export interface AiContentProvider {
   readonly mode: AiMode;
   generateProps(ctx: PropGenContext): Promise<Prop[]>;
@@ -323,5 +323,5 @@ export type AssistantResponse = {
   uiResource?: UiResourcePayload;
   /** Party code the conversation is now about (e.g. after setup_watch_party). */
   partyCode?: string;
-  mode: 'bedrock' | 'offline';
+  mode: 'bedrock' | 'gemini' | 'offline';
 };

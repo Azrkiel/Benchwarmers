@@ -9,6 +9,7 @@ import { mountMcp } from './mcp/http.js';
 import { createAssistantRouter } from './assistant/routes.js';
 import { GAMES } from './game/games.js';
 import { Store } from './game/store.js';
+import { loadConfig } from './config.js';
 
 export function createApp(opts: { store: Store }): express.Express {
   const { store } = opts;
@@ -29,6 +30,7 @@ export function createApp(opts: { store: Store }): express.Express {
 }
 
 export async function main(): Promise<void> {
+  loadConfig();
   const store = new Store(); // DATA_FILE / SPEED env respected by Store defaults
   const app = createApp({ store });
   const port = Number(process.env.PORT) || 3001;

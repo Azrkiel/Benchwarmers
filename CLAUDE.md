@@ -8,7 +8,7 @@ Orchestration + phase status: `docs/ORCHESTRATION.md`. Resume point: `docs/HANDO
   - `src/shared/types.ts` — **the contract**. Read-only for phases; only the lead edits it.
   - `src/game/` engine (pure), store (memory + JSON file), seed, `games/harbor-vs-summit.json`.
   - `src/api/` REST under `/api`. `src/mcp/` MCP server (Streamable HTTP, stateless) + widget.
-  - `src/ai/` AI content (fallback JSON + Bedrock). `src/assistant/` device assistant loop.
+  - `src/ai/` AI content (fallback JSON + Gemini + Bedrock). `src/assistant/` device assistant loop.
   - Tests: `server/test/**/*.test.ts` (vitest). `npm test -w server`, `npm run typecheck -w server`.
 - `web/` Vite + React 19 + react-router 7. Routes: `/tv/:code`, `/device/:household`, `/voice-lab`.
   - Import contract types via `@shared/types`. Dev proxy: `/api`, `/mcp` → `http://localhost:3001`.
@@ -25,6 +25,7 @@ Orchestration + phase status: `docs/ORCHESTRATION.md`. Resume point: `docs/HANDO
 - No real money / wagers / "bet" language, no real teams or leagues, no Amazon/Alexa logos in our UI.
 - MCP tools must answer < 500 ms and never call Bedrock synchronously (AI runs in the background worker).
 - `AI_MODE=fallback` and `ASSISTANT_MODE=offline` must always work with zero AWS credentials.
+- Root `.env` loads at server startup; shell variables win. Gemini keys stay server-side. Setup: `docs/GEMINI.md`.
 - When a tool/SDK/doc misbehaves, append to `docs/FRICTION_LOG.md` using the template there.
 - Commits: `phase N: <summary>` (one per task is fine). Never weaken a test to get green.
 - Windows: Node on PATH is a bundled v22; use Git Bash for npm commands with `--`.

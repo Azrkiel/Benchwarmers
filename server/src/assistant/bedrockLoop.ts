@@ -4,6 +4,8 @@ import type { AssistantRequest, AssistantResponse } from '../shared/types.js';
 import type { AssistantMcp, ToolInfo } from './mcpClient.js';
 import { runOffline } from './offlineRouter.js';
 import { buildResponse, callTraced, logTurn, partyCodeFrom, toolText, type TracedCall } from './trace.js';
+import { buildSystemPrompt, compactStructured, FINAL_INSTRUCTION, isRecord, MUTATING_TOOLS } from './context.js';
+export { buildSystemPrompt } from './context.js';
 
 export type BedrockLoopOptions = {
   mcp: AssistantMcp;
@@ -18,9 +20,6 @@ export type BedrockLoopOptions = {
 type ToolSpec = { toolSpec: { name: string; description?: string; inputSchema: { json: Record<string, unknown> } } };
 type ContentBlock = Record<string, unknown>;
 type Message = { role: 'user' | 'assistant'; content: ContentBlock[] };
-
-const FINAL_INSTRUCTION = 'Answer now in one or two short spoken sentences without calling more tools.';
-const MAX_STRUCTURED_BYTES = 4096;
 
 let defaultClient: BedrockLike | undefined;
 function getDefaultClient(): BedrockLike {
@@ -44,17 +43,6 @@ export function toToolConfig(tools: ToolInfo[]): { tools: ToolSpec[] } {
   };
 }
 
-export function buildSystemPrompt(hostPrompt: string, req: AssistantRequest): string {
-  const lines: string[] = [];
-  if (hostPrompt.trim()) lines.push(hostPrompt.trim(), '');
-  lines.push(`Household id: ${req.household}.`);
-  if (req.partyCode) lines.push(`Use code ${req.partyCode} for tool calls.`);
-  if (req.speaker) lines.push(`The speaker is ${req.speaker.memberName} (${req.speaker.source === 'voice-id' ? 'voice ID' : 'on-screen pick'}).`);
-  else lines.push("If a tool needs a person's name and you don't know who is speaking, ask: Who's picking?");
-  lines.push('Voice rules: reply in one to three short spoken sentences. No markdown, no lists. Never use betting language.');
-  return lines.join('\n');
-}
-
 function buildMessages(req: AssistantRequest): Message[] {
   const out: Message[] = [];
   const push = (role: 'user' | 'assistant', text: string) => {
@@ -72,24 +60,7 @@ function buildMessages(req: AssistantRequest): Message[] {
   return out;
 }
 
-function compactStructured(sc: Record<string, unknown>): Record<string, unknown> {
-  const { state: _s, season: _se, ...rest } = sc;
-  void _s;
-  void _se;
-  if (JSON.stringify(rest).length <= MAX_STRUCTURED_BYTES) return rest;
-  const small: Record<string, unknown> = {};
-  for (const k of ['view', 'code']) if (k in rest) small[k] = rest[k];
-  return small;
-}
-
-function isRecord(v: unknown): v is Record<string, unknown> {
-  return typeof v === 'object' && v !== null && !Array.isArray(v);
-}
-
 class MalformedResponse extends Error {}
-
-/** Tools that change party state; never re-run them via the offline fallback in the same turn. */
-const MUTATING_TOOLS = new Set(['setup_watch_party', 'join_watch_party', 'start_watch_party', 'draft_player', 'make_pick']);
 
 export async function runBedrock(req: AssistantRequest, opts: BedrockLoopOptions): Promise<AssistantResponse> {
   const started = Date.now();

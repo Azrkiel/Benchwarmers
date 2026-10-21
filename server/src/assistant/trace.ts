@@ -59,7 +59,7 @@ export async function callTraced(
 export function buildResponse(opts: {
   reply: string;
   calls: TracedCall[];
-  mode: 'offline' | 'bedrock';
+  mode: AssistantResponse['mode'];
   requestPartyCode?: string;
 }): AssistantResponse {
   const { calls } = opts;

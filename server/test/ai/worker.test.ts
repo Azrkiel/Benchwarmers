@@ -78,6 +78,17 @@ function fakeProvider(mode: AiMode, props: Prop[] = [mkProp('gen')]) {
 }
 
 describe('ai worker', () => {
+  it('generates props on creation and start in Gemini mode', async () => {
+    const f = fakeSink({ a: { gameId: 'g1' } });
+    const provider = fakeProvider('gemini');
+    const w = startAiWorker({ sink: f.sink, provider });
+    f.emit({ type: 'party_created', partyId: 'a' });
+    f.emit({ type: 'party_started', partyId: 'a' });
+    await w.idle();
+    expect(provider.generateProps).toHaveBeenCalledTimes(2);
+    expect(f.calls.addProps).toHaveLength(2);
+    w.stop();
+  });
   it('sets scouting notes once per gameId across parties', async () => {
     const f = fakeSink({ a: { gameId: 'g1' }, b: { gameId: 'g1' }, c: { gameId: 'g2' } });
     const provider = fakeProvider('fallback');

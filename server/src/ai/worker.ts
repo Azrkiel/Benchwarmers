@@ -46,11 +46,11 @@ export function startAiWorker(opts: AiWorkerOptions): AiWorker {
             log(`scouting notes failed for ${gameId}: ${errMsg(err)}`);
           }
         }
-        if (provider.mode === 'bedrock') await genProps(e.partyId);
+        if (provider.mode !== 'fallback') await genProps(e.partyId);
         return;
       }
       case 'party_started':
-        if (provider.mode === 'bedrock') await genProps(e.partyId);
+        if (provider.mode !== 'fallback') await genProps(e.partyId);
         return;
       case 'prop_resolved': {
         const ctx = sink.getPartyContext(e.partyId);

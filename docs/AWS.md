@@ -3,6 +3,9 @@
 Benchwarmers uses one AWS service: **Amazon Bedrock**, through the Converse API.
 Everything also runs with zero AWS credentials in `AI_MODE=fallback`, which is the default.
 
+For live model testing before AWS setup, use `AI_MODE=gemini` and/or `ASSISTANT_MODE=gemini`.
+See [Gemini setup](GEMINI.md) for the root `.env` file, teammate key pool, automatic failover and switching back to Bedrock.
+
 ## What we use
 
 - Amazon Bedrock Runtime, called with `ConverseCommand` from `@aws-sdk/client-bedrock-runtime` (`server/src/ai/bedrock.ts`).

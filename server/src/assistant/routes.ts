@@ -3,15 +3,18 @@ import { z } from 'zod';
 import type { ApiError, AssistantRequest, AssistantResponse } from '../shared/types.js';
 import type { BedrockLike } from '../ai/bedrock.js';
 import { runBedrock } from './bedrockLoop.js';
+import { runGemini } from './geminiLoop.js';
+import type { GeminiLike } from '../ai/gemini.js';
 import { createMcpClient, type AssistantMcp } from './mcpClient.js';
 import { runOffline } from './offlineRouter.js';
 import { logTurn } from './trace.js';
 
 export type AssistantRouterOptions = {
   token?: string;
-  mode?: 'offline' | 'bedrock';
+  mode?: AssistantResponse['mode'];
   mcp?: AssistantMcp;
   bedrock?: BedrockLike;
+  gemini?: GeminiLike;
   modelId?: string;
 };
 
@@ -63,14 +66,17 @@ export function createAssistantRouter(opts: AssistantRouterOptions = {}): expres
       return;
     }
     const body = parsed.data;
-    const mode = opts.mode ?? (process.env.ASSISTANT_MODE?.toLowerCase() === 'bedrock' ? 'bedrock' : 'offline');
+    const configured = process.env.ASSISTANT_MODE?.toLowerCase();
+    const mode = opts.mode ?? (configured === 'bedrock' || configured === 'gemini' ? configured : 'offline');
     const start = Date.now();
     try {
       const mcp = mcpFor(req.socket.localPort ?? 0);
       const response: AssistantResponse =
         mode === 'bedrock'
           ? await runBedrock(body, { mcp, client: opts.bedrock, modelId: opts.modelId })
-          : await runOffline(body, mcp);
+          : mode === 'gemini'
+            ? await runGemini(body, { mcp, client: opts.gemini })
+            : await runOffline(body, mcp);
       logTurn(`route mode=${mode} result=${response.mode} tools=${response.toolCalls.length} ms=${Date.now() - start}`);
       res.json(response);
     } catch (err) {

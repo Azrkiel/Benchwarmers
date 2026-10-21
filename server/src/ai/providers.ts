@@ -11,7 +11,8 @@ import type {
   PropGenContext,
   RecapContext,
 } from '../shared/types.js';
-import { converseJson, type BedrockLike } from './bedrock.js';
+import { converseJson, type BedrockLike, type ConverseJsonOptions } from './bedrock.js';
+import { generateGeminiJson, type GeminiLike } from './gemini.js';
 import { checkText, sanitizeText } from './guardrails.js';
 import { validateGeneratedProps } from './propValidation.js';
 
@@ -182,11 +183,13 @@ function eventSummary(e: GameEvent): string {
   return `t=${e.t}${e.team ? ` ${e.team}` : ''}${e.points ? ` +${e.points}` : ''}: ${e.text}`;
 }
 
-export class BedrockProvider implements AiContentProvider {
-  readonly mode: AiMode = 'bedrock';
+type JsonGenerator = <T>(opts: Omit<ConverseJsonOptions<T>, 'client'>) => Promise<T>;
+
+/** Shared prompts, schemas, prop validation and text guardrails for both model providers. */
+class GeneratedProvider implements AiContentProvider {
   private readonly fallback = new FallbackProvider();
 
-  constructor(private readonly client?: BedrockLike) {}
+  constructor(readonly mode: 'bedrock' | 'gemini', private readonly json: JsonGenerator) {}
 
   async generateProps(ctx: PropGenContext): Promise<Prop[]> {
     try {
@@ -207,7 +210,7 @@ export class BedrockProvider implements AiContentProvider {
         'kind "totalPointsOver": option ids over, under; set atT in [locksAt, resolvesAt] and line > 0 (combined points).\n' +
         'Option probability is optional, 0-1, summing to 1. Reply JSON only: ' +
         '{"props":[{"kind":"...","question":"...","options":[{"id":"...","label":"..."}],"opensAt":0,"locksAt":0,"resolvesAt":0,"untilT":0,"atT":0,"line":0}]}';
-      const out = await converseJson({ system: SYSTEM, prompt, schema: genSchema, maxTokens: 900, client: this.client });
+      const out = await this.json({ system: SYSTEM, prompt, schema: genSchema, maxTokens: 900 });
       const candidates = out.props.slice(0, 2).map((p) => {
         let resolver: Record<string, unknown>;
         if (p.kind === 'nextScoreType') resolver = { kind: p.kind, afterT: p.locksAt };
@@ -242,7 +245,7 @@ export class BedrockProvider implements AiContentProvider {
         `Deciding play: ${ev ? eventSummary(ev) : 'unknown'}\n` +
         'Explain in 1-2 plain sentences why that answer was right, for someone new to basketball. ' +
         'Reply JSON only: {"text":"..."}';
-      const out = await converseJson({ system: SYSTEM, prompt, schema: textSchema, maxTokens: 200, client: this.client });
+      const out = await this.json({ system: SYSTEM, prompt, schema: textSchema, maxTokens: 200 });
       return sanitizeText(out.text, fb);
     } catch (err) {
       log('explainResult failed, using fallback', err);
@@ -256,7 +259,7 @@ export class BedrockProvider implements AiContentProvider {
       const prompt =
         `Write a fun 3-5 sentence recap for the watch party of ${ctx.game.title}. Use only these facts:\n${fb}\n` +
         'Keep every name and number accurate. Reply JSON only: {"text":"..."}';
-      const out = await converseJson({ system: SYSTEM, prompt, schema: textSchema, maxTokens: 400, client: this.client });
+      const out = await this.json({ system: SYSTEM, prompt, schema: textSchema, maxTokens: 400 });
       return sanitizeText(out.text, fb);
     } catch (err) {
       log('recap failed, using fallback', err);
@@ -272,7 +275,7 @@ export class BedrockProvider implements AiContentProvider {
         'Write one fun, family-friendly, fictional scouting line (max 25 words) per player.\n' +
         players.map((p) => `${p.id}: ${p.name}${p.nickname ? ` "${p.nickname}"` : ''}, ${p.position}`).join('\n') +
         '\nReply JSON only: {"notes":{"<player id>":"<line>"}}';
-      const out = await converseJson({ system: SYSTEM, prompt, schema: notesSchema, maxTokens: 900, client: this.client });
+      const out = await this.json({ system: SYSTEM, prompt, schema: notesSchema, maxTokens: 900 });
       const result: Record<string, string> = {};
       for (const p of players) {
         const line = out.notes[p.id];
@@ -286,7 +289,22 @@ export class BedrockProvider implements AiContentProvider {
   }
 }
 
-export function createAiProvider(mode?: AiMode, opts?: { client?: BedrockLike }): AiContentProvider {
-  const m: AiMode = mode ?? (process.env.AI_MODE === 'bedrock' ? 'bedrock' : 'fallback');
-  return m === 'bedrock' ? new BedrockProvider(opts?.client) : new FallbackProvider();
+export class BedrockProvider extends GeneratedProvider {
+  constructor(client?: BedrockLike) {
+    super('bedrock', (opts) => converseJson({ ...opts, client }));
+  }
+}
+
+export class GeminiProvider extends GeneratedProvider {
+  constructor(client?: GeminiLike) {
+    super('gemini', (opts) => generateGeminiJson({ ...opts, client }));
+  }
+}
+
+export function createAiProvider(mode?: AiMode, opts?: { client?: BedrockLike; gemini?: GeminiLike }): AiContentProvider {
+  const configured = process.env.AI_MODE?.toLowerCase();
+  const m: AiMode = mode ?? (configured === 'bedrock' || configured === 'gemini' ? configured : 'fallback');
+  if (m === 'bedrock') return new BedrockProvider(opts?.client);
+  if (m === 'gemini') return new GeminiProvider(opts?.gemini);
+  return new FallbackProvider();
 }
