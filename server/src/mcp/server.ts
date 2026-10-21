@@ -7,7 +7,7 @@ import { GameError, playerLabel } from '../game/engine.js';
 import { GAMES } from '../game/games.js';
 import type { Store } from '../game/store.js';
 import type { PartyStateResponse, WatchParty } from '../shared/types.js';
-import { ROSTER_SIZE } from '../shared/types.js';
+import { BONUS_COPY, ROSTER_SIZE, type PickScore } from '../shared/types.js';
 import { projectionOf } from '../game/projections.js';
 import type { Position } from '../shared/types.js';
 import {
@@ -138,6 +138,26 @@ const teamWord = (state: PartyStateResponse, side: 'home' | 'away'): string => s
 const num = (n: number): string => String(Math.round(n * 10) / 10);
 
 const pts = (n: number): string => `${num(n)} ${num(n) === '1' ? 'point' : 'points'}`;
+
+/** Spoken form of a bonus: "Lone call" -> "lone call". Only "Against the room" needs a rewrite. */
+const bonusPhrase = (b: PickScore['bonuses'][number]): string =>
+  b === 'against_the_room' ? 'call against the room' : BONUS_COPY[b].toLowerCase();
+
+/** Most notable bonus among correct scored picks: biggest factor, ties by input order. */
+function notableBonus(entries: { name: string; score?: PickScore }[]): { name: string; phrase: string; points: number; bonus: PickScore['bonuses'][number] } | undefined {
+  let best: { name: string; score: PickScore } | undefined;
+  for (const e of entries) {
+    const sc = e.score;
+    if (!sc || !sc.correct || sc.bonuses.length === 0) continue;
+    if (!best || sc.factor > best.score.factor) best = { name: e.name, score: sc };
+  }
+  if (!best) return undefined;
+  const bonus = best.score.bonuses[0]!;
+  return { name: best.name, phrase: bonusPhrase(bonus), points: best.score.points, bonus };
+}
+
+/** One speakable line: "Maya's lone call earned 15 points." */
+const bonusLine = (n: { name: string; phrase: string; points: number }): string => `${n.name}'s ${n.phrase} earned ${pts(n.points)}.`;
 
 const endSentence = (s: string): string => {
   const t = s.trim();
@@ -372,12 +392,15 @@ export function createServer(store: Store): McpServer {
         if (state.picks.some((p) => p.propId === prop.id)) {
           parts.push(winners.length ? `Got it right: ${joinNames(winners)}.` : 'Nobody got that one right.');
         }
+        const notable = notableBonus(state.picks.filter((p) => p.propId === prop.id).map((p) => ({ name: p.memberName, score: p.score })));
+        if (notable) parts.push(bonusLine(notable));
         return ok(parts.join(' '), {
           code: partyCode,
           prop: { id: prop.id, question: prop.question },
           correctOption: correct ? { id: correct.id, label: correct.label } : null,
           ...(prop.explanation ? { explanation: prop.explanation } : {}),
           winners,
+          ...(notable ? { bonus: { memberName: notable.name, bonus: notable.bonus, points: notable.points } } : {}),
         });
       }),
   );
@@ -428,7 +451,9 @@ export function createServer(store: Store): McpServer {
           return ok("You haven't drafted anyone yet. Try: draft Big Mo.", content);
         }
         const list = joinNames(players.map((p) => `${p.name} with ${p.points} points`));
-        return ok(`${member.name}, you have ${list}. That's ${draftPoints} draft points, rank ${rank} tonight.`, content);
+        const last = row?.lastPickScore;
+        const mine = last && last.correct && last.bonuses.length > 0 ? ` Your last ${bonusPhrase(last.bonuses[0]!)} earned ${pts(last.points)}.` : '';
+        return ok(`${member.name}, you have ${list}. That's ${draftPoints} draft points, rank ${rank} tonight.${mine}`, content);
       }),
   );
 
@@ -612,7 +637,9 @@ export function createServer(store: Store): McpServer {
           `${first.name} leads with ${pts(first.total)}: ${num(first.draftPoints)} draft, ${num(first.pickPoints)} from picks.`,
           ...rest.map((r, i) => `${r.name} is ${i === 0 ? 'second' : 'third'} with ${num(r.total)}.`),
         ];
-        return ok(parts.join(' '), content);
+        const notable = notableBonus(state.standings.map((s) => ({ name: s.name, score: s.lastPickScore })));
+        if (notable) parts.push(bonusLine(notable));
+        return ok(parts.join(' '), notable ? { ...content, bonus: { memberName: notable.name, bonus: notable.bonus, points: notable.points } } : content);
       }),
   );
 
