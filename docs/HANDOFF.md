@@ -96,7 +96,7 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 ## 11. Open questions for the human
 - ~~Who builds the device page?~~ **Answered 2026-10-20: Claude, on `phase/4b-device`.**
 - 🧑 AWS (user: "we'll figure it out when we get there"): account + Bedrock model access + `aws configure` + `BEDROCK_MODEL_ID` (Haiku-tier inference profile id) + $5 budget alarm. Needed for the AWS Builder mini challenge proof and a real `AI_MODE=bedrock` / `ASSISTANT_MODE=bedrock` run.
-- Phase 8 (drive odds + bonuses): when to build it — user wants it planned only for now (plan.md §10c).
+- ~~Phase 8: when to build it~~ — building since session 3 (2026-10-21).
 - 🧑 Demo video (OBS), YouTube upload, Devpost submission, optional Alexa+ Local Inspector access.
 
 ## 12. Files touched (map)
@@ -119,7 +119,10 @@ Test helpers committed in `tools/` (screenshot.mjs, voice-test.mjs, tts-clips.ps
 5. **Real Bedrock run** — blocked on 🧑 AWS creds. Done = Checkpoint 3 with `AI_MODE=bedrock` and token counts logged in AWS.md.
 6. ✅ DONE (session 2) — **Phase 6** — `npm run demo` (server SPEED=4 + web + cloudflared hint), README (architecture, protocol 2025-11-25, run steps, env table, known gaps: Alexa+ Preview/OAuth), PRODUCT_FEEDBACK (from FRICTION_LOG), DEMO_SCRIPT, SUBMISSION; PR `dev` → `main`. Done = fresh clone → demo in < 15 min.
 
-7. **Phase 8 — drive odds model + bonuses (added by Kevin, 2026-10-20)** — spec in plan.md §10c. **Planned only; user said do not build yet.**
+7. 🟡 IN PROGRESS (session 3, 2026-10-21; user: "continue where it's left off") — **Phase 8 — drive odds model + bonuses** — spec plan.md §10c,
+   orchestration + briefs `docs/ORCHESTRATION.md` §5b. Lead contract commit `195c5ac` (all additive). Wave E running: `phase/8a-odds`
+   (worktree `%LOCALAPPDATA%/Temp/bw-lanes/8a-odds`) ∥ `phase/8b-bonuses` (`bw-lanes/8b-bonuses`). Then wave F `phase/8c-football`.
+   If a manager died: its worktree keeps uncommitted work → resume via SendMessage or re-brief from §5b.
    Decisions made: (a) add a **second, football** replay game that uses an NFL drive-odds table (nflverse 2015–2025 → `drive_odds.json`,
    buckets = 10-yard band × normal/two-minute, merge buckets < 200 drives); basketball `harbor-vs-summit`/`DEMO` stays; (b) **speed buckets**
    (early ×1.25 / quick ×1.10 / late ×1.0 by fraction of the open window) and **contrarian bonus** (lone call ×1.5 / minority ×1.2) apply to
