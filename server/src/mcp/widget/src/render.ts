@@ -1,5 +1,5 @@
 // Pure render functions: tool result / state in, HTML string out. No DOM, no App import.
-import type { DraftBoardEntry, Household, PartyStateResponse, PropView, SeasonResponse, StandingRow } from '../../../shared/types.js';
+import { BONUS_COPY, type DraftBoardEntry, Household, PartyStateResponse, PropView, SeasonResponse, StandingRow } from '../../../shared/types.js';
 
 export type View = 'draft' | 'tonight' | 'season';
 
@@ -99,7 +99,7 @@ function rosterCounts(state: PartyStateResponse): string {
 function playerCard(d: DraftBoardEntry, state: PartyStateResponse): string {
   const p = d.player;
   const nick = p.nickname ? `<div class="nick">${e(p.nickname)}</div>` : '';
-  const meta = `<div class="meta">${e(p.name)} · #${p.number} · ${e(p.position)}</div>`;
+  const meta = `<div class="meta">${e(p.name)} · #${p.number} · <span class="pos">${e(p.position)}</span></div>`;
   const note = d.scoutingNote ? `<p class="note">${e(d.scoutingNote)}</p>` : '';
   if (d.ownerMemberId) {
     const h = householdOf(state.households, d.householdId);
@@ -120,6 +120,35 @@ export function renderDraft(state: PartyStateResponse, selectedMember?: string):
   return `${renderMemberChips(state.households, selectedMember)}${rosterCounts(state)}<div class="cols draft">${cols.join('')}</div>`;
 }
 
+/** Football drive props carry historical odds; show them as a plain-language line. Basketball props have none. */
+export function oddsLine(prop: PropView): string {
+  const o = prop.odds;
+  if (!o || prop.resolver.kind !== 'driveResult') return '';
+  const p = o.p?.yes;
+  if (typeof p !== 'number' || !Number.isFinite(p)) return '';
+  const pct = Math.round(p * 100);
+  const late = o.bucket.includes('two-minute');
+  const text =
+    prop.resolver.outcome === 'td'
+      ? `Drives like this get a touchdown ${pct}% of the time`
+      : `Drives like this${late ? ' late in the half' : ''} score ${pct}% of the time`;
+  return `<p class="odds">${e(text)}</p>`;
+}
+
+/** Compact bonus chips for correct picks on the last resolved prop. */
+export function renderBonusChips(state: PartyStateResponse): string {
+  const r = state.lastResolvedProp;
+  if (!r) return '';
+  const chips = state.picks
+    .filter((p) => p.propId === r.id && p.score && p.score.correct && p.score.bonuses.length > 0)
+    .map((p) => {
+      const sc = p.score!;
+      const labels = sc.bonuses.slice(0, 2).map((b) => BONUS_COPY[b] ?? b);
+      return `<span class="bonus" title="${e(p.memberName)}"><span class="who">${e(p.memberName)}</span> ${e(labels.join(' + '))} · ${sc.points} pts</span>`;
+    });
+  return chips.length ? `<div class="bonuses">${chips.join('')}</div>` : '';
+}
+
 function pickCard(prop: PropView, state: PartyStateResponse, lockLeftMs: number | undefined): string {
   const left = lockLeftMs ?? (prop.realSecondsToLock ?? 0) * 1000;
   const locked = prop.status !== 'open' || left <= 0;
@@ -133,14 +162,14 @@ function pickCard(prop: PropView, state: PartyStateResponse, lockLeftMs: number 
     .filter((p) => p.propId === prop.id)
     .map((p) => `<li>${e(p.memberName)}: ${e(p.optionLabel)}</li>`)
     .join('');
-  return `<section class="card pick"><div class="row"><h2>${e(prop.question)}</h2><div class="countdown" data-countdown>${locked ? 'Locked' : formatCountdown(left)}</div></div><div class="options">${opts}</div>${who ? `<ul class="who-picked">${who}</ul>` : ''}</section>`;
+  return `<section class="card pick"><div class="row"><h2>${e(prop.question)}</h2><div class="countdown" data-countdown>${locked ? 'Locked' : formatCountdown(left)}</div></div>${oddsLine(prop)}<div class="options">${opts}</div>${who ? `<ul class="who-picked">${who}</ul>` : ''}</section>`;
 }
 
 function lastResolved(state: PartyStateResponse): string {
   const r = state.lastResolvedProp;
   if (!r) return '';
   const correct = r.options.find((o) => o.id === r.correctOptionId);
-  return `<p class="resolved"><strong>${e(r.question)}</strong> ${correct ? `Answer: ${e(correct.label)}` : ''}</p>`;
+  return `<p class="resolved"><strong>${e(r.question)}</strong> ${correct ? `Answer: ${e(correct.label)}` : ''}</p>${renderBonusChips(state)}`;
 }
 
 export function renderStandings(rows: StandingRow[], state: PartyStateResponse): string {

@@ -7,6 +7,7 @@ import type {
   Game,
   GameEvent,
   Player,
+  DriveResult,
   Prop,
   PickScore,
   PropGenContext,
@@ -81,16 +82,53 @@ function decidingEvent(prop: Prop, events: GameEvent[]): GameEvent | undefined {
   return found ?? events[events.length - 1];
 }
 
+const DRIVE_RESULT_PHRASE: Record<DriveResult, string> = {
+  td: 'a touchdown',
+  fg: 'a field goal',
+  missed_fg: 'a missed field goal',
+  punt: 'a punt',
+  turnover: 'a turnover',
+  downs: 'a turnover on downs',
+  end_of_half: 'the end of the half',
+  safety: 'a safety',
+};
+
+function yardlineWords(yardline100: number): string {
+  if (yardline100 > 50) return `their own ${100 - yardline100}`;
+  if (yardline100 === 50) return 'midfield';
+  return `the other side's ${yardline100}`;
+}
+
+/** Plain-words explanation of a football drive prop from real events and the stored historical odds. */
+function explainDrive(prop: Prop, events: GameEvent[]): string | undefined {
+  const r = prop.resolver;
+  if (r.kind !== 'driveResult' || !prop.odds) return undefined;
+  const driveEvents = events.filter((e) => e.drive?.id === r.driveId);
+  const start = driveEvents[0]?.drive;
+  const end = driveEvents.find((e) => e.driveResult !== undefined);
+  const pYes = prop.odds.p.yes;
+  if (!start || !end?.driveResult || typeof pYes !== 'number') return undefined;
+  const pct = Math.round(pYes * 100);
+  const lateInHalf = prop.odds.bucket.endsWith('|two-minute') || prop.odds.bucket.endsWith('|two_minute');
+  const when = lateInHalf ? 'late in the half' : 'with time on the clock';
+  const what = r.outcome === 'td' ? 'get a touchdown' : 'score';
+  const ended = end.driveResult === 'end_of_half' ? 'with the half running out' : `in ${DRIVE_RESULT_PHRASE[end.driveResult]}`;
+  return `Drives starting at ${yardlineWords(start.yardline100)} ${when} ${what} about ${pct}% of the time - this one ended ${ended}.`;
+}
+
 export class FallbackProvider implements AiContentProvider {
   readonly mode: AiMode = 'fallback';
 
   async generateProps(_ctx: PropGenContext): Promise<Prop[]> {
+    // Football drive props are scripted (fallback props.json); AI never invents them.
     return [];
   }
 
   async explainResult(ctx: ExplainContext): Promise<string> {
     const { prop } = ctx;
     if (prop.explanation && checkText(prop.explanation).ok) return prop.explanation;
+    const drive = explainDrive(prop, ctx.events);
+    if (drive && checkText(drive).ok) return drive;
     const correct = prop.options.find((o) => o.id === prop.correctOptionId);
     const ev = decidingEvent(prop, ctx.events);
     const label = correct?.label ?? 'the answer';
@@ -112,6 +150,7 @@ export class FallbackProvider implements AiContentProvider {
     for (const p of rosterPlayers(ctx.game)) names.set(p.id, display(p));
     for (const d of ctx.draftBoard) names.set(d.player.id, display(d.player));
 
+    const football = ctx.game.sport === 'football';
     const lines: string[] = [`${ctx.game.title} is in the books.`];
     const standings = [...ctx.standings].sort((a, b) => a.rank - b.rank);
     for (const s of standings) {
@@ -140,7 +179,7 @@ export class FallbackProvider implements AiContentProvider {
       const worst = sorted[sorted.length - 1]!;
       lines.push(`Best draft pick: ${best.ownerName} chose ${display(best.player)}, who scored ${best.points} fantasy points.`);
       if (worst !== best) {
-        lines.push(`${worst.ownerName} drafted ${display(worst.player)}, who spent the night warming the bench.`);
+        lines.push(`${worst.ownerName} drafted ${display(worst.player)}, who spent the night ${football ? 'on the sideline' : 'warming the bench'}.`);
       }
     }
     const season = [...ctx.season].sort((a, b) => a.rank - b.rank);
@@ -170,7 +209,7 @@ export class FallbackProvider implements AiContentProvider {
 // ---------- bedrock ----------
 
 const SYSTEM =
-  'You are a family-friendly sports commentator for a fictional basketball league. ' +
+  'You are a family-friendly sports commentator for a fictional sports league. ' +
   'Never use gambling or money language (no bet, odds, wager, cash, money, stakes). ' +
   'Never mention real leagues or real teams. Write in plain language so newcomers can follow. Keep it short.';
 
@@ -207,6 +246,7 @@ class GeneratedProvider implements AiContentProvider {
   constructor(readonly mode: 'bedrock' | 'gemini', private readonly json: JsonGenerator) {}
 
   async generateProps(ctx: PropGenContext): Promise<Prop[]> {
+    if (ctx.game.sport === 'football') return [];
     try {
       const upcoming = ctx.game.events
         .filter((e) => e.t > ctx.gameT)
@@ -258,7 +298,7 @@ class GeneratedProvider implements AiContentProvider {
       const prompt =
         `Question: ${ctx.prop.question}\nCorrect answer: ${correct?.label ?? 'unknown'}\n` +
         `Deciding play: ${ev ? eventSummary(ev) : 'unknown'}\n` +
-        'Explain in 1-2 plain sentences why that answer was right, for someone new to basketball. ' +
+        'Explain in 1-2 plain sentences why that answer was right, for someone new to the sport. ' +
         'Reply JSON only: {"text":"..."}';
       const out = await this.json({ system: SYSTEM, prompt, schema: textSchema, maxTokens: 200 });
       return sanitizeText(out.text, fb);

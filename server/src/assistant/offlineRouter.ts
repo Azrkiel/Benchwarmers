@@ -20,6 +20,8 @@ const STOPWORDS = new Set([
 ]);
 
 const TEAM_WORD = /\b(harbor|hawks?|summit|foxes|fox)\b/i;
+// Football words that name the game ("the football game", "the Otters game") for setup_watch_party.
+const FOOTBALL_GAME_WORD = /\b(football|gridiron|nfl|otters?|forge|riverton|ironwood)\b/i;
 const TIME_WORD = /\b(tonight|today|tomorrow|(?:(?:mon|tues|wednes|thurs|fri|satur|sun)day)(?:\s+night)?)\b/i;
 
 function cleanText(s: string): string {
@@ -68,7 +70,8 @@ function needsMember(req: AssistantRequest, name: string | undefined, toolName: 
 
 function parseSetup(text: string): OfflinePlan {
   const m = /\bwith\s+(?:the\s+)?([^,.;!?]+)/i.exec(text);
-  let crew = m ? m[1].trim() : '';
+  // "with the Sunday Crew for the football game": the crew name ends before "for".
+  let crew = m ? m[1].replace(/\s+for\s+.*$/i, '').trim() : '';
   let rest = m ? text.replace(m[0], ' ') : text;
   // A trailing time phrase belongs to `when`, not the crew name.
   const trailing = new RegExp(`\\s+${TIME_WORD.source}$`, 'i').exec(crew);
@@ -78,13 +81,16 @@ function parseSetup(text: string): OfflinePlan {
   }
   const when = TIME_WORD.exec(rest)?.[1];
   const args: Record<string, unknown> = { crewName: crew || 'Sunday Crew' };
+  const gameWord = FOOTBALL_GAME_WORD.exec(text)?.[1];
+  if (gameWord) args.gameTitle = gameWord;
   if (when) args.when = when;
   return { kind: 'tool', tool: 'setup_watch_party', args };
 }
 
 function parseAvailable(req: AssistantRequest, text: string): OfflinePlan {
   const args: Record<string, unknown> = {};
-  const posWord = /\b(point guards?|shooting guards?|small forwards?|power forwards?|centers?|centres?|pg|sg|sf|pf)\b/i.exec(text)?.[1];
+  // Bare "back" is left out (common in speech); "running back" is the spoken form.
+  const posWord = /\b(point guards?|shooting guards?|small forwards?|power forwards?|centers?|centres?|pg|sg|sf|pf|quarterbacks?|qb|running backs?|halfbacks?|rb|wide receivers?|receivers?|wr|tight ends?|te|kickers?|k)\b/i.exec(text)?.[1];
   if (posWord) {
     const pos = matchPosition(posWord.toLowerCase().replace('centre', 'center'));
     if (pos.ok) args.position = pos.value;

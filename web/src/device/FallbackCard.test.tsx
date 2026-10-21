@@ -1,7 +1,8 @@
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { PartyStateResponse } from '@shared/types';
+import type { PartyStateResponse, PropView } from '@shared/types';
 import { draftingFixture, finalFixture, liveFixture, seasonFixture } from '../lib/fixtures';
+import { BONUS_COPY } from '@shared/types';
 import { FallbackCard } from './FallbackCard';
 import { mergeModel, modelFromState, modelFromStructured } from './fallbackModel';
 
@@ -106,5 +107,68 @@ describe('FallbackCard', () => {
     render(<FallbackCard model={modelFromStructured({ view: 'season', season: seasonFixture })} />);
     expect(screen.getByLabelText('Party board').getAttribute('data-view')).toBe('season');
     for (const r of seasonFixture.rows) expect(screen.getAllByText(r.name).length).toBeGreaterThan(0);
+  });
+
+  const driveProp = (outcome: 'score' | 'td', bucket: string, yes: number | undefined): PropView => ({
+    ...(liveFixture.activeProp as PropView),
+    resolver: { kind: 'driveResult', driveId: 'd1', outcome },
+    ...(yes === undefined
+      ? {}
+      : { odds: { source: 'drive_odds' as const, bucket, n: 50, p: { yes, no: 1 - yes } } }),
+  });
+  const withActive = (prop: PropView): PartyStateResponse => ({ ...liveFixture, activeProp: prop });
+
+  it('shows football drive odds lines', () => {
+    const cases: [PropView, string][] = [
+      [driveProp('score', '40-49|normal', 0.36), 'Drives like this score 36% of the time'],
+      [driveProp('td', '40-49|normal', 0.22), 'Drives like this get a touchdown 22% of the time'],
+      [driveProp('score', '40-49|two-minute', 0.41), 'Drives like this late in the half score 41% of the time'],
+    ];
+    for (const [prop, text] of cases) {
+      render(<FallbackCard model={modelFromState(withActive(prop))} />);
+      expect(screen.getByTestId('odds-line').textContent).toBe(text);
+      cleanup();
+    }
+  });
+
+  it('has no odds line without odds or for non-drive props', () => {
+    render(<FallbackCard model={modelFromState(liveFixture)} />);
+    expect(screen.queryByTestId('odds-line')).toBeNull();
+    cleanup();
+    render(<FallbackCard model={modelFromState(withActive(driveProp('score', 'x', undefined)))} />);
+    expect(screen.queryByTestId('odds-line')).toBeNull();
+  });
+
+  it('shows bonus chips for correct picks on the last resolved prop only', () => {
+    const rid = liveFixture.lastResolvedProp!.id;
+    const base = liveFixture.picks[0]!;
+    const score = (correct: boolean, bonuses: ('early_call' | 'quick_call')[], points: number) => ({
+      propId: rid, memberId: base.memberId, optionId: base.optionId, correct, base: 10, streak: 1, odds: 1,
+      speed: 1, contrarian: 1, factor: 1, points, bonuses,
+    });
+    const pk = (name: string, propId: string, sc: ReturnType<typeof score>) => ({
+      ...base, propId, memberName: name, memberId: name, score: sc,
+    });
+    const state: PartyStateResponse = {
+      ...liveFixture,
+      picks: [
+        pk('Maya', rid, score(true, ['early_call', 'quick_call'], 19)),
+        pk('Sam', rid, score(false, ['early_call'], 0)),
+        pk('Priya', rid, score(true, [], 10)),
+        pk('Kai', 'other-prop', score(true, ['early_call'], 12)),
+      ],
+    };
+    render(<FallbackCard model={modelFromState(state)} />);
+    const chips = within(screen.getByTestId('bonus-chips')).getAllByText(/pts/);
+    expect(chips.length).toBe(1);
+    expect(chips[0]!.textContent).toBe(`Maya ${BONUS_COPY.early_call} + ${BONUS_COPY.quick_call} · 19 pts`);
+  });
+
+  it('shows football positions in the draft view', () => {
+    const board = draftingFixture.draftBoard.map((e, i) =>
+      i === 0 ? { ...e, player: { ...e.player, id: 'fb-qb-1', name: 'Gus Archer', position: 'QB' as const } } : e,
+    );
+    render(<FallbackCard model={modelFromState({ ...draftingFixture, draftBoard: board })} />);
+    expect(screen.getByLabelText('Party board').textContent).toContain('Gus Archer · QB');
   });
 });

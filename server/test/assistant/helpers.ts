@@ -15,10 +15,10 @@ export type TestServer = {
 };
 
 /** Real Benchwarmers server on an ephemeral loopback port with a temp-dir store (seeded: party DEMO). */
-export async function startTestServer(opts: { token?: string } = {}): Promise<TestServer> {
+export async function startTestServer(opts: { token?: string; now?: () => number; speed?: number } = {}): Promise<TestServer> {
   const token = opts.token ?? 'test-token';
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bw-assistant-'));
-  const store = new Store({ dataFile: path.join(dir, 'store.json') });
+  const store = new Store({ dataFile: path.join(dir, 'store.json'), now: opts.now, speed: opts.speed });
   const savedToken = process.env.MCP_TOKEN;
   process.env.MCP_TOKEN = token;
   const app = createApp({ store });

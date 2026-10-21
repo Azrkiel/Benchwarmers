@@ -481,7 +481,7 @@ export class Store implements AiSink {
           side: s,
           teamShort: team.short,
           points: f?.points ?? 0,
-          statLine: engine.statLine(f?.stats),
+          statLine: engine.statLine(f?.stats, game.sport),
         };
         if (d) {
           entry.ownerMemberId = d.memberId;
@@ -597,6 +597,7 @@ export class Store implements AiSink {
       game: {
         id: game.id,
         title: game.title,
+        ...(game.sport !== undefined ? { sport: game.sport } : {}),
         durationSec: game.durationSec,
         gameT: gt,
         period,

@@ -303,9 +303,10 @@ describe('projections', () => {
   it('covers all 16 players, distinct, Big Mo highest', () => {
     const ids = allPlayers(game).map((p) => p.id);
     for (const id of ids) expect(projectionOf(id)).toBeGreaterThan(0);
-    expect(Object.keys(PLAYER_PROJECTIONS)).toHaveLength(16);
-    expect(new Set(Object.values(PLAYER_PROJECTIONS)).size).toBe(16);
-    const max = Math.max(...Object.values(PLAYER_PROJECTIONS));
+    const hoops = Object.entries(PLAYER_PROJECTIONS).filter(([id]) => !/^(riv|irn)-/.test(id));
+    expect(hoops).toHaveLength(16);
+    expect(new Set(hoops.map(([, v]) => v)).size).toBe(16);
+    const max = Math.max(...hoops.map(([, v]) => v));
     expect(PLAYER_PROJECTIONS['har-c-34']).toBe(max);
     expect(projectionOf('sum-pg-2')).toBeGreaterThan(19);
     expect(projectionOf('har-sg-7')).toBeGreaterThan(19);

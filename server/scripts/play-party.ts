@@ -9,6 +9,14 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bw-play-'));
 let clock = Date.now();
 const store = new Store({ dataFile: path.join(tmp, 'store.json'), now: () => clock, speed: 4 });
 const CREW = 'sunday-crew';
+const argIdx = process.argv.indexOf('--game');
+const GAME_ID = argIdx >= 0 && process.argv[argIdx + 1] ? process.argv[argIdx + 1]! : 'harbor-vs-summit';
+const FOOTBALL = GAME_ID === 'riverton-vs-ironwood';
+// Draft order per game: [maya, sam, priya, leo, replacement for sam, maya, priya, priya, sam].
+const DRAFT = FOOTBALL
+  ? ['riv-qb-12', 'irn-wr-80', 'irn-qb-9', 'riv-rb-28', 'riv-wr-81', 'irn-wr-84', 'riv-te-88', 'irn-te-87', 'riv-k-3']
+  : ['har-c-34', 'har-sg-7', 'sum-pg-2', 'sum-c-50', 'har-pg-1', 'sum-sf-14', 'har-sf-11', 'sum-pf-32', 'sum-sg-10'];
+const EARLY_PROP = FOOTBALL ? 'ff-1' : 'fb-1';
 const MEMBERS = ['maya', 'sam', 'priya', 'leo'];
 
 let exitCode = 0;
@@ -18,19 +26,26 @@ function fail(msg: string): void {
 }
 
 // Per-member scripted choices by prop id (valid option ids from props.json); mix of right and wrong.
-const CHOICES: Record<string, Record<string, string>> = {
+const FOOTBALL_CHOICES: Record<string, Record<string, string>> = {
+  maya: { 'ff-1': 'yes', 'ff-2': 'yes', 'ff-3': 'yes', 'ff-4': 'no', 'ff-5': 'no', 'ff-6': 'yes', 'ff-7': 'yes', 'ff-8': 'yes' },
+  sam: { 'ff-1': 'no', 'ff-2': 'no', 'ff-3': 'no', 'ff-4': 'no', 'ff-5': 'no', 'ff-6': 'no', 'ff-7': 'yes', 'ff-8': 'no' },
+  priya: { 'ff-1': 'yes', 'ff-2': 'yes', 'ff-3': 'no', 'ff-4': 'yes', 'ff-5': 'yes', 'ff-6': 'no', 'ff-7': 'no', 'ff-8': 'yes' },
+  leo: { 'ff-1': 'yes', 'ff-2': 'no', 'ff-3': 'yes', 'ff-4': 'yes', 'ff-5': 'no', 'ff-6': 'yes', 'ff-7': 'yes', 'ff-8': 'no' },
+};
+const BASKETBALL_CHOICES: Record<string, Record<string, string>> = {
   maya: { 'fb-1': 'home', 'fb-2': 'three', 'fb-3': 'over', 'fb-4': 'home', 'fb-5': 'two', 'fb-6': 'over', 'fb-7': 'home', 'fb-8': 'over' },
   sam: { 'fb-1': 'away', 'fb-2': 'other', 'fb-3': 'under', 'fb-4': 'away', 'fb-5': 'three', 'fb-6': 'under', 'fb-7': 'away', 'fb-8': 'under' },
   priya: { 'fb-1': 'home', 'fb-2': 'other', 'fb-3': 'over', 'fb-4': 'none', 'fb-5': 'ft', 'fb-6': 'over', 'fb-7': 'none', 'fb-8': 'over' },
   leo: { 'fb-1': 'away', 'fb-2': 'three', 'fb-3': 'under', 'fb-4': 'home', 'fb-5': 'three', 'fb-6': 'under', 'fb-7': 'home', 'fb-8': 'under' },
 };
+const CHOICES = FOOTBALL ? FOOTBALL_CHOICES : BASKETBALL_CHOICES;
 
 function describe(err: unknown): string {
   return err instanceof GameError ? `${err.code}: ${err.message}` : String(err);
 }
 
 try {
-  const party = store.createParty({ crewId: CREW, gameId: 'harbor-vs-summit' });
+  const party = store.createParty({ crewId: CREW, gameId: GAME_ID });
   const code = party.code;
   console.log(`Party created: code ${code}`);
 
@@ -50,12 +65,12 @@ try {
     store.draft(code, who, playerId);
     console.log(`  ${who} drafted ${playerId}`);
   };
-  draft('maya', 'har-c-34'); // Big Mo
-  draft('sam', 'har-sg-7'); // Splash
-  draft('priya', 'sum-pg-2'); // Quick Kai
-  draft('leo', 'sum-c-50');
+  draft('maya', DRAFT[0]!);
+  draft('sam', DRAFT[1]!);
+  draft('priya', DRAFT[2]!);
+  draft('leo', DRAFT[3]!);
   try {
-    draft('sam', 'har-c-34'); // already taken by Maya
+    draft('sam', DRAFT[0]!); // already taken by Maya
     fail('expected PLAYER_TAKEN');
   } catch (err) {
     console.log(`  caught ${describe(err)}`);
@@ -63,19 +78,19 @@ try {
       console.log(`  suggested: ${err.alternatives.map((a) => a.nickname ?? a.name).join(', ')}`);
       draft('sam', err.alternatives[0]!.id);
     } else {
-      draft('sam', 'har-pg-1');
+      draft('sam', DRAFT[4]!);
     }
   }
-  draft('maya', 'sum-sf-14');
-  draft('priya', 'har-sf-11');
-  draft('priya', 'sum-pf-32');
-  draft('sam', 'sum-sg-10');
+  draft('maya', DRAFT[5]!);
+  draft('priya', DRAFT[6]!);
+  draft('priya', DRAFT[7]!);
+  draft('sam', DRAFT[8]!);
 
   // Two members pick during drafting (gameT 0).
   for (const who of ['maya', 'sam']) {
     try {
-      store.pick(code, who, CHOICES[who]!['fb-1']!, 'fb-1');
-      console.log(`  ${who} picked early on fb-1`);
+      store.pick(code, who, CHOICES[who]![EARLY_PROP]!, EARLY_PROP);
+      console.log(`  ${who} picked early on ${EARLY_PROP}`);
     } catch (err) {
       console.log(`  ${who} early pick error: ${describe(err)}`);
     }
@@ -90,7 +105,7 @@ try {
 
   // ---- Live ----
   console.log('\n== Live ==');
-  const picked = new Set<string>(['maya:fb-1', 'sam:fb-1']);
+  const picked = new Set<string>([`maya:${EARLY_PROP}`, `sam:${EARLY_PROP}`]);
   let lastMinute = -1;
   let st: PartyStateResponse = s0;
   let guard = 0;
