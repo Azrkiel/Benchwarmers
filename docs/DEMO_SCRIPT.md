@@ -113,7 +113,7 @@ Optional inserts (only if time):
 1. **One tool call per turn in offline mode.** `runOffline` makes exactly one `callTraced` (`offlineRouter.ts` ~167-190). Do not say "multi-step tool calls" in narration. The multi-step Bedrock loop (≤3 rounds) is not run in this demo.
 2. **`Priya takes the over` fails in fb-1.** Test 9 expects `ok:false` and `not one of the choices` because the open prop is scoring-first. Works only in an over/under window (section 2). This is timing, not a routing bug (HANDOFF §10).
 3. **Setup creates a new party code.** Put the TV on `/tv/<CODE>` after the setup line. The device page adopts the code from the setup response on the Austin device only. Seattle must reload to see it (`resolvePartyCode` runs on mount).
-4. **`Hey Host` is UI copy with no wake word.** `DevicePage` says "Say 'Hey Host…' or tap to talk," but no wake-word code exists. Say "tap the mic," or start the utterance after tapping.
+4. **No wake word.** The mic button says "Tap to talk"; tap it, then speak.
 5. **Voice ID is TTS-verified only.** Real people and a real mic are not tested (HANDOFF §4). Same-voice scores were 0.80 to 0.97, cross-voice 0.25 to 0.70 with Windows TTS (VOICE_ID §5a). Expect misses. Use the fallbacks.
 6. **Typed turns use the screen pick, not voice ID.** Spoken turns use voice ID, falling back to the screen pick (`useSpeaker.finish`).
 7. **Season answer needs a finished night.** Before the party is final, the season answer reflects only seeded stats.
@@ -146,7 +146,7 @@ Line numbers are for the phase/6-polish branch. All tests run with `npx vitest r
 | Unreachable `/mcp` | none. `I can't reach the game right now.` | integration `does not throw…` :277-283 |
 
 Other sources used:
-- Device UI: `web/src/device/DevicePage.tsx` :112 (party chip), :145 (`Talk to the assistant`), :155 (`Hey Host` copy), :162 (typed box), :207-217 (trace toggle).
+- Device UI: `web/src/device/DevicePage.tsx` :112 (party chip), :145 (`Talk to the assistant`), :155 ("Tap to talk" hint), :162 (typed box), :207-217 (trace toggle).
 - Speaker logic: `web/src/device/useSpeaker.ts` :60, :105; `useSpeaker.finish` :62-104.
 - Current-party lookup: `server/src/game/store.ts` :201-206; `web/src/device/assistantClient.ts` :40-50.
 - Prop windows: `server/src/ai/fallback/props.json`; `engine.propStatus` `server/src/game/engine.ts` :84-90; clock `engine.computeGameT` :47-50.

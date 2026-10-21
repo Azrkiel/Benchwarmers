@@ -181,7 +181,7 @@ Not done yet. The whole repo is public under MIT, but the game engine (`server/s
 Deadline Fri 2026-10-23 12:00 PM PT. **Aim to submit by 10:00 AM PT.**
 
 Before recording
-- [ ] Decide whether to publish the two local Gemini commits on `dev` (`HANDOFF.md` section 3); push `dev` and merge to `main` (PR `dev` -> `main`).
+- [x] Gemini commits published on `dev`; `dev` merged to `main` (PR #1). Merge phase 6 the same way.
 - [ ] Confirm the repo is public with the MIT license showing in GitHub's About panel.
 - [ ] Fresh-clone test: README steps -> working demo in under 15 minutes (`npm ci`, `npm run typecheck && npm test`, `npm run play -w server`). Re-run the server tests if they flake.
 - [ ] AWS: do the proof checklist above (or decide to ship with the honest wording).
