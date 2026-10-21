@@ -1,5 +1,18 @@
 # Benchwarmers — Build Plan for Claude Code (Alexa+ track)
 
+> **STATUS (2026-10-20, Claude session 2)** — branch `dev` @ GitHub. Legend: ✅ done · 🟡 partial · ⬜ not started · 🔀 owned by Codex.
+> | Phase | Status |
+> |---|---|
+> | 0 Environment | 🟡 done except 🧑 items (AWS creds, OBS, Local Inspector not on npm) |
+> | 1 Engine, store, REST | ✅ merged (`phase/1-engine`) |
+> | 2 MCP server + MCP App | ✅ merged (`phase/2-mcp`, `phase/2b-mcp-hosts`); verified in Inspector, ext-apps basic-host, cloudflared tunnel (docs/MCP_HOSTS.md) |
+> | 3 Bedrock | ✅ code + mocked tests merged (`phase/3-ai`); 🟡 never run against real Bedrock (no AWS creds) |
+> | 4 Simulated device + assistant | ✅ merged (`phase/4a-assistant`, `phase/4b-device`); Checkpoint 4 passed headless (sync 0.98 s); real mic untested |
+> | 5 TV view | ✅ merged (`phase/5-tv`, `phase/5b-tv-polish`); 🔀 further TV work is Codex's |
+> | 6 Polish + submission | ⬜ |
+> | 7 (added) Voice ID — no "I'm Maya" needed | ✅ merged (`phase/7-voiceid`, `phase/7b-voiceid-tuning`), wired into device page; real-mic untested |
+> Full resume notes: `docs/HANDOFF.md`. Orchestration/ownership: `docs/ORCHESTRATION.md`.
+
 > **How to use this file:** put it at the root of an empty repo, open Claude Code there, and say:
 > *"Read PLAN.md. Do Phase 0 checks, then build phase by phase. Stop at each checkpoint, run its verification, commit, and continue."*
 > Items marked **🧑 HUMAN** need you. Claude Code should list them and keep working on everything else.
@@ -121,6 +134,10 @@ benchwarmers/
 
 **Checkpoint 0:** checks pass or blockers logged with workarounds.
 
+> **Status 🟡:** scaffold, MIT, .gitignore, .env.example, CLAUDE.md, FRICTION_LOG done. Node is v22 (not 24; MCP SDK fine).
+> No `aws` CLI / credentials on the build machine. `cloudflared` exe is in Downloads (not on PATH).
+> `@alexa-ai/addon-local-inspector` → npm E404 (logged). MCP Apps Claude Code plugin not installed (not needed: ext-apps cloned for reference).
+
 ---
 
 ## 5. Phase 1 — Game engine, store, REST (Monday night)
@@ -181,6 +198,10 @@ type StandingRow = { memberId: string; name: string; household: string; rank: nu
 ### REST (`/api`) for the web app
 `GET /parties/:code/state?householdId=&since=` (score, clock, recent events, active/last prop, picks, **standings with rosters**, **draft board**, ticker, `serverNow`, `version`) · `POST /parties/:code/draft` · `POST /parties/:code/picks` · `POST /parties/:code/start` · `POST /parties/:code/reset` · `GET /crews/:id/season` · `GET /healthz`.
 
+> **Status ✅** (phase/1-engine): engine.ts, store.ts (AiSink, tick, JSON persistence, reset), seed.ts, 60-event game, 8 fallback props with
+> outcome-matched explanations, REST incl. extra `GET /api/crews/:id/current` and `POST /api/parties`, `npm run play -w server`.
+> Deviations: `since`==version → 204; PropView hides answer until resolved; picks also sent for locked props.
+
 **Checkpoint 1:** `npm test` green (lifecycle, lock enforcement, each resolver, streaks, draft ownership + auto-fill, fantasy scoring per stat, standings ranks/tiebreaks, season accumulation, persistence round-trip). A Node script plays a full party with scripted picks and prints standings.
 
 ---
@@ -235,6 +256,11 @@ cloudflared tunnel --url http://localhost:3001   # free public HTTPS URL
 # optional: addon-local-inspector https://<tunnel>/mcp   (renders in Alexa device frames)
 ```
 
+> **Status ✅** (phase/2-mcp): 11 tools (5 with UI via registerAppTool), prompt `watch_party_host`, resource `benchwarmers://rules`,
+> bearer auth (401 without WWW-Authenticate), protocol 2025-11-25 verified, fuzzy matcher (crew/household/member/player/choice),
+> widget built by `npm run build:widget -w server` (single 246 kB HTML). Checkpoint 2 flow + latency <500 ms are automated tests.
+> Not done: manual run in MCP Inspector / basic-host / cloudflared tunnel. Note: http.ts forces chunked framing (Avast proxy bug, see FRICTION_LOG).
+
 **Checkpoint 2:** In MCP Inspector: `setup_watch_party` → `draft_player` ×3 for Sam and Maya (including a conflict on the same player) → `start_watch_party` → `make_pick` for both → `get_leaderboard` shows draft + pick points. Widget renders in basic-host. Latency test green.
 
 ---
@@ -250,6 +276,10 @@ cloudflared tunnel --url http://localhost:3001   # free public HTTPS URL
 - **Cost guard:** cache everything per game; `AI_MODE=fallback` default for development; `bedrock` only for checkpoint runs and recording. Log calls + token counts.
 - Guardrails: fictional teams, no gambling language ("bet", "wager"), family-friendly.
 - `docs/AWS.md`: which services, how, and why (required for the AWS Builder mini challenge).
+
+> **Status 🟡** (phase/3-ai): bedrock.ts (Converse, zod, retry, token log), providers (fallback + Bedrock with per-call fallback),
+> prop validation, guardrails, worker (wired in index.ts main()), scouting.json, docs/AWS.md. Fallback path verified end-to-end.
+> Not done: a real `AI_MODE=bedrock` run (needs 🧑 AWS creds + BEDROCK_MODEL_ID).
 
 **Checkpoint 3:** a full party in `AI_MODE=bedrock` shows AI props/explanations/recap; `AI_MODE=fallback` works with no AWS credentials.
 
@@ -269,6 +299,12 @@ The rules allow a simulated Alexa+ experience in a web app; ours also drives the
 - **Render the MCP App** in the widget area with `@modelcontextprotocol/ext-apps/app-bridge` (follow `examples/basic-host`). Fallback if time runs short: show the leaderboard as a native React card.
 - "Show agent trace" toggle listing tool calls (judges like seeing the agentic flow).
 - Demo utterances: "Set up a watch party for tonight's game with the Sunday Crew" · "Who's available at center?" · "I'm Maya, draft Big Mo" · "I'm Sam, put me down for the Hawks scoring first" · "How's my roster doing?" · "Priya takes the over" · "Who's winning in our house?" · "Why did that one go the other way?" · "How am I doing this season?"
+
+> **Status 🟡** — backend ✅ (phase/4a-assistant): `POST /api/assistant`, `server/src/assistant/` (MCP client → own /mcp,
+> offline rule-based router for the demo utterances, Bedrock Converse tool loop ≤3 rounds with offline fallback that never repeats a
+> state change, speaker hint from voice ID); 105 tests, mocked Bedrock only. Device page ✅ (phase/4b-device): `/device/:household` smart display, Web Speech in + speechSynthesis out, typed fallback, agent trace,
+> MCP App in a sandboxed srcdoc iframe via app-bridge (live-refreshed from polled state) + native fallback card, voice ID / screen
+> speaker picker. Checkpoint 4 passed in headless Chrome (pick in Garcias → Sam's Place iframe in 0.98 s; season answer after restart).
 
 **Checkpoint 4:** Two Chrome windows (Austin and Seattle devices): a voice pick in one appears in the other's widget within ~1–2 s; the season question answers from persisted stats after a server restart.
 
@@ -306,6 +342,9 @@ A web page built for a TV across the room ("10-foot UI"): 1920×1080 layout, hug
 - Open the cloudflared URL in a smart TV's built-in browser.
 - Add a `?kiosk=1` param: hides the cursor, disables scrollbars, auto full-screen on first click.
 
+> **Status ✅** (phase/5-tv + 5b): Draft/Live/Rosters/Final modes, fixtures (`?fixture=`), `?mode=`, `?kiosk=1`, `/tv/latest?crew=`,
+> FLIP standings, pops, locked-prop card. Verified against the real server. 🔀 Further TV changes belong to Codex.
+
 **Checkpoint 5:** `/tv/DEMO` runs a full party: draft board fills as people draft by voice, standings reorder with animations during the game, final podium shows the recap.
 
 ---
@@ -328,9 +367,20 @@ A web page built for a TV across the room ("10-foot UI"): 1920×1080 layout, hug
 - **Repo public with MIT license** visible in GitHub's About panel (no collaborator invites needed).
 - *(Optional, Open Source mini)* publish `game/engine.ts` + resolvers as a separate MIT repo `sports-replay-engine` with tests.
 
+> **Status ⬜.** Friction log has 10 entries; docs/AWS.md and docs/VOICE_ID.md exist. README, PRODUCT_FEEDBACK, DEMO_SCRIPT,
+> SUBMISSION, `npm run demo` remain.
+
 **Done:** fresh clone → README → working demo in < 15 minutes; video public; submitted by Friday 10:00 AM PT.
 
 ---
+
+## 10b. Phase 7 (added by the user) — voice ID instead of saying your name
+> **Status ✅ merged + tuned.** `web/src/voiceid/`: mic capture @16 kHz, WavLM x-vector (`Xenova/wavlm-base-plus-sv`, q8, in a
+> worker via transformers.js) with MFCC fallback, per-household enrollment (localStorage), nearest-centroid + margin match →
+> `SpeakerHint` for `AssistantRequest.speaker`; `/voice-lab` calibration page; docs/VOICE_ID.md. Real-model check passed
+> (same 0.79–0.97 vs cross 0.25–0.41). Tuned (phase/7b): threshold 0.70 / margin 0.05,
+> loudest-3 s crop, COOP same-origin + COEP credentialless → threaded WASM, instant MFCC guess while WavLM loads; 0.9–2.1 s/clip
+> (was 7.4), held-out own-speaker ≥0.80. Wired into the device page (phase/4b).
 
 ## 11. Friction log template
 ```md

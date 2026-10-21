@@ -1,0 +1,12 @@
+.widget-frame {
+  display: block;
+  width: 100%;
+  min-height: 360px;
+  border: 0;
+  border-radius: 16px;
+  background: #0f1420;
+}
+
+.widget-frame[hidden] {
+  display: none;
+}
