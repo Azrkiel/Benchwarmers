@@ -24,7 +24,7 @@ export function Transcript({
 
   return (
     <div className="ds-transcript" data-testid="transcript" role="log" aria-live="polite" ref={ref}>
-      {empty ? <p className="ds-empty">Say “Hey Host…” or type a message to start.</p> : null}
+      {empty ? <p className="ds-empty">Tap the mic or type a message to start.</p> : null}
       {turns.map((t) => (
         <div
           key={t.id}

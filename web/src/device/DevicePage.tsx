@@ -152,7 +152,7 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
                   <span className="ds-mic-ring" aria-hidden="true" />
                   <span className="ds-mic-icon" aria-hidden="true">●</span>
                 </button>
-                <p className="ds-mic-hint">Say “Hey Host…” or tap to talk</p>
+                <p className="ds-mic-hint">Tap to talk</p>
               </div>
               <form className="ds-type" onSubmit={onSubmit}>
                 <input
