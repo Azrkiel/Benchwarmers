@@ -20,7 +20,7 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - Resume commands (Git Bash):
   ```bash
   cd ~/Downloads/xvant/Benchwarmers && git checkout dev && git pull && npm ci
-  npm run typecheck && npm test          # expect: server 667 passed, web 278 passed (vitest maxWorkers 6; ~1-in-10 Avast loopback stall remains; re-run)
+  npm run typecheck && npm test          # expect: server 672 passed, web 278 passed (vitest maxWorkers 6; ~1-in-10 Avast loopback stall remains; re-run)
   npm run play -w server                 # full scripted party → standings table, "Benchwarmer of the night: Big Mo"
   npm run play -w server -- --game riverton-vs-ironwood   # football: IRN 20 – RIV 24, "Benchwarmer of the night: Plow"
   cd server && PORT=3001 SPEED=4 npx tsx src/index.ts   # REST /api, MCP /mcp (Bearer dev-token-change-me), /healthz
@@ -96,7 +96,7 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - Assistant: "Priya takes the over" against DEMO → `make_pick` ok:false (first open prop is scoring-first, no over/under) — routing correct. Bedrock path untested for empty forced-final text; never run on real Bedrock.
 - Server test suite: ~1 in 10 runs still stalls (Avast loopback proxy freezes /mcp traffic ~10 s) — FRICTION_LOG; re-run. Worker cap `maxWorkers: 6` in `server/vitest.config.ts` is needed: uncapped (≈15 workers) the <500 ms latency asserts fail from CPU contention.
 - Phase 8: no two-minute drive questions (a drive starting under 2:00 has < 30 game-seconds of window). "put me down for yes" without voice ID or a name → "Who's picking?". A drive explanation (with the historical %) arrives from the background worker a moment after resolution. `matchGame("the game")` is now ambiguous (two games) → asks which; empty / "tonight's game" → basketball.
-- **TV (Codex) not football-aware** — loads and doesn't crash on a football party (clock, scores, statLines, drive explanation show). Gaps for Codex: (1) field panel draws a basketball court; (2) play-by-play text truncated "…"; (3) no drive context ("Otters ball at their own 25"); (4) live pick card lacks the odds line (`prop.odds.p.yes` → "Drives like this score 36% of the time"); (5) no bonus chips (`picks[].score.bonuses`, `standings[].lastPickScore`, `BONUS_COPY`); (6) football positions not shown on Top of the Bench / draft; (7) no yes/no drive-question layout. Bonuses apply to basketball too, so (5) matters for `DEMO`.
+- **TV (Codex) not football-aware** (brief with state fields: `docs/TV_FOOTBALL.md`) — loads and doesn't crash on a football party (clock, scores, statLines, drive explanation show). Gaps for Codex: (1) field panel draws a basketball court; (2) play-by-play text truncated "…"; (3) no drive context ("Otters ball at their own 25"); (4) live pick card lacks the odds line (`prop.odds.p.yes` → "Drives like this score 36% of the time"); (5) no bonus chips (`picks[].score.bonuses`, `standings[].lastPickScore`, `BONUS_COPY`); (6) football positions not shown on Top of the Bench / draft; (7) no yes/no drive-question layout. Bonuses apply to basketball too, so (5) matters for `DEMO`.
 - Season `points` = pick points, `fantasyPoints` = draft points (naming is confusing but tested).
 - Demo script not rehearsed live; offline router does one tool call per turn; setup creates a new party code (TV must move to `/tv/<CODE>`). See DEMO_SCRIPT findings.
 

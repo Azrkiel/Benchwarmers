@@ -125,6 +125,11 @@ function cleanChoice(raw: string): string {
   return c;
 }
 
+// A bare answer to a yes/no drive question ("I'm Sam, they score", "touchdown!"), after any "I'm X," prefix.
+const BARE_ANSWER =
+  /^(?:yes|yeah|yep|no|nope|they score|they'll score|they will score|touchdown|they get a touchdown|no score|they get stopped|stopped|punt)$/i;
+const NAME_PREFIX = /^(?:(?:i'm|im|i am|this is|it's)\s+[A-Za-z]+|[A-Za-z]+\s+here)\s*[,.;:!?-]*\s*/i;
+
 function parsePick(req: AssistantRequest, text: string, explicit: string | undefined): OfflinePlan | undefined {
   const self =
     /\b(?:put me down for|put me down as|i'll take|i will take|i pick|i say|i choose|i'm going with|im going with|i'll go with)\s+(.+)$/i.exec(text);
@@ -135,6 +140,10 @@ function parsePick(req: AssistantRequest, text: string, explicit: string | undef
   else if (named && asName(named[1])) {
     choiceRaw = named[2];
     name = asName(named[1]);
+  }
+  else {
+    const bare = stripEnds(text.replace(NAME_PREFIX, ''));
+    if (BARE_ANSWER.test(bare)) choiceRaw = bare.toLowerCase();
   }
   if (choiceRaw === undefined) return undefined;
   const choice = cleanChoice(choiceRaw);

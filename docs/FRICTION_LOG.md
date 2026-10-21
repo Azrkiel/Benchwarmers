@@ -180,3 +180,13 @@ Template:
 - Severity: Minor (test environment only; tool latency in isolation is well under budget)
 - Workaround: re-run, or `cd server && npx vitest run --no-file-parallelism`.
 - Suggestion: run the loopback `/mcp` test files in one serial vitest project, or measure the budget in-process.
+
+### [2026-10-21 15:00] Offline router: "I'm Sam, they score" routes to get_game_status, not make_pick (phase 6b demo run)
+- Tool/SDK + version: `server/src/assistant/offlineRouter.ts` (phase 8 build), live server on PORT 3019, SPEED=4.
+- Task attempted: record football demo picks through `POST /api/assistant`.
+- Steps taken: with ff-1 open, sent `I'm Sam, they score` (speaker none, explicit name). Also sent `put me down for yes` 0.2 s after `Start the game`.
+- Expected vs actual: expected a Yes pick for Sam. Got `get_game_status` and the clock reply (the `score` word hits the status rule; no pick verb). Separately, the pick at 0.2 s returned `Picks are locked. The next question opens in about 1 seconds.` because ff-1 opens at game second 2 (0.5 s real at SPEED=4); that one is expected.
+- Severity: Minor (demo phrasing only; `Sam says they score` picks correctly, router test `Leo says they score`).
+- Workaround: demo script uses `I'm Sam, put me down for no` / `Leo says no`.
+- Suggestion: in `parsePick`, treat `<name>, they score` / `they get stopped` as a pick when a drive question is open, or say so in the help reply.
+- Resolution (lead, same day): `parsePick` now accepts a bare yes/no drive answer after an optional "I'm X," prefix (`BARE_ANSWER`); tests added.

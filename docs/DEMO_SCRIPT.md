@@ -81,6 +81,8 @@ Optional inserts (only if time):
 
 **1:10–1:50 Live.** "Sam calls the first basket, Hawks. The pick lands in both houses within a second. Then a pick by Priya." Use the window timing in section 2. "Who's winning in our house?" then cut to the TV standings.
 
+Bonus chips: Sam's pick at about 0.5 s lands in the first 25% of the fb-1 window, so once fb-1 resolves Hawks his row carries an `early_call` chip (x1.25, 12.5 points; checked in state, `picks[].score.bonuses`). `Why did that one go the other way?` ends `Sam's early call earned 12.5 points.` Say "points multiplier", never a wager word. Only fires if Sam picks inside the first 2.5 s of the window and Hawks is right. Details and captured replies: section 4.
+
 **1:50–2:15 Final.** "The final whistle gives a podium and a recap. And here's the season question: 'how am I doing this season?' That answer persists across server restarts." Verified: season persistence across restart (HANDOFF §4 / Checkpoint 4 note).
 
 **2:15–2:30 Protocol.** "Same server, plain MCP. This is the MCP Inspector: 11 tools, Streamable HTTP, protocol 2025-11-25. The widget is an MCP App."
@@ -119,9 +121,89 @@ Optional inserts (only if time):
 7. **Season answer needs a finished night.** Before the party is final, the season answer reflects only seeded stats.
 8. **Widget and `/mcp`.** If `/mcp` returns "Widget not built", the widget build step did not run. Re-run `npm run demo`.
 
+## 4. Optional football + bonus beat (alternate take, <= 0:40)
+
+Second game `riverton-vs-ironwood` (Riverton Otters at Ironwood Forge, fictional football). Drive questions carry a historical % (from the drive table), and correct picks earn points multipliers (Early/Quick call, Lone call, Against the room, Bold call; README "Second game"). `DEMO` stays basketball.
+
+**When to use it.** Either swap it for the 1:10-1:50 live beat of section 1 (the 2:50 is already full, so it replaces that beat, it does not add to it), or record it as a separate short clip. Do not splice it into the basketball take. Run `npm run demo:reset` first, as for any take. The setup line creates a new football party, so put the TV on `/tv/<CODE>` after it.
+
+Every reply below is copied from a live run (server from this branch, `SPEED=4`, offline assistant, simulated voice ID `{confidence: 0.9, source: 'voice-id'}`). The code (`WUDJ`), the clock text and the lock countdown change per run. The rest does not.
+
+### Shot list (football)
+
+Clock T starts at `Start the game`. Draft the other 11 players off camera first (see the draft note below the table).
+
+| Time | On screen | Voice or typed | Expected result (captured reply) | Tool |
+|---|---|---|---|---|
+| 0:00-0:08 | Austin device, trace on, then TV `/tv/<CODE>` | **Voice or typed**: `Set up a watch party for the football game with the Sunday Crew` | `Your watch party for Riverton Otters at Ironwood Forge is set. The code is WUDJ. I invited The Garcias in Austin and Sam's Place in Seattle: Maya, Leo, Sam and Priya. Everyone drafts 3 players, then I'll open the first question: Will the Otters score on this drive? Say 'draft Slingshot' to start, or 'start the party' when everyone's ready.` | `setup_watch_party` `{crewName:'Sunday Crew', gameTitle:'football'}` |
+| 0:08-0:14 | Austin device, draft board widget | **Voice or typed**: `Who's available at quarterback?` | `Top available: Slingshot, Riverton quarterback. Colt 'Slingshot' Mason winds up like a catapult and lets it fly. Big arm, big grin, and an occasional adventurous throw. Hammer, Ironwood quarterback. Jack 'Hammer' Calloway drives the ball hard into tight windows. Confident, loud, and fun to cheer for.` | `list_available_players` `{code, position:'QB'}` |
+| 0:14-0:18 | Austin device | **Typed**: `I'm Maya, draft Slingshot` (one draft shown, the rest off camera) | `Maya drafted Slingshot, Riverton's quarterback. That's 1 of 3.` | `draft_player` `{code, memberName:'Maya', player:'Slingshot'}` |
+| 0:18-0:20 | Austin device, TV | **Voice or typed**: `Start the game` | `Kickoff! Everyone had a full roster.` TV shows "Will the Otters score on this drive?" with its historical % (36%) | `start_watch_party` `{code}` |
+| T+0.8 s (about 0:21) | Austin device | **Voice (Maya enrolled) or typed**: `put me down for yes` (speaker Maya; typed fallback `I'm Maya, put me down for yes`, **untested phrase**) | `Got it, Maya: Yes. Locks in about 7 seconds.` | `make_pick` `{code, memberName:'Maya', choice:'yes'}` |
+| T+1.3 s | Austin device | **Voice or typed**: `Leo says no` | `Got it, Leo: No. Locks in about 7 seconds.` | `make_pick` `{code, memberName:'Leo', choice:'no'}` |
+| T+3.7 s | Seattle device | **Typed**: `I'm Sam, put me down for no` (**untested phrase**) | `Got it, Sam: No. Locks in about 4 seconds.` | `make_pick` `{code, memberName:'Sam', choice:'no'}` |
+| T+4.1 s | Seattle device | **Voice or typed**: `Priya says no` (**untested phrase**; speaker Priya on voice ID) | `Got it, Priya: No. Locks in about 4 seconds.` | `make_pick` `{code, memberName:'Priya', choice:'no'}` |
+| T+10.25 s (about 0:30) | TV | none | ff-1 resolves Yes (touchdown). Maya's row jumps to 26.5 pick points; her last pick carries `lone_call`, `bold_call`, `early_call` (state: `standings[].lastPickScore.bonuses`) | none |
+| 0:30-0:35 | Austin device | **Voice or typed**: `Why did that one go the other way?` | `Will the Otters score on this drive? The answer was Yes. Drives starting at their own 25 with time on the clock score about 36% of the time - this one ended in a touchdown. Got it right: Maya. Maya's lone call earned 26.5 points.` | `explain_last_result` `{code}` |
+| 0:35-0:40 | Austin or Seattle device | **Voice or typed**: `Who's winning in our house?` | `Maya leads with 36.3 points: 9.8 draft, 26.5 from picks. Sam is second with 10.4. Leo is third with 0.9. Maya's lone call earned 26.5 points.` | `get_leaderboard` `{code}` |
+
+Optional, if the take has 5 s of slack: `What's the score?` after the resolve returned `Forge 0, Otters 7, Q1 9:35. Otters ball at their own 25, 1st quarter. Latest: Drive over: touchdown for the Otters.` (`get_game_status` `{code}`). Mid-window the same call adds the open question and its percentage: `Forge 0, Otters 0, Q1 13:15. Otters ball at their own 25, 1st quarter. Latest: Otters take over at their own 25. Kickoff is in the air. Open question: Will the Otters score on this drive? Drives like this score 36% of the time. Locks in about 4 seconds.`
+
+**Draft note.** The 12-player draft is 12 router turns (about 0.1 s each). Run it before the take, off camera, then show only Maya's. Replies follow `<Name> drafted <nickname>, <Team>'s <position>. That's N of 3.`, and `<Name>'s roster is full.` on the third. Used: Maya Slingshot, Velcro, Boots; Leo Freight, Sky, Laser; Sam Hammer, Flash, Moose; Priya Plow, Glue, Anvil. Nicknames in the game file: Riverton Slingshot, Freight, Sparky, Velcro, Flash, Gadget, Moose, Boots; Ironwood Hammer, Plow, Zig, Sky, Glue, Wildcat, Anvil, Laser. Starting without drafting (basketball prints `The bench filled in 12 players`) was **not run for football**; do not rely on it.
+
+### What the captured state shows
+
+- `GET /api/parties/WUDJ/state` while ff-1 is open: `game.clock` `Q1 12:58`, `activeProp.odds` `{source:'drive_odds', bucket:'71-80|normal', n:25892, p:{yes:0.355, no:0.645}}`, one yes and three no picks.
+- After ff-1 resolves (`correctOptionId: 'yes'`), `picks[].score`. The contract field is named `odds`; on screen and in narration say "historical %".
+
+| Pick | gameT at pick | `speed` | `contrarian` | `odds` | factor | points | `bonuses` |
+|---|---|---|---|---|---|---|---|
+| Maya yes | 3.3 | 1.25 | 1.5 | 1.408 | 2.64 | 26.5 | `lone_call`, `bold_call`, `early_call` |
+| Leo no | 4.8 | 1.25 | 1 | 0.775 | 0.97 | 0 (wrong) | none |
+| Sam no | 14.5 | 1.1 | 1 | 0.775 | 0.85 | 0 (wrong) | none |
+| Priya no | 16.1 | 1.1 | 1 | 0.775 | 0.85 | 0 (wrong) | none |
+
+- `standings[].lastPickScore` carries the same object per member. Maya: `pickPoints` 26.5, `total` 36.3 (9.8 draft). Early call is the first 25% of the open window (game seconds 2 to 9.5), Quick call the first 60% (to 20). Bold call is `0.5 / p` of the option picked: x1.41 on the 35.5% side, x0.78 on the 64.5% side.
+- Maya was the only yes among 4 pickers, so Lone call (x1.5) applied. With 2 yes and 2 no, only Against the room (under half the pickers) could apply, and not to either side.
+- Basketball shows a chip too. In a fresh `DEMO`-style party, `I'm Sam, put me down for the Hawks scoring first` about 0.5 s after `Start the game` (Priya on the Foxes) scored `bonuses: ['early_call']`, `speed` 1.25, 12.5 points (Hawks was right). Replies: `Who scores first? The answer was Hawks. Hawks got there first: Jet Reyes floated in a layup off a Dime Cho pass for the first points of the night. Got it right: Sam. Sam's early call earned 12.5 points.` for `Why did that one go the other way?`, and `Sam leads with 15.5 points: 3 draft, 12.5 from picks. Leo is second with 6. Priya is third with 3.5. Sam's early call earned 12.5 points.` for `Who's winning in our house?` (that run had no drafts, so the draft points are the bench fill).
+
+### Narration (no wager words)
+
+**0:00-0:14.** "Same assistant, different game. I say 'set up a watch party for the football game' and it picks Riverton at Ironwood. Who's available at quarterback? Slingshot and Hammer."
+
+**0:20-0:30.** "Every drive is a question: will the Otters score? Drives like this one score about 36% of the time. That's the historical percentage from 64,000 real drives. Maya says yes. The room says no. A call on the less likely side, made early and made alone, earns points multipliers on top of the streak."
+
+**0:30-0:40.** "Maya's lone call earned 26.5 points. 'Why did that one go the other way?' gets the reason and the bonus, and the house leaderboard shows it." Never say bet, payout or odds boost. Say "points multiplier" and "historical percentage".
+
+### Live-beat timing for football (SPEED=4)
+
+`real seconds = game seconds / 4`, from `Start the game`. Opens, locks and resolve game seconds come from `server/src/ai/fallback/props.json`; yes/no is each prop's `correctOptionId` in the state of a full live run. Every window is 30 game s = 7.5 real s.
+
+| Prop | Question | Opens | Locks | Resolves | Result | Historical % (yes) |
+|---|---|---|---|---|---|---|
+| ff-1 | Otters score? | 0.5 | 8 | 10.25 | **yes** | 35.5% |
+| ff-2 | Forge touchdown? | 11.5 | 19 | 24.75 | **yes** | 25.5% |
+| ff-3 | Otters score? | 25.5 | 33 | 37 | no | 35.5% |
+| ff-4 | Forge touchdown? | 37.5 | 45 | 48.25 | no | 33.4% |
+| ff-5 | Otters touchdown? | 61 | 68.5 | 70.25 | no | 22.1% |
+| ff-6 | Forge score? | 71.5 | 79 | 84 | no | 35.5% |
+| ff-7 | Otters touchdown? | 84.5 | 92 | 96.5 | **yes** | 33.4% |
+| ff-8 | Forge score? | 97.5 | 105 | 109.5 | **yes** | 35.5% |
+
+The game ends at 120 s. There is no open question between 48.25 and 61 s (12.75 s), and only half-second gaps elsewhere. All questions are yes/no, so `put me down for yes` and `Leo says no` work in every window; there is no team-name or over/under mismatch like the basketball `Priya takes the over` quirk. If ff-1 is missed, ff-2 (open 11.5-19 s) is the next clean window.
+
+### Football quirks (observed)
+
+1. **Too early is a lock message.** A pick sent 0.2 s after `Start the game` (ff-1 opens at game second 2, 0.5 s real) returned `Picks are locked. The next question opens in about 1 seconds.` with `ok:false`. Wait about a second after `Start the game` before the first pick.
+2. **Fixed after the capture run:** `I'm Sam, they score` used to route to `get_game_status` (the word "score"). Bare drive answers after a name (`I'm Sam, they score`, `I'm Priya, no`, or `touchdown` / `they get stopped` with voice ID) now make a pick (router tests `I'm Sam, they score` … `touchdown + speaker`). `I'm Sam, what's the score?` still gives the score.
+3. **"Locks in about N seconds" is in real seconds** and shrinks each turn: 7 for picks at 0.9 s, 4 for picks at 3.6 s.
+4. **Bonus chips only appear on correct picks.** Wrong picks keep `speed` and `odds` factors but `bonuses: []` and 0 points.
+5. **Maya and Priya as voice ID speakers are simulated here.** Same caveat as section 3, item 5.
+6. **A first run with picks inside the first 0.5 s scored nothing** (quirk 1); only the second run's replies are quoted.
+
 ## Appendix: utterance trace
 
-Line numbers are for the phase/6-polish branch. All tests run with `npx vitest run test/assistant/offlineRouter.test.ts` in `server/`: 69 passed.
+Line numbers in the older rows are for the phase/6-polish branch; rows for the football beat (section 4) use the current `server/test/assistant/offlineRouter.test.ts` (phase 8). All tests run with `npx vitest run test/assistant/offlineRouter.test.ts` in `server/`: 69 passed.
 
 | Utterance (as recorded) | Tool and args | Traced to |
 |---|---|---|
@@ -143,6 +225,18 @@ Line numbers are for the phase/6-polish branch. All tests run with `npx vitest r
 | `what's the score?` | `get_game_status` `{code}` | unit :62; integration `7 score` :213-218 |
 | `draft Big Mo` (no speaker, no name) | none. Reply `Who's picking?…` | unit loop :87-96; integration `missing speaker` :262-268 |
 | `banana` / empty | none. Help reply | unit :98-107; integration `unknown utterance` :270-275 |
+| `Set up a watch party for the football game with the Sunday Crew` | `setup_watch_party` `{crewName:'Sunday Crew', gameTitle:'football'}` | unit `offlineRouter.test.ts:68` (lowercase); football conversation test :320-321 |
+| `Who's available at quarterback?` | `list_available_players` `{code, position:'QB'}` | unit :70 (lowercase); conversation test :334-337 |
+| `I'm Maya, draft Slingshot` (nickname) | `draft_player` `{memberName:'Maya', player:'Slingshot'}` | same path as unit :75 (`I'm Leo, draft Boots`) and :29; the nickname resolves server side. **untested phrase** as that exact string |
+| `put me down for yes` + speaker Maya | `make_pick` `{memberName:'Maya', choice:'yes'}` | unit :76 |
+| `I'm Maya, put me down for yes` (typed fallback) | `make_pick` `{memberName:'Maya', choice:'yes'}` | **untested phrase**; explicit name + the `put me down for` path of unit :37 |
+| `Leo says no` | `make_pick` `{memberName:'Leo', choice:'no'}` | unit :77 |
+| `I'm Sam, put me down for no` | `make_pick` `{memberName:'Sam', choice:'no'}` | **untested phrase**; same path as unit :37 with choice `no` (`cleanChoice` leaves `no` alone) |
+| `Priya says no` + speaker Priya | `make_pick` `{memberName:'Priya', choice:'no'}` | **untested phrase**; same path as unit :77 (`Leo says no`) |
+| `I'm Sam, they score` | `make_pick` `{memberName:'Sam', choice:'they score'}` | unit :82 (`BARE_ANSWER` in `parsePick`; fixed after the capture run, which still showed the old status reply) |
+| `Why did that one go the other way?` (football) | `explain_last_result` `{code}` | same as basketball unit :48; football conversation test :364-369 checks the answer and the right-pick line |
+| `What's the score?` (football) | `get_game_status` `{code}` | unit :62; conversation test :344-349 (`will they score?`) |
+| `Who's winning in our house?` (football) | `get_leaderboard` `{code}` | unit :46 |
 | Unreachable `/mcp` | none. `I can't reach the game right now.` | integration `does not throw…` :277-283 |
 
 Other sources used:
