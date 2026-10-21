@@ -6,6 +6,7 @@ import { createApiRouter } from './api/routes.js';
 import { startAiWorker } from './ai/worker.js';
 import { createAiProvider } from './ai/providers.js';
 import { mountMcp } from './mcp/http.js';
+import { createAssistantRouter } from './assistant/routes.js';
 import { GAMES } from './game/games.js';
 import { Store } from './game/store.js';
 
@@ -19,8 +20,8 @@ export function createApp(opts: { store: Store }): express.Express {
   });
 
   mountMcp(app, { store, token: process.env.MCP_TOKEN ?? 'dev-token-change-me' });
-  // Phase 4: mount `/api/assistant` here, BEFORE the /api router, or the router's
-  // catch-all 404 shadows it.
+  // /api/assistant must mount BEFORE the /api router, or its catch-all 404 shadows it.
+  app.use(createAssistantRouter({ token: process.env.MCP_TOKEN ?? 'dev-token-change-me' }));
 
   app.use('/api', createApiRouter(store));
 
