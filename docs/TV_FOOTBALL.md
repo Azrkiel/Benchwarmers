@@ -1,5 +1,21 @@
 # TV view: football game and pick bonuses (brief for Codex)
 
+## Implementation: 2026-10-21
+
+Implemented on `feature/tv-football`, based on `be94b45`:
+
+- Football field replaces the court, with possession, drive-start yard line and direction. End-of-drive events clear the marker, including turnovers emitted as `play` events. Missing context and final games do not show stale possession.
+- Play-by-play shows the latest three plays with wrapping text and football clock tags; basketball keeps its own clock scale.
+- Paired yes/no pick cards show historical drive percentages for open and locked questions. Probabilities use the supplied option value or the historical data; missing/invalid values are omitted.
+- Last resolved pick bonuses remain visible while another pick is open. Standings show each member's last earned bonus and server-scored points, using `BONUS_COPY`.
+- Leader roster shows positions and server stat lines. Existing draft cards already support football positions; regression tests now cover them.
+
+Validation: 294 web tests passed, server/widget/web typechecks passed, and the web production build passed. The build retains its existing large-chunk warning. Nine browser checks used real in-memory game-engine states: football open, locked, resolved, four-player bonuses (1600×900 and 1920×1080), draft, final, rosters, and basketball live. No clipped content in the checked panels or browser exceptions. No backend or shared-contract changes.
+
+The field marker intentionally means **drive start**, not a live ball location; that is the position provided by the API. Local preview and screenshots are under the worktree's ignored `server/data/tv-football-qa/`.
+
+## Original brief
+
 Phase 8 added a second replay game and pick bonuses. The server, MCP widget and device page support both. The TV
 (`web/src/tv/**`, Codex's) loads a football party without crashing, but it does not show anything football- or bonus-specific
 yet. This page lists the gaps and the state fields to use. Nothing here requires a server change.

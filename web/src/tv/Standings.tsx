@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react';
 import type { Household, StandingRow } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
+import { PickBonus } from './PickBonuses';
 import { rankMovement, useFlip, type Movement } from './flip';
 
 const GLYPH: Record<Movement, string> = { up: '▲', down: '▼', same: '─' };
@@ -38,6 +39,7 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
               </span>
               <span className="tv-stand-total">{r.total.toFixed(1)}</span>
               <span className="tv-streak">{r.streak >= 2 ? `🔥${r.streak}` : ''}</span>
+              <PickBonus score={r.lastPickScore} compact />
             </li>
           );
         })}

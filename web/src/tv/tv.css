@@ -581,10 +581,9 @@ html.tv-kiosk ::-webkit-scrollbar {
   order: 3;
   flex: 1 1 100%;
   min-width: 0;
-  line-height: 1.15;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 .tv-pbp-row .tv-chip {
   order: 2;
@@ -692,7 +691,7 @@ html.tv-kiosk ::-webkit-scrollbar {
 }
 .tv-pick-options {
   grid-column: 2;
-  grid-row: 1 / span 3;
+  grid-row: 1 / span 4;
   display: flex;
   gap: 14px;
 }
@@ -877,8 +876,10 @@ html.tv-kiosk ::-webkit-scrollbar {
   display: grid;
   grid-template-columns: 40px 30px 68px minmax(0, 1fr) 104px 72px;
   align-items: center;
-  gap: 8px;
-  height: 104px;
+  gap: 2px 8px;
+  flex: 1 1 0;
+  min-height: 88px;
+  max-height: 104px;
   box-sizing: border-box;
   padding: 0 10px;
   border-radius: 14px;
@@ -907,13 +908,13 @@ html.tv-kiosk ::-webkit-scrollbar {
 .tv-stand-main {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 3px;
   min-width: 0;
 }
 .tv-stand-name {
-  font-size: 40px;
+  font-size: 36px;
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -930,7 +931,7 @@ html.tv-kiosk ::-webkit-scrollbar {
 }
 .tv-split {
   display: flex;
-  height: 16px;
+  height: 8px;
   border-radius: 999px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
@@ -939,6 +940,64 @@ html.tv-kiosk ::-webkit-scrollbar {
   display: block;
   height: 100%;
   transition: width 0.6s ease;
+}
+
+/* Football drive context. The marker is the known starting position, never inferred live tracking. */
+.tv-live-football .tv-live-court {
+  grid-template-columns: 500px minmax(0, 1fr);
+}
+.tv-football {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tv-drive-kicker {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--accent);
+}
+.tv-drive-context {
+  font-size: 28px;
+  font-weight: 700;
+}
+.tv-field { width: 100%; height: auto; }
+.tv-drive-note { color: var(--muted); font-size: 22px; }
+.tv-live-football .tv-pop-layer { width: 500px; }
+.tv-pick-history {
+  grid-column: 1;
+  font-size: 24px;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.tv-pick-options.is-binary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tv-pick-options.is-binary .tv-pick-label { font-size: 38px; }
+.tv-pick-options.is-binary [data-option="yes"] { border-top: 4px solid var(--good); }
+.tv-pick-options.is-binary [data-option="no"] { border-top: 4px solid var(--accent); }
+.tv-pick-bonuses {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding-top: 10px;
+  margin-top: 6px;
+  border-top: 1px solid var(--border);
+  font-size: 23px;
+}
+.tv-bonus-kicker { color: var(--muted); text-transform: uppercase; font-size: 20px; font-weight: 800; }
+.tv-pick-bonus-person { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 800; }
+.tv-bonus { display: inline-flex; flex-wrap: wrap; gap: 4px 10px; color: var(--good); font-size: inherit; line-height: 1.2; }
+.tv-bonus strong { white-space: nowrap; }
+.tv-stand-row > .tv-bonus { grid-column: 4 / -1; font-size: 20px; }
+.tv-leader-position {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 20px;
+  color: var(--accent);
 }
 
 /* Friends ticker */
