@@ -11,7 +11,7 @@
 > | 5 TV view | ✅ merged (`phase/5-tv`, `phase/5b-tv-polish`); 🔀 further TV work is Codex's |
 > | 6 Polish + submission | ✅ merged (`phase/6-polish`): `npm run demo` (fresh clone → running in ~35 s), README, DEMO_SCRIPT, PRODUCT_FEEDBACK, SUBMISSION draft; 🧑 video + Devpost links TODO |
 > | 7 (added) Voice ID — no "I'm Maya" needed | ✅ merged (`phase/7-voiceid`, `phase/7b-voiceid-tuning`), wired into device page; real-mic untested |
-> | 8 (added) Drive odds model — real-data odds per question + points multiplier | ⬜ planned (§10c): second **football** replay game using NFL drive odds (user decision); open questions 2–4 in §10c |
+> | 8 (added) Drive odds model — real-data odds per question + points multiplier | ⬜ planned (§10c): second **football** replay game using NFL drive odds + speed/contrarian bonuses (both games); not started |
 > Full resume notes: `docs/HANDOFF.md`. Orchestration/ownership: `docs/ORCHESTRATION.md`.
 
 > **How to use this file:** put it at the root of an empty repo, open Claude Code there, and say:
@@ -398,8 +398,8 @@ A web page built for a TV across the room ("10-foot UI"): 1920×1080 layout, hug
 >    - New fictional game file `server/src/game/games/<football-game>.json` (fictional teams/players, ~8 per team, nicknames for voice).
 >    - MCP tools/widget, assistant router, device fallback card: show football positions and drive props; `setup_watch_party` takes a game.
 >    - TV view (`web/tv/**`) is Codex's — football rendering there needs Codex; until then the TV must at least not break on a football game.
-> 2. **Bonuses that don't exist yet.** The engine has streak multipliers (`STREAK_MULTIPLIERS` in `server/src/game/engine.ts`) but no
->    "speed buckets" or "contrarian bonus". Define those, or stack the odds multiplier with the streak multiplier only.
+> 2. ~~Bonuses that don't exist yet~~ **Decided 2026-10-20 (user): define and add them** — speed buckets + contrarian bonus, see
+>    "Scoring bonuses" below. They apply to **both** games (basketball and football), not only drive props.
 > 3. **Wording.** Rules say no real money / wager language: call it a **points multiplier**, not a payout, in UI and voice copy.
 >    Real-league data is fine as a statistics source; the UI still shows only fictional teams.
 > 4. **Contract.** A per-question probability + multiplier on `Prop`/`PropView` is a change to `server/src/shared/types.ts` (lead-owned).
@@ -455,6 +455,49 @@ Write `drive_odds.json`, shaped like:
   `multiplier = clamp(0.5 / p_pick, 0.5, 2.0)`
 
   e.g. a 25 % pick → ×2.0, a 50 % pick → ×1.0, an 80 % pick → ×0.625.
+
+### Scoring bonuses (speed buckets + contrarian), stacked with streak and odds
+Today a correct pick scores `PICK_BASE_POINTS (10) × STREAK_MULTIPLIERS[streak]` (`[1, 1.5, 2]`, `server/src/shared/types.ts`, tallied in
+`tallyPicks` in `server/src/game/engine.ts`). Phase 8 adds three more factors. Wrong picks still score 0 and reset the streak.
+
+**1. Odds multiplier** (football drive props only; every other prop = ×1.0)
+`odds = clamp(0.5 / p_pick, 0.5, 2.0)`, where `p_pick` is the precomputed probability of the option the member picked
+(`p_score` / `1 − p_score`, `p_td` / `1 − p_td`). Stored on the prop in the replay JSON; never computed live.
+
+**2. Speed bucket** — reward calling it early. `f = (pickGameT − opensAt) / (locksAt − opensAt)` using the game clock at the time of
+the member's **last** change to that pick (changing your mind moves you to a later bucket).
+
+| Bucket | When (`f`) | Factor | Copy (voice/UI) |
+|---|---|---|---|
+| Early | `f ≤ 0.25` | ×1.25 | "Early call" |
+| On time | `0.25 < f ≤ 0.60` | ×1.10 | "Quick call" |
+| Late | `f > 0.60` | ×1.00 | — |
+
+**3. Contrarian bonus** — reward going against the room. Computed at resolution over everyone in the party who picked that prop
+(all households). `share` = fraction of pickers who chose the same option as this member.
+
+| Case | Condition | Factor | Copy |
+|---|---|---|---|
+| Lone call | only picker of that option and ≥ 3 pickers total | ×1.50 | "Lone call" |
+| Minority | `share < 0.5` and ≥ 2 pickers total | ×1.20 | "Against the room" |
+| Crowd | otherwise (incl. a single picker) | ×1.00 | — |
+
+**Stacking and caps**
+`points = round_half(PICK_BASE_POINTS × streak × odds × speed × contrarian)`, with the combined factor `streak × odds × speed ×
+contrarian` capped at **×5** (max 50 points per pick) so one lucky pick can't decide the night. `round_half` rounds to the nearest 0.5.
+- Example: Maya is on a 2-pick streak (×2), picks "No score" on a drive where `p_pick = 0.35` (odds ×1.43), at `f = 0.2` (×1.25),
+  and she is the only one of 4 pickers on that side (×1.5): factor 5.36 → capped ×5 → **50 points**.
+- Example: Leo, no streak (×1), basketball prop (×1), late (×1), with the crowd (×1): **10 points**, same as today.
+
+**Build notes (when Phase 8 is built)**
+- Contract (lead): `Pick` gains `gameT` (game clock at last change; `at` is wall-clock ms today, `opensAt`/`locksAt` are game
+  seconds); `Prop` gains optional `odds: Record<optionId, number>` (p per option); `PickTally`/standings expose a per-pick breakdown
+  `{base, streak, odds, speed, contrarian, points}` so the TV, widget and assistant can say *why* ("Early call ×1.25, Lone call ×1.5").
+- Engine: extend `tallyPicks`; contrarian needs all picks for the prop (the party's picks, not only the member's).
+- Existing tests with fixed pick totals (play script "Benchwarmer of the night", season seed) will change — update expectations
+  deliberately, don't weaken them; add unit tests for each bucket edge (`f = 0.25`, `0.60`; `share = 0.5`; 2 vs 3 pickers; cap).
+- Assistant/voice: mention at most one bonus per reply ("Lone call — 15 points").
+- No wager language: "points", "multiplier", "call" — never "payout", "odds boost", "bet".
 
 ### Later: questions mid-drive
 The same data supports questions asked partway through a drive: use every play instead of only the first play of each drive, and add

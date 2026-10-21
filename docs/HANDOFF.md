@@ -96,6 +96,7 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 ## 11. Open questions for the human
 - ~~Who builds the device page?~~ **Answered 2026-10-20: Claude, on `phase/4b-device`.**
 - 🧑 AWS (user: "we'll figure it out when we get there"): account + Bedrock model access + `aws configure` + `BEDROCK_MODEL_ID` (Haiku-tier inference profile id) + $5 budget alarm. Needed for the AWS Builder mini challenge proof and a real `AI_MODE=bedrock` / `ASSISTANT_MODE=bedrock` run.
+- Phase 8 (drive odds + bonuses): when to build it — user wants it planned only for now (plan.md §10c).
 - 🧑 Demo video (OBS), YouTube upload, Devpost submission, optional Alexa+ Local Inspector access.
 
 ## 12. Files touched (map)
@@ -118,6 +119,13 @@ Test helpers committed in `tools/` (screenshot.mjs, voice-test.mjs, tts-clips.ps
 5. **Real Bedrock run** — blocked on 🧑 AWS creds. Done = Checkpoint 3 with `AI_MODE=bedrock` and token counts logged in AWS.md.
 6. ✅ DONE (session 2) — **Phase 6** — `npm run demo` (server SPEED=4 + web + cloudflared hint), README (architecture, protocol 2025-11-25, run steps, env table, known gaps: Alexa+ Preview/OAuth), PRODUCT_FEEDBACK (from FRICTION_LOG), DEMO_SCRIPT, SUBMISSION; PR `dev` → `main`. Done = fresh clone → demo in < 15 min.
 
-7. **Drive odds model (phase 8, added by Kevin)** — plan.md §10c. Blocked on a decision: NFL drive data vs the basketball game (see its open questions).
+7. **Phase 8 — drive odds model + bonuses (added by Kevin, 2026-10-20)** — spec in plan.md §10c. **Planned only; user said do not build yet.**
+   Decisions made: (a) add a **second, football** replay game that uses an NFL drive-odds table (nflverse 2015–2025 → `drive_odds.json`,
+   buckets = 10-yard band × normal/two-minute, merge buckets < 200 drives); basketball `harbor-vs-summit`/`DEMO` stays; (b) **speed buckets**
+   (early ×1.25 / quick ×1.10 / late ×1.0 by fraction of the open window) and **contrarian bonus** (lone call ×1.5 / minority ×1.2) apply to
+   **both** games, stacked with streak and the football-only odds multiplier `clamp(0.5/p, 0.5, 2.0)`, combined factor capped ×5.
+   Needs a lead contract change first (`Game.sport`, football positions, `Prop.odds`, `Pick.gameT`, per-pick bonus breakdown); TV football
+   rendering is Codex's. Suggested split: one manager for the Python odds script + JSON, one for engine/game/MCP after the contract commit.
+   Open: wording stays "points multiplier" (no payout/bet language).
 
 Retro: none written (use `xvant-retro` if wanted).
