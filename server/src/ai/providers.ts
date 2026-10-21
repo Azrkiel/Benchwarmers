@@ -8,9 +8,11 @@ import type {
   GameEvent,
   Player,
   Prop,
+  PickScore,
   PropGenContext,
   RecapContext,
 } from '../shared/types.js';
+import { BONUS_COPY } from '../shared/types.js';
 import { converseJson, type BedrockLike, type ConverseJsonOptions } from './bedrock.js';
 import { generateGeminiJson, type GeminiLike } from './gemini.js';
 import { checkText, sanitizeText } from './guardrails.js';
@@ -120,6 +122,16 @@ export class FallbackProvider implements AiContentProvider {
       } else {
         lines.push(`${s.name} finished with ${s.total} points.`);
       }
+    }
+    let bestCall: { name: string; score: PickScore } | undefined;
+    for (const s of standings) {
+      const sc = s.lastPickScore;
+      if (sc && sc.correct && sc.bonuses.length > 0 && (!bestCall || sc.factor > bestCall.score.factor)) bestCall = { name: s.name, score: sc };
+    }
+    if (bestCall) {
+      const b = bestCall.score.bonuses[0]!;
+      const phrase = b === 'against_the_room' ? 'call against the room' : BONUS_COPY[b].toLowerCase();
+      lines.push(`Best call of the night: ${bestCall.name}'s ${phrase} earned ${bestCall.score.points} points.`);
     }
     const owned = ctx.draftBoard.filter((d) => d.ownerName);
     if (owned.length > 0) {

@@ -6,6 +6,7 @@ import type { McpServer } from '@modelcontextprotocol/server';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Store } from '../../src/game/store.js';
 import { createServer } from '../../src/mcp/server.js';
+import { BONUS_COPY } from '../../src/shared/types.js';
 
 // Tool behaviour is exercised over an in-process transport: the HTTP path is covered by http.test.ts.
 
@@ -229,6 +230,57 @@ describe('explain_last_result', () => {
     expect(res.structuredContent!.correctOption).toEqual({ id: 'home', label: 'Hawks' });
     expect(textOf(res)).toContain('The answer was Hawks.');
     expect(res.structuredContent!.winners).toEqual([]);
+  });
+});
+
+describe('phase 8 pick bonus lines', () => {
+  const BANNED = /(bet|bets|betting|payout|wager|wagers)|odds boost/i;
+
+  /** Maya alone calls Hawks (correct); Leo and Sam pick Foxes. Then fb-1 resolves. */
+  async function loneCallScenario(): Promise<string> {
+    const code = await setupParty();
+    await call('start_watch_party', { code });
+    advance(5);
+    await call('make_pick', { code, memberName: 'Maya', choice: 'Hawks' });
+    await call('make_pick', { code, memberName: 'Leo', choice: 'Foxes' });
+    await call('make_pick', { code, memberName: 'Sam', choice: 'Foxes' });
+    advance(60 / SPEED + 1);
+    return code;
+  }
+
+  it('explain_last_result names the lone call and its points', async () => {
+    const code = await loneCallScenario();
+    const score = store.getState(code).standings.find((s) => s.memberId === 'maya')!.lastPickScore!;
+    expect(score.bonuses).toContain('lone_call');
+    const res = await call('explain_last_result', { code });
+    const text = textOf(res);
+    expect(text).toContain(`Maya's ${BONUS_COPY.lone_call.toLowerCase()} earned ${score.points} points.`);
+    expect(res.structuredContent!.bonus).toMatchObject({ memberName: 'Maya', points: score.points });
+    expect(text).not.toMatch(BANNED);
+  });
+
+  it('get_leaderboard and get_my_roster mention the bonus; others do not name it', async () => {
+    const code = await loneCallScenario();
+    const score = store.getState(code).standings.find((s) => s.memberId === 'maya')!.lastPickScore!;
+    const board = textOf(await call('get_leaderboard', { code }));
+    expect(board).toContain(`Maya's ${BONUS_COPY[score.bonuses[0]!].toLowerCase()} earned`);
+    expect(board).not.toMatch(BANNED);
+    const mine = textOf(await call('get_my_roster', { code, memberName: 'Maya' }));
+    expect(mine).toContain(`Your last ${BONUS_COPY[score.bonuses[0]!].toLowerCase()} earned ${score.points} points.`);
+    expect(mine).not.toMatch(BANNED);
+    const leo = textOf(await call('get_my_roster', { code, memberName: 'Leo' }));
+    expect(leo).not.toContain('Your last');
+  });
+
+  it('adds no bonus line when nobody earned a bonus', async () => {
+    const code = await setupParty();
+    await call('start_watch_party', { code });
+    advance(60 / SPEED + 1);
+    const text = textOf(await call('explain_last_result', { code }));
+    expect(text).not.toContain('earned');
+    expect(text).not.toMatch(BANNED);
+    const sc = (await call('explain_last_result', { code })).structuredContent!;
+    expect(sc.bonus).toBeUndefined();
   });
 });
 
