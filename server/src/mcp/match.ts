@@ -401,10 +401,12 @@ export function matchGame(input: string | undefined, games: Game[]): MatchResult
     return games.length ? ok(games[0]) : notFound('There are no games available right now.', []);
   }
   const t = toks(raw).filter((w) => !GAME_FILLER.has(w) && !FILLER.has(w));
+  if (!t.length && games.length) return ok(games[0]); // "tonight's game" -> the default (first) game
   let top = 0;
   let winners: Game[] = [];
   for (const g of games) {
-    const bag = uniq([...toks(g.title), ...toks(g.id), ...teamWords(g.home), ...teamWords(g.away)]);
+    const sportWords = g.sport === 'football' ? ['football', 'gridiron', 'nfl'] : ['basketball', 'hoops'];
+    const bag = uniq([...toks(g.title), ...toks(g.id), ...teamWords(g.home), ...teamWords(g.away), ...sportWords]);
     let s = 0;
     for (const w of t) if (bag.some((b) => tokenTier(w, b, {}) > 0)) s++;
     if (s === 0) continue;

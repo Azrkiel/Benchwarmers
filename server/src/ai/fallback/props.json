@@ -227,5 +227,269 @@
     },
     "explanation": "Under 115.5: the game ended 57 to 56, which is 113 points in all, just short of the line.",
     "source": "fallback"
+  },
+  {
+    "id": "ff-1",
+    "gameId": "riverton-vs-ironwood",
+    "question": "Will the Otters score on this drive?",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes"
+      },
+      {
+        "id": "no",
+        "label": "No"
+      }
+    ],
+    "opensAt": 2,
+    "locksAt": 32,
+    "resolvesAt": 41,
+    "resolver": {
+      "kind": "driveResult",
+      "driveId": "d01",
+      "outcome": "score"
+    },
+    "source": "fallback",
+    "odds": {
+      "source": "drive_odds",
+      "bucket": "71-80|normal",
+      "n": 25892,
+      "p": {
+        "yes": 0.355,
+        "no": 0.645
+      }
+    }
+  },
+  {
+    "id": "ff-2",
+    "gameId": "riverton-vs-ironwood",
+    "question": "Will the Forge get a touchdown on this drive?",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes"
+      },
+      {
+        "id": "no",
+        "label": "No"
+      }
+    ],
+    "opensAt": 46,
+    "locksAt": 76,
+    "resolvesAt": 99,
+    "resolver": {
+      "kind": "driveResult",
+      "driveId": "d02",
+      "outcome": "td"
+    },
+    "source": "fallback",
+    "odds": {
+      "source": "drive_odds",
+      "bucket": "61-70|normal",
+      "n": 9782,
+      "p": {
+        "yes": 0.255,
+        "no": 0.745
+      }
+    }
+  },
+  {
+    "id": "ff-3",
+    "gameId": "riverton-vs-ironwood",
+    "question": "Will the Otters score on this drive?",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes"
+      },
+      {
+        "id": "no",
+        "label": "No"
+      }
+    ],
+    "opensAt": 102,
+    "locksAt": 132,
+    "resolvesAt": 148,
+    "resolver": {
+      "kind": "driveResult",
+      "driveId": "d03",
+      "outcome": "score"
+    },
+    "source": "fallback",
+    "odds": {
+      "source": "drive_odds",
+      "bucket": "71-80|normal",
+      "n": 25892,
+      "p": {
+        "yes": 0.355,
+        "no": 0.645
+      }
+    }
+  },
+  {
+    "id": "ff-4",
+    "gameId": "riverton-vs-ironwood",
+    "question": "Will the Forge get a touchdown on this drive?",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes"
+      },
+      {
+        "id": "no",
+        "label": "No"
+      }
+    ],
+    "opensAt": 150,
+    "locksAt": 180,
+    "resolvesAt": 193,
+    "resolver": {
+      "kind": "driveResult",
+      "driveId": "d04",
+      "outcome": "td"
+    },
+    "source": "fallback",
+    "odds": {
+      "source": "drive_odds",
+      "bucket": "41-50|normal",
+      "n": 2174,
+      "p": {
+        "yes": 0.334,
+        "no": 0.666
+      }
+    }
+  },
+  {
+    "id": "ff-5",
+    "gameId": "riverton-vs-ironwood",
+    "question": "Will the Otters get a touchdown on this drive?",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes"
+      },
+      {
+        "id": "no",
+        "label": "No"
+      }
+    ],
+    "opensAt": 244,
+    "locksAt": 274,
+    "resolvesAt": 281,
+    "resolver": {
+      "kind": "driveResult",
+      "driveId": "d07",
+      "outcome": "td"
+    },
+    "source": "fallback",
+    "odds": {
+      "source": "drive_odds",
+      "bucket": "71-80|normal",
+      "n": 25892,
+      "p": {
+        "yes": 0.221,
+        "no": 0.779
+      }
+    }
+  },
+  {
+    "id": "ff-6",
+    "gameId": "riverton-vs-ironwood",
+    "question": "Will the Forge score on this drive?",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes"
+      },
+      {
+        "id": "no",
+        "label": "No"
+      }
+    ],
+    "opensAt": 286,
+    "locksAt": 316,
+    "resolvesAt": 336,
+    "resolver": {
+      "kind": "driveResult",
+      "driveId": "d08",
+      "outcome": "score"
+    },
+    "source": "fallback",
+    "odds": {
+      "source": "drive_odds",
+      "bucket": "71-80|normal",
+      "n": 25892,
+      "p": {
+        "yes": 0.355,
+        "no": 0.645
+      }
+    }
+  },
+  {
+    "id": "ff-7",
+    "gameId": "riverton-vs-ironwood",
+    "question": "Will the Otters get a touchdown on this drive?",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes"
+      },
+      {
+        "id": "no",
+        "label": "No"
+      }
+    ],
+    "opensAt": 338,
+    "locksAt": 368,
+    "resolvesAt": 386,
+    "resolver": {
+      "kind": "driveResult",
+      "driveId": "d09",
+      "outcome": "td"
+    },
+    "source": "fallback",
+    "odds": {
+      "source": "drive_odds",
+      "bucket": "41-50|normal",
+      "n": 2174,
+      "p": {
+        "yes": 0.334,
+        "no": 0.666
+      }
+    }
+  },
+  {
+    "id": "ff-8",
+    "gameId": "riverton-vs-ironwood",
+    "question": "Will the Forge score on this drive?",
+    "options": [
+      {
+        "id": "yes",
+        "label": "Yes"
+      },
+      {
+        "id": "no",
+        "label": "No"
+      }
+    ],
+    "opensAt": 390,
+    "locksAt": 420,
+    "resolvesAt": 438,
+    "resolver": {
+      "kind": "driveResult",
+      "driveId": "d10",
+      "outcome": "score"
+    },
+    "source": "fallback",
+    "odds": {
+      "source": "drive_odds",
+      "bucket": "71-80|normal",
+      "n": 25892,
+      "p": {
+        "yes": 0.355,
+        "no": 0.645
+      }
+    }
   }
 ]
