@@ -149,3 +149,5 @@ Waves: **A** = 4a + 7b (parallel, disjoint files) · **B** = 2b manual MCP check
 ## 6. History (session 1, 2026-10-20)
 Wave 1: 1-engine (opus), 3-ai (sonnet), 5-tv (opus) in parallel → merged; lead wired AI worker. 5b TV polish (worker).
 Wave 2: 2-mcp (opus), 7-voiceid (opus) → rate-limited mid-run, resumed, merged. All phase branches are on origin.
+Session 2: wave A 4a (opus) + 7b (sonnet) → merged (lead fixed a Bedrock-fallback double-mutation bug); 2b (sonnet) + 4b (opus)
+in parallel → 4b hit the usage limit, resumed via SendMessage, merged. Remaining: 6 polish, 3b real model run.

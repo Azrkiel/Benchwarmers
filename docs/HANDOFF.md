@@ -1,7 +1,7 @@
 # Handoff — Benchwarmers (resume here)
 
 ## 1. Metadata
-- Written: 2026-10-20 18:05 ET, end of Claude Code session 1; updated in session 2 after wave A (4a + 7b merged). Lead model: Claude Opus 5.5 (orchestrator); phase managers opus/sonnet, workers via model-router.
+- Written: 2026-10-20 18:05 ET, end of Claude Code session 1; updated in session 2 after waves A–C (4a, 7b, 2b, 4b merged). Lead model: Claude Opus 5.5 (orchestrator); phase managers opus/sonnet, workers via model-router.
 - Repo: https://github.com/Azrkiel/Benchwarmers (public, MIT). Working branch: **`dev`** (all merged work). `main` = only the original plan.
 - Spec: `plan.md` (now marked up with ✅/🟡/⬜ status per phase). Orchestration + file ownership: `docs/ORCHESTRATION.md`.
 - Deadline: **Fri 2026-10-23 12:00 PM PT; submit by 10:00 AM PT** (Devpost "Build, Ship, Shape", Alexa+ track + AWS Builder mini).
@@ -13,14 +13,14 @@ plus the user's extra ask: **pure voice recognition (voice ID) so people don't h
 User's latest direction (2026-10-20 evening): **Claude works on the backend; Codex works on the TV view/frontend** (user will compare).
 
 ## 3. Reproducible state
-- Branch `dev` @ `8217820` + this status commit; pushed. Phase branches pushed: `phase/1-engine`, `phase/2-mcp`, `phase/3-ai`,
-  `phase/5-tv`, `phase/5b-tv-polish`, `phase/7-voiceid`, `phase/7b-voiceid-tuning`, `phase/4a-assistant` (all merged into dev).
+- Branch `dev` @ `60d5211` + status commits. **Local `dev` is NOT pushed past `255daaa`**: it carries two Gemini commits (40e5fe3, 26b1d5d, from `feature/gemini-provider` in worktree `C:/Users/jiang/Benchwarmers-gemini`) awaiting the user's OK to publish. Phase branches pushed: `phase/1-engine`, `phase/2-mcp`, `phase/3-ai`,
+  `phase/5-tv`, `phase/5b-tv-polish`, `phase/7-voiceid`, `phase/7b-voiceid-tuning`, `phase/4a-assistant`, `phase/2b-mcp-hosts`, `phase/4b-device` (all merged into dev).
 - Uncommitted: none after this commit. Phase worktrees under `%LOCALAPPDATA%\Temp\bw-lanes\` were removed after merge.
 - Running: nothing of ours. **Port 5173 is in use by Codex's separate clone** (`C:\Users\jiang\Benchwarmers`, `vite --host 127.0.0.1`) — don't kill it; use another web port (e.g. `npx vite --port 5175`).
 - Resume commands (Git Bash):
   ```bash
   cd ~/Downloads/xvant/Benchwarmers && git checkout dev && git pull && npm ci
-  npm run typecheck && npm test          # expect: server 478 passed, web 188 passed (server suite ~1-in-8 flaky on this machine: Avast loopback stalls; re-run)
+  npm run typecheck && npm test          # expect: server 519 passed, web 274 passed (server suite ~1-in-8 flaky on this machine: Avast loopback stalls; re-run)
   npm run play -w server                 # full scripted party → standings table, "Benchwarmer of the night: Big Mo"
   cd server && PORT=3001 SPEED=4 npx tsx src/index.ts   # REST /api, MCP /mcp (Bearer dev-token-change-me), /healthz
   ```
@@ -40,6 +40,8 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 | Phase 7 (user's add): voice ID — 16 kHz capture, WavLM x-vector in a worker (transformers.js) + MFCC fallback, enrollment, matching, `useVoiceId`, `useUtteranceCapture`, `EnrollPanel`, `/voice-lab`, docs/VOICE_ID.md | tested (94 web tests) + real-model run in headless Chrome with TTS voices (separates speakers); **not tried with a real mic / real people** |
 | Phase 4a (session 2): `POST /api/assistant` — MCP client to own /mcp, offline router (all plan §8 utterances), Bedrock Converse tool loop ≤3 rounds, fallback to offline (no repeat of state-changing calls) | tested (105 tests, mocked Bedrock) + live curl on :3015 verified by lead |
 | Phase 7b (session 2): voice ID tuning — threshold 0.70/margin 0.05, 3 s crop, COOP/COEP threaded WASM, instant MFCC guess (`engine`, `provisional` on IdentifyOutcome) | tested (188 web) + real-model run re-run by lead: own-speaker ≥0.80, 2.1 s/clip |
+| Phase 2b (session 2): MCP Inspector (11 tools, Checkpoint 2 via CLI), ext-apps basic-host screenshots (3 tabs × 800/1280 px), cloudflared tunnel initialize → 2025-11-25; season-row fix | manually verified (docs/MCP_HOSTS.md, docs/img/) |
+| Phase 4b (session 2): device page `/device/:household` (speech in/out, typed, trace, app-bridge widget in srcdoc sandbox + fallback card, voice ID + screen speaker picker) | tested (86 web tests) + Checkpoint 4 headless (`tools/device-sync.mjs`): sync 0.98 s, season after restart; **real mic / Web Speech / live voice ID untested** |
 | plan.md marked up with status | written |
 
 ## 5. What went well and why
@@ -82,7 +84,9 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - WavLM model license (UniSpeech repo, CC BY-SA 3.0) is fine since weights are downloaded from Hugging Face at runtime, not redistributed.
 
 ## 10. Known issues
-- Widget not yet opened in MCP Inspector / basic-host; breakpoints (≤10" / ≥11") not visually checked. Bundle 246 kB (ext-apps pulls MCP client + zod).
+- Widget bundle 246 kB; `get_leaderboard` structuredContent ≈34 kB. `get_game_status` has no widget `_meta` (can't drive the tonight view in hosts).
+- Widget HTML (`server/src/mcp/widget/dist`) is gitignored and built by `npm run build:widget -w server` (server `pretest` runs it) — `npm run demo` must build it or `/mcp` serves "Widget not built".
+- Device: single srcdoc iframe (opaque origin) instead of ext-apps' second-origin sandbox proxy (COEP for voice ID blocks it). Vite proxy truncates the 202 for `notifications/initialized` → one harmless `ERR_INCOMPLETE_CHUNKED_ENCODING` per page (likely forceChunked; see FRICTION_LOG). Web main chunk 665 kB + transformers 543 kB.
 - Voice ID: transformers.js fetches ORT wasm from jsDelivr (27 MB local copy in dist unused) — offline hosting needs `env.backends.onnx.wasm.wasmPaths`. COOP/COEP headers set only by Vite dev/preview; may block a cross-origin MCP App iframe (VOICE_ID.md §5a). `crossOriginIsolated`/thread use not confirmed. Pre-7b enrollments lack quick-MFCC profiles until re-enroll.
 - Assistant: "Priya takes the over" against DEMO → `make_pick` ok:false (first open prop is scoring-first, no over/under) — routing correct. Bedrock path untested for empty forced-final text; never run on real Bedrock.
 - Server test suite flaky ~1 in 8 runs (Avast loopback proxy freezes workers ~10 s on /mcp traffic) — FRICTION_LOG; re-run.
@@ -109,8 +113,8 @@ plus the lead procedure (§3) and brief template (§4). Waves: A = 4a + 7b in pa
 Test helpers committed in `tools/` (screenshot.mjs, voice-test.mjs, tts-clips.ps1).
 1. ✅ DONE (session 2) — **Assistant backend (phase 4a)** — `server/src/assistant/`: MCP client (`@modelcontextprotocol/client` StreamableHTTP + bearer) to our own `/mcp`; `ASSISTANT_MODE=offline` rule-based router mapping the plan §8 demo utterances to tools (uses `speaker.memberName` when no "I'm X"); `ASSISTANT_MODE=bedrock` Converse tool-use loop (tools/list → toolConfig, ≤3 rounds, reuse `ai/bedrock.ts` client); returns `AssistantResponse {reply, toolCalls, uiResource, partyCode, mode}`; mount `POST /api/assistant` in index.ts above the /api router. Done = vitest covers each demo utterance offline + mocked Bedrock loop, latency logged, typecheck green.
 2. ✅ DONE (session 2) — **Voice ID tuning** — `web/src/voiceid/`: WavLM threshold 0.70, crop clips to ≤3 s, COOP/COEP headers in `web/vite.config.ts` for threaded WASM, MFCC instant first guess. Done = a two-voice test (Windows TTS David vs Zira, 3-clip enroll, 2 held-out each) accepts all 4 held-out clips and embed < 3 s/clip.
-3. **Manual MCP checks** — MCP Inspector (`npx @modelcontextprotocol/inspector`, URL `http://localhost:3001/mcp`, Bearer header) + ext-apps basic-host (`git clone https://github.com/modelcontextprotocol/ext-apps` → `examples/basic-host`) renders the widget; cloudflared tunnel (`~/Downloads/cloudflared-windows-amd64.exe tunnel --url http://localhost:3001`). Done = screenshots + friction entries.
-4. **Device page (phase 4b)** — assigned to Claude; in progress next. `/device/:household`: Web Speech in/out, typed fallback, agent trace toggle, app-bridge widget render, EnrollPanel + `useUtteranceCapture` → `speaker`. Done = Checkpoint 4 (two windows sync ≤2 s; season answer after restart).
+3. ✅ DONE (session 2) — **Manual MCP checks** — MCP Inspector (`npx @modelcontextprotocol/inspector`, URL `http://localhost:3001/mcp`, Bearer header) + ext-apps basic-host (`git clone https://github.com/modelcontextprotocol/ext-apps` → `examples/basic-host`) renders the widget; cloudflared tunnel (`~/Downloads/cloudflared-windows-amd64.exe tunnel --url http://localhost:3001`). Done = screenshots + friction entries.
+4. ✅ DONE (session 2) — **Device page (phase 4b)**. `/device/:household`: Web Speech in/out, typed fallback, agent trace toggle, app-bridge widget render, EnrollPanel + `useUtteranceCapture` → `speaker`. Done = Checkpoint 4 (two windows sync ≤2 s; season answer after restart).
 5. **Real Bedrock run** — blocked on 🧑 AWS creds. Done = Checkpoint 3 with `AI_MODE=bedrock` and token counts logged in AWS.md.
 6. **Phase 6** — `npm run demo` (server SPEED=4 + web + cloudflared hint), README (architecture, protocol 2025-11-25, run steps, env table, known gaps: Alexa+ Preview/OAuth), PRODUCT_FEEDBACK (from FRICTION_LOG), DEMO_SCRIPT, SUBMISSION; PR `dev` → `main`. Done = fresh clone → demo in < 15 min.
 
