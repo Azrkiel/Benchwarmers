@@ -13,8 +13,8 @@ plus the user's extra ask: **pure voice recognition (voice ID) so people don't h
 User's latest direction (2026-10-20 evening): **Claude works on the backend; Codex works on the TV view/frontend** (user will compare).
 
 ## 3. Reproducible state
-- Branch `dev` @ `60d5211` + status commits. **Local `dev` is NOT pushed past `255daaa`**: it carries two Gemini commits (40e5fe3, 26b1d5d, from `feature/gemini-provider` in worktree `C:/Users/jiang/Benchwarmers-gemini`) awaiting the user's OK to publish. Phase branches pushed: `phase/1-engine`, `phase/2-mcp`, `phase/3-ai`,
-  `phase/5-tv`, `phase/5b-tv-polish`, `phase/7-voiceid`, `phase/7b-voiceid-tuning`, `phase/4a-assistant`, `phase/2b-mcp-hosts`, `phase/4b-device` (all merged into dev).
+- `dev` and `main` pushed; `main` updated via PR #1 (and PR #2 for phase 6). Gemini commits (from `feature/gemini-provider`, worktree `C:/Users/jiang/Benchwarmers-gemini`) are published. Codex's TV redesign (`design/tv-broadcast` in `C:/Users/jiang/Benchwarmers`) is NOT merged — uncommitted there. Phase branches pushed: `phase/1-engine`, `phase/2-mcp`, `phase/3-ai`,
+  `phase/5-tv`, `phase/5b-tv-polish`, `phase/7-voiceid`, `phase/7b-voiceid-tuning`, `phase/4a-assistant`, `phase/2b-mcp-hosts`, `phase/4b-device`, `phase/6-polish` (all merged into dev).
 - Uncommitted: none after this commit. Phase worktrees under `%LOCALAPPDATA%\Temp\bw-lanes\` were removed after merge.
 - Running: nothing of ours. **Port 5173 is in use by Codex's separate clone** (`C:\Users\jiang\Benchwarmers`, `vite --host 127.0.0.1`) — don't kill it; use another web port (e.g. `npx vite --port 5175`).
 - Resume commands (Git Bash):
@@ -91,7 +91,7 @@ User's latest direction (2026-10-20 evening): **Claude works on the backend; Cod
 - Assistant: "Priya takes the over" against DEMO → `make_pick` ok:false (first open prop is scoring-first, no over/under) — routing correct. Bedrock path untested for empty forced-final text; never run on real Bedrock.
 - Server test suite flaky ~1 in 8 runs (Avast loopback proxy freezes workers ~10 s on /mcp traffic) — FRICTION_LOG; re-run.
 - Season `points` = pick points, `fantasyPoints` = draft points (naming is confusing but tested).
-- No `npm run demo`, README, DEMO_SCRIPT, PRODUCT_FEEDBACK, SUBMISSION yet.
+- Demo script not rehearsed live; offline router does one tool call per turn; setup creates a new party code (TV must move to `/tv/<CODE>`). See DEMO_SCRIPT findings.
 
 ## 11. Open questions for the human
 - ~~Who builds the device page?~~ **Answered 2026-10-20: Claude, on `phase/4b-device`.**
@@ -116,6 +116,6 @@ Test helpers committed in `tools/` (screenshot.mjs, voice-test.mjs, tts-clips.ps
 3. ✅ DONE (session 2) — **Manual MCP checks** — MCP Inspector (`npx @modelcontextprotocol/inspector`, URL `http://localhost:3001/mcp`, Bearer header) + ext-apps basic-host (`git clone https://github.com/modelcontextprotocol/ext-apps` → `examples/basic-host`) renders the widget; cloudflared tunnel (`~/Downloads/cloudflared-windows-amd64.exe tunnel --url http://localhost:3001`). Done = screenshots + friction entries.
 4. ✅ DONE (session 2) — **Device page (phase 4b)**. `/device/:household`: Web Speech in/out, typed fallback, agent trace toggle, app-bridge widget render, EnrollPanel + `useUtteranceCapture` → `speaker`. Done = Checkpoint 4 (two windows sync ≤2 s; season answer after restart).
 5. **Real Bedrock run** — blocked on 🧑 AWS creds. Done = Checkpoint 3 with `AI_MODE=bedrock` and token counts logged in AWS.md.
-6. **Phase 6** — `npm run demo` (server SPEED=4 + web + cloudflared hint), README (architecture, protocol 2025-11-25, run steps, env table, known gaps: Alexa+ Preview/OAuth), PRODUCT_FEEDBACK (from FRICTION_LOG), DEMO_SCRIPT, SUBMISSION; PR `dev` → `main`. Done = fresh clone → demo in < 15 min.
+6. ✅ DONE (session 2) — **Phase 6** — `npm run demo` (server SPEED=4 + web + cloudflared hint), README (architecture, protocol 2025-11-25, run steps, env table, known gaps: Alexa+ Preview/OAuth), PRODUCT_FEEDBACK (from FRICTION_LOG), DEMO_SCRIPT, SUBMISSION; PR `dev` → `main`. Done = fresh clone → demo in < 15 min.
 
 Retro: none written (use `xvant-retro` if wanted).

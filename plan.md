@@ -9,7 +9,7 @@
 > | 3 Bedrock | ✅ code + mocked tests merged (`phase/3-ai`); 🟡 never run against real Bedrock (no AWS creds) |
 > | 4 Simulated device + assistant | ✅ merged (`phase/4a-assistant`, `phase/4b-device`); Checkpoint 4 passed headless (sync 0.98 s); real mic untested |
 > | 5 TV view | ✅ merged (`phase/5-tv`, `phase/5b-tv-polish`); 🔀 further TV work is Codex's |
-> | 6 Polish + submission | ⬜ |
+> | 6 Polish + submission | ✅ merged (`phase/6-polish`): `npm run demo` (fresh clone → running in ~35 s), README, DEMO_SCRIPT, PRODUCT_FEEDBACK, SUBMISSION draft; 🧑 video + Devpost links TODO |
 > | 7 (added) Voice ID — no "I'm Maya" needed | ✅ merged (`phase/7-voiceid`, `phase/7b-voiceid-tuning`), wired into device page; real-mic untested |
 > Full resume notes: `docs/HANDOFF.md`. Orchestration/ownership: `docs/ORCHESTRATION.md`.
 
