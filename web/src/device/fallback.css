@@ -22,3 +22,6 @@
 .fb-mine td { background: #1f2540; font-weight: 600; }
 .fb-prop { margin-top: 16px; padding: 12px 14px; background: #1b1f30; border-radius: 12px; }
 .fb-empty { margin: 0; text-align: center; font-size: 1.15em; color: #c4c9da; padding: 24px 8px; }
+.fb-odds { margin: 6px 0 0; color: #9aa1b5; font-size: 0.9em; }
+.fb-bonuses { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.fb-bonus { background: #2b3050; color: #c9d0ff; border-radius: 999px; padding: 2px 12px; font-size: 0.85em; }
