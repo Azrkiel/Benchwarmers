@@ -1,8 +1,12 @@
 // Pure Benchwarmers game engine. No clocks, env or I/O: `now` / `gameT` are injected.
 import {
+  CONTRARIAN,
   FANTASY_SCORING,
+  ODDS_MULTIPLIER,
   PICK_BASE_POINTS,
+  PICK_FACTOR_CAP,
   ROSTER_SIZE,
+  SPEED_BUCKETS,
   STREAK_MULTIPLIERS,
   type DraftPick,
   type FantasyRow,
@@ -10,6 +14,8 @@ import {
   type GameEvent,
   type PartyStatus,
   type Pick,
+  type PickBonus,
+  type PickScore,
   type Player,
   type Position,
   type Prop,
@@ -129,6 +135,79 @@ export function upsertPick(picks: Pick[], pick: Pick, prop: Prop, gameT: number)
   return [...picks.filter((p) => !(p.memberId === pick.memberId && p.propId === pick.propId)), pick];
 }
 
+/** Round to the nearest 0.5. */
+export function roundHalf(x: number): number {
+  return Math.round(x * 2) / 2;
+}
+
+const clamp01 = (x: number): number => Math.min(1, Math.max(0, x));
+
+/** Phase 8: score one resolved pick. Pure. `partyPicks` = every pick in the party (all members). */
+export function scorePick(args: { prop: Prop; pick: Pick; partyPicks: Pick[]; streakBefore: number; outcome?: string }): PickScore {
+  const { prop, pick, partyPicks, streakBefore } = args;
+  const correct = args.outcome !== undefined ? pick.optionId === args.outcome : true;
+  const streak = STREAK_MULTIPLIERS[Math.min(streakBefore, STREAK_MULTIPLIERS.length - 1)];
+
+  // Speed
+  let speed: number = 1;
+  let speedBonus: PickBonus | undefined;
+  if (pick.gameT !== undefined) {
+    const span = prop.locksAt - prop.opensAt;
+    const f = span > 0 ? clamp01((pick.gameT - prop.opensAt) / span) : 0;
+    const bucket = SPEED_BUCKETS.find((b) => f <= b.maxF);
+    if (bucket) {
+      speed = bucket.factor;
+      speedBonus = bucket.bonus;
+    }
+  }
+
+  // Contrarian
+  const onProp = partyPicks.filter((p) => p.propId === prop.id);
+  const pickers = onProp.length;
+  const same = onProp.filter((p) => p.optionId === pick.optionId).length;
+  let contrarian: number = 1;
+  let contrarianBonus: PickBonus | undefined;
+  if (same === 1 && pickers >= CONTRARIAN.loneMinPickers) {
+    contrarian = CONTRARIAN.lone;
+    contrarianBonus = 'lone_call';
+  } else if (pickers > 0 && same / pickers < 0.5 && pickers >= CONTRARIAN.minorityMinPickers) {
+    contrarian = CONTRARIAN.minority;
+    contrarianBonus = 'against_the_room';
+  }
+
+  // Odds
+  let odds: number = 1;
+  if (prop.odds) {
+    const p = prop.odds.p[pick.optionId];
+    odds =
+      p === undefined || !(p > 0)
+        ? ODDS_MULTIPLIER.max
+        : Math.min(ODDS_MULTIPLIER.max, Math.max(ODDS_MULTIPLIER.min, ODDS_MULTIPLIER.target / p));
+  }
+
+  const factor = Math.min(PICK_FACTOR_CAP, streak * odds * speed * contrarian);
+  const candidates: { bonus: PickBonus; f: number }[] = [];
+  if (speedBonus && speed > 1) candidates.push({ bonus: speedBonus, f: speed });
+  if (contrarianBonus && contrarian > 1) candidates.push({ bonus: contrarianBonus, f: contrarian });
+  if (odds > 1) candidates.push({ bonus: 'bold_call', f: odds });
+  candidates.sort((a, b) => b.f - a.f); // stable: ties keep speed, contrarian, bold order
+
+  return {
+    propId: prop.id,
+    memberId: pick.memberId,
+    optionId: pick.optionId,
+    correct,
+    base: PICK_BASE_POINTS,
+    streak,
+    odds,
+    speed,
+    contrarian,
+    factor,
+    points: correct ? roundHalf(PICK_BASE_POINTS * factor) : 0,
+    bonuses: correct ? candidates.map((c) => c.bonus) : [],
+  };
+}
+
 export type PickTally = {
   pickPoints: number;
   streak: number;
@@ -136,6 +215,9 @@ export type PickTally = {
   correct: number;
   total: number;
   lastPickAt?: number;
+  /** Scores for resolved picks, in resolved order. */
+  scores: PickScore[];
+  lastScore?: PickScore;
 };
 
 export function tallyPicks(memberId: string, props: Prop[], picks: Pick[], events: GameEvent[], gameT: number): PickTally {
@@ -143,15 +225,16 @@ export function tallyPicks(memberId: string, props: Prop[], picks: Pick[], event
   const resolved = props
     .filter((p) => propStatus(p, gameT) === 'resolved')
     .sort((a, b) => a.resolvesAt - b.resolvesAt || a.opensAt - b.opensAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  const t: PickTally = { pickPoints: 0, streak: 0, bestStreak: 0, correct: 0, total: 0 };
+  const t: PickTally = { pickPoints: 0, streak: 0, bestStreak: 0, correct: 0, total: 0, scores: [] };
   for (const prop of resolved) {
     const outcome = resolveProp(prop, events);
     const pick = mine.find((p) => p.propId === prop.id);
     if (outcome === undefined || !pick) continue;
     t.total++;
-    if (pick.optionId === outcome) {
-      const mult = STREAK_MULTIPLIERS[Math.min(t.streak, STREAK_MULTIPLIERS.length - 1)];
-      t.pickPoints += PICK_BASE_POINTS * mult;
+    const score = scorePick({ prop, pick, partyPicks: picks, streakBefore: t.streak, outcome });
+    t.scores.push(score);
+    t.pickPoints += score.points;
+    if (score.correct) {
       t.streak++;
       t.correct++;
       t.bestStreak = Math.max(t.bestStreak, t.streak);
@@ -159,6 +242,8 @@ export function tallyPicks(memberId: string, props: Prop[], picks: Pick[], event
       t.streak = 0;
     }
   }
+  const last = t.scores[t.scores.length - 1];
+  if (last) t.lastScore = last;
   for (const p of mine) t.lastPickAt = t.lastPickAt === undefined ? p.at : Math.max(t.lastPickAt, p.at);
   return t;
 }
@@ -367,6 +452,7 @@ export function computeStandings(args: {
     pickPoints: r.tally.pickPoints,
     streak: r.tally.streak,
     roster: r.roster,
+    ...(r.tally.lastScore ? { lastPickScore: r.tally.lastScore } : {}),
   }));
 }
 
