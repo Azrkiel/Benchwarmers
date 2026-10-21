@@ -108,3 +108,21 @@ Template:
 - Severity: Major (flaky CI-style runs on this machine)
 - Workaround: re-run the suite; the failures are timing-only. No code workaround found inside phase-owned files.
 - Suggestion: Avast: do not proxy loopback HTTP, or make the "/mcp" filter opt-in. MCP SDK docs: mention AV loopback proxies (freezes, `other side closed`) in troubleshooting.
+
+### [2026-10-20 22:50] MCP App host in a cross-origin-isolated page: spec wants a second-origin sandbox proxy
+- Tool/SDK + version: `@modelcontextprotocol/ext-apps` 2.0.3 (`app-bridge`, `examples/basic-host` at tag v2.0.3); Chrome headless (new); Vite dev with `Cross-Origin-Opener-Policy: same-origin` + `Cross-Origin-Embedder-Policy: credentialless` (needed for voice-ID threaded WASM).
+- Task attempted: render our MCP App widget on the simulated device page (`/device/:household`).
+- Steps taken: read basic-host (double iframe: outer sandbox proxy on a second origin/port, inner `document.write`), then built a host with `new AppBridge(null, …)` + manual `oncalltool`/`onreadresource` handlers proxied to our `/mcp` via `@modelcontextprotocol/client`, and a single `<iframe sandbox="allow-scripts" srcdoc=…>` (opaque origin, no `allow-same-origin`). Order that works: iframe in DOM → create bridge → register handlers → `connect(new PostMessageTransport(win, win))` → set `srcdoc` → wait `oninitialized` → `sendToolInput` + `sendToolResult`.
+- Expected vs actual: the spec says a web host MUST use a separate-origin sandbox proxy; under COEP a cross-origin proxy page without CORP/COEP headers would be blocked (basic-host's `serve.ts` sets none). The single opaque-origin srcdoc iframe rendered fine under COOP/COEP (`crossOriginIsolated` stayed true). Gotcha for testing: Chrome runs the sandboxed opaque-origin frame out of process, so CDP `Page.getFrameTree` + `createIsolatedWorld` returns nothing useful; use `Target.setAutoAttach({flatten:true})` and evaluate in the iframe target's session.
+- Severity: Minor
+- Workaround: single srcdoc iframe with `sandbox="allow-scripts"`; the host keeps the widget live by re-calling the read-only view tool on party-state change and pushing `sendToolResult` (the widget itself never polls).
+- Suggestion: ext-apps docs: describe a sanctioned single-frame variant for same-page demo hosts, and say which headers a sandbox proxy needs to be embeddable from a COEP page (`Cross-Origin-Resource-Policy`, `Cross-Origin-Embedder-Policy`).
+
+### [2026-10-20 22:55] Vite dev proxy + forced chunked framing → `ERR_INCOMPLETE_CHUNKED_ENCODING` on MCP notifications
+- Tool/SDK + version: Vite 8.3 dev proxy (`/mcp` → server), server `forceChunked` middleware (Avast workaround), `@modelcontextprotocol/client` 2.3.1 in the browser.
+- Task attempted: browser MCP client (device page widget host) through the Vite proxy.
+- Steps taken: `curl -i -X POST localhost:5177/mcp … notifications/initialized` vs the same against the server port.
+- Expected vs actual: direct → `202` with `Transfer-Encoding: chunked`, curl exit 0. Through the Vite proxy → same headers but `connection: close` and a truncated body (curl exit 18); Chrome logs `net::ERR_INCOMPLETE_CHUNKED_ENCODING` for that POST. The client ignores it (notifications have no response) and all requests/tool calls work.
+- Severity: Minor (console noise only)
+- Workaround: none needed for the demo.
+- Suggestion: server: skip `forceChunked` for empty-body 202 responses (send `Content-Length: 0`).
