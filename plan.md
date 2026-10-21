@@ -11,7 +11,7 @@
 > | 5 TV view | ✅ merged (`phase/5-tv`, `phase/5b-tv-polish`); 🔀 further TV work is Codex's |
 > | 6 Polish + submission | ✅ merged (`phase/6-polish`): `npm run demo` (fresh clone → running in ~35 s), README, DEMO_SCRIPT, PRODUCT_FEEDBACK, SUBMISSION draft; 🧑 video + Devpost links TODO |
 > | 7 (added) Voice ID — no "I'm Maya" needed | ✅ merged (`phase/7-voiceid`, `phase/7b-voiceid-tuning`), wired into device page; real-mic untested |
-> | 8 (added) Drive odds model — real-data odds per question + points multiplier | ⬜ planned (§10c); 4 open questions there (sport mismatch first) |
+> | 8 (added) Drive odds model — real-data odds per question + points multiplier | ⬜ planned (§10c): second **football** replay game using NFL drive odds (user decision); open questions 2–4 in §10c |
 > Full resume notes: `docs/HANDOFF.md`. Orchestration/ownership: `docs/ORCHESTRATION.md`.
 
 > **How to use this file:** put it at the root of an empty repo, open Claude Code there, and say:
@@ -388,10 +388,16 @@ A web page built for a TV across the room ("10-foot UI"): 1920×1080 layout, hug
 > **Status ⬜ planned.** Source: "Drive Odds Model Plan" (Oct 20, 2026, Kevin Jiang). Estimated effort 2–3 h.
 >
 > **Open questions (lead, before building):**
-> 1. **Sport mismatch.** This plan uses NFL drive data (nflverse), but the current game, rosters, engine and UIs are **basketball**
->    (PG/SG/SF/PF/C, tip-off, `harbor-vs-summit` 60-event game). Either (a) switch the replay game to football, (b) keep basketball
->    and build the same table from basketball possessions (e.g. "will this possession score?"), or (c) use the NFL table only for a
->    separate football demo game. Decide before Step 1.
+> 1. ~~Sport mismatch~~ **Decided 2026-10-20 (user): add a second, football replay game** that uses the NFL odds table; the basketball
+>    game `harbor-vs-summit` stays as is (and stays the default `DEMO`). Implications for the build:
+>    - Contract (lead): `Player.position` gains football positions (or becomes sport-specific), `Game` gets `sport: 'basketball' | 'football'`,
+>      props gain optional `odds {p, multiplier}`; drive state (`yardline_100`, half clock) on football events.
+>    - Engine: football event types (drive start/end, TD, FG, punt, turnover), football fantasy scoring, drive props
+>      ("Will they score on this drive?" / "…a touchdown?") resolved from `fixed_drive_result`-style events; odds precomputed into the
+>      replay JSON per prop (no live lookup).
+>    - New fictional game file `server/src/game/games/<football-game>.json` (fictional teams/players, ~8 per team, nicknames for voice).
+>    - MCP tools/widget, assistant router, device fallback card: show football positions and drive props; `setup_watch_party` takes a game.
+>    - TV view (`web/tv/**`) is Codex's — football rendering there needs Codex; until then the TV must at least not break on a football game.
 > 2. **Bonuses that don't exist yet.** The engine has streak multipliers (`STREAK_MULTIPLIERS` in `server/src/game/engine.ts`) but no
 >    "speed buckets" or "contrarian bonus". Define those, or stack the odds multiplier with the streak multiplier only.
 > 3. **Wording.** Rules say no real money / wager language: call it a **points multiplier**, not a payout, in UI and voice copy.
