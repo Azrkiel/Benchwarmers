@@ -95,6 +95,23 @@ function statByKey(cat: Rec, athlete: Rec, key: string): number {
   return Number.parseInt(v.includes('/') ? v.split('/')[1] : v, 10) || 0;
 }
 
+/** Draft board fits 8 per team: the busiest QB and the kicker, then the most-involved skill players. */
+export const ROSTER_SIZE = 8;
+function draftablePlayers(players: Player[], usage: Map<string, number>): Player[] {
+  const busy = (p: Player) => usage.get(p.id) ?? 0;
+  const byUse = [...players].sort((a, b) => busy(b) - busy(a));
+  const keep = new Set<Player>();
+  const qb = byUse.find((p) => p.position === 'QB');
+  const k = byUse.find((p) => p.position === 'K');
+  if (qb) keep.add(qb);
+  if (k) keep.add(k);
+  for (const p of byUse) {
+    if (keep.size >= ROSTER_SIZE) break;
+    if (p.position !== 'QB' && p.position !== 'K') keep.add(p);
+  }
+  return players.filter((p) => keep.has(p));
+}
+
 function buildRosters(
   summary: unknown,
   teams: Record<Side, TeamInfo>,
@@ -129,6 +146,7 @@ function buildRosters(
         roles.set(id, e);
       }
     }
+    const usage = new Map<string, number>();
     let spare = 90; // stable unique small numbers for players ESPN lists without a jersey
     const takenNumbers = new Set<number>();
     for (const [athleteId, e] of roles) {
@@ -152,7 +170,9 @@ function buildRosters(
       for (let n = 2; usedIds.has(id); n++) id = `${base}-${n}`;
       usedIds.add(id);
       out[side].players.push({ id, teamId: team.id, name: e.name, number, position: pos });
+      usage.set(id, (r.passing ?? 0) + (r.rushing ?? 0) + (r.receiving ?? 0));
     }
+    out[side].players = draftablePlayers(out[side].players, usage);
     const order: Position[] = ['QB', 'RB', 'WR', 'TE', 'K'];
     out[side].players.sort((a, b) => order.indexOf(a.position) - order.indexOf(b.position) || a.number - b.number);
     out[side].index = out[side].players.map(toEntry);
@@ -171,10 +191,36 @@ function dist(a: string, b: string): number {
   return Math.hypot(ch(a, 0) - ch(b, 0), ch(a, 1) - ch(b, 1), ch(a, 2) - ch(b, 2));
 }
 
-/** Team colors as `#rrggbb`; if the two primaries are too close, fall back to alternates so they differ visibly. */
+const TV_BG = '#191a26';
+function luminance(c: string): number {
+  const ch = (i: number) => {
+    const v = Number.parseInt(c.slice(1 + i * 2, 3 + i * 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * ch(0) + 0.7152 * ch(1) + 0.0722 * ch(2);
+}
+function contrast(a: string, b: string): number {
+  const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
+}
+function lighten(c: string, amount: number): string {
+  const ch = (i: number) => Number.parseInt(c.slice(1 + i * 2, 3 + i * 2), 16);
+  return '#' + [0, 1, 2].map((i) => Math.round(ch(i) + (255 - ch(i)) * amount).toString(16).padStart(2, '0')).join('');
+}
+/** A team color that reads on the TV background (scores are drawn in it): primary, else alternate, else lightened. */
+function readable(primary: string | undefined, alt: string | undefined, fallback: string): string {
+  const p = primary ?? fallback;
+  if (contrast(p, TV_BG) >= 3) return p;
+  if (alt && contrast(alt, TV_BG) >= 3 && luminance(alt) < 0.85) return alt;
+  let c = p;
+  for (let i = 1; i <= 10 && contrast(c, TV_BG) < 3; i++) c = lighten(p, i * 0.08);
+  return c;
+}
+
+/** Team colors as `#rrggbb`, readable on the TV; if the two are too close, fall back to alternates so they differ visibly. */
 function pickColors(home: TeamInfo, away: TeamInfo): { home: string; away: string } {
-  let h = hex(home.color) ?? '#2f5d8a';
-  let a = hex(away.color) ?? '#a8432f';
+  let h = readable(hex(home.color), hex(home.alt), '#2f5d8a');
+  let a = readable(hex(away.color), hex(away.alt), '#a8432f');
   const MIN = 110;
   if (dist(h, a) < MIN) {
     const aAlt = hex(away.alt);

@@ -381,7 +381,7 @@ html.tv-kiosk ::-webkit-scrollbar {
 /* Scoreboard */
 .tv-live-scoreboard {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 24px;
   padding: 14px 28px;
@@ -1517,3 +1517,5 @@ html.tv-kiosk ::-webkit-scrollbar {
 .tv-court, .tv-field { filter: saturate(0.55) brightness(0.95); }
 .tv-final-team.is-winner { text-shadow: none; }
 .tv-final-team { filter: saturate(0.6) brightness(1.08); }
+/* Real team names ("Florida State Seminoles") wrap to two lines instead of running into the score. */
+.tv-sb-name.is-long { white-space: normal; font-size: 36px; line-height: 1.05; }

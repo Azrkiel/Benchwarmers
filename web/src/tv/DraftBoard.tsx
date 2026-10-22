@@ -21,7 +21,7 @@ function Card({ e, state }: { e: DraftBoardEntry; state: PartyStateResponse }) {
             <span className="tv-pos">{e.player.position} · {e.teamShort}</span>
           </div>
           <div className="tv-nick">{e.player.nickname ?? e.player.name}</div>
-          <div className="tv-pname">{e.player.name}</div>
+          {e.player.nickname ? <div className="tv-pname">{e.player.name}</div> : null}
           {e.scoutingNote ? <div className="tv-note">{e.scoutingNote}</div> : null}
         </div>
         <div className="tv-flip-face tv-flip-back" style={{ background: owned ? color : undefined }}>

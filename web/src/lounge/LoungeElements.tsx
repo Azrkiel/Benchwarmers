@@ -37,6 +37,24 @@ export function Seats({ state, onMember, full = false }: { state: PartyStateResp
   </section>;
 }
 
+/** Original vector artwork. A football still life in the same palette as the basketball. */
+export function FootballArt() {
+  return <svg className="lg-ball-art" viewBox="0 0 560 510" aria-hidden="true">
+    <defs>
+      <radialGradient id="lg-fb-light" cx=".35" cy=".25" r=".85"><stop stopColor="#e0a070" /><stop offset=".6" stopColor="#a8583a" /><stop offset="1" stopColor="#6e3527" /></radialGradient>
+      <pattern id="lg-fb-grain" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#3f2729" opacity=".25" /></pattern>
+    </defs>
+    <ellipse cx="306" cy="474" rx="191" ry="16" fill="#14141e" opacity=".45" />
+    <g transform="rotate(-28 300 254)">
+      <ellipse cx="300" cy="254" rx="250" ry="150" fill="url(#lg-fb-light)" />
+      <ellipse cx="300" cy="254" rx="250" ry="150" fill="url(#lg-fb-grain)" />
+      <path d="M95 175q30 79 0 158M505 175q-30 79 0 158" fill="none" stroke="#f3ecdf" strokeWidth="10" opacity=".85" />
+      <path d="M215 254h170" stroke="#f3ecdf" strokeWidth="9" strokeLinecap="round" />
+      <path d="M235 236v36M262 236v36M289 236v36M316 236v36M343 236v36M370 236v36" stroke="#f3ecdf" strokeWidth="7" strokeLinecap="round" />
+    </g>
+  </svg>;
+}
+
 /** Original vector artwork. A basketball still life, not a simulated game feed. */
 export function BasketballArt() {
   return <svg className="lg-ball-art" viewBox="0 0 560 510" aria-hidden="true">

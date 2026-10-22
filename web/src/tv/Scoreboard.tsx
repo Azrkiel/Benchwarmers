@@ -7,7 +7,7 @@ export function Scoreboard({ state }: { state: PartyStateResponse }) {
   return (
     <header className="tv-live-scoreboard">
       <div className={`tv-sb-team tv-sb-home${homeLead ? ' is-leading' : ''}`} style={{ ['--team' as string]: home.color }}>
-        <span className="tv-sb-name">{home.name}</span>
+        <span className={`tv-sb-name${home.name.length > 16 ? ' is-long' : ''}`}>{home.name}</span>
         <span className="tv-sb-short">{home.short}</span>
       </div>
       <div className="tv-sb-mid">
@@ -22,7 +22,7 @@ export function Scoreboard({ state }: { state: PartyStateResponse }) {
         </div>
       </div>
       <div className={`tv-sb-team tv-sb-away${awayLead ? ' is-leading' : ''}`} style={{ ['--team' as string]: away.color }}>
-        <span className="tv-sb-name">{away.name}</span>
+        <span className={`tv-sb-name${away.name.length > 16 ? ' is-long' : ''}`}>{away.name}</span>
         <span className="tv-sb-short">{away.short}</span>
       </div>
     </header>
