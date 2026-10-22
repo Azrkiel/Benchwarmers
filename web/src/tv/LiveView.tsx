@@ -30,6 +30,7 @@ export function LiveView({ state, serverNow }: { state: PartyStateResponse; serv
             awayColor={state.game.away.color}
             sport={state.game.sport}
             durationSec={state.game.durationSec}
+            regulationSec={state.game.regulationSec}
           />
         </div>
         <PickBar state={state} serverNow={serverNow} />

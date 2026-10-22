@@ -5,8 +5,14 @@ import { POP_MS, formatPop, memberColor, newEventIds } from './pops';
 const NEUTRAL = '#8892a6';
 
 /** Game-time tag from tip-off seconds: 308 -> "Q3 0:52". */
-export function gameTag(t: number, sport?: Sport, durationSec = 480): string {
-  const periodSec = durationSec / 4;
+export function gameTag(t: number, sport?: Sport, durationSec = 480, regulationSec?: number): string {
+  if (regulationSec !== undefined && t >= regulationSec) {
+    // Overtime (imported real games): 60 game-second windows after regulation, no clock.
+    const otCount = Math.max(1, Math.round((durationSec - regulationSec) / 60));
+    const n = Math.min(otCount, Math.floor((t - regulationSec) / 60) + 1);
+    return n === 1 ? 'OT' : `${n}OT`;
+  }
+  const periodSec = (regulationSec ?? durationSec) / 4;
   const period = Math.min(4, Math.floor(t / periodSec) + 1);
   const remaining = Math.max(0, Math.ceil((period * periodSec - t) * (sport === 'football' ? 7.5 : 1) - 1e-9));
   const m = Math.floor(remaining / 60);
@@ -23,6 +29,7 @@ export function PlayByPlay({
   awayColor,
   sport,
   durationSec,
+  regulationSec,
 }: {
   events: EventView[];
   households: Household[];
@@ -30,6 +37,7 @@ export function PlayByPlay({
   awayColor: string;
   sport?: Sport;
   durationSec?: number;
+  regulationSec?: number;
 }) {
   const latest = events.slice(0, 3);
   const prevRef = useRef<Set<string> | undefined>(undefined);
@@ -83,7 +91,7 @@ export function PlayByPlay({
           const color = e.team === 'home' ? homeColor : e.team === 'away' ? awayColor : NEUTRAL;
           return (
             <li key={e.id} className="tv-pbp-row" data-type={e.type} style={{ ['--team' as string]: color }}>
-              <span className="tv-pbp-time">{gameTag(e.t, sport, durationSec)}</span>
+              <span className="tv-pbp-time">{gameTag(e.t, sport, durationSec, regulationSec)}</span>
               <span className="tv-pbp-text">{e.text}</span>
               {e.fantasy.map((f, i) => (
                 <span key={i} className="tv-chip" style={{ background: memberColor(households, f.memberId) }}>

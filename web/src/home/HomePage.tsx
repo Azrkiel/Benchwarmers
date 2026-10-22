@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { BrandLockup } from '../brand/Brand';
+import { PullUpGame } from './PullUpGame';
 import './home.css';
 
 const ICONS = {
@@ -46,6 +47,7 @@ export function HomePage() {
       </aside>
       <section className="hm-main">
         <header className="hm-header"><span>Sunday Crew</span><h1>Game night</h1></header>
+        <PullUpGame />
         <div className="hm-grid">
           {MAIN.map((card) => (
             <CardLink key={card.to} card={card} className={`hm-card${card.feature ? ' is-feature' : ''}`}>

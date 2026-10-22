@@ -44,6 +44,10 @@ describe('football TV', () => {
   it('formats football event clocks at quarter boundaries and at the end of the replay', () => {
     expect(gameTag(119, 'football')).toBe('Q1 0:08');
     expect(gameTag(120, 'football')).toBe('Q2 15:00');
+    // overtime game: 480 regulation + two 60-second overtimes
+    expect(gameTag(479, 'football', 600, 480)).toBe('Q4 0:08');
+    expect(gameTag(480, 'football', 600, 480)).toBe('OT');
+    expect(gameTag(545, 'football', 600, 480)).toBe('2OT');
     expect(gameTag(480, 'football')).toBe('Q4 0:00');
     expect(gameTag(308)).toBe('Q3 0:52');
   });
