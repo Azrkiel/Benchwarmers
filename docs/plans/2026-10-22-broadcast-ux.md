@@ -20,22 +20,32 @@ Branch: `feature/broadcast-ux` → `dev` → PR to `main`.
 ## Phases
 - [x] **0. Sync** — local `dev`/`main` fast-forwarded to `origin/main` (PR #8 + real games); Codex clone's WIP already
       identical to `codex/wip-snapshot`. Pushed `dev`.
-- [ ] **1. Broadcast FX kit** (`web/src/fx/`): `PlayBanner` (full-width sweep for TD / FG / pick-six / big play),
+- [x] **1. Broadcast FX kit** (`web/src/fx/`): `PlayBanner` (full-width sweep for TD / FG / pick-six / big play),
       `SideBurst` (small confetti puff from a screen edge), `useRankClimb` (detect who moved up), `ScoreTick`
       (score digit bump + glow on change), `Toast` (lower-third "Maya climbs to #1"). CSS only, no new deps,
       honours `prefers-reduced-motion`, never fires for data already on screen at first load.
-- [ ] **2. Room TV redesign**: broadcast scorebug in team colours with possession dot + down & distance; field with
+- [x] **2. Room TV redesign**: broadcast scorebug in team colours with possession dot + down & distance; field with
       first-down/drive marker; play announcements via `PlayBanner`; question card with countdown bar and live pick
       split; standings as rows with avatars-initials, FLIP movement and `SideBurst` on climbs; lobby as a big
       "join" screen where new players pop in; final with podium + confetti. Remove the over-explaining copy.
-- [ ] **3. Room phone**: tighter copy, real toggle states for Captain/Flex, "Nice call! +12" celebration on a correct
+- [x] **3. Room phone**: tighter copy, real toggle states for Captain/Flex, "Nice call! +12" celebration on a correct
       pick, rank-change toast, rules collapsed and trimmed, footer disclaimers removed.
-- [ ] **4. Original TV `/tv/:code`**: `PlayBanner` for big plays (3s, dunks, TDs, drive results), `SideBurst` on
+- [x] **4. Original TV `/tv/:code`**: `PlayBanner` for big plays (3s, dunks, TDs, drive results), `SideBurst` on
       standings climbs, correct-pick reveal on the pick bar, score bump.
-- [ ] **5. Copy sweep**: home landing + cards, More views, rules text, empty states, device/lounge strings.
-- [ ] **6. Verify + ship**: typecheck, server + web tests, Playwright screenshots of every route (before/after),
+- [x] **5. Copy sweep**: home landing + cards, More views, rules text, empty states, device/lounge strings.
+- [x] **6. Verify + ship**: typecheck, server + web tests, Playwright screenshots of every route (before/after),
       merge to `dev`, push, PR `dev` → `main`.
 
 ## Rules
 - Keep the Lounge tokens (`--lg-*`) and type. No real teams in committed data, no betting words.
 - Animations short (≤ 2.5 s), small, and skipped under reduced motion. Nothing fires on first paint.
+
+## Result (2026-10-22)
+- FX kit `web/src/fx/` (banners, side confetti, toasts, score bumps; reduced-motion safe; nothing fires on first load).
+- Football room: `web/src/room/moments.tsx` (play → banner/toast, pick results, rank climbs), `components.tsx` (scorebug, mirrored field
+  with line of scrimmage + line to gain, play feed, pick splits + countdown bar, live standings with FLIP, podium), `broadcast.css`.
+  The field now puts the away end zone on the left to match the scorebug (test updated).
+- Original TV: `web/src/tv/Moments.tsx` (THREE!/DUNK!/TOUCHDOWN/turnover/period banners, climb toasts + bursts, pick-result toasts),
+  `?fxdemo=1` fires a sample moment for demos.
+- Verified: typecheck, web 428 / server 737 tests, `vite build`, Playwright screenshots of a full 4-player room game at 4x
+  (lobby → touchdown banner → final podium) and `/tv/DEMO?fixture=live&fxdemo=1`.
