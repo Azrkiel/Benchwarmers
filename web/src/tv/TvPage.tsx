@@ -63,7 +63,7 @@ export function TvPage() {
           </div>
           <div className="tv-body" key={mode}>
             {mode === 'draft' ? <DraftBoard state={state} serverNow={serverNow} /> : null}
-            {mode === 'live' ? <LiveView state={state} serverNow={serverNow} /> : null}
+            {mode === 'live' ? <LiveView state={state} serverNow={serverNow} demo={params.get('fxdemo') === '1'} /> : null}
             {mode === 'rosters' ? <RostersView state={state} serverNow={serverNow} /> : null}
             {mode === 'final' ? <FinalView state={state} serverNow={serverNow} season={fixture ? seasonFixture : season} /> : null}
           </div>

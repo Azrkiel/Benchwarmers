@@ -7,12 +7,16 @@ import { Leader } from './Leader';
 import { Standings } from './Standings';
 import { PickBar } from './PickBar';
 import { Ticker } from './Ticker';
+import { MomentsHost, PlayMoments, PropMoments } from './Moments';
 
-export function LiveView({ state, serverNow }: { state: PartyStateResponse; serverNow: () => number }) {
+export function LiveView({ state, serverNow, demo = false }: { state: PartyStateResponse; serverNow: () => number; demo?: boolean }) {
   const leader = [...state.standings].sort((a, b) => a.rank - b.rank)[0];
   // Newest scoring event drives the court pulse.
   const lastScore = state.recentEvents.find((e) => e.type === 'score' && e.team);
   return (
+    <MomentsHost demo={demo}>
+    <PlayMoments state={state} />
+    <PropMoments state={state} />
     <section className={`tv-view tv-live${state.game.sport === 'football' ? ' tv-live-football' : ''}`}>
       <div className="tv-live-left">
         <Scoreboard state={state} />
@@ -41,5 +45,6 @@ export function LiveView({ state, serverNow }: { state: PartyStateResponse; serv
         <Ticker lines={state.ticker} />
       </aside>
     </section>
+    </MomentsHost>
   );
 }

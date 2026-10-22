@@ -3,6 +3,8 @@ import type { Household, StandingRow } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 import { PickBonus } from './PickBonuses';
 import { rankMovement, useFlip, type Movement } from './flip';
+import { CONFETTI, useRankClimbs } from '../fx/fx';
+import { ordinal, rowTopPercent, useMoments } from './Moments';
 
 const GLYPH: Record<Movement, string> = { up: '▲', down: '▼', same: '─' };
 
@@ -11,6 +13,24 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
   const max = Math.max(1, ...sorted.map((r) => r.total));
   const listRef = useRef<HTMLOListElement>(null);
   useFlip(listRef, sorted.map((r) => r.memberId));
+  const moments = useMoments();
+  useRankClimbs(sorted.map((r) => ({ id: r.memberId, rank: r.rank })), (climbs) => {
+    for (const c of climbs) {
+      const row = sorted.find((r) => r.memberId === c.id);
+      if (!row) continue;
+      const color = householdColor(households, row.householdId);
+      const el = listRef.current?.querySelector<HTMLElement>(`[data-flip-key="${c.id}"]`) ?? null;
+      const top = rowTopPercent(el);
+      const colors = [color, ...CONFETTI];
+      if (c.to === 1) {
+        moments.burst({ side: 'left', top, colors });
+        moments.burst({ side: 'right', top, colors });
+      } else {
+        moments.burst({ side: 'right', top, colors });
+      }
+      moments.toast({ text: `${row.name} moves up to ${ordinal(c.to)}`, tone: c.to === 1 ? 'win' : 'info', color });
+    }
+  });
 
   const pct = (n: number) => `${Math.max(0, (n / max) * 100)}%`;
   return (
