@@ -12,7 +12,7 @@ function current() {
   return fitScale(window.innerWidth || STAGE_W, window.innerHeight || STAGE_H);
 }
 
-export function Stage({ children }: { children: ReactNode }) {
+export function Stage({ children, overlay = false }: { children: ReactNode; overlay?: boolean }) {
   const [fit, setFit] = useState(current);
   useEffect(() => {
     const onResize = () => setFit(current());
@@ -21,7 +21,7 @@ export function Stage({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('resize', onResize);
   }, []);
   return (
-    <div className="tv-viewport">
+    <div className={`tv-viewport${overlay ? ' is-overlay' : ''}`}>
       <div
         className="tv-stage"
         style={{ width: STAGE_W, height: STAGE_H, transform: `translate(${fit.offsetX}px, ${fit.offsetY}px) scale(${fit.scale})` }}

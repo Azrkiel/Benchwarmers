@@ -12,9 +12,9 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
       <header className="tv-rosters-head">
         <h2>Rosters</h2>
         <span className="tv-rosters-score">
-          <span style={{ color: game.home.color }}>{game.home.short} {game.home.score}</span>
+          <span>{game.home.short} {game.home.score}</span>
           <span className="tv-muted"> – </span>
-          <span style={{ color: game.away.color }}>{game.away.score} {game.away.short}</span>
+          <span>{game.away.score} {game.away.short}</span>
         </span>
         <span className="tv-rosters-clock">{game.clock}</span>
       </header>
@@ -30,11 +30,11 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
               style={{ ['--hh' as string]: color }}
             >
               <header className="tv-roster-top">
-                <Avatar avatar={row.avatar} name={row.name} color={color} size={88} />
+                <Avatar avatar={row.avatar} name={row.name} color={color} size={56} />
                 <div className="tv-roster-id">
                   <div className="tv-roster-name">{row.name}</div>
-                  <div className="tv-roster-hh" style={{ color }}>
-                    {row.household}{city ? ` · ${city}` : ''}
+                  <div className="tv-roster-hh">
+                    {city ?? row.household}
                   </div>
                 </div>
                 <div className="tv-roster-rank">
@@ -61,9 +61,8 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
                           {info ? `#${info.player.number} ${info.player.position} · ${info.teamShort}` : r.playerId}
                         </div>
                         <div className="tv-rp-stat">{r.statLine}</div>
-                        {isWorst ? <span className="tv-benchwarmer-tag">🪑 Benchwarmer</span> : null}
                       </div>
-                      <div className="tv-rp-pts">{formatPoints(r.points)}</div>
+                      <div className="tv-rp-score"><div className="tv-rp-pts">{formatPoints(r.points)}</div>{isWorst ? <span className="tv-benchwarmer-tag">Benchwarmer</span> : null}</div>
                     </li>
                   );
                 })}

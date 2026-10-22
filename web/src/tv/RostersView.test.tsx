@@ -15,7 +15,7 @@ describe('RostersView', () => {
     const tags = container.querySelectorAll('.tv-benchwarmer-tag');
     expect(tags.length).toBe(1);
     expect(tags[0]!.textContent).toContain('Benchwarmer');
-    expect(tags[0]!.textContent).toContain('🪑');
+    expect(tags[0]!.textContent).toBe('Benchwarmer');
     const w = worstPerformer(liveFixture)!;
     expect(tags[0]!.closest('.tv-roster-col')!.getAttribute('data-member')).toBe(w.memberId);
     expect(tags[0]!.closest('.tv-roster-player')!.getAttribute('data-player')).toBe(w.playerId);

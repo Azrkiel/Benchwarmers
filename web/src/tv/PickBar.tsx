@@ -27,7 +27,6 @@ export function PickBar({ state, serverNow }: { state: PartyStateResponse; serve
         <div className="tv-pick-status">
           {timed ? (
             <>
-              <span className="tv-pick-clock-icon" aria-hidden="true">⏱</span>
               <span className="tv-pick-clock">{formatCountdown(sec)}</span>
               <span className="tv-muted">Locks in</span>
             </>

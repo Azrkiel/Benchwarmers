@@ -17,11 +17,18 @@ describe('DraftBoard', () => {
     expect(clock.some((t) => t?.includes('Leo'))).toBe(true);
   });
 
-  it('drafted card back shows the player and the owner', () => {
+  it('a drafted card shows the player and the owner', () => {
     render(<DraftBoard state={draftingFixture} />);
     const card = screen.getAllByText('Big Mo').map((n) => n.closest('[data-testid="draft-card"]')).find((c) => c?.textContent?.includes('Maya'));
     expect(card).toBeTruthy();
     expect(card!.textContent).toContain('Big Mo');
     expect(card!.textContent).toContain('Maya');
+  });
+
+  it('shows player identity once per card and ownership without a hidden flip face', () => {
+    const { container } = render(<DraftBoard state={draftingFixture} />);
+    expect(screen.getAllByText('Big Mo')).toHaveLength(1);
+    expect(container.querySelector('.tv-flip-face')).toBeNull();
+    expect(screen.getAllByText('Available').length).toBeGreaterThan(0);
   });
 });

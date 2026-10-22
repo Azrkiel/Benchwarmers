@@ -7,6 +7,11 @@ afterEach(cleanup);
 const now = () => 0;
 
 describe('FinalView', () => {
+  it('presents the winner without continuous decorative confetti', () => {
+    const { container, getByText } = render(<FinalView state={finalFixture} serverNow={now} season={seasonFixture} />);
+    expect(getByText('Winner')).toBeTruthy();
+    expect(container.querySelector('.tv-confetti')).toBeNull();
+  });
   it('renders podium, recap, benchwarmer and season table', () => {
     const { container, getByText } = render(<FinalView state={finalFixture} serverNow={now} season={seasonFixture} />);
     const byRank = [...finalFixture.standings].sort((a, b) => a.rank - b.rank);
@@ -29,6 +34,12 @@ describe('FinalView', () => {
     const { container, getByText } = render(<FinalView state={finalFixture} serverNow={now} />);
     expect(getByText('Season standings loading…')).toBeTruthy();
     expect(container.querySelector('.tv-season-table')).toBeNull();
+  });
+
+  it('explains a failed season request and its recovery path', () => {
+    const { getByText, queryByText } = render(<FinalView state={finalFixture} serverNow={now} seasonError />);
+    expect(getByText('Season standings unavailable. Reopen Results to try again.')).toBeTruthy();
+    expect(queryByText('Season standings loading…')).toBeNull();
   });
 
   it('falls back when recap and benchwarmer are absent', () => {

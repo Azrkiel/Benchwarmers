@@ -21,13 +21,15 @@ export function PlayByPlay({
   households,
   homeColor,
   awayColor,
+  compact = false,
 }: {
   events: EventView[];
   households: Household[];
   homeColor: string;
   awayColor: string;
+  compact?: boolean;
 }) {
-  const latest = events.slice(0, 5);
+  const latest = events.slice(0, 3);
   const prevRef = useRef<Set<string> | undefined>(undefined);
   const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const seqRef = useRef(0);
@@ -74,7 +76,7 @@ export function PlayByPlay({
           </div>
         ))}
       </div>
-      <ol className="tv-pbp-list">
+      {!compact ? <ol className="tv-pbp-list">
         {latest.map((e) => {
           const color = e.team === 'home' ? homeColor : e.team === 'away' ? awayColor : NEUTRAL;
           return (
@@ -89,7 +91,7 @@ export function PlayByPlay({
             </li>
           );
         })}
-      </ol>
+      </ol> : null}
     </div>
   );
 }

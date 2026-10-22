@@ -1,0 +1,31 @@
+.watch-page { min-height:100vh; background:#101813; color:#f0eee4; font:18px/1.45 'Barlow','Segoe UI',sans-serif; padding:0 4vw 40px; }
+.watch-page * { box-sizing:border-box; }
+.watch-page a { color:inherit; text-decoration:none; }
+.watch-header { display:flex; align-items:center; gap:24px; height:76px; }
+.watch-header > a:first-child { font:600 28px/1 'Barlow Condensed',sans-serif; text-transform:uppercase; }
+.watch-header > span { font-size:15px; color:#b5c3b7; }
+.watch-header > a:last-child { margin-left:auto; color:#d6ee93; }
+.watch-player { position:relative; aspect-ratio:16/9; width:min(100%,calc((100vh - 110px) * 16 / 9)); margin:auto; background:#000; overflow:hidden; }
+.watch-player:fullscreen { max-height:none; height:100%; width:100%; aspect-ratio:auto; }
+.watch-video,.watch-overlay { position:absolute; inset:0; width:100%; height:100%; border:0; }
+/* Match the transparent child document; Chromium otherwise inserts a white
+   iframe backing when the parent's dark scheme and child's normal differ. */
+.watch-overlay { top:calc(5% + 88px); height:calc(95% - 88px); pointer-events:none; color-scheme:normal; }
+.watch-overlay[hidden] { display:none; }
+.watch-sample { position:absolute; top:5%; left:5%; background:#111f1b; color:#f0eee4; padding:7px 12px; font-size:clamp(12px,1.1vw,22px); }
+.watch-dock { position:absolute; top:5%; right:5%; display:flex; flex-wrap:wrap; gap:5px; max-width:68%; justify-content:flex-end; padding:6px; background:#111f1b; }
+.watch-page button { background:#22372e; color:#f0eee4; padding:10px 14px; font:600 17px/1.2 'Barlow',sans-serif; border:1px solid #718776; border-radius:3px; cursor:pointer; }
+.watch-dock button[aria-pressed='true'] { background:#d6ee93; color:#111f1b; border-color:#d6ee93; }
+.watch-page button:disabled { color:#b5c3b7; background:#182a24; border-color:#3b5548; cursor:default; }
+.watch-page button:hover:not(:disabled) { border-color:#f0eee4; }
+.watch-page :is(button,input,a):focus-visible { outline:3px solid #f0eee4; outline-offset:4px; box-shadow:0 0 0 4px #111f1b; }
+.watch-setup { display:grid; grid-template-columns:1fr 1fr; gap:6vw; padding:28px 0; }
+.watch-setup h1 { font:600 32px/1.15 'Barlow Condensed',sans-serif; margin:0 0 10px; }
+.watch-setup p { color:#b5c3b7; font-size:16px; margin:8px 0; }
+.watch-setup a { color:#d6ee93; text-decoration:underline; }
+.watch-setup label { display:block; margin-bottom:8px; }
+.watch-source-row { display:flex; gap:10px; }
+.watch-source-row input { flex:1; min-width:0; background:#182a24; color:#f0eee4; border:1px solid #718776; padding:10px; font:inherit; }
+.watch-setup [role='alert'] { color:#f4b4a6; }
+@media (max-width:900px) { .watch-dock { gap:4px; } .watch-dock button { font-size:13px; padding:7px 9px; } .watch-sample { top:20%; } .watch-setup { grid-template-columns:1fr; gap:24px; } }
+@media (min-width:1600px) { .watch-dock button { font-size:24px; padding:12px 18px; } }

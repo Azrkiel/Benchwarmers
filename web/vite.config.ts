@@ -10,6 +10,7 @@ export default defineConfig({
     alias: { '@shared': fileURLToPath(new URL('../server/src/shared', import.meta.url)) },
   },
   server: {
+    host: '127.0.0.1',
     port: 5173,
     proxy: { '/api': API, '/mcp': API, '/healthz': API },
   },

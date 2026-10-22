@@ -13,8 +13,15 @@ afterEach(() => {
 const now = () => liveFixture.serverNow;
 
 describe('LiveView', () => {
+  it('leaves standings and the detailed pick card closed by default', () => {
+    const { container } = render(<LiveView state={liveFixture} serverNow={now} />);
+    expect(container.querySelector('.tv-live')).toBeTruthy();
+    expect(container.querySelector('.tv-court')).toBeNull();
+    expect(container.querySelector('.tv-standings')).toBeNull();
+    expect(container.querySelector('.tv-pickbar')).toBeNull();
+  });
   it('renders scoreboard, clock and team names', () => {
-    render(<LiveView state={liveFixture} serverNow={now} />);
+    render(<LiveView showStandings showPick state={liveFixture} serverNow={now} />);
     expect(screen.getAllByText('Harbor Hawks').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Summit Foxes').length).toBeGreaterThan(0);
     expect(screen.getByText('48')).toBeTruthy();
@@ -23,7 +30,7 @@ describe('LiveView', () => {
   });
 
   it('shows the leader spotlight and standings arrows', () => {
-    render(<LiveView state={liveFixture} serverNow={now} />);
+    render(<LiveView showStandings showPick state={liveFixture} serverNow={now} />);
     expect(screen.getByText(/top of the bench/i)).toBeTruthy();
     const leaderName = liveFixture.standings.find((r) => r.rank === 1)!.name;
     expect(leaderName).toBe('Maya');
@@ -31,11 +38,19 @@ describe('LiveView', () => {
     expect(screen.getAllByText('▲').length).toBeGreaterThan(0);
     expect(screen.getAllByText('▼').length).toBeGreaterThan(0);
     expect(screen.getAllByText('142.5').length).toBeGreaterThan(0);
-    expect(screen.getByText('🔥3')).toBeTruthy();
+    expect(screen.getByText('3 streak')).toBeTruthy();
+  });
+
+  it('shows the leader margin without repeating the full roster in the spotlight', () => {
+    const { container } = render(<LiveView showStandings showPick state={liveFixture} serverNow={now} />);
+    const sorted = [...liveFixture.standings].sort((a, b) => a.rank - b.rank);
+    const margin = (sorted[0]!.total - sorted[1]!.total).toFixed(1);
+    expect(screen.getByText(`${margin} points clear`)).toBeTruthy();
+    expect(container.querySelector('.tv-leader-roster')).toBeNull();
   });
 
   it('shows the active prop with countdown and percentages', () => {
-    render(<LiveView state={liveFixture} serverNow={now} />);
+    render(<LiveView showStandings showPick state={liveFixture} serverNow={now} />);
     expect(screen.getByText('Will the next score be a 3-pointer?')).toBeTruthy();
     expect(screen.getByText('0:12')).toBeTruthy();
     expect(screen.getByText('41%')).toBeTruthy();
@@ -43,19 +58,18 @@ describe('LiveView', () => {
   });
 
   it('counts down with the server offset', () => {
-    render(<LiveView state={liveFixture} serverNow={() => liveFixture.serverNow + 5000} />);
+    render(<LiveView showStandings showPick state={liveFixture} serverNow={() => liveFixture.serverNow + 5000} />);
     expect(screen.getByText('0:07')).toBeTruthy();
   });
 
-  it('shows fantasy chips and a ticker line', () => {
-    render(<LiveView state={liveFixture} serverNow={now} />);
-    expect(screen.getAllByText('+3 Maya').length).toBeGreaterThan(0);
+  it('shows crew activity when standings are open', () => {
+    render(<LiveView showStandings showPick state={liveFixture} serverNow={now} />);
     expect(screen.getAllByText('Sam picked No').length).toBeGreaterThan(0);
   });
 
   it('floats pop-ups only for events new since the last render, then removes them', () => {
     vi.useFakeTimers();
-    const { container, rerender } = render(<LiveView state={liveFixture} serverNow={now} />);
+    const { container, rerender } = render(<LiveView showStandings showPick state={liveFixture} serverNow={now} />);
     expect(container.querySelectorAll('.tv-pop-float')).toHaveLength(0);
 
     const newEvent: EventView = {
@@ -71,7 +85,7 @@ describe('LiveView', () => {
       fantasy: [{ memberId: 'maya', memberName: 'Maya', playerId: 'har-c-34', playerName: 'Big Mo', points: 2 }],
     };
     const next: PartyStateResponse = { ...liveFixture, recentEvents: [newEvent, ...liveFixture.recentEvents] };
-    rerender(<LiveView state={next} serverNow={now} />);
+    rerender(<LiveView showStandings showPick state={next} serverNow={now} />);
 
     const pops = container.querySelectorAll('.tv-pop-float');
     expect(pops).toHaveLength(1);
@@ -90,7 +104,7 @@ describe('LiveView', () => {
       ...rest,
       props: [liveFixture.props[0]!, lockedProp, liveFixture.props[2]!],
     };
-    render(<LiveView state={state} serverNow={now} />);
+    render(<LiveView showStandings showPick state={state} serverNow={now} />);
     expect(screen.getByText('LOCKED — waiting for the result')).toBeTruthy();
     expect(screen.getByText('Will the next score be a 3-pointer?')).toBeTruthy();
     expect(screen.getByText('41%')).toBeTruthy();
@@ -102,7 +116,7 @@ describe('LiveView', () => {
 
   it('prefers the open prop over a locked one', () => {
     const locked: PropView = { ...liveFixture.activeProp!, id: 'prop-9', status: 'locked', realSecondsToLock: undefined };
-    render(<LiveView state={{ ...liveFixture, props: [locked, liveFixture.activeProp!] }} serverNow={now} />);
+    render(<LiveView showStandings showPick state={{ ...liveFixture, props: [locked, liveFixture.activeProp!] }} serverNow={now} />);
     expect(screen.getByText('0:12')).toBeTruthy();
     expect(screen.queryByText('LOCKED — waiting for the result')).toBeNull();
   });
@@ -111,13 +125,13 @@ describe('LiveView', () => {
     vi.useFakeTimers();
     const { container, rerender } = render(
       <StrictMode>
-        <LiveView state={liveFixture} serverNow={now} />
+        <LiveView showStandings showPick state={liveFixture} serverNow={now} />
       </StrictMode>,
     );
     expect(container.querySelectorAll('.tv-pop-float')).toHaveLength(0);
     rerender(
       <StrictMode>
-        <LiveView state={{ ...liveFixture, serverNow: liveFixture.serverNow + 1000 }} serverNow={now} />
+        <LiveView showStandings showPick state={{ ...liveFixture, serverNow: liveFixture.serverNow + 1000 }} serverNow={now} />
       </StrictMode>,
     );
     expect(container.querySelectorAll('.tv-pop-float')).toHaveLength(0);

@@ -27,8 +27,8 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
           return (
             <li key={r.memberId} data-flip-key={r.memberId} className="tv-stand-row">
               <span className="tv-stand-rank">{r.rank}</span>
-              <span className={`tv-move tv-move-${mv}`}>{GLYPH[mv]}</span>
-              <Avatar avatar={r.avatar} name={r.name} color={householdColor(households, r.householdId)} size={56} />
+              <span className={`tv-move tv-move-${mv}`} aria-label={`Rank ${mv === 'same' ? 'unchanged' : mv}`}>{GLYPH[mv]}</span>
+              <Avatar avatar={r.avatar} name={r.name} color={householdColor(households, r.householdId)} size={48} />
               <span className="tv-stand-main">
                 <span className="tv-stand-name">{r.name}</span>
                 <span className="tv-split" title={`Draft ${r.draftPoints.toFixed(1)} · Picks ${r.pickPoints.toFixed(1)}`}>
@@ -37,7 +37,7 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
                 </span>
               </span>
               <span className="tv-stand-total">{r.total.toFixed(1)}</span>
-              <span className="tv-streak">{r.streak >= 2 ? `🔥${r.streak}` : ''}</span>
+              <span className="tv-streak">{r.streak >= 2 ? `${r.streak} streak` : ''}</span>
             </li>
           );
         })}

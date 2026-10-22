@@ -1,45 +1,21 @@
 import { ROSTER_SIZE, type DraftBoardEntry, type PartyStateResponse } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 
-function memberAvatar(state: PartyStateResponse, memberId?: string): string {
-  for (const h of state.households) {
-    const m = h.members.find((x) => x.id === memberId);
-    if (m) return m.avatar;
-  }
-  return '';
-}
-
 function Card({ e, state }: { e: DraftBoardEntry; state: PartyStateResponse }) {
   const owned = !!e.ownerMemberId;
   const color = householdColor(state.households, e.householdId);
   return (
-    <div className={`tv-flip${owned ? ' is-drafted' : ''}`} data-testid="draft-card">
-      <div className="tv-flip-inner">
-        <div className="tv-flip-face tv-flip-front">
-          <div className="tv-card-top">
-            <span className="tv-jersey">#{e.player.number}</span>
-            <span className="tv-pos">{e.player.position} · {e.teamShort}</span>
-          </div>
-          <div className="tv-nick">{e.player.nickname ?? e.player.name}</div>
-          <div className="tv-pname">{e.player.name}</div>
-          {e.scoutingNote ? <div className="tv-note">{e.scoutingNote}</div> : null}
-        </div>
-        <div className="tv-flip-face tv-flip-back" style={{ background: owned ? color : undefined }}>
-          {owned ? (
-            <>
-              <div className="tv-back-top">#{e.player.number} {e.player.position} · {e.teamShort}</div>
-              <div className="tv-back-nick">{e.player.nickname ?? e.player.name}</div>
-              <div className="tv-back-owner">
-                <Avatar avatar={memberAvatar(state, e.ownerMemberId)} name={e.ownerName ?? ''} color="#fff" size={44} />
-                <span className="tv-owner">{e.ownerName}</span>
-                <span className="tv-round">R{e.round}</span>
-                {e.auto ? <span className="tv-auto">auto</span> : null}
-              </div>
-            </>
-          ) : null}
-        </div>
+    <article className={`tv-draft-card${owned ? ' is-drafted' : ''}`} data-testid="draft-card" style={{ ['--owner' as string]: color }}>
+      <span className="tv-jersey">{String(e.player.number).padStart(2, '0')}</span>
+      <div className="tv-card-info">
+        <div className="tv-nick">{e.player.nickname ?? e.player.name}</div>
+        <div className="tv-pname">{e.player.name}</div>
       </div>
-    </div>
+      <div className="tv-card-status">
+        <span className={owned ? 'tv-owner' : 'tv-available'}>{owned ? `${e.ownerName} · R${e.round}${e.auto ? ' · auto' : ''}` : 'Available'}</span>
+        <span className="tv-pos">{e.player.position}</span>
+      </div>
+    </article>
   );
 }
 

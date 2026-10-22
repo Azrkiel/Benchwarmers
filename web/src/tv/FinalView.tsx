@@ -3,23 +3,21 @@ import { Avatar, householdColor } from './avatar';
 import { findMember, formatPoints } from './pops';
 import { playerInfo, worstPerformer } from './rosters';
 
-const CONFETTI = ['#ffb938', '#3ddc97', '#6ea8ff', '#ff5d6c', '#e8c0ff', '#ffe27a', '#7fe3ff', '#ff9f5a'];
-
 function PodiumBlock({ row, place, state }: { row: StandingRow; place: 1 | 2 | 3; state: PartyStateResponse }) {
   const color = householdColor(state.households, row.householdId);
   return (
     <div className={`tv-podium-block tv-podium-${place}`} data-place={place} style={{ ['--hh' as string]: color }}>
-      {place === 1 ? <div className="tv-podium-crown">👑</div> : null}
-      <Avatar avatar={row.avatar} name={row.name} color={color} size={place === 1 ? 112 : 88} />
+      <div className="tv-podium-label">{place === 1 ? 'Winner' : `${place === 2 ? 'Second' : 'Third'} place`}</div>
+      <Avatar avatar={row.avatar} name={row.name} color={color} size={place === 1 ? 96 : 72} />
       <div className="tv-podium-name">{row.name}</div>
-      <div className="tv-podium-hh" style={{ color }}>{row.household}</div>
+      <div className="tv-podium-hh">{row.household}</div>
       <div className="tv-podium-total">{row.total.toFixed(1)}</div>
       <div className="tv-podium-step"><span>{place}</span></div>
     </div>
   );
 }
 
-export function FinalView({ state, season }: { state: PartyStateResponse; serverNow: () => number; season?: SeasonResponse }) {
+export function FinalView({ state, season, seasonError = false }: { state: PartyStateResponse; serverNow: () => number; season?: SeasonResponse; seasonError?: boolean }) {
   const { game } = state;
   const rows = [...state.standings].sort((a, b) => a.rank - b.rank);
   const [first, second, third] = rows;
@@ -49,20 +47,15 @@ export function FinalView({ state, season }: { state: PartyStateResponse; server
 
   return (
     <section className="tv-view tv-final">
-      <div className="tv-confetti" aria-hidden="true">
-        {CONFETTI.map((c, i) => (
-          <i key={i} style={{ background: c, left: `${8 + i * 12}%`, animationDelay: `${(i % 4) * 0.7}s` }} />
-        ))}
-      </div>
       <div className="tv-final-left">
         <header className="tv-final-head">
           <h2>Final</h2>
           <div className="tv-final-score">
-            <span className={`tv-final-team${homeWin ? ' is-winner' : ''}`} style={{ color: game.home.color }}>
+            <span className={`tv-final-team${homeWin ? ' is-winner' : ''}`}>
               {game.home.name} <b>{game.home.score}</b>
             </span>
             <span className="tv-muted">–</span>
-            <span className={`tv-final-team${awayWin ? ' is-winner' : ''}`} style={{ color: game.away.color }}>
+            <span className={`tv-final-team${awayWin ? ' is-winner' : ''}`}>
               <b>{game.away.score}</b> {game.away.name}
             </span>
           </div>
@@ -93,7 +86,6 @@ export function FinalView({ state, season }: { state: PartyStateResponse; server
         </section>
         {bench ? (
           <section className="tv-bench-night">
-            <div className="tv-bench-emoji">🪑</div>
             <div className="tv-bench-body">
               <h3>Benchwarmer of the night</h3>
               <div className="tv-bench-line">
@@ -112,7 +104,7 @@ export function FinalView({ state, season }: { state: PartyStateResponse; server
             <table className="tv-season-table">
               <thead>
                 <tr>
-                  <th>#</th><th>Player</th><th>Household</th><th>Wins</th><th>Pts</th><th>Streak</th><th>Picks</th>
+                  <th scope="col">#</th><th scope="col">Player</th><th scope="col">Wins</th><th scope="col">Points</th>
                 </tr>
               </thead>
               <tbody>
@@ -125,18 +117,15 @@ export function FinalView({ state, season }: { state: PartyStateResponse; server
                         <Avatar avatar={r.avatar} name={r.name} color={color} size={40} />
                         <span>{r.name}</span>
                       </td>
-                      <td style={{ color }}>{r.household}</td>
                       <td>{r.nightsWon}</td>
                       <td>{formatPoints(r.points)}</td>
-                      <td>{r.bestStreak}</td>
-                      <td>{r.correct}/{r.total}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           ) : (
-            <div className="tv-season-loading">Season standings loading…</div>
+            <div className="tv-season-loading" role="status">{seasonError ? 'Season standings unavailable. Reopen Results to try again.' : 'Season standings loading…'}</div>
           )}
         </section>
       </div>
