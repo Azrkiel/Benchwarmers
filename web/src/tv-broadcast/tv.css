@@ -1,12 +1,12 @@
 
 /* Web TV: 1920 × 1080 CSS-pixel canvas, uniformly fitted by Stage.
    96px / 54px safe insets (5%). Project defaults, not Android dp. */
-.tv-viewport { --bg:#191a26; --panel:#242635; --panel-2:#303344; --border:#444553; --text:#f3ecdf; --muted:#b7b6c5; --accent:#eda77b; --good:#a9d3b4; --bad:#e8a0a0; --display:'DM Serif Lounge',Georgia,serif; position:fixed; inset:0; overflow:hidden; background:var(--bg); color:var(--text); font:28px/1.35 'DM Sans Lounge','Segoe UI',Arial,sans-serif; font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased; }
+.tv-viewport { --bg:#191a26; --panel:#242635; --panel-2:#303344; --border:#444553; --text:#f3ecdf; --muted:#b7b6c5; --accent:#eda77b; --good:#a9d3b4; --bad:#e8a0a0; --display:var(--lg-display); position:fixed; inset:0; overflow:hidden; background:var(--bg); color:var(--text); font:28px/1.35 var(--lg-sans); font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased; }
 .tv-viewport *, .tv-viewport *::before, .tv-viewport *::after { box-sizing:border-box; }
 .tv-stage { position:absolute; top:0; left:0; transform-origin:0 0; padding:54px 96px; display:grid; grid-template-rows:84px minmax(0,1fr) 48px; gap:32px; overflow:hidden; }
 .tv-header { display:flex; align-items:center; gap:56px; min-width:0; border-bottom:1px solid var(--border); padding:12px 0; }
 .tv-brand-sm { display:flex; align-items:center; gap:16px; font:400 36px/1 var(--display); letter-spacing:.025em;  white-space:nowrap; }
-.tv-brand-mark { display:inline-grid; place-items:center; width:48px; height:48px; background:var(--accent); color:var(--bg); border-radius:0; font:600 italic 30px/1 'DM Sans Lounge','Segoe UI',Arial,sans-serif; letter-spacing:-.09em; text-transform:lowercase; padding-right:4px; }
+.tv-brand-mark { display:inline-grid; place-items:center; width:48px; height:48px; background:var(--accent); color:var(--bg); border-radius:0; font:600 italic 30px/1 var(--lg-sans); letter-spacing:-.09em; text-transform:lowercase; padding-right:4px; }
 .tv-party-code { margin-left:auto; display:flex; flex-direction:column; border-left:1px solid var(--border); padding-left:26px; white-space:nowrap; }
 .tv-party-code > span { font-size:22px; color:var(--muted); }
 .tv-party-code b { font:400 34px/1.1 var(--display); letter-spacing:.02em; }
@@ -37,7 +37,7 @@
 .tv-remote-hint kbd { display:inline-grid; place-items:center; min-width:32px; height:28px; padding:0 5px; color:var(--text); border:1px solid #646a70; border-radius:5px; font:inherit; font-size:19px; }
 .tv-remote-hint kbd:not(:first-child) { margin-left:12px; }
 .tv-remote-hint kbd:nth-child(2) { margin-left:-6px; }
-.tv-action { display:inline-flex; align-items:center; justify-content:space-between; gap:32px; min-height:64px; padding:12px 24px; border:1px solid #6d6c7d; border-radius:3px; background:transparent; color:var(--text); font:600 28px/1.2 'DM Sans Lounge','Segoe UI',Arial,sans-serif; cursor:pointer; transition:background 140ms ease,transform 140ms ease; }
+.tv-action { display:inline-flex; align-items:center; justify-content:space-between; gap:32px; min-height:64px; padding:12px 24px; border:1px solid #6d6c7d; border-radius:3px; background:transparent; color:var(--text); font:600 28px/1.2 var(--lg-sans); cursor:pointer; transition:background 140ms ease,transform 140ms ease; }
 .tv-action-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); }
 .tv-action:hover { background:var(--panel-2); }
 .tv-action-primary:hover { background:#f3c6a7; }

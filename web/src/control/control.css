@@ -1,4 +1,4 @@
-.ctrl-page { max-width:1440px; padding:32px 48px 60px; margin:auto; font:18px/1.45 'DM Sans Lounge','Segoe UI',Arial,sans-serif; color:#f3ecdf; }
+.ctrl-page { max-width:1440px; padding:32px 48px 60px; margin:auto; font:18px/1.45 var(--lg-sans); color:#f3ecdf; }
 .ctrl-page * { box-sizing:border-box; }
 .ctrl-page header { display:flex; gap:24px; align-items:center; border-bottom:1px solid #444553; padding-bottom:24px; }
 .ctrl-page a { color:#eda77b; text-decoration:none; }
@@ -6,11 +6,11 @@
 .ctrl-page header a:first-child { display:inline-flex; text-decoration:none; }
 .ctrl-page header span,.ctrl-page p,.ctrl-page small { color:#b7b6c5; }
 .ctrl-heading { display:flex; gap:32px; align-items:center; justify-content:space-between; padding:36px 0 20px; }
-.ctrl-page h1 { font:400 48px/1.1 'DM Serif Lounge',Georgia,serif; letter-spacing:-.02em; margin:12px 0; }
+.ctrl-page h1 { font:400 48px/1.1 var(--lg-display); letter-spacing:-.02em; margin:12px 0; }
 .ctrl-page h2 { font-size:26px; margin:28px 0 14px; }
 .ctrl-page h3 { font-size:26px; margin:16px 0; }
 .ctrl-eyebrow { color:#eda77b!important; font-size:16px; }
-.ctrl-page button,.ctrl-page select { font:600 18px 'DM Sans Lounge','Segoe UI',Arial,sans-serif; border:1px solid #6d6c7d; border-radius:4px; color:#f3ecdf; background:#303344; padding:12px 18px; cursor:pointer; }
+.ctrl-page button,.ctrl-page select { font:600 18px var(--lg-sans); border:1px solid #6d6c7d; border-radius:4px; color:#f3ecdf; background:#303344; padding:12px 18px; cursor:pointer; }
 .ctrl-page button:disabled { opacity:.5; cursor:default; }
 .ctrl-page :is(button,select,a):focus-visible { outline:3px solid white; outline-offset:4px; }
 .ctrl-page button[aria-pressed=true] { color:#191a26; background:#eda77b; }

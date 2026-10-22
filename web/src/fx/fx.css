@@ -10,7 +10,7 @@
 .fx-banner-sweep::before, .fx-banner-sweep::after { content:''; position:absolute; left:0; right:0; height:10px; background:var(--lg-text,#f3ecdf); opacity:.85; }
 .fx-banner-sweep::before { top:-18px; } .fx-banner-sweep::after { bottom:-18px; }
 .fx-banner-body { position:relative; display:grid; justify-items:center; gap:6px; color:var(--lg-ink,#32292d); text-align:center; animation:fx-land 2.6s cubic-bezier(.2,.8,.2,1) both; }
-.fx-banner-body>strong { font:400 112px/1 var(--lg-serif,Georgia,serif); letter-spacing:-.02em; text-transform:uppercase; }
+.fx-banner-body>strong { font:900 128px/1 var(--lg-display,var(--lg-serif,Georgia,serif)); letter-spacing:-.02em; text-transform:uppercase; }
 .fx-banner-body>span { font:700 28px/1.2 var(--lg-sans,sans-serif); letter-spacing:.06em; text-transform:uppercase; }
 .fx-banner.is-turnover { --fx-accent:var(--lg-bad,#e8a0a0); }
 .fx-banner.is-dark .fx-banner-body { color:#fff; text-shadow:0 2px 12px #0006; }

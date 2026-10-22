@@ -56,7 +56,7 @@ export function RoomTvPage() {
   }
 
   if (!view) return (
-    <main className="rm rm-loading">
+    <main className="rm rm-loading rm-tv-loading">
       <BrandLockup size={44} />
       <h1>{error ? 'Room unavailable' : 'Opening the big screen...'}</h1>
       {error ? <p role="alert">{error}</p> : <p role="status">Connecting to room {code}</p>}
