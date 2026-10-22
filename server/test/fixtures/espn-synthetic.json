@@ -1,0 +1,1006 @@
+{
+  "header": {
+    "id": "900001",
+    "competitions": [
+      {
+        "id": "900001",
+        "date": "2024-10-05T20:00Z",
+        "status": {
+          "type": {
+            "completed": true,
+            "description": "Final"
+          }
+        },
+        "competitors": [
+          {
+            "homeAway": "home",
+            "score": "18",
+            "team": {
+              "id": "101",
+              "abbreviation": "LKV",
+              "displayName": "Lakeview Herons",
+              "name": "Herons",
+              "color": "1d3a8a",
+              "alternateColor": "f5c518"
+            }
+          },
+          {
+            "homeAway": "away",
+            "score": "10",
+            "team": {
+              "id": "202",
+              "abbreviation": "NGT",
+              "displayName": "Northgate Wolves",
+              "name": "Wolves",
+              "color": "1e3f8f",
+              "alternateColor": "c0c0c0"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "boxscore": {
+    "players": [
+      {
+        "team": {
+          "id": "101",
+          "abbreviation": "LKV"
+        },
+        "statistics": [
+          {
+            "name": "passing",
+            "keys": [
+              "completions/passingAttempts",
+              "passingYards"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "1",
+                  "displayName": "Dan Archer",
+                  "jersey": "7"
+                },
+                "stats": [
+                  "20/30",
+                  "210"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "rushing",
+            "keys": [
+              "rushingAttempts",
+              "rushingYards"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "2",
+                  "displayName": "Milo Brandt",
+                  "jersey": "22"
+                },
+                "stats": [
+                  "18",
+                  "80"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "receiving",
+            "keys": [
+              "receptions",
+              "receivingYards"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "3",
+                  "displayName": "Cole Reyes",
+                  "jersey": "81"
+                },
+                "stats": [
+                  "8",
+                  "120"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "kicking",
+            "keys": [
+              "fieldGoalsMade/fieldGoalAttempts"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "4",
+                  "displayName": "Ivan Pike",
+                  "jersey": "3"
+                },
+                "stats": [
+                  "1/1"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "defensive",
+            "keys": [
+              "tackles"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "99",
+                  "displayName": "Max Dunn",
+                  "jersey": "90"
+                },
+                "stats": [
+                  "5"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "202",
+          "abbreviation": "NGT"
+        },
+        "statistics": [
+          {
+            "name": "passing",
+            "keys": [
+              "completions/passingAttempts",
+              "passingYards"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "11",
+                  "displayName": "Eli Stone",
+                  "jersey": "12"
+                },
+                "stats": [
+                  "15/28",
+                  "150"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "rushing",
+            "keys": [
+              "rushingAttempts",
+              "rushingYards"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "12",
+                  "displayName": "Tariq Moss",
+                  "jersey": "28"
+                },
+                "stats": [
+                  "15",
+                  "70"
+                ]
+              },
+              {
+                "athlete": {
+                  "id": "16",
+                  "displayName": "TEAM",
+                  "jersey": ""
+                },
+                "stats": [
+                  "1",
+                  "-2"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "receiving",
+            "keys": [
+              "receptions",
+              "receivingYards"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "13",
+                  "displayName": "Jonas Hale",
+                  "jersey": "85"
+                },
+                "stats": [
+                  "6",
+                  "90"
+                ]
+              },
+              {
+                "athlete": {
+                  "id": "15",
+                  "displayName": "Finn Gray"
+                },
+                "stats": [
+                  "2",
+                  "20"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "kicking",
+            "keys": [
+              "fieldGoalsMade/fieldGoalAttempts"
+            ],
+            "athletes": [
+              {
+                "athlete": {
+                  "id": "14",
+                  "displayName": "Owen Vale",
+                  "jersey": "5"
+                },
+                "stats": [
+                  "1/1"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "drives": {
+    "previous": [
+      {
+        "team": {
+          "id": "101",
+          "abbreviation": "LKV"
+        },
+        "start": {
+          "period": {
+            "number": 1
+          },
+          "clock": {
+            "displayValue": "15:00"
+          },
+          "text": "LKV 25"
+        },
+        "displayResult": "Touchdown",
+        "plays": [
+          {
+            "id": "1",
+            "type": {
+              "text": "Kickoff"
+            },
+            "text": "Owen Vale kickoff for 65 yds for a touchback",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "15:00"
+            },
+            "homeScore": 0,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "type": {
+              "text": "Rush"
+            },
+            "text": "Milo Brandt run for 8 yds to the LKV 33",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "14:40"
+            },
+            "homeScore": 0,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "type": {
+              "text": "Pass Reception"
+            },
+            "text": "Dan Archer pass complete to Cole Reyes for 22 yds to the LKV 55 for a 1ST down",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "14:10"
+            },
+            "homeScore": 0,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "type": {
+              "text": "Timeout"
+            },
+            "text": "Timeout Northgate, clock 13:50",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "13:50"
+            },
+            "homeScore": 0,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": []
+          },
+          {
+            "id": "5",
+            "type": {
+              "text": "Passing Touchdown"
+            },
+            "text": "Dan Archer pass complete to Cole Reyes for 20 yds for a TD (Ivan Pike KICK)",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "13:00"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": true,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "6",
+            "type": {
+              "text": "Timeout"
+            },
+            "text": "Timeout Northgate, clock 13:00",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "13:00"
+            },
+            "homeScore": 0,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": []
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "202",
+          "abbreviation": "NGT"
+        },
+        "start": {
+          "period": {
+            "number": 1
+          },
+          "clock": {
+            "displayValue": "13:00"
+          },
+          "text": "NGT 25"
+        },
+        "displayResult": "Interception",
+        "plays": [
+          {
+            "id": "7",
+            "type": {
+              "text": "Kickoff"
+            },
+            "text": "Ivan Pike kickoff for 65 yds for a touchback",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "13:00"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "8",
+            "type": {
+              "text": "Sack"
+            },
+            "text": "Eli Stone sacked by Max Dunn for a loss of 6 yards to the NGT 19",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "12:30"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "9",
+            "type": {
+              "text": "Pass Incompletion"
+            },
+            "text": "Eli Stone pass incomplete to Jonas Hale",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "12:00"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "10",
+            "type": {
+              "text": "Penalty"
+            },
+            "text": "PENALTY LKV Offside (Dunn,Max) 5 yards from NGT19 to NGT24. NO PLAY.",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "11:40"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "11",
+            "type": {
+              "text": "Pass Interception Return"
+            },
+            "text": "Eli Stone pass intercepted Kai Lopez return for 12 yds to the NGT 40",
+            "period": {
+              "number": 1
+            },
+            "clock": {
+              "displayValue": "11:00"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "101",
+          "abbreviation": "LKV"
+        },
+        "start": {
+          "period": {
+            "number": 2
+          },
+          "clock": {
+            "displayValue": "10:00"
+          },
+          "text": "NGT 40"
+        },
+        "displayResult": "Fumble",
+        "plays": [
+          {
+            "id": "12",
+            "type": {
+              "text": "Rush"
+            },
+            "text": "Milo Brandt run for 5 yds to the NGT 35",
+            "period": {
+              "number": 2
+            },
+            "clock": {
+              "displayValue": "9:30"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "13",
+            "type": {
+              "text": "Fumble Recovery (Opponent)"
+            },
+            "text": "Milo Brandt run for 3 yds to the NGT 32 Milo Brandt fumbled, recovered by NGT",
+            "period": {
+              "number": 2
+            },
+            "clock": {
+              "displayValue": "9:00"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "202",
+          "abbreviation": "NGT"
+        },
+        "start": {
+          "period": {
+            "number": 2
+          },
+          "clock": {
+            "displayValue": "8:30"
+          },
+          "text": "NGT 30"
+        },
+        "displayResult": "Touchdown",
+        "plays": [
+          {
+            "id": "14",
+            "type": {
+              "text": "Pass Reception"
+            },
+            "text": "Eli Stone pass complete to Jonas Hale for 30 yds to the LKV 40 for a 1ST down",
+            "period": {
+              "number": 2
+            },
+            "clock": {
+              "displayValue": "8:00"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "15",
+            "type": {
+              "text": "Rush"
+            },
+            "text": "Tariq Moss run for 5 yds to the LKV 35",
+            "period": {
+              "number": 2
+            },
+            "clock": {
+              "displayValue": "7:30"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "16",
+            "type": {
+              "text": "Pass Reception"
+            },
+            "text": "Eli Stone pass complete to Walter Walkon for 10 yds to the LKV 25",
+            "period": {
+              "number": 2
+            },
+            "clock": {
+              "displayValue": "7:00"
+            },
+            "homeScore": 7,
+            "awayScore": 0,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "17",
+            "type": {
+              "text": "Rushing Touchdown"
+            },
+            "text": "Tariq Moss run for 25 yds for a TD (Owen Vale KICK)",
+            "period": {
+              "number": 2
+            },
+            "clock": {
+              "displayValue": "6:00"
+            },
+            "homeScore": 7,
+            "awayScore": 7,
+            "scoringPlay": true,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "18",
+            "type": {
+              "text": "End of Half"
+            },
+            "text": "End of 2nd Quarter",
+            "period": {
+              "number": 2
+            },
+            "clock": {
+              "displayValue": "0:00"
+            },
+            "homeScore": 7,
+            "awayScore": 7,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "101",
+          "abbreviation": "LKV"
+        },
+        "start": {
+          "period": {
+            "number": 3
+          },
+          "clock": {
+            "displayValue": "9:00"
+          },
+          "text": "LKV 30"
+        },
+        "displayResult": "Field Goal",
+        "plays": [
+          {
+            "id": "19",
+            "type": {
+              "text": "Rush"
+            },
+            "text": "Milo Brandt run for 12 yds to the LKV 42 for a 1ST down",
+            "period": {
+              "number": 3
+            },
+            "clock": {
+              "displayValue": "8:30"
+            },
+            "homeScore": 7,
+            "awayScore": 7,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "20",
+            "type": {
+              "text": "Pass Reception"
+            },
+            "text": "Dan Archer pass complete to Cole Reyes for 30 yds to the NGT 28 for a 1ST down",
+            "period": {
+              "number": 3
+            },
+            "clock": {
+              "displayValue": "8:00"
+            },
+            "homeScore": 7,
+            "awayScore": 7,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "21",
+            "type": {
+              "text": "Field Goal Good"
+            },
+            "text": "Ivan Pike 41 Yd Field Goal",
+            "period": {
+              "number": 3
+            },
+            "clock": {
+              "displayValue": "5:00"
+            },
+            "homeScore": 10,
+            "awayScore": 7,
+            "scoringPlay": true,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "202",
+          "abbreviation": "NGT"
+        },
+        "start": {
+          "period": {
+            "number": 4
+          },
+          "clock": {
+            "displayValue": "5:00"
+          },
+          "text": "NGT 20"
+        },
+        "displayResult": "Field Goal",
+        "plays": [
+          {
+            "id": "22",
+            "type": {
+              "text": "Rush"
+            },
+            "text": "Tariq Moss run for 14 yds to the NGT 34 for a 1ST down",
+            "period": {
+              "number": 4
+            },
+            "clock": {
+              "displayValue": "4:30"
+            },
+            "homeScore": 10,
+            "awayScore": 7,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "23",
+            "type": {
+              "text": "Field Goal Good"
+            },
+            "text": "Owen Vale 33 Yd Field Goal",
+            "period": {
+              "number": 4
+            },
+            "clock": {
+              "displayValue": "1:00"
+            },
+            "homeScore": 10,
+            "awayScore": 10,
+            "scoringPlay": true,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "24",
+            "type": {
+              "text": "End of Regulation"
+            },
+            "text": "End of 4th Quarter",
+            "period": {
+              "number": 4
+            },
+            "clock": {
+              "displayValue": "0:00"
+            },
+            "homeScore": 10,
+            "awayScore": 10,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "101",
+          "abbreviation": "LKV"
+        },
+        "start": {
+          "period": {
+            "number": 5
+          },
+          "text": "NGT 25"
+        },
+        "displayResult": "Touchdown",
+        "plays": [
+          {
+            "id": "25",
+            "type": {
+              "text": "Rush"
+            },
+            "text": "Milo Brandt run for 20 yds to the NGT 5 for a 1ST down",
+            "period": {
+              "number": 5
+            },
+            "clock": {
+              "displayValue": "0:00"
+            },
+            "homeScore": 10,
+            "awayScore": 10,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "26",
+            "type": {
+              "text": "Rushing Touchdown"
+            },
+            "text": "Milo Brandt 5 Yd Run (Milo Brandt Pass to Cole Reyes for Two-Point Conversion)",
+            "period": {
+              "number": 5
+            },
+            "clock": {
+              "displayValue": "0:00"
+            },
+            "homeScore": 18,
+            "awayScore": 10,
+            "scoringPlay": true,
+            "teamParticipants": [
+              {
+                "id": "101",
+                "type": "offense"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "team": {
+          "id": "202",
+          "abbreviation": "NGT"
+        },
+        "start": {
+          "period": {
+            "number": 5
+          },
+          "text": "LKV 25"
+        },
+        "displayResult": "Downs",
+        "plays": [
+          {
+            "id": "27",
+            "type": {
+              "text": "Pass Incompletion"
+            },
+            "text": "Eli Stone pass incomplete to Finn Gray",
+            "period": {
+              "number": 5
+            },
+            "clock": {
+              "displayValue": "0:00"
+            },
+            "homeScore": 18,
+            "awayScore": 10,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          },
+          {
+            "id": "28",
+            "type": {
+              "text": "Pass Incompletion"
+            },
+            "text": "Eli Stone pass incomplete to Jonas Hale",
+            "period": {
+              "number": 5
+            },
+            "clock": {
+              "displayValue": "0:00"
+            },
+            "homeScore": 18,
+            "awayScore": 10,
+            "scoringPlay": false,
+            "teamParticipants": [
+              {
+                "id": "202",
+                "type": "offense"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
