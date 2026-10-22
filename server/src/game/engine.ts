@@ -63,6 +63,20 @@ export const FOOTBALL_CLOCK_SCALE = 7.5;
 export function gameClock(game: Game, gameT: number, status: PartyStatus): { period: number; clock: string } {
   const periods = game.periods;
   if (status === 'final') return { period: periods, clock: 'Final' };
+  const reg = game.regulationSec;
+  if (reg !== undefined && periods > 4) {
+    if (gameT < reg) {
+      const quarter = reg / 4;
+      const q = Math.min(4, Math.floor(gameT / quarter) + 1);
+      const left = Math.max(0, Math.ceil((quarter - (gameT - (q - 1) * quarter)) * FOOTBALL_CLOCK_SCALE - 1e-9));
+      return { period: q, clock: `Q${q} ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}` };
+    }
+    // Overtime: equal slices of what is left after regulation; college OT has no clock.
+    const otCount = periods - 4;
+    const slice = (game.durationSec - reg) / otCount;
+    const n = Math.min(otCount, Math.floor((gameT - reg) / slice) + 1);
+    return { period: 4 + n, clock: n === 1 ? 'OT' : `${n}OT` };
+  }
   const periodLen = game.durationSec / periods;
   const period = Math.min(periods, Math.floor(gameT / periodLen) + 1);
   const elapsedInPeriod = gameT - (period - 1) * periodLen;

@@ -89,6 +89,27 @@ describe('football gameClock', () => {
   it('leaves basketball unchanged', () => {
     expect(gameClock(basket, 0, 'drafting').clock).toBe('Q1 2:00');
   });
+
+  describe('overtime (regulationSec)', () => {
+    // 4 quarters of 120 + two 60-second overtime slices.
+    const ot: Game = { ...game, durationSec: 600, periods: 6, regulationSec: 480 };
+    it('keeps regulation quarters at 120 game seconds', () => {
+      expect(gameClock(ot, 0, 'live')).toEqual({ period: 1, clock: 'Q1 15:00' });
+      expect(gameClock(ot, 120, 'live')).toEqual({ period: 2, clock: 'Q2 15:00' });
+      expect(gameClock(ot, 479, 'live').clock).toBe('Q4 0:08');
+    });
+    it('switches to OT, 2OT with no clock', () => {
+      expect(gameClock(ot, 480, 'live')).toEqual({ period: 5, clock: 'OT' });
+      expect(gameClock(ot, 539.9, 'live')).toEqual({ period: 5, clock: 'OT' });
+      expect(gameClock(ot, 540, 'live')).toEqual({ period: 6, clock: '2OT' });
+      expect(gameClock(ot, 600, 'live')).toEqual({ period: 6, clock: '2OT' });
+      expect(gameClock(ot, 600, 'final')).toEqual({ period: 6, clock: 'Final' });
+    });
+    it('regulationSec equal to a 4-period game behaves like a normal game', () => {
+      const plain: Game = { ...game, regulationSec: 480 };
+      for (const t of [0, 60, 119, 120, 300, 479, 480]) expect(gameClock(plain, t, 'live')).toEqual(gameClock(game, t, 'live'));
+    });
+  });
 });
 
 describe('driveResult resolver', () => {

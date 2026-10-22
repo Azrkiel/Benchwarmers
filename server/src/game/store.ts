@@ -599,6 +599,7 @@ export class Store implements AiSink {
         title: game.title,
         ...(game.sport !== undefined ? { sport: game.sport } : {}),
         durationSec: game.durationSec,
+        ...(game.regulationSec !== undefined ? { regulationSec: game.regulationSec } : {}),
         gameT: gt,
         period,
         clock,
