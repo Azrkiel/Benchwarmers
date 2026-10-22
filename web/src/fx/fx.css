@@ -13,6 +13,8 @@
 .fx-banner-body>strong { font:400 112px/1 var(--lg-serif,Georgia,serif); letter-spacing:-.02em; text-transform:uppercase; }
 .fx-banner-body>span { font:700 28px/1.2 var(--lg-sans,sans-serif); letter-spacing:.06em; text-transform:uppercase; }
 .fx-banner.is-turnover { --fx-accent:var(--lg-bad,#e8a0a0); }
+.fx-banner.is-dark .fx-banner-body { color:#fff; text-shadow:0 2px 12px #0006; }
+@media (max-width:700px) { .fx-banner-sweep { height:130px; } .fx-banner-body>strong { font-size:54px; } .fx-banner.is-info .fx-banner-body>strong { font-size:44px; } .fx-banner-body>span { font-size:16px; } .fx-toast { font-size:15px; } }
 .fx-banner.is-info .fx-banner-body>strong { font-size:84px; }
 .fx-banner.is-win { --fx-accent:var(--lg-tan,#e4c6a7); }
 @keyframes fx-sweep { 0% { transform:translate(-110%,-50%) skewY(-4deg); } 16%,84% { transform:translate(0,-50%) skewY(-4deg); } 100% { transform:translate(110%,-50%) skewY(-4deg); } }

@@ -26,18 +26,19 @@ export function useTimedList<T>(ttl: number) {
   return { items, push };
 }
 
-/** Ids present now that were not present last render. Empty on the first render, so nothing replays on load. */
-export function useNewIds(ids: string[]): string[] {
+/** Ids present now that were not present last render. Empty until the first `ready` render, so nothing replays on load. */
+export function useNewIds(ids: string[], ready = true): string[] {
   const seen = useRef<Set<string> | null>(null);
   const joined = ids.join('\u0000');
   const [fresh, setFresh] = useState<string[]>([]);
   useEffect(() => {
+    if (!ready) return;
     if (seen.current === null) { seen.current = new Set(ids); return; }
     const added = ids.filter((id) => !seen.current!.has(id));
     for (const id of added) seen.current.add(id);
     if (added.length) setFresh(added);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [joined]);
+  }, [joined, ready]);
   return fresh;
 }
 
@@ -90,10 +91,19 @@ export function useBanners() {
   return { current, announce };
 }
 
+/** True for colours dark enough that the banner needs light text. */
+export function isDark(hex: string) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return false;
+  const n = parseInt(m[1]!, 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.45;
+}
+
 export function PlayBanner({ banner }: { banner: (Banner & { key: number }) | null }) {
   if (!banner) return null;
   return (
-    <div className={`fx-banner is-${banner.tone}`} key={banner.key} style={banner.color ? { '--fx-accent': banner.color } as CSSProperties : undefined} role="status" aria-live="polite">
+    <div className={`fx-banner is-${banner.tone}${banner.color && isDark(banner.color) ? ' is-dark' : ''}`} key={banner.key} style={banner.color ? { '--fx-accent': banner.color } as CSSProperties : undefined} role="status" aria-live="polite">
       <div className="fx-banner-sweep" aria-hidden="true" />
       <div className="fx-banner-body">
         <strong>{banner.title}</strong>

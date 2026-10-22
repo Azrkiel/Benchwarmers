@@ -8,15 +8,7 @@ import { useRoom } from './useRoom';
 import type { RoomView } from '@shared/room';
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
-const players = Array.from({ length: 6 }, (_, i) => ({ id: `p${i}`, name: `Player ${i}`, teamId: 'h', teamShort: 'HOM', position: ['QB', 'RB', 'WR', 'OL', 'LS', 'P'][i], role: 'Fictional player', salary: i === 5 ? 40000 : 8000, multiplier: 1, stats: {}, rawPoints: 0, points: 0, statLine: 'No stats yet' }));
-export const fixture = {
-  room: { code: 'ABCD', name: 'Sunday room', seasonId: 'season-1', phase: 'lobby', speed: 1, participantCount: 1, createdAt: 1 },
-  game: { title: 'Hogs at Owls', home: { id: 'h', short: 'HOM', name: 'Hogs', color: '#a34', score: 0 }, away: { id: 'a', short: 'AWY', name: 'Owls', color: '#34a', score: 0 }, quarter: 1, clock: '15:00', situation: 'Kickoff', ballOn: 'HOM 25', fieldX: 25, possession: 'h', driveNumber: 1, driveCount: 10, recentPlays: [], isScripted: true },
-  rules: { salaryCap: 50000, flexSlots: 4, captainMultiplier: 1.5, positionMultipliers: {}, pickFactorCap: 5 }, players,
-  standings: [{ participantId: 'person-1', name: 'Taylor', rank: 1, total: 0, fantasyPoints: 0, predictionPoints: 0, streak: 0, roster: [] }],
-  me: { participantId: 'person-1', name: 'Taylor' }, season: { id: 'season-1', name: 'Demo season', standings: [] },
-  question: { id: 'q1', kind: 'drive', text: 'How does this drive end?', opensAt: 1, locksAt: 99999, remainingMs: 10000, options: [{ id: 'TD', label: 'Touchdown', basePoints: 10 }], pickCounts: {}, status: 'open' },
-};
+import { fixture } from './roomFixture';
 
 beforeEach(() => localStorage.clear());
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
@@ -96,12 +88,13 @@ describe('football rooms', () => {
     vi.stubGlobal('fetch', vi.fn(async () => json({ ...fixture, room: { ...fixture.room, participantCount: 32 }, standings: Array.from({ length: 32 }, (_, i) => ({ ...fixture.standings[0], participantId: `u${i}`, name: `Fan ${i + 1}`, rank: i + 1 })) })));
     showRoom(true);
     expect(await screen.findByText('32 players in the room')).toBeTruthy();
-    expect(screen.getByText('Fan 32')).toBeTruthy();
+    expect(within(screen.getByRole('region', { name: 'Room leaderboard' })).getByText('Fan 32')).toBeTruthy();
     expect(screen.getByRole('region', { name: 'Room leaderboard' }).getAttribute('tabindex')).toBe('0');
     expect(screen.getByRole('link', { name: /Join on your phone/ }).getAttribute('href')).toContain('/room/ABCD');
     const field = screen.getByRole('region', { name: 'Football field' });
     const endzones = field.querySelectorAll('.rm-endzone');
-    expect([...endzones].map((zone) => zone.textContent)).toEqual(['HOM', 'AWY']);
+    // Away end zone on the left, matching the scorebug (away left, home right).
+    expect([...endzones].map((zone) => zone.textContent)).toEqual(['AWY', 'HOM']);
     expect(screen.getByRole('region', { name: 'Prediction details' }).getAttribute('tabindex')).toBe('0');
     expect(screen.getByRole('region', { name: 'Recent football plays' }).getAttribute('tabindex')).toBe('0');
   });
