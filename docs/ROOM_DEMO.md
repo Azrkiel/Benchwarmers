@@ -2,6 +2,8 @@
 
 Benchwarmers now hosts real participants in one room. Each person chooses one captain and four flex athletes under a $50,000 salary cap. Everyone can select the same athletes. The captain costs and scores 1.5x. The shared screen follows a fictional football replay while phones submit predictions and show personal points. No household setup, bots, sports subscription, or cloud AI credentials are needed.
 
+Typography matches the original green Watch Party Fantasy demo: Barlow body text and Big Shoulders Display headings, served locally with their SIL Open Font License files. The current palette and layouts remain in place.
+
 ## Run and invite players
 
 From this checkout:

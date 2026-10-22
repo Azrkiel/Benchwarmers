@@ -9,7 +9,7 @@
 }
 /* Scorebook redesign (tv2, lounge, watch, control, welcome) opts in via useScorebookTheme(). */
 html.theme-scorebook {
-  font-family: 'DM Sans Lounge','Segoe UI',Arial,sans-serif;
+  font-family: var(--lg-sans);
   background: #191a26;
   color: #f3ecdf;
 }
@@ -21,7 +21,7 @@ body { margin: 0; }
 .home-intro { display: grid; grid-template-columns: 1.25fr 1fr; align-items: center; gap: 64px; padding: 64px 0; }
 .home-hero { max-width: 800px; }
 .home-eyebrow { color: #eda77b; font-size: 14px; font-weight: 600; letter-spacing: .1em; }
-.home-hero h1 { margin: 24px 0; font:400 clamp(64px, 7vw, 100px)/.95 'DM Serif Lounge',Georgia,serif; letter-spacing: -.01em; }
+.home-hero h1 { margin: 24px 0; font:600 clamp(64px, 7vw, 100px)/.95 var(--lg-display); letter-spacing: -.01em; }
 .home-hero h1 > span { color: #eda77b; }
 .home-hero p { font-size: 22px; line-height: 1.5; color: #b7b6c5; max-width: 580px; margin: 0; }
 .home-actions { display: flex; gap: 16px; margin: 32px 0 16px; }
@@ -32,23 +32,23 @@ body { margin: 0; }
 .home-scorebook { padding: 32px; background: #242635; border-top: 3px solid #eda77b; }
 .home-scorebook-top { display: flex; justify-content: space-between; gap: 16px; color: #b7b6c5; font-size: 14px; }
 .home-scorebook-top > span:first-child { color: #eda77b; letter-spacing: .08em; }
-.home-scorebook h2 { margin: 24px 0; font:400 44px/1 'DM Serif Lounge',Georgia,serif; }
+.home-scorebook h2 { margin: 24px 0; font:600 44px/1 var(--lg-display); }
 .home-sample-team { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 12px 0; border-bottom: 1px solid #444553; font-size: 24px; }
-.home-sample-team b { font:400 64px/1 'DM Serif Lounge',Georgia,serif; }
+.home-sample-team b { font:600 64px/1 var(--lg-display); }
 .home-sample-clock { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: #b7b6c5; padding: 16px 0 24px; }
 .home-sample-leader { border-top: 1px solid #444553; padding-top: 24px; color: #b7b6c5; font-size: 16px; }
 .home-sample-leader strong { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: #f3ecdf; font-size: 26px; font-weight: 600; }
-.home-sample-leader b { color: #eda77b; font:400 40px/1 'DM Serif Lounge',Georgia,serif; }
-.home-sample-leader b > span { font: 400 16px/1 'DM Sans Lounge','Segoe UI',Arial,sans-serif; }
+.home-sample-leader b { color: #eda77b; font:600 40px/1 var(--lg-display); }
+.home-sample-leader b > span { font: 400 16px/1 var(--lg-sans); }
 .home-previews > header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
-.home-previews h2 { margin: 0; font:400 32px/1.1 'DM Serif Lounge',Georgia,serif; letter-spacing: .01em; }
+.home-previews h2 { margin: 0; font:600 32px/1.1 var(--lg-display); letter-spacing: .01em; }
 .home-previews > header > span { color: #b7b6c5; font-size: 16px; }
 .home-preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .home-preview-grid > a { display: flex; flex-direction: column; text-decoration: none; color: #f3ecdf; border-top: 1px solid #444553; padding: 24px 0; transition: background 140ms; }
 .home-preview-grid > a:hover { background: #242635; }
 .home-step { display: flex; gap: 16px; color: #eda77b; font-size: 16px; font-variant-numeric: tabular-nums; }
 .home-step > span { color: #b7b6c5; }
-.home-preview-grid h3 { font:400 34px/1.1 'DM Serif Lounge',Georgia,serif; letter-spacing: .01em; margin: 24px 0 12px; }
+.home-preview-grid h3 { font:600 34px/1.1 var(--lg-display); letter-spacing: .01em; margin: 24px 0 12px; }
 .home-preview-grid p { font-size: 18px; line-height: 1.5; color: #b7b6c5; margin: 0 0 26px; }
 .home-card-action { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 20px; border-top: 1px solid #444553; font-size: 16px; color: #eda77b; }
 .home-footer { display: flex; justify-content: space-between; gap: 24px; border-top: 1px solid #444553; padding: 24px 0 0; margin-top: 44px; color: #b7b6c5; font-size: 14px; }
