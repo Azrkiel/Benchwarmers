@@ -134,6 +134,16 @@ Correct picks in both games earn points multipliers on top of the streak multipl
 
 The combined multiplier is capped at ×5 (50 points per pick). Full rules: `benchwarmers://rules`, plan.md §10c.
 
+## Pull up a real game
+
+Type a matchup on the home page ("UVA vs FSU 2025") and the server replays that real, finished football game for the crew. Committed demo games and seed data stay fictional; only this runtime importer touches real teams.
+
+How it works: `POST /api/games/import { "query": "UVA vs FSU 2025" }` resolves two teams (abbreviation, school, nickname or a few aliases such as UVA) and a season, or takes an ESPN event id or game URL. It reads the team schedule and picks the most recent completed meeting, fetches the play-by-play summary and rosters, converts it to a replayable `Game` (`server/src/live/convert.ts`), builds about eight drive props from the real drives, and registers it. Scores come from the real score changes, so the replay ends on the real final, including overtime ("OT", "2OT" on the clock). Every import is cached in `server/data/imported-games/` (gitignored) and reloaded at startup, so parties survive restarts and a repeat import needs no network. `GET /api/games` lists committed and imported games; voice users can name an imported game by its title.
+
+Data source: ESPN's public, keyless JSON (site.api.espn.com), college football first, then the NFL.
+
+Limits: finished games only (live in-progress games are not streamed yet); ESPN's endpoints are unofficial and may change or rate-limit; play text is parsed, so a few names ESPN spells differently in the box score and the play text get no fantasy credit (the play still shows); props are drive questions only.
+
 ## TV view
 
 `/tv/:code` is a big-screen display of a party. It shows the draft, live questions and results, rosters and final standings by polling the REST state; `/tv/latest` follows the newest party. Its look is being redesigned separately, so see the running app rather than screenshots.

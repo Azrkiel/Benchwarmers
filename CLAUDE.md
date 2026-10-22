@@ -23,7 +23,7 @@ Orchestration + phase status: `docs/ORCHESTRATION.md`. Resume point: `docs/HANDO
 
 ## Rules
 - TypeScript strict; vitest; **cross-platform npm scripts** (Windows PowerShell; `cross-env`, no bash-only syntax).
-- No real money / wagers / "bet" language, no real teams or leagues, no Amazon/Alexa logos in our UI.
+- No real money / wagers / "bet" language, no Amazon/Alexa logos in our UI. Committed demo and seed data stays fictional (no real teams or leagues); real games come only from the runtime importer (`server/src/live`, `POST /api/games/import`, owner request 2026-10-22), cached under gitignored `server/data/imported-games/`. Never commit real ESPN payloads.
 - MCP tools must answer < 500 ms and never call Bedrock synchronously (AI runs in the background worker).
 - `AI_MODE=fallback` and `ASSISTANT_MODE=offline` must always work with zero AWS credentials.
 - Root `.env` loads at server startup; shell variables win. Gemini keys stay server-side. Setup: `docs/GEMINI.md`.
