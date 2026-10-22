@@ -224,3 +224,11 @@ Template:
 - Severity: Major for opening the supplied preview; no rendering fault was found.
 - Fix: set server.host to 127.0.0.1 in web/vite.config.ts. The existing Vite process restarted and bound to the documented address.
 - Verification: IPv4 request returned 200; Chromium rendered the scorebook above playing video, opened panels, and entered combined fullscreen at 1080p/720p with no page errors.
+
+### [2026-10-22] COEP for voice ID blocked the YouTube embed on /watch
+- Tool/SDK + version: Vite 8.3.4 dev server `server.headers`; Chromium 145 (Playwright build).
+- Task attempted: run Codex's `/watch` YouTube overlay preview on the merged branch, where Vite sends COOP/COEP for voice ID.
+- Expected vs actual: expected the YouTube embed to load; got `net::ERR_BLOCKED_BY_RESPONSE` (sad-page icon). `Cross-Origin-Embedder-Policy: credentialless` requires cross-origin iframes to opt in, and YouTube does not. React 19 did not apply a `credentialless` attribute on the iframe (`iframe.credentialless === false`).
+- Severity: Major for /watch; voice ID unaffected.
+- Workaround: replaced the static `server.headers` with a small Vite plugin middleware that sets COOP/COEP on every path except `/watch*`. `/device` and `/voice-lab` still report `crossOriginIsolated === true`.
+- Suggestion: Vite could accept per-path `server.headers`; route-scoped isolation is a common need.
