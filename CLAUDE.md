@@ -11,6 +11,7 @@ Orchestration + phase status: `docs/ORCHESTRATION.md`. Resume point: `docs/HANDO
   - `src/ai/` AI content (fallback JSON + Gemini + Bedrock). `src/assistant/` device assistant loop.
   - Tests: `server/test/**/*.test.ts` (vitest). `npm test -w server`, `npm run typecheck -w server`.
 - `web/` Vite + React 19 + react-router 7. Routes: `/tv/:code` (original TV, default), `/tv2/:code` (scorebook redesign, `web/src/tv-broadcast`), `/lounge/:code`, `/watch/:code`, `/control/:code`, `/welcome`, `/device/:household`, `/voice-lab`. `extension/` = YouTube overlay (MV3).
+  - Look: Lounge palette/type/logo app-wide — tokens `web/src/brand/brand.css` (`--lg-*`), logo `web/src/brand/Brand.tsx`. Use them for new UI.
   - Import contract types via `@shared/types`. Dev proxy: `/api`, `/mcp` → `http://localhost:3001`.
 - `docs/` FRICTION_LOG, PRODUCT_FEEDBACK, AWS, DEMO_SCRIPT, SUBMISSION, ORCHESTRATION, HANDOFF.
 
@@ -22,7 +23,7 @@ Orchestration + phase status: `docs/ORCHESTRATION.md`. Resume point: `docs/HANDO
 
 ## Rules
 - TypeScript strict; vitest; **cross-platform npm scripts** (Windows PowerShell; `cross-env`, no bash-only syntax).
-- No real money / wagers / "bet" language, no real teams or leagues, no Amazon/Alexa logos in our UI.
+- No real money / wagers / "bet" language, no Amazon/Alexa logos in our UI. Committed demo and seed data stays fictional (no real teams or leagues); real games come only from the runtime importer (`server/src/live`, `POST /api/games/import`, owner request 2026-10-22), cached under gitignored `server/data/imported-games/`. Never commit real ESPN payloads.
 - MCP tools must answer < 500 ms and never call Bedrock synchronously (AI runs in the background worker).
 - `AI_MODE=fallback` and `ASSISTANT_MODE=offline` must always work with zero AWS credentials.
 - Root `.env` loads at server startup; shell variables win. Gemini keys stay server-side. Setup: `docs/GEMINI.md`.

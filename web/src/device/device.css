@@ -1,18 +1,18 @@
-/* Simulated smart display. Palette loosely matches the TV view. */
+/* Simulated smart display, in the Lounge palette (../brand/brand.css). */
 :root {
-  --dv-bg: #070a12;
-  --dv-panel: #0e1424;
-  --dv-panel-2: #141c33;
-  --dv-line: #22304f;
-  --dv-text: #f4f7ff;
-  --dv-muted: #a3adc4;
-  --dv-accent: #ffb938;
-  --dv-good: #3ddc97;
-  --dv-bad: #ff5d6c;
-  --dv-font: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --dv-bg: var(--lg-bg);
+  --dv-panel: var(--lg-surface);
+  --dv-panel-2: var(--lg-card);
+  --dv-line: var(--lg-line);
+  --dv-text: var(--lg-text);
+  --dv-muted: var(--lg-muted);
+  --dv-accent: var(--lg-orange);
+  --dv-good: var(--lg-good);
+  --dv-bad: var(--lg-bad);
+  --dv-font: var(--lg-sans);
 }
 
-body {
+body:has(.device-stage) {
   background: var(--dv-bg);
 }
 
@@ -24,7 +24,7 @@ body {
   align-items: stretch;
   justify-content: center;
   padding: 16px;
-  background: radial-gradient(ellipse at top, #0c1428 0%, var(--dv-bg) 60%);
+  background: var(--dv-bg);
   color: var(--dv-text);
   font-family: var(--dv-font);
 }
@@ -45,7 +45,7 @@ body {
   border-radius: 28px;
   border: 1px solid var(--dv-line);
   background: var(--dv-panel);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(243, 236, 223, 0.04);
   overflow: hidden;
 }
 
@@ -72,7 +72,7 @@ body {
 .ds-household {
   margin: 0;
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.01em;
 }
 
@@ -92,12 +92,12 @@ body {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: #1f2a47;
+  background: #3b3543;
   color: var(--dv-muted);
 }
 
 .mode-badge.mode-bedrock {
-  background: rgba(61, 220, 151, 0.15);
+  background: rgba(169, 211, 180, 0.15);
   color: var(--dv-good);
 }
 
@@ -186,8 +186,8 @@ body {
 
 .ds-turn-assistant {
   align-self: flex-start;
-  background: #111a30;
-  border: 1px solid #1e2b4a;
+  background: var(--lg-deep);
+  border: 1px solid var(--lg-line);
 }
 
 .ds-turn-interim {
@@ -200,7 +200,7 @@ body {
 .ds-turn-error {
   border-color: var(--dv-bad);
   color: var(--dv-bad);
-  background: rgba(255, 93, 108, 0.08);
+  background: rgba(232, 160, 160, 0.08);
 }
 
 .ds-speaker {
@@ -249,7 +249,7 @@ body {
   height: 96px;
   border-radius: 50%;
   border: 2px solid var(--dv-accent);
-  background: radial-gradient(circle at 35% 30%, #2a3760, #121a30);
+  background: radial-gradient(circle at 35% 30%, #3b3543, #222330);
   color: var(--dv-accent);
   font-size: 1.6rem;
   cursor: pointer;
@@ -272,7 +272,7 @@ body {
 }
 
 .ds-mic.is-listening {
-  background: radial-gradient(circle at 35% 30%, #3d2f10, #1a1408);
+  background: radial-gradient(circle at 35% 30%, #5a3d2e, #2b2026);
 }
 
 .ds-mic.is-listening .ds-mic-ring {
@@ -318,7 +318,7 @@ body {
 }
 
 .ds-input::placeholder {
-  color: #5d6884;
+  color: #8a8999;
 }
 
 .ds-send {
@@ -327,9 +327,9 @@ body {
   border-radius: 14px;
   border: 0;
   background: var(--dv-accent);
-  color: #1a1204;
+  color: var(--lg-ink);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1.05rem;
   cursor: pointer;
 }
@@ -364,7 +364,7 @@ body {
 
 .device-stage .sp-chip-on {
   border-color: var(--dv-accent);
-  background: #2b2410;
+  background: #3d3140;
 }
 
 /* Widget + fallback */
@@ -578,3 +578,9 @@ body {
     animation: none;
   }
 }
+
+/* Lounge type: serif display heads. */
+.ds-household { font-family: var(--lg-serif); font-weight: 400; letter-spacing: -0.02em; }
+.ds-head .bw-brand { font-size: 22px; }
+.ds-head .bw-brand { padding-right: 18px; margin-right: 4px; border-right: 1px solid var(--dv-line); }
+.party-chip { font-family: var(--lg-sans); letter-spacing: 0.12em; }

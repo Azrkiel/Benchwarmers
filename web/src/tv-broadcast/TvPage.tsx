@@ -13,6 +13,7 @@ import { useKiosk } from './kiosk';
 import type { TvMode } from './modes';
 import { ViewNav, type ViewChoice } from './ViewNav';
 import './tv.css';
+import { BrandLockup } from '../brand/Brand';
 
 const FORCED: TvMode[] = ['draft', 'live', 'rosters', 'final', 'standings', 'picks'];
 
@@ -75,14 +76,14 @@ export function TvPage() {
     <Stage overlay={overlay}>
       {!state ? (
         <div className="tv-connecting" role="status">
-          <div className="tv-brand">Benchwarmers</div>
+          <BrandLockup size={96} />
           <div className="tv-connecting-text">Connecting to party {code.toUpperCase()}…</div>
           {error ? <><div className="tv-connecting-err">{error}</div><div className="tv-sub">Trying again automatically. Check the party code and connection.</div></> : null}
         </div>
       ) : (
         <>
           {showControls ? <header className="tv-header">
-            <span className="tv-brand-sm"><span className="tv-brand-mark" aria-hidden="true">bw</span>Benchwarmers</span>
+            <BrandLockup size={34} />
             <ViewNav views={views} mode={mode} manual={manualMode !== undefined} contentRef={contentRef}
               onSelect={(next) => { returnFocusRef.current = undefined; setManualMode((current) => next === 'live' || current === next ? undefined : next); }}
               onClose={() => setManualMode(undefined)} />

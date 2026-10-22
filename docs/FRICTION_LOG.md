@@ -232,3 +232,26 @@ Template:
 - Severity: Major for /watch; voice ID unaffected.
 - Workaround: replaced the static `server.headers` with a small Vite plugin middleware that sets COOP/COEP on every path except `/watch*`. `/device` and `/voice-lab` still report `crossOriginIsolated === true`.
 - Suggestion: Vite could accept per-path `server.headers`; route-scoped isolation is a common need.
+
+### [2026-10-22] tsc.exe vanished from node_modules mid-session
+- Tool/SDK + version: TypeScript 7.0.2 native (`@typescript/typescript-win32-x64`), Windows 11.
+- Task attempted: `npx tsc --noEmit` in the Benchwarmers-integrate worktree.
+- Expected vs actual: expected a typecheck; got `Error: Executable not found: ...typescript-win32-x64\lib\tsc.exe`. It had worked earlier in the same session; the package folder was left without its binary (likely antivirus quarantine of the unsigned exe).
+- Severity: Major for typecheck until fixed; no code impact.
+- Workaround: copied `tsc.exe` (same 7.0.2) from the main checkout's node_modules.
+- Suggestion: if it recurs, exclude node_modules/@typescript from Defender scanning or reinstall the package.
+
+### [2026-10-22] Bash tool mangles heredocs with apostrophes and backslashes
+- Tool/SDK + version: Bash tool (Git Bash) with quoted heredocs and sed.
+- Task attempted: write TypeScript containing regexes and apostrophes through `cat <<'EOF'` and `sed -i`.
+- Expected vs actual: expected literal content; got "unexpected EOF while looking for matching '" on heredocs containing an apostrophe, and sed turning `\b` / `\s` into plain `b` / `s` (a regex silently became /bPENALTYs+(.+)$/). A sed meant to unescape backticks in a doc also prefixed every line with a backtick.
+- Severity: Minor, but the regex corruption was silent.
+- Workaround: create files with the Write tool, fix regex lines with the Edit tool, restore docs with git checkout; used a small node patch helper for multi-line edits to CRLF files.
+- Suggestion: do not pass regex-bearing code through shell quoting on this machine.
+
+### [2026-10-22] ESPN data quirks found while importing real games
+- Tool: ESPN public site API (unofficial), college football summary endpoint.
+- Task attempted: replay 2025 UVA vs FSU from drives.previous[].plays[].
+- Expected vs actual: expected clean per-play scores and clocks. Got: Timeout plays carry a stale score from before the latest score (7-0 after 14-0), so deltas must skip them; drive start.yardLine is an absolute field coordinate, not yards to the end zone (use start.text such as "FSU 38" with the team abbreviation); overtime plays all report clock 0:00; a TD play's score already includes the extra point or 2-pt try (one delta of 7 or 8); box-score names differ from play text ("Cameron Ross" vs "Cam Ross", "Thomas" vs "Tommy"), so matching falls back to last name; the box score has a "TEAM" rushing row; the roster endpoint returns 0 athletes with ?season=.
+- Severity: Minor, all handled in server/src/live/convert.ts.
+- Suggestion: treat ESPN as unofficial; the synthetic fixture test (server/test/fixtures/espn-synthetic.json) is the contract.

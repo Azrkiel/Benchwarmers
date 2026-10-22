@@ -4,6 +4,8 @@ import { DevicePage } from './device/DevicePage';
 import { VoiceLabPage } from './voiceid/VoiceLabPage';
 import { liveFixture } from './lib/fixtures';
 import { useScorebookTheme } from './lib/theme';
+import { BrandLockup } from './brand/Brand';
+import { HomePage } from './home/HomePage';
 
 // The two TV designs share class names, so each loads in its own route chunk.
 const TvPage = lazy(() => import('./tv/TvPage').then((m) => ({ default: m.TvPage })));
@@ -11,37 +13,15 @@ const BroadcastTvPage = lazy(() => import('./tv-broadcast/TvPage').then((m) => (
 const LoungePage = lazy(() => import('./lounge/LoungePage').then((m) => ({ default: m.LoungePage })));
 const WatchPage = lazy(() => import('./watch/WatchPage').then((m) => ({ default: m.WatchPage })));
 const ControlPage = lazy(() => import('./control/ControlPage').then((m) => ({ default: m.ControlPage })));
-
-function Home() {
-  // Plain <a> for the TV-style routes: a full load keeps the two TV stylesheets apart.
-  return (
-    <main className="home">
-      <h1>Benchwarmers</h1>
-      <p>One-night fantasy draft + live pick'em for watching games with friends.</p>
-      <ul>
-        <li><Link to="/device/garcias">Austin device (The Garcias)</Link></li>
-        <li><Link to="/device/sams-place">Seattle device (Sam's Place)</Link></li>
-        <li><a href="/tv/DEMO">TV view (party DEMO)</a></li>
-        <li><Link to="/voice-lab">Voice ID lab</Link></li>
-      </ul>
-      <h2>Scorebook redesign</h2>
-      <ul>
-        <li><a href="/welcome">Welcome page</a></li>
-        <li><a href="/tv2/DEMO">TV view, scorebook version (party DEMO)</a></li>
-        <li><a href="/lounge/DEMO">Lounge (party DEMO)</a></li>
-        <li><a href="/watch/DEMO">YouTube overlay preview (party DEMO)</a></li>
-        <li><a href="/control/latest">Overlay control page (drives the YouTube extension)</a></li>
-      </ul>
-    </main>
-  );
-}
+const RoomPage = lazy(() => import('./room/RoomPage').then((m) => ({ default: m.RoomPage })));
+const RoomTvPage = lazy(() => import('./room/RoomTvPage').then((m) => ({ default: m.RoomTvPage })));
 
 function Welcome() {
   useScorebookTheme();
   const leader = liveFixture.standings.find((row) => row.rank === 1);
   return (
     <main className="home home-welcome">
-      <header className="home-header"><span className="home-brand"><span aria-hidden="true">bw</span>Benchwarmers</span><span className="home-tag">Your crew. Your game night.</span></header>
+      <header className="home-header"><BrandLockup size={32} /><span className="home-tag">Your crew. Your game night.</span></header>
       <div className="home-intro"><section className="home-hero">
         <span className="home-eyebrow">Good company. Friendly competition.</span>
         <h1>Same game.<br /><span>Your rivalry.</span></h1>
@@ -80,7 +60,9 @@ export function App() {
     <BrowserRouter>
       <Suspense fallback={null}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/room/:code" element={<RoomPage />} />
+          <Route path="/room/:code/tv" element={<RoomTvPage />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/tv/:code" element={<TvPage />} />
           <Route path="/tv2/:code" element={<Scorebook><BroadcastTvPage /></Scorebook>} />

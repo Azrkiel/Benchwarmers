@@ -1,17 +1,18 @@
 /* Voice ID UI. Every selector sits under .vid-root / .vid-* so nothing leaks into other pages. */
 
 .vid-root {
-  --vid-bg: #0b0f17;
-  --vid-panel: #141b28;
-  --vid-line: #2a3750;
-  --vid-text: #f2f4f8;
-  --vid-muted: #aab5c9;
-  --vid-accent: #7fb6ff;
-  --vid-ok: #7fe0a3;
-  --vid-warn: #ffcf70;
-  --vid-bad: #ff9b9b;
-  --vid-on-accent: #0b0f17;
+  --vid-bg: var(--lg-bg);
+  --vid-panel: var(--lg-surface);
+  --vid-line: var(--lg-line);
+  --vid-text: var(--lg-text);
+  --vid-muted: var(--lg-muted);
+  --vid-accent: var(--lg-orange);
+  --vid-ok: var(--lg-good);
+  --vid-warn: var(--lg-tan);
+  --vid-bad: var(--lg-bad);
+  --vid-on-accent: var(--lg-ink);
   color: var(--vid-text);
+  font-family: var(--lg-sans);
 }
 
 .vid-root *,
@@ -82,6 +83,7 @@
 
 .vid-root .vid-panel {
   color: var(--vid-text);
+  font-family: var(--lg-sans);
 }
 
 .vid-grid {
@@ -106,7 +108,7 @@
   border-radius: 50%;
   background: var(--vid-accent);
   color: var(--vid-on-accent);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1.2rem;
 }
 
@@ -278,7 +280,7 @@
 
 .vid-big {
   font-size: 2.6rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.1;
   margin-bottom: 6px !important;
 }
@@ -351,7 +353,7 @@
 
 .vid-slider-head output {
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .vid-root input[type='range'] {
@@ -389,3 +391,7 @@
     text-align: left;
   }
 }
+
+/* Lounge type: serif display heads, brand lockup. */
+.vid-head h1, .vid-root h2 { font-family: var(--lg-serif); font-weight: 400; letter-spacing: -0.02em; }
+.vid-head .bw-brand { font-size: 26px; margin-bottom: 18px; }

@@ -1,5 +1,11 @@
 # Benchwarmers
 
+## Primary demo: one big football room
+
+Run `npm run demo`, then open **http://localhost:3001**. Create a football room, invite real players from their phones using the printed LAN address and room code, and open the shared TV view. Everyone builds a shared-player lineup: one captain plus four flex athletes under $50,000. The fictional Watch Party Fantasy script includes all 25 players, linemen and specialists, mixed predictions, position weights, and saved room/season standings. Final score: 27-24. No sports feed or cloud credentials required.
+
+Full instructions, player statistics, scoring, phone access, voice commands, and persistence: **[Football room demo](docs/ROOM_DEMO.md)**. The household-based implementation below remains available for existing parties; the primary demo now uses `/room/:code` and `/room/:code/tv`.
+
 A one-night fantasy draft plus live pick'em for watching sports with friends, played by voice. It is built as an Alexa+ add-on for a hackathon (Alexa+ track, AWS Builder mini challenge).
 
 Households in different cities join one watch party. Each person drafts three players, then answers short live questions ("Who scores first?") as a simulated game plays out. Points feed a per-night leaderboard and a season table. It is free to play: no real money, no wagers, no real teams or leagues (the demo game is Harbor Hawks vs. Summit Foxes).
@@ -57,29 +63,31 @@ npm ci
 npm run demo
 ```
 
-`npm run demo` builds the MCP widget, then starts the server (game speed 4x) and the Vite web app together. Ctrl+C stops both.
+`npm run demo` builds the MCP widget and web interface, then serves the app and API together on port 3001. Ctrl+C stops the server. Room replay speed defaults to 1x; the host can select 1-4x. `npm run dev` still starts Vite and the server separately for development.
 
 | URL | What |
 |---|---|
-| http://localhost:5173/tv/DEMO | TV view for the seeded `DEMO` party |
-| http://localhost:5173/device/garcias | Device simulator, The Garcias (Maya, Leo) |
-| http://localhost:5173/device/sams-place | Device simulator, Sam's Place (Sam, Priya) |
-| http://localhost:5173/voice-lab | Voice ID lab |
+| http://localhost:3001/ | Create or join a football room |
+| http://localhost:3001/room/CODE/tv | Shared screen for your room code |
+| http://localhost:3001/tv/DEMO | Legacy TV view for the seeded `DEMO` party |
+| http://localhost:3001/device/garcias | Legacy device simulator, The Garcias (Maya, Leo) |
+| http://localhost:3001/device/sams-place | Legacy device simulator, Sam's Place (Sam, Priya) |
+| http://localhost:5173/voice-lab | Voice ID lab in `npm run dev` (Vite isolation headers required) |
 | http://localhost:3001/mcp | MCP endpoint (bearer required) |
 | http://localhost:3001/healthz | Health check |
 
 `npm run demo:reset` restores the `DEMO` party and season stats to seed (`POST /api/parties/DEMO/reset`).
 
-Demo overrides: `PORT` (server, default 3001), `WEB_PORT` (web, default 5173), `SPEED` (game seconds per real second, default 4). Variables already in the shell win over the root `.env`.
+Demo overrides: `PORT` (default 3001), `ROOM_SPEED` (1-4, default 1), `ROOM_DATA_FILE` (default `data/rooms.json` relative to server workspace). `SPEED` controls legacy household replays. Variables already in the shell win over the root `.env`.
 
 Platform notes:
-- Windows: use Git Bash or PowerShell. PowerShell: `$env:SPEED = "8"; npm run demo`. Git Bash: `SPEED=8 npm run demo`. The npm scripts avoid bash-only syntax.
+- Windows: use Git Bash or PowerShell. PowerShell: `$env:ROOM_SPEED = "4"; npm run demo`. Git Bash: `ROOM_SPEED=4 npm run demo`. The npm scripts avoid bash-only syntax.
 - macOS / Linux: the Bash form works as written.
 - `npm run dev` starts server and web in watch mode without building the widget first.
 
 ### Demo mode
 
-The defaults need no network or credentials: `AI_MODE=fallback` uses committed content and `ASSISTANT_MODE=offline` uses a rule-based router that handles the demo utterances. At `SPEED=4` a game finishes in about two minutes. Reset with `npm run demo:reset`, or make a fresh party with `setup_watch_party`.
+The demo defaults need no network or cloud credentials: `AI_MODE=fallback` uses committed content and `ASSISTANT_MODE=offline` uses a rule-based router. Create another football room to play another saved night. `npm run demo:reset` affects only the legacy `DEMO` household party, not football room history.
 
 ## Configuration
 
@@ -91,6 +99,8 @@ Copy `.env.example` to `.env` in the repo root; the server loads it at startup.
 | `SPEED` | `4` | Game seconds per real second |
 | `MCP_TOKEN` | `dev-token-change-me` | Bearer token MCP clients must send |
 | `DATA_FILE` | `data/store.json` | JSON store path (relative to the working directory) |
+| `ROOM_DATA_FILE` | `data/rooms.json` | Separate saved football rooms and seasons |
+| `ROOM_SPEED` | `1` | Initial football replay speed, 1-4 |
 | `AI_MODE` | `fallback` | Content source: `fallback`, `gemini`, or `bedrock` |
 | `AWS_REGION` | `us-east-1` | Region for Bedrock |
 | `BEDROCK_MODEL_ID` | empty | A Haiku-tier Claude inference profile id |
@@ -101,8 +111,7 @@ Copy `.env.example` to `.env` in the repo root; the server loads it at startup.
 | `GEMINI_KEY_COOLDOWN_MS` | `60000` | Shared cooldown after a quota, server or network failure |
 | `GEMINI_TIMEOUT_MS` | `60000` | Overall deadline for one model request, including key failover |
 | `ALLOWED_HOSTS` | unset | Optional comma-separated Host header allowlist for `/mcp` (not in `.env.example`). Unset means no host check. If you set it, include your tunnel hostname. |
-| `WEB_PORT` | `5173` | Web dev server port (read by `npm run demo`) |
-| `BW_API_URL` | `http://localhost:3001` | Where the Vite server proxies `/api`, `/mcp` and `/healthz`; `npm run demo` sets it from `PORT` |
+| `BW_API_URL` | `http://localhost:3001` | Where the Vite development server proxies `/api`, `/mcp` and `/healthz` |
 
 Optional log switches: `AI_LOG=0` and `ASSISTANT_LOG=0` silence AI and assistant logging.
 
@@ -133,6 +142,16 @@ Correct picks in both games earn points multipliers on top of the streak multipl
 | Bold call (football drive questions) | `0.5 / p` of the option picked, clamped to 0.5–2 | up to ×2 |
 
 The combined multiplier is capped at ×5 (50 points per pick). Full rules: `benchwarmers://rules`, plan.md §10c.
+
+## Pull up a real game
+
+Type a matchup on the home page ("UVA vs FSU 2025") and the server replays that real, finished football game for the crew. Committed demo games and seed data stay fictional; only this runtime importer touches real teams.
+
+How it works: `POST /api/games/import { "query": "UVA vs FSU 2025" }` resolves two teams (abbreviation, school, nickname or a few aliases such as UVA) and a season, or takes an ESPN event id or game URL. It reads the team schedule and picks the most recent completed meeting, fetches the play-by-play summary and rosters, converts it to a replayable `Game` (`server/src/live/convert.ts`), builds about eight drive props from the real drives, and registers it. Scores come from the real score changes, so the replay ends on the real final, including overtime ("OT", "2OT" on the clock). Every import is cached in `server/data/imported-games/` (gitignored) and reloaded at startup, so parties survive restarts and a repeat import needs no network. `GET /api/games` lists committed and imported games; voice users can name an imported game by its title.
+
+Data source: ESPN's public, keyless JSON (site.api.espn.com), college football first, then the NFL.
+
+Limits: finished games only (live in-progress games are not streamed yet); ESPN's endpoints are unofficial and may change or rate-limit; play text is parsed, so a few names ESPN spells differently in the box score and the play text get no fantasy credit (the play still shows); props are drive questions only.
 
 ## TV view
 
@@ -169,7 +188,7 @@ Counts come from the last recorded run (`docs/HANDOFF.md`). The server suite was
 - Real Bedrock has never been called; it is tested only with mocks.
 - Voice ID has not been tried with a real microphone or real people.
 - COOP/COEP headers (for threaded WASM) are set only by the Vite dev and preview servers.
-- The TV view is not football-aware yet (it draws a basketball court and shows no drive odds or bonus chips); the widget and device page are.
+- The original `/tv` view and the new `/room/:code/tv` view support football; `/tv2` remains the separate scorebook design.
 
 ## Repository layout
 

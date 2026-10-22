@@ -53,7 +53,7 @@ export function seedState(now: number): StoreState {
       id: 'garcias',
       name: 'The Garcias',
       city: 'Austin',
-      color: '#F2B33D',
+      color: '#EDA77B',
       members: [
         { id: 'maya', name: 'Maya', avatar: '🦊' },
         { id: 'leo', name: 'Leo', avatar: '🐻' },
@@ -63,7 +63,7 @@ export function seedState(now: number): StoreState {
       id: 'sams-place',
       name: "Sam's Place",
       city: 'Seattle',
-      color: '#3DD6B5',
+      color: '#B9B3E3',
       members: [
         { id: 'sam', name: 'Sam', avatar: '🐙' },
         { id: 'priya', name: 'Priya', avatar: '🦉' },

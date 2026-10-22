@@ -6,8 +6,9 @@ import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import { hostHeaderValidation } from '@modelcontextprotocol/express';
 import type { Store } from '../game/store.js';
 import { createServer } from './server.js';
+import type { RoomStore } from '../room/store.js';
 
-export type MountMcpOptions = { store: Store; token?: string; allowedHosts?: string[] };
+export type MountMcpOptions = { store: Store; roomStore?: RoomStore; token?: string; allowedHosts?: string[] };
 
 const DEFAULT_TOKEN = 'dev-token-change-me';
 
@@ -91,7 +92,7 @@ export function mountMcp(app: express.Express, opts: MountMcpOptions): void {
       return;
     }
     try {
-      const server = createServer(store);
+      const server = createServer(store, opts.roomStore);
       const transport = new NodeStreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       res.on('close', () => {
         void transport.close();

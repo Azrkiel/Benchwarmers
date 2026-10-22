@@ -85,6 +85,12 @@ export type Game = {
   durationSec: number;
   /** Number of periods the duration is split into (4 for the demo game). */
   periods: number;
+  /**
+   * Football replays with overtime (runtime-imported real games): game seconds of regulation (4 equal quarters). From there
+   * `periods - 4` overtime periods follow, each an equal slice of the rest of the duration, with no clock ("OT", "2OT").
+   * Absent = `periods` equal periods over the whole duration.
+   */
+  regulationSec?: number;
   scheduledFor?: string;
   events: GameEvent[];
 };
@@ -349,6 +355,8 @@ export type PartyStateResponse = {
     /** Absent = 'basketball'. */
     sport?: Sport;
     durationSec: number;
+    /** Football overtime games: see Game.regulationSec. */
+    regulationSec?: number;
     gameT: number;
     period: number;
     /** e.g. "Q3 4:12" (clock counts down within the period). */

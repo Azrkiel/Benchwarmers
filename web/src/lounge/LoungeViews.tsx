@@ -1,7 +1,7 @@
 import type { PartyStateResponse, PropView } from '@shared/types';
 import { formatCountdown, lockDeadline, secondsLeft } from '../lib/usePartyState';
 import { playerInfo } from '../tv-broadcast/rosters';
-import { BasketballArt, LoungeIcon, MemberFace, Seats, type LoungeView } from './LoungeElements';
+import { BasketballArt, FootballArt, LoungeIcon, MemberFace, Seats, type LoungeView } from './LoungeElements';
 
 export function currentQuestion(state: PartyStateResponse) {
   return state.activeProp ?? state.props.find((p) => p.status === 'locked') ?? state.lastResolvedProp;
@@ -26,9 +26,9 @@ export function Tonight({ state, now, onNavigate, onMember }: { state: PartyStat
   return <>
     <div className="lg-tonight-grid">
       <section className="lg-match">
-        <BasketballArt />
+        {state.game.sport === 'football' ? <FootballArt /> : <BasketballArt />}
         <div className="lg-match-content">
-          <span className="lg-eyebrow">{final ? 'That’s the game' : draft ? 'Before the first whistle' : 'On the court'}</span>
+          <span className="lg-eyebrow">{final ? 'That’s the game' : draft ? 'Before the first whistle' : state.game.sport === 'football' ? 'On the field' : 'On the court'}</span>
           <h1 className={Math.max(state.game.home.name.length, state.game.away.name.length) > 22 ? 'is-long' : ''}><span>{state.game.home.name}</span><em>vs.</em><span>{state.game.away.name}</span></h1>
           <div className="lg-match-score" aria-label={`${state.game.home.name} ${state.game.home.score}, ${state.game.away.name} ${state.game.away.score}`}><b>{state.game.home.score}</b><span>—</span><b>{state.game.away.score}</b><small>{state.game.clock}</small></div>
         </div>

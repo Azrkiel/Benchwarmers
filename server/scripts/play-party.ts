@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { GameError, Store } from '../src/game/store.js';
+import { GAMES, fallbackProps } from '../src/game/games.js';
+import { loadImportedGames } from '../src/live/ingest.js';
 import type { PartyStateResponse, StandingRow } from '../src/shared/types.js';
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bw-play-'));
@@ -11,12 +13,38 @@ const store = new Store({ dataFile: path.join(tmp, 'store.json'), now: () => clo
 const CREW = 'sunday-crew';
 const argIdx = process.argv.indexOf('--game');
 const GAME_ID = argIdx >= 0 && process.argv[argIdx + 1] ? process.argv[argIdx + 1]! : 'harbor-vs-summit';
-const FOOTBALL = GAME_ID === 'riverton-vs-ironwood';
+// Runtime-imported real games (espn-<id>) come from the cache written by POST /api/games/import.
+const IMPORTED = GAME_ID.startsWith('espn-');
+if (IMPORTED && loadImportedGames() === 0) throw new Error('no imported games cached; import one first (POST /api/games/import)');
+const FOOTBALL = GAME_ID === 'riverton-vs-ironwood' || IMPORTED;
 // Draft order per game: [maya, sam, priya, leo, replacement for sam, maya, priya, priya, sam].
-const DRAFT = FOOTBALL
+// Imported games: alternate home/away players of the first positions so nothing collides.
+const importedDraft = (): string[] => {
+  const g = GAMES[GAME_ID];
+  if (!g) throw new Error(`unknown game ${GAME_ID}`);
+  const order = ['QB', 'WR', 'RB', 'K', 'TE'];
+  const rank = (p: { position: string }) => order.indexOf(p.position);
+  const h = [...g.home.roster].sort((a, b) => rank(a) - rank(b));
+  const a = [...g.away.roster].sort((x, y) => rank(x) - rank(y));
+  return Array.from({ length: 9 }, (_, i) => (i % 2 === 0 ? h : a)[Math.floor(i / 2)]!.id);
+};
+const DRAFT = IMPORTED
+  ? importedDraft()
+  : FOOTBALL
   ? ['riv-qb-12', 'irn-wr-80', 'irn-qb-9', 'riv-rb-28', 'riv-wr-81', 'irn-wr-84', 'riv-te-88', 'irn-te-87', 'riv-k-3']
   : ['har-c-34', 'har-sg-7', 'sum-pg-2', 'sum-c-50', 'har-pg-1', 'sum-sf-14', 'har-sf-11', 'sum-pf-32', 'sum-sg-10'];
 const EARLY_PROP = FOOTBALL ? 'ff-1' : 'fb-1';
+// Imported games: scripted yes/no choices per prop, varied per member.
+const importedChoices = (): Record<string, Record<string, string>> => {
+  const out: Record<string, Record<string, string>> = { maya: {}, sam: {}, priya: {}, leo: {} };
+  fallbackProps(GAME_ID).forEach((p, i) => {
+    out.maya![p.id] = i % 3 === 1 ? 'no' : 'yes';
+    out.sam![p.id] = i % 2 === 0 ? 'no' : 'yes';
+    out.priya![p.id] = i % 2 === 0 ? 'yes' : 'no';
+    out.leo![p.id] = i % 4 === 3 ? 'yes' : 'no';
+  });
+  return out;
+};
 const MEMBERS = ['maya', 'sam', 'priya', 'leo'];
 
 let exitCode = 0;
@@ -38,7 +66,7 @@ const BASKETBALL_CHOICES: Record<string, Record<string, string>> = {
   priya: { 'fb-1': 'home', 'fb-2': 'other', 'fb-3': 'over', 'fb-4': 'none', 'fb-5': 'ft', 'fb-6': 'over', 'fb-7': 'none', 'fb-8': 'over' },
   leo: { 'fb-1': 'away', 'fb-2': 'three', 'fb-3': 'under', 'fb-4': 'home', 'fb-5': 'three', 'fb-6': 'under', 'fb-7': 'home', 'fb-8': 'under' },
 };
-const CHOICES = FOOTBALL ? FOOTBALL_CHOICES : BASKETBALL_CHOICES;
+const CHOICES = IMPORTED ? importedChoices() : FOOTBALL ? FOOTBALL_CHOICES : BASKETBALL_CHOICES;
 
 function describe(err: unknown): string {
   return err instanceof GameError ? `${err.code}: ${err.message}` : String(err);
