@@ -52,7 +52,7 @@ export function RoomTvPage() {
   }
 
   if (!view) return (
-    <main className="rm rm-loading">
+    <main className="rm rm-loading rm-tv-loading">
       <BrandLockup size={44} />
       <h1>{error ? 'Room unavailable' : 'Opening the big screen...'}</h1>
       {error ? <p role="alert">{error}</p> : <p role="status">Connecting to room {code}</p>}
@@ -95,7 +95,7 @@ export function RoomTvPage() {
         </aside>
       </div>
       <footer className="rm-tv-footer">
-        <span>Scripted football | Shared players | $50,000 cap</span>
+        <span>Scripted football</span>
         <div className="rm-tv-tools">
           <RoomRules view={view} tv />
           {credentials.hostToken && (
@@ -108,7 +108,7 @@ export function RoomTvPage() {
               </div>
             </details>
           )}
-          <Link to={joinPath}>Personal room / Back</Link>
+          <Link to={joinPath}>Back to room</Link>
         </div>
         <span>Arrows move | Enter selects</span>
       </footer>

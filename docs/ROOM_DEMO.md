@@ -2,7 +2,17 @@
 
 Benchwarmers now hosts real participants in one room. Each person chooses one captain and four flex athletes under a $50,000 salary cap. Everyone can select the same athletes. The captain costs and scores 1.5x. The shared screen follows a fictional football replay while phones submit predictions and show personal points. No household setup, bots, sports subscription, or cloud AI credentials are needed.
 
-Typography matches the original green Watch Party Fantasy demo: Barlow body text and Big Shoulders Display headings, served locally with their SIL Open Font License files. The current palette and layouts remain in place.
+Typography uses the original green Watch Party Fantasy demo's locally served Barlow and Big Shoulders Display fonts, with their SIL Open Font License files. Personal screens retain the display headings. The shared TV screen uses wider Barlow headings and numbers for distance reading; only the logo keeps the condensed display face.
+
+## Shared TV layout
+
+The couch view prioritizes the football score, current prediction, and room standings. It preserves the lounge colors: background `#191a26`, surfaces `#242635` / `#222330`, primary text `#f3ecdf`, secondary text `#b7b6c5`, and orange `#eda77b` for emphasis. Wider type, open letter spacing, and larger gaps separate each group.
+
+The web layout uses a 1920x1080 CSS-pixel design canvas, scaled uniformly at 1280x720 and larger 16:9 viewports. These are project CSS defaults, not Android dp/sp specifications. At 1080p, headings are 36px with 1.3 line height; prediction labels are 28px; participant names are 32px; points are 40px; supporting text is 22-24px. A 5% screen inset leaves room for focus outlines. Prediction choices have 16px gaps; leaderboard rows have 24px vertical padding. The scoreboard and compact field sit beside each other, leaving room for all four current choices without reducing their type. Historical explanations and older plays remain in focusable scroll regions.
+
+The join address receives initial focus. Arrows traverse the join link, prediction region, recent plays, standings, and footer tools. Up/Down scrolls a focused region before leaving it at an edge. Rules and host controls open from the footer; Back closes the open panel and restores its summary before navigating back to the personal room. The high-contrast focus outline is separate from persistent selection. There is no automatic focus movement or decorative animation.
+
+Rendered checks cover populated and pregame rooms, the unavailable-room state, 1080p and 720p, remote scrolling through all 32 participants, and Back dismissal. Physical TV readability at roughly 10 feet, off-axis viewing, and a hardware remote remain untested.
 
 ## Run and invite players
 
