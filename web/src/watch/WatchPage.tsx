@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import './watch.css';
+import { BrandLockup } from '../brand/Brand';
 
 const DEMO_VIDEO = 'lsZDzZbO_aY';
 const PANELS = ['live', 'picks', 'standings', 'rosters', 'draft'] as const;
@@ -36,7 +37,7 @@ export function WatchPage() {
   const overlayUrl = `/tv2/${encodeURIComponent(code)}?${overlayParams}`;
   return (
     <main className="watch-page">
-      <header className="watch-header"><Link to="/">Benchwarmers</Link><span>Streaming overlay / preview</span><Link to={`/lounge/${encodeURIComponent(code)}${fixture ? `?fixture=${encodeURIComponent(fixture)}` : ''}`}>Lounge ↗</Link></header>
+      <header className="watch-header"><Link to="/" aria-label="Benchwarmers home"><BrandLockup size={26} /></Link><span>Streaming overlay / preview</span><Link to={`/lounge/${encodeURIComponent(code)}${fixture ? `?fixture=${encodeURIComponent(fixture)}` : ''}`}>Lounge ↗</Link></header>
       <div className="watch-player" ref={player} onKeyDown={(event) => {
         if (event.key === 'Escape' || event.key === 'BrowserBack') { setMode('live'); }
         if (!['ArrowLeft', 'ArrowRight'].includes(event.key) || !(event.target instanceof HTMLButtonElement)) return;

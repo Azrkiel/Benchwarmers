@@ -18,6 +18,7 @@ import { useSpeechOutput } from './useSpeechOutput';
 import type { RecognizerFactory, SynthLike } from './speech';
 import { WidgetHost, type BridgeFactory, type WidgetStatus } from './WidgetHost';
 import './device.css';
+import { BrandLockup } from '../brand/Brand';
 
 const UNSUPPORTED = "Voice input isn't supported in this browser. Type instead.";
 
@@ -106,6 +107,7 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
       <div className="device-bezel" data-testid="device-bezel">
         <header className="ds-head">
           <div className="ds-head-left">
+            <BrandLockup size={22} />
             <h1 className="ds-household" data-testid="household-name">
               {householdName(household, state)}
             </h1>

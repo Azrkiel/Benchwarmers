@@ -12,6 +12,7 @@ import { FinalView } from './FinalView';
 import { useKiosk } from './kiosk';
 import { useTvMode, type TvMode } from './modes';
 import './tv.css';
+import { BrandLockup } from '../brand/Brand';
 
 const FORCED: TvMode[] = ['draft', 'live', 'rosters', 'final'];
 
@@ -49,14 +50,14 @@ export function TvPage() {
     <Stage>
       {!state ? (
         <div className="tv-connecting">
-          <div className="tv-brand">Benchwarmers</div>
+          <BrandLockup size={96} />
           <div className="tv-connecting-text">Connecting to party {code.toUpperCase()}…</div>
           {error ? <div className="tv-connecting-err">{error}</div> : null}
         </div>
       ) : (
         <>
           <div className="tv-header">
-            <span className="tv-brand-sm">Benchwarmers</span>
+            <BrandLockup size={30} />
             <span>Party {state.party.code}</span>
             <span className="tv-muted">{state.party.crewName}</span>
           </div>

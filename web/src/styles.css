@@ -1,62 +1,58 @@
 @import './fonts.css';
+@import './brand/brand.css';
 
 :root {
   color-scheme: dark;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  background: #0b0f17;
-  color: #f2f4f8;
+  font-family: var(--lg-sans);
+  background: var(--lg-bg);
+  color: var(--lg-text);
 }
 /* Scorebook redesign (tv2, lounge, watch, control, welcome) opts in via useScorebookTheme(). */
 html.theme-scorebook {
-  font-family: 'Barlow', 'Segoe UI', Arial, sans-serif;
-  background: #111f1b;
-  color: #f0eee4;
+  font-family: 'DM Sans Lounge','Segoe UI',Arial,sans-serif;
+  background: #191a26;
+  color: #f3ecdf;
 }
 body { margin: 0; }
-.home { max-width: 640px; margin: 48px auto; padding: 0 16px; }
-.home a { color: #7fb6ff; }
-.home h2 { font-size: 18px; margin-top: 28px; }
-.home-welcome a { color: #d6ee93; }
+.home-welcome a { color: #eda77b; }
 .home-welcome { max-width: 1360px; margin: 0 auto; padding: 40px 64px 24px; }
-.home-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #3b5548; padding-bottom: 28px; }
-.home-brand { display: flex; align-items: center; gap: 12px; font: 600 30px/1 'Barlow Condensed', 'Arial Narrow', sans-serif; letter-spacing: .02em; text-transform: uppercase; }
-.home-brand > span { display: inline-grid; place-items: center; width: 42px; height: 42px; color: #111f1b; background: #d6ee93; font: 600 italic 25px/1 'Barlow', sans-serif; text-transform: lowercase; letter-spacing: -.09em; padding-right: 3px; box-sizing: border-box; }
-.home-tag { color: #b5c3b7; font-size: 17px; }
+.home-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #444553; padding-bottom: 28px; }
+.home-tag { color: #b7b6c5; font-size: 17px; }
 .home-intro { display: grid; grid-template-columns: 1.25fr 1fr; align-items: center; gap: 64px; padding: 64px 0; }
 .home-hero { max-width: 800px; }
-.home-eyebrow { color: #d6ee93; font-size: 14px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
-.home-hero h1 { margin: 24px 0; font: 600 clamp(64px, 7vw, 100px)/.95 'Barlow Condensed', 'Arial Narrow', sans-serif; letter-spacing: -.01em; text-transform: uppercase; }
-.home-hero h1 > span { color: #d6ee93; }
-.home-hero p { font-size: 22px; line-height: 1.5; color: #b5c3b7; max-width: 580px; margin: 0; }
+.home-eyebrow { color: #eda77b; font-size: 14px; font-weight: 600; letter-spacing: .1em; }
+.home-hero h1 { margin: 24px 0; font:400 clamp(64px, 7vw, 100px)/.95 'DM Serif Lounge',Georgia,serif; letter-spacing: -.01em; }
+.home-hero h1 > span { color: #eda77b; }
+.home-hero p { font-size: 22px; line-height: 1.5; color: #b7b6c5; max-width: 580px; margin: 0; }
 .home-actions { display: flex; gap: 16px; margin: 32px 0 16px; }
 .home-actions a { display: flex; align-items: center; gap: 24px; padding: 16px 20px; border-radius: 3px; font-weight: 600; font-size: 18px; text-decoration: none; }
-.home-actions a.home-primary { background: #d6ee93; color: #111f1b; }
-.home-actions a.home-secondary { border: 1px solid #718776; color: #f0eee4; }
-.home-helper { color: #b5c3b7; font-size: 14px; }
-.home-scorebook { padding: 32px; background: #182a24; border-top: 3px solid #d6ee93; }
-.home-scorebook-top { display: flex; justify-content: space-between; gap: 16px; color: #b5c3b7; font-size: 14px; }
-.home-scorebook-top > span:first-child { color: #d6ee93; text-transform: uppercase; letter-spacing: .08em; }
-.home-scorebook h2 { margin: 24px 0; font: 600 44px/1 'Barlow Condensed', 'Arial Narrow', sans-serif; text-transform: uppercase; }
-.home-sample-team { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 12px 0; border-bottom: 1px solid #3b5548; font-size: 24px; }
-.home-sample-team b { font: 600 64px/1 'Barlow Condensed', 'Arial Narrow', sans-serif; }
-.home-sample-clock { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: #b5c3b7; padding: 16px 0 24px; }
-.home-sample-leader { border-top: 1px solid #3b5548; padding-top: 24px; color: #b5c3b7; font-size: 16px; }
-.home-sample-leader strong { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: #f0eee4; font-size: 26px; font-weight: 600; }
-.home-sample-leader b { color: #d6ee93; font: 600 40px/1 'Barlow Condensed', 'Arial Narrow', sans-serif; }
-.home-sample-leader b > span { font: 400 16px/1 'Barlow', sans-serif; }
+.home-actions a.home-primary { background: #eda77b; color: #191a26; }
+.home-actions a.home-secondary { border: 1px solid #6d6c7d; color: #f3ecdf; }
+.home-helper { color: #b7b6c5; font-size: 14px; }
+.home-scorebook { padding: 32px; background: #242635; border-top: 3px solid #eda77b; }
+.home-scorebook-top { display: flex; justify-content: space-between; gap: 16px; color: #b7b6c5; font-size: 14px; }
+.home-scorebook-top > span:first-child { color: #eda77b; letter-spacing: .08em; }
+.home-scorebook h2 { margin: 24px 0; font:400 44px/1 'DM Serif Lounge',Georgia,serif; }
+.home-sample-team { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 12px 0; border-bottom: 1px solid #444553; font-size: 24px; }
+.home-sample-team b { font:400 64px/1 'DM Serif Lounge',Georgia,serif; }
+.home-sample-clock { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: #b7b6c5; padding: 16px 0 24px; }
+.home-sample-leader { border-top: 1px solid #444553; padding-top: 24px; color: #b7b6c5; font-size: 16px; }
+.home-sample-leader strong { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: #f3ecdf; font-size: 26px; font-weight: 600; }
+.home-sample-leader b { color: #eda77b; font:400 40px/1 'DM Serif Lounge',Georgia,serif; }
+.home-sample-leader b > span { font: 400 16px/1 'DM Sans Lounge','Segoe UI',Arial,sans-serif; }
 .home-previews > header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
-.home-previews h2 { margin: 0; font: 600 32px/1.1 'Barlow Condensed', 'Arial Narrow', sans-serif; text-transform: uppercase; letter-spacing: .01em; }
-.home-previews > header > span { color: #b5c3b7; font-size: 16px; }
+.home-previews h2 { margin: 0; font:400 32px/1.1 'DM Serif Lounge',Georgia,serif; letter-spacing: .01em; }
+.home-previews > header > span { color: #b7b6c5; font-size: 16px; }
 .home-preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-.home-preview-grid > a { display: flex; flex-direction: column; text-decoration: none; color: #f0eee4; border-top: 1px solid #3b5548; padding: 24px 0; transition: background 140ms; }
-.home-preview-grid > a:hover { background: #182a24; }
-.home-step { display: flex; gap: 16px; color: #d6ee93; font-size: 16px; font-variant-numeric: tabular-nums; }
-.home-step > span { color: #b5c3b7; }
-.home-preview-grid h3 { font: 600 34px/1.1 'Barlow Condensed', 'Arial Narrow', sans-serif; text-transform: uppercase; letter-spacing: .01em; margin: 24px 0 12px; }
-.home-preview-grid p { font-size: 18px; line-height: 1.5; color: #b5c3b7; margin: 0 0 26px; }
-.home-card-action { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 20px; border-top: 1px solid #3b5548; font-size: 16px; color: #d6ee93; }
-.home-footer { display: flex; justify-content: space-between; gap: 24px; border-top: 1px solid #3b5548; padding: 24px 0 0; margin-top: 44px; color: #b5c3b7; font-size: 14px; }
-.home-welcome a:focus-visible { outline: 3px solid #f0eee4; outline-offset: 5px; }
+.home-preview-grid > a { display: flex; flex-direction: column; text-decoration: none; color: #f3ecdf; border-top: 1px solid #444553; padding: 24px 0; transition: background 140ms; }
+.home-preview-grid > a:hover { background: #242635; }
+.home-step { display: flex; gap: 16px; color: #eda77b; font-size: 16px; font-variant-numeric: tabular-nums; }
+.home-step > span { color: #b7b6c5; }
+.home-preview-grid h3 { font:400 34px/1.1 'DM Serif Lounge',Georgia,serif; letter-spacing: .01em; margin: 24px 0 12px; }
+.home-preview-grid p { font-size: 18px; line-height: 1.5; color: #b7b6c5; margin: 0 0 26px; }
+.home-card-action { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 20px; border-top: 1px solid #444553; font-size: 16px; color: #eda77b; }
+.home-footer { display: flex; justify-content: space-between; gap: 24px; border-top: 1px solid #444553; padding: 24px 0 0; margin-top: 44px; color: #b7b6c5; font-size: 14px; }
+.home-welcome a:focus-visible { outline: 3px solid #f3ecdf; outline-offset: 5px; }
 @media (max-width: 1000px) {
   .home-intro { grid-template-columns: 1fr; gap: 36px; padding: 48px 0; }
   .home-scorebook { max-width: 580px; }

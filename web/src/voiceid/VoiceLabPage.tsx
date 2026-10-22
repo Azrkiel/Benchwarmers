@@ -6,6 +6,7 @@ import { DEFAULT_MATCH, type MatchOptions, type Ranked } from './match';
 import { useUtteranceCapture } from './useUtteranceCapture';
 import { useVoiceId } from './useVoiceId';
 import './voiceid.css';
+import { BrandLockup } from '../brand/Brand';
 
 type Household = { id: string; label: string; members: Member[] };
 
@@ -123,6 +124,7 @@ export function VoiceLabPage() {
   return (
     <main className="vid-root vid-page">
       <header className="vid-head">
+        <a href="/" aria-label="Benchwarmers home"><BrandLockup size={26} /></a>
         <h1>Voice ID lab</h1>
         <p className="vid-privacy">Everything stays on this device. No audio or voiceprints are sent to the server.</p>
       </header>

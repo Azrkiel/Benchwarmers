@@ -1,0 +1,19 @@
+/* Lounge brand: the app-wide palette, type, and logo. Lounge (design B) is the reference. */
+@font-face { font-family:'DM Sans Lounge'; src:url('/fonts/DMSans-Variable.ttf') format('truetype'); font-weight:100 1000; font-style:normal; font-display:swap; }
+@font-face { font-family:'DM Serif Lounge'; src:url('/fonts/DMSerifDisplay-Regular.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+
+:root {
+  --lg-bg:#191a26; --lg-surface:#242635; --lg-raised:#303344; --lg-card:#2b2b3e; --lg-deep:#222330;
+  --lg-text:#f3ecdf; --lg-muted:#b7b6c5; --lg-faint:#9695a8; --lg-line:#444553;
+  --lg-orange:#eda77b; --lg-tan:#e4c6a7; --lg-tan-ink:#65483f; --lg-ink:#32292d;
+  --lg-good:#a9d3b4; --lg-bad:#e8a0a0;
+  --lg-sans:'DM Sans Lounge','Segoe UI',Arial,sans-serif;
+  --lg-serif:'DM Serif Lounge',Georgia,serif;
+}
+
+.bw-brand { display:inline-flex; align-items:center; gap:14px; color:var(--lg-text); text-decoration:none; }
+.bw-brand > svg { flex:none; width:1.25em; height:1.1em; color:var(--lg-orange); }
+.bw-brand-word { font:400 1em/.95 var(--lg-serif); letter-spacing:-.035em; white-space:nowrap; text-transform:none; }
+.bw-brand-period { color:var(--lg-orange); }
+.bw-brand.is-stacked { flex-direction:column; align-items:flex-start; gap:.4em; }
+.bw-brand.is-stacked .bw-brand-word { white-space:normal; line-height:.91; }

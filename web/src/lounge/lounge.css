@@ -1,6 +1,5 @@
 /* Lounge / design B. Independent 1920×1080 CSS canvas; all UI is inside 5% safe bounds. */
-@font-face { font-family:'DM Sans Lounge'; src:url('/fonts/DMSans-Variable.ttf') format('truetype'); font-weight:100 1000; font-style:normal; font-display:swap; }
-@font-face { font-family:'DM Serif Lounge'; src:url('/fonts/DMSerifDisplay-Regular.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+/* Fonts and the shared tokens live in ../brand/brand.css. */
 .lg-viewport { --lg-bg:#191a26; --lg-surface:#242635; --lg-raised:#303344; --lg-text:#f3ecdf; --lg-muted:#b7b6c5; --lg-line:#444553; --lg-orange:#eda77b; --lg-ink:#32292d; --lg-serif:'DM Serif Lounge',Georgia,serif; position:fixed; inset:0; overflow:hidden; background:var(--lg-bg); color:var(--lg-text); font:26px/1.35 'DM Sans Lounge','Segoe UI',Arial,sans-serif; font-optical-sizing:auto; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums; }
 .lg-viewport *, .lg-viewport *::before, .lg-viewport *::after { box-sizing:border-box; }
 .lg-stage { position:absolute; top:0; left:0; transform-origin:0 0; padding:64px 96px 56px; }

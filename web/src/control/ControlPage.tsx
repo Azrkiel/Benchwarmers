@@ -5,6 +5,7 @@ import { usePartyState } from '../lib/usePartyState';
 import { CrewOverlay } from '../overlay/CrewOverlay';
 import { readParty } from '../overlay/liveSource';
 import './control.css';
+import { BrandLockup } from '../brand/Brand';
 
 export function ControlPage(){
   const {code='latest'}=useParams();
@@ -40,7 +41,7 @@ export function ControlPage(){
   const drafting=state?.party.status==='drafting';
   const rosterCount=state?.draftBoard.filter(entry=>entry.ownerMemberId===member).length??0;
   return <main className="ctrl-page">
-    <header><Link to="/">Benchwarmers</Link><span>Live backend control</span><Link to={`/lounge/${encodeURIComponent(resolved)}`}>Open Lounge ↗</Link></header>
+    <header><Link to="/" aria-label="Benchwarmers home"><BrandLockup size={26} /></Link><span>Live backend control</span><Link to={`/lounge/${encodeURIComponent(resolved)}`}>Open Lounge ↗</Link></header>
     <div className="ctrl-heading"><div><p className="ctrl-eyebrow">Fictional game replay · Not synchronized to YouTube</p><h1>Your game-night controls.</h1><p>These actions go to the running server. The YouTube extension reads the same party.</p></div><button disabled={busy} onClick={async()=>{
       setBusy(true);setFailure('');
       try{const result=await api.post<{code:string}>('/parties',{crewId:'sunday-crew'});setNotice('New party created. Set the extension to latest or use the code below.');navigate(`/control/${result.code}`);}

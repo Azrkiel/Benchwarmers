@@ -16,9 +16,7 @@ export function LoungeIcon({ name }: { name: keyof typeof PATHS }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={PATHS[name]} /></svg>;
 }
 
-export function BenchMark() {
-  return <svg viewBox="0 0 48 42" fill="none" aria-hidden="true"><path d="M7 13h34v9H7zM11 7h26v6H11z" fill="currentColor" /><path d="m13 22-4 13m26-13 4 13M17 22v12m14-12v12" stroke="currentColor" strokeWidth="4" strokeLinecap="round" /></svg>;
-}
+export { BenchMark } from '../brand/Brand';
 
 export function MemberFace({ row }: { row: Pick<StandingRow, 'name' | 'avatar'> }) {
   const [failed, setFailed] = useState<string>();
