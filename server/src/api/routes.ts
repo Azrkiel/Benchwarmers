@@ -2,7 +2,28 @@ import express from 'express';
 import { GameError } from '../game/engine.js';
 import type { GameErrorCode } from '../game/engine.js';
 import type { Store } from '../game/store.js';
-import type { ApiError } from '../shared/types.js';
+import { GAMES } from '../game/games.js';
+import { EspnError } from '../live/espn.js';
+import { importGame } from '../live/ingest.js';
+import type { ApiError, Game, Prop } from '../shared/types.js';
+
+/** Runtime "pull up a real game" importer; injectable so tests never touch ESPN. */
+export type GameImporter = (query: string) => Promise<{ game: Game; props: Prop[]; cached: boolean }>;
+export type ApiOptions = { importer?: GameImporter };
+
+const ESPN_STATUS = { bad_request: 400, not_found: 404, upstream: 502 } as const;
+const ESPN_CODE = { bad_request: 'BAD_REQUEST', not_found: 'NOT_FOUND', upstream: 'UPSTREAM' } as const;
+
+function gameSummary(g: Game) {
+  return {
+    id: g.id,
+    title: g.title,
+    sport: g.sport ?? 'basketball',
+    home: { name: g.home.name, short: g.home.short, color: g.home.color },
+    away: { name: g.away.name, short: g.away.short, color: g.away.color },
+    durationSec: g.durationSec,
+  };
+}
 
 const STATUS: Record<GameErrorCode, number> = {
   NOT_FOUND: 404,
@@ -38,9 +59,22 @@ function queryString(v: unknown): string | undefined {
   return typeof v === 'string' && v !== '' ? v : undefined;
 }
 
-export function createApiRouter(store: Store): express.Router {
+export function createApiRouter(store: Store, opts: ApiOptions = {}): express.Router {
   const router = express.Router();
   router.use(express.json());
+  const importer: GameImporter = opts.importer ?? ((q) => importGame(q));
+
+  router.get('/games', (_req, res) => {
+    res.json({
+      games: Object.values(GAMES).map((g) => ({ id: g.id, title: g.title, sport: g.sport ?? 'basketball', imported: g.id.startsWith('espn-') })),
+    });
+  });
+
+  router.post('/games/import', async (req, res) => {
+    const query = reqString(req.body, 'query', 'a game to look up, like "UVA vs FSU 2025"');
+    const out = await importer(query);
+    res.status(201).json({ game: gameSummary(out.game), cached: out.cached });
+  });
 
   router.get('/parties/:code/state', (req, res) => {
     const state = store.getState(req.params.code, queryString(req.query.householdId));
@@ -107,6 +141,11 @@ export function createApiRouter(store: Store): express.Router {
     if (err instanceof GameError) {
       const body: ApiError = { error: err.message, code: err.code };
       res.status(STATUS[err.code] ?? 400).json(body);
+      return;
+    }
+    if (err instanceof EspnError) {
+      const body: ApiError = { error: err.message, code: ESPN_CODE[err.kind] };
+      res.status(ESPN_STATUS[err.kind]).json(body);
       return;
     }
     const e = err as { type?: string } | null;
