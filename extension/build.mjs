@@ -1,0 +1,10 @@
+import { build } from 'esbuild';
+import { mkdir, copyFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+const directory=path.dirname(fileURLToPath(import.meta.url));
+const output=path.join(directory,'dist');
+await mkdir(output,{recursive:true});
+await build({entryPoints:['background.ts','content.tsx','popup.ts'].map(file=>path.join(directory,file)),outdir:output,bundle:true,format:'iife',platform:'browser',target:'chrome120',jsx:'automatic',define:{'process.env.NODE_ENV':'"production"'},minify:true,sourcemap:true});
+for(const file of ['manifest.json','popup.html','popup.css'])await copyFile(path.join(directory,file),path.join(output,file));
+console.log(`YouTube extension built: ${output}`);

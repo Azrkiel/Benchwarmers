@@ -1,0 +1,1 @@
+{"extends":"../web/tsconfig.json","compilerOptions":{"types":[],"paths":{"@shared/*":["../server/src/shared/*"]}},"include":["./*.ts","./*.tsx","../web/src/overlay","../server/src/shared"],"exclude":["../web/src/overlay/*.test.*"]}

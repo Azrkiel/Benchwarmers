@@ -1,5 +1,13 @@
 # Handoff — Benchwarmers (resume here)
 
+## 0. Session 4 (2026-10-22) — everything merged onto `dev`
+- Merged `feature/tv-football` (Codex: football field + pick bonuses on the original TV) and Codex's **uncommitted** redesign from `C:/Users/jiang/Benchwarmers` (`design/tv-broadcast`, snapshotted as branch `codex/wip-snapshot` without touching that working tree).
+- **Two UIs, original is default** (user prefers it): `/tv/:code` = original TV (`web/src/tv`). `/tv2/:code` = Codex scorebook redesign (`web/src/tv-broadcast`). Also from Codex: `/welcome`, `/lounge/:code`, `/watch/:code` (YouTube embed + overlay preview), `/control/:code` (dev controller), `web/src/overlay` (shared CrewOverlay), `extension/` (MV3 overlay on real youtube.com; `npm run build:extension`, load `extension/dist` unpacked; backend fixed at 127.0.0.1:3001; run `npm run dev:overlay -w server`).
+- TV pages are lazy route chunks (both `tv.css` files share class names); the scorebook palette/font is scoped to `html.theme-scorebook` via `useScorebookTheme()`, so device/voice-lab/original TV keep their look.
+- Fix: Vite COOP/COEP headers (voice ID) blocked the `/watch` YouTube iframe (`ERR_BLOCKED_BY_RESPONSE`). Headers are now per-request via a small Vite plugin and skipped for `/watch*`; `/device` and `/voice-lab` still report `crossOriginIsolated=true`.
+- Verified live: server 673/673, web 389/389, typecheck server/web/extension, `vite build`; REST + MCP (11 tools, <500 ms, 401 without bearer) + offline assistant + basketball and football replays + web proxy; Playwright Chromium screenshots of every route; extension on real youtube.com (drafts → Roster, picks → counts, native fullscreen, video playing).
+- **Codex's clone is still dirty on its old base.** To continue there: commit/discard locally, then `git fetch && git checkout dev && git reset --hard origin/dev`. Its TV work now lives in `web/src/tv-broadcast` (edit there, not `web/src/tv`).
+
 ## 1. Metadata
 - Written: 2026-10-20 18:05 ET, end of Claude Code session 1; updated in session 2 after waves A–D (4a, 7b, 2b, 4b, 6 merged); updated 2026-10-21 in session 3 after Phase 8 (8a, 8b, 8c merged). Lead model: Claude Opus 5.5 (orchestrator); phase managers opus/sonnet, workers via model-router.
 - Repo: https://github.com/Azrkiel/Benchwarmers (public, MIT). Working branch: **`dev`** (all merged work). `main` = dev as of PR #2 (phase 6); Phase 8 is on `dev` only until the next PR.

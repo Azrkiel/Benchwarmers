@@ -22,7 +22,10 @@ export function Leader({ row, state }: { row: StandingRow; state: PartyStateResp
           const name = entry?.player.nickname ?? entry?.player.name ?? r.playerId;
           return (
             <li key={r.playerId} className="tv-leader-player">
-              <span className="tv-leader-pname">{name}</span>
+              <span className="tv-leader-pname">
+                {entry ? <span className="tv-leader-position">{entry.player.position}</span> : null}
+                {name}
+              </span>
               <span className="tv-leader-pts">{formatPoints(r.points)}</span>
               <span className="tv-leader-stat">{r.statLine}</span>
             </li>

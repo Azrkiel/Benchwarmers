@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { PartyStateResponse, PropView } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 import { findMember } from './pops';
+import { PickBonuses } from './PickBonuses';
 import { formatCountdown, lockDeadline, secondsLeft } from '../lib/usePartyState';
 
 export function PickBar({ state, serverNow }: { state: PartyStateResponse; serverNow: () => number }) {
@@ -66,6 +67,7 @@ export function PickBar({ state, serverNow }: { state: PartyStateResponse; serve
     <section className="tv-pickbar">
       <div className="tv-pick-kicker">LIVE PICK</div>
       {body}
+      <PickBonuses state={state} />
     </section>
   );
 }
@@ -73,16 +75,24 @@ export function PickBar({ state, serverNow }: { state: PartyStateResponse; serve
 /** Question plus per-option probability, pick counts and who picked what. */
 function PropOptions({ state, prop }: { state: PartyStateResponse; prop: PropView }) {
   const picks = state.picks.filter((p) => p.propId === prop.id);
+  const binary = prop.options.length === 2 && prop.options.some((o) => o.id === 'yes') && prop.options.some((o) => o.id === 'no');
+  const historical = prop.resolver.kind === 'driveResult' && prop.odds?.source === 'drive_odds' ? prop.odds.p.yes : undefined;
+  const historyLine = typeof historical === 'number' && Number.isFinite(historical) && historical >= 0 && historical <= 1
+    ? `Drives like this ${prop.resolver.kind === 'driveResult' && prop.resolver.outcome === 'td' ? 'get a touchdown' : 'score'} ${Math.round(historical * 100)}% of the time`
+    : undefined;
   return (
     <>
       <div className="tv-pick-q">{prop.question}</div>
-      <div className="tv-pick-options">
+      {historyLine ? <div className="tv-pick-history">{historyLine}</div> : null}
+      <div className={`tv-pick-options${binary ? ' is-binary' : ''}`}>
         {prop.options.map((o) => {
-          const pct = o.probability !== undefined ? Math.round(o.probability * 100) : undefined;
+          const probability = o.probability ?? prop.odds?.p[o.id];
+          const pct = typeof probability === 'number' && Number.isFinite(probability) && probability >= 0 && probability <= 1
+            ? Math.round(probability * 100) : undefined;
           const count = prop.pickCounts[o.id] ?? 0;
           const who = picks.filter((p) => p.optionId === o.id);
           return (
-            <div className="tv-pick-opt" key={o.id}>
+            <div className="tv-pick-opt" key={o.id} data-option={o.id}>
               <div className="tv-pick-opt-top">
                 <span className="tv-pick-label">{o.label}</span>
                 <span className="tv-pick-pct">{pct !== undefined ? `${pct}%` : '—'}</span>
