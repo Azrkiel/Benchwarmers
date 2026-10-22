@@ -32,6 +32,14 @@ export function createApp(opts: { store: Store; importer?: GameImporter; roomSto
   if(opts.roomStore) app.use('/api/rooms', createRoomRouter(opts.roomStore));
   app.use('/api', createApiRouter(store, { importer: opts.importer }));
   if(opts.webDir && existsSync(path.join(opts.webDir,'index.html'))){
+    // Same isolation headers Vite dev sets (threaded WASM for voice ID). /watch embeds YouTube, which COEP blocks.
+    app.use((req,res,next)=>{
+      if(!/^\/(watch|api|mcp)/.test(req.path)){
+        res.setHeader('Cross-Origin-Opener-Policy','same-origin');
+        res.setHeader('Cross-Origin-Embedder-Policy','credentialless');
+      }
+      next();
+    });
     app.use(express.static(opts.webDir));
     app.get('/{*splat}',(req,res,next)=>{
       if(req.path.startsWith('/api') || req.path.startsWith('/mcp'))return next();
