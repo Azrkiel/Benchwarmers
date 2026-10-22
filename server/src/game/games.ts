@@ -16,7 +16,21 @@ export function getGame(id: string): Game | undefined {
   return GAMES[id];
 }
 
-/** Deep copies of the committed fallback props for a game. */
+const COMMITTED_IDS: ReadonlySet<string> = new Set(Object.keys(GAMES));
+const RUNTIME_PROPS = new Map<string, Prop[]>();
+
+/**
+ * Add (or replace) a runtime-imported game and its generated props. Committed demo games can never be replaced, so an
+ * import can't shadow seed data. `fallbackProps(game.id)` then returns the registered props.
+ */
+export function registerGame(game: Game, props: Prop[]): void {
+  if (COMMITTED_IDS.has(game.id)) throw new Error(`cannot replace committed game ${game.id}`);
+  GAMES[game.id] = game;
+  RUNTIME_PROPS.set(game.id, props.map((p) => structuredClone(p)));
+}
+
+/** Deep copies of the fallback props for a game: committed JSON first, then runtime-registered imports. */
 export function fallbackProps(gameId: string): Prop[] {
-  return FALLBACK_PROPS.filter((p) => p.gameId === gameId).map((p) => structuredClone(p));
+  const committed = FALLBACK_PROPS.filter((p) => p.gameId === gameId);
+  return (committed.length ? committed : (RUNTIME_PROPS.get(gameId) ?? [])).map((p) => structuredClone(p));
 }
