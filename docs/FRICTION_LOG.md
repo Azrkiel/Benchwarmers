@@ -190,3 +190,37 @@ Template:
 - Workaround: demo script uses `I'm Sam, put me down for no` / `Leo says no`.
 - Suggestion: in `parsePick`, treat `<name>, they score` / `they get stopped` as a pick when a drive question is open, or say so in the help reply.
 - Resolution (lead, same day): `parsePick` now accepts a bare yes/no drive answer after an optional "I'm X," prefix (`BARE_ANSWER`); tests added.
+
+### [2026-10-20] TV redesign visual verification has no connected browser
+- Tool/SDK + version: session browser automation (`cua_repl`).
+- Task attempted: inspect the redesigned TV screens and remote focus at 1920x1080 and 1280x720.
+- Steps taken: browser inventory, then attempted to open the local preview in Chrome.
+- Expected vs actual: expected a browser surface; inventory returned no apps or browsers and Chrome creation returned `Browser is not available: chrome`.
+- Severity: Major for visual QA; does not block build or behavior tests.
+- Workaround: verified all tests, TypeScript, production build, palette contrast, and HTTP responses from all four preview routes. Kept the dev preview running. Rendered layout, overflow, and physical remote behavior remain unverified.
+- Suggestion: connect a browser surface and complete the 1080p/720p checks before accepting the visual pass.
+
+### [2026-10-21] TV restyle tooling and stale Vite module
+- Tool/SDK + version: npm pack; Vite 8.3.4 on Windows.
+- Task attempted: obtain self-hosted fonts and inspect the revised welcome screen.
+- Steps taken: `npm pack @fontsource/barlow-condensed @fontsource/barlow --silent`; compared `/src/App.tsx` served by the existing Vite process against the file on disk.
+- Expected vs actual: npm returned code 1 without diagnostic output; the running Vite process served an older App module while serving updated CSS.
+- Severity: Minor; resolved during implementation.
+- Workaround: downloaded the font files and OFL licenses directly from the Google Fonts repository; verified the preview process belonged to this checkout, restarted it, and checked that the served module included the new scorebook. Re-ran browser QA.
+- Suggestion: verify served module content when an HMR preview disagrees with disk or a fresh production build.
+
+### [2026-10-21] Streaming overlay browser access and iframe composition
+- Tools: cua_repl browser inventory; Computer Use for Windows; Chromium development browser.
+- Task: test a transparent scorebook above a streaming player.
+- Expected vs actual: first browser inventory timed out; retry returned no browsers. Computer Use could list Brave but denied access to its window. A separate development Chromium session rendered an opaque white iframe despite transparent document backgrounds.
+- Severity: Minor for the development preview; direct existing-browser integration remains unavailable.
+- Workaround: verified the local YouTube composition in development Chromium. Matched the overlay iframe element's color-scheme to its child document, removing Chromium's white backing. Playback, panels, and combined fullscreen were verified at 1080p and 720p.
+- Suggestion: test iframe color-scheme inheritance during transparent composition. Do not infer control permission from an app appearing in the window inventory.
+
+### [2026-10-22] Preview URL failed with IPv6-only Vite binding
+- Tool: Vite development server on Windows.
+- Task: open the streaming overlay at http://127.0.0.1:5173/watch/DEMO?fixture=live.
+- Expected vs actual: the supplied IPv4 preview link failed while http://localhost:5173 returned 200. Vite was listening only on ::1.
+- Severity: Major for opening the supplied preview; no rendering fault was found.
+- Fix: set server.host to 127.0.0.1 in web/vite.config.ts. The existing Vite process restarted and bound to the documented address.
+- Verification: IPv4 request returned 200; Chromium rendered the scorebook above playing video, opened panels, and entered combined fullscreen at 1080p/720p with no page errors.

@@ -18,6 +18,7 @@ export default defineConfig({
   worker: { format: 'es' },
   optimizeDeps: { exclude: ['@huggingface/transformers'] },
   server: {
+    host: '127.0.0.1',
     port: 5173,
     headers: COI_HEADERS,
     proxy: { '/api': API, '/mcp': API, '/healthz': API },
