@@ -22,6 +22,8 @@ import {
   type MatchResult,
 } from './match.js';
 import { rulesMarkdown } from './rules.js';
+import type { RoomStore } from '../room/store.js';
+import { registerRoomTools } from '../room/mcp.js';
 
 export const BOARD_URI = 'ui://benchwarmers/board.html';
 export const DEFAULT_CREW_ID = 'sunday-crew';
@@ -232,11 +234,12 @@ function activePropView(state: PartyStateResponse) {
 
 // ---------- server ----------
 
-export function createServer(store: Store): McpServer {
+export function createServer(store: Store, roomStore?: RoomStore): McpServer {
   const server = new McpServer(
     { name: 'benchwarmers', version: '0.1.0' },
     {
       instructions:
+        (roomStore ? 'For the primary big-room football demo use room_create, room_join, room_player_pool, room_set_lineup or room_auto_lineup, room_host, room_predict, room_status, room_leaderboard and room_season. All participants share the athlete pool with a salary cap. Household tools below are for saved legacy parties. ' : '') +
         'Benchwarmers runs a one-night fantasy draft and live pick-em for a watch party. ' +
         'Tools: setup_watch_party (start a party for a crew), join_watch_party (add a household), ' +
         'list_available_players (undrafted players, by team or position), draft_player (a person drafts a player by name, nickname, number or position), ' +
@@ -247,6 +250,8 @@ export function createServer(store: Store): McpServer {
         "The party code is optional; it defaults to the Sunday Crew's current party. Free to play, no real money.",
     },
   );
+
+  if (roomStore) registerRoomTools(server, roomStore);
 
   const codeField = z
     .string()

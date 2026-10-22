@@ -12,8 +12,11 @@ import { createAssistantRouter } from './assistant/routes.js';
 import { GAMES } from './game/games.js';
 import { Store } from './game/store.js';
 import { loadConfig } from './config.js';
+import { existsSync } from 'node:fs';
+import { RoomStore } from './room/store.js';
+import { createRoomRouter } from './room/routes.js';
 
-export function createApp(opts: { store: Store; importer?: GameImporter }): express.Express {
+export function createApp(opts: { store: Store; importer?: GameImporter; roomStore?: RoomStore; webDir?: string }): express.Express {
   const { store } = opts;
   const app = express();
   app.use(cors());
@@ -22,11 +25,19 @@ export function createApp(opts: { store: Store; importer?: GameImporter }): expr
     res.json({ ok: true, service: 'benchwarmers', time: Date.now() });
   });
 
-  mountMcp(app, { store, token: process.env.MCP_TOKEN ?? 'dev-token-change-me' });
+  mountMcp(app, { store, roomStore: opts.roomStore, token: process.env.MCP_TOKEN ?? 'dev-token-change-me' });
   // /api/assistant must mount BEFORE the /api router, or its catch-all 404 shadows it.
   app.use(createAssistantRouter({ token: process.env.MCP_TOKEN ?? 'dev-token-change-me' }));
 
+  if(opts.roomStore) app.use('/api/rooms', createRoomRouter(opts.roomStore));
   app.use('/api', createApiRouter(store, { importer: opts.importer }));
+  if(opts.webDir && existsSync(path.join(opts.webDir,'index.html'))){
+    app.use(express.static(opts.webDir));
+    app.get('/{*splat}',(req,res,next)=>{
+      if(req.path.startsWith('/api') || req.path.startsWith('/mcp'))return next();
+      res.sendFile(path.join(opts.webDir!,'index.html'));
+    });
+  }
 
   return app;
 }
@@ -42,11 +53,12 @@ function warmScoutingNotes(provider: AiContentProvider, store: Store, game: Game
 export async function main(): Promise<void> {
   loadConfig();
   const store = new Store(); // DATA_FILE / SPEED env respected by Store defaults
+  const roomStore = new RoomStore({dataFile:process.env.ROOM_DATA_FILE??'data/rooms.json',speed:Number(process.env.ROOM_SPEED)||1});
   const provider = createAiProvider();
   const warmNotes = (game: Game) => warmScoutingNotes(provider, store, game);
   const restored = loadImportedGames();
   if (restored) console.log(`Restored ${restored} imported game(s)`);
-  const app = createApp({ store, importer: (q) => importGame(q, { onNewGame: warmNotes }) });
+  const app = createApp({ store, roomStore, webDir:fileURLToPath(new URL('../../web/dist',import.meta.url)), importer: (q) => importGame(q, { onNewGame: warmNotes }) });
   const port = Number(process.env.PORT) || 3001;
   const server = app.listen(port, () => {
     console.log(`Benchwarmers server listening on http://localhost:${port}`);
@@ -61,6 +73,7 @@ export async function main(): Promise<void> {
   const timer = setInterval(() => {
     try {
       store.tick();
+      roomStore.tick();
     } catch (err) {
       console.error('[tick] failed', err);
     }

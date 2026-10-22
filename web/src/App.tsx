@@ -13,6 +13,8 @@ const BroadcastTvPage = lazy(() => import('./tv-broadcast/TvPage').then((m) => (
 const LoungePage = lazy(() => import('./lounge/LoungePage').then((m) => ({ default: m.LoungePage })));
 const WatchPage = lazy(() => import('./watch/WatchPage').then((m) => ({ default: m.WatchPage })));
 const ControlPage = lazy(() => import('./control/ControlPage').then((m) => ({ default: m.ControlPage })));
+const RoomPage = lazy(() => import('./room/RoomPage').then((m) => ({ default: m.RoomPage })));
+const RoomTvPage = lazy(() => import('./room/RoomTvPage').then((m) => ({ default: m.RoomTvPage })));
 
 function Welcome() {
   useScorebookTheme();
@@ -59,6 +61,8 @@ export function App() {
       <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/room/:code" element={<RoomPage />} />
+          <Route path="/room/:code/tv" element={<RoomTvPage />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/tv/:code" element={<TvPage />} />
           <Route path="/tv2/:code" element={<Scorebook><BroadcastTvPage /></Scorebook>} />

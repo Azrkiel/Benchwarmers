@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { BrandLockup } from '../brand/Brand';
 import { PullUpGame } from './PullUpGame';
+import { RoomLanding } from '../room/RoomLanding';
 import './home.css';
 
 const ICONS = {
@@ -42,11 +43,12 @@ export function HomePage() {
     <main className="hm">
       <aside className="hm-side">
         <BrandLockup size={52} stacked />
-        <p className="hm-tagline">One-night fantasy draft + live pick'em for watching games with friends.</p>
+        <p className="hm-tagline">Build your lineup. Call the next drive. Bring the whole room into the game.</p>
         <div className="hm-party"><span>Demo party</span><b>DEMO</b></div>
       </aside>
       <section className="hm-main">
         <header className="hm-header"><span>Sunday Crew</span><h1>Game night</h1></header>
+        <RoomLanding />
         <PullUpGame />
         <div className="hm-grid">
           {MAIN.map((card) => (
