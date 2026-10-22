@@ -55,16 +55,16 @@ export function WatchPage() {
           <button type="button" aria-label="Show overlay" aria-pressed={visible} onClick={() => setVisible((current) => !current)}>{visible ? 'Hide overlay' : 'Show overlay'}</button>
           <button type="button" onClick={() => {
             const action = document.fullscreenElement ? document.exitFullscreen() : player.current?.requestFullscreen();
-            action?.catch(() => setError('Fullscreen is unavailable here. You can still watch in this page.'));
+            action?.catch(() => setError('Fullscreen isn’t available here.'));
           }}>Fullscreen</button>
         </nav>
       </div>
       <section className="watch-setup" aria-label="Video source">
-        <div><h1>The game, with your crew on top.</h1><p>Use the controls above to open a panel. Fullscreen keeps the video and overlay together.</p><p>{fixture ? 'Sample scores are not synced to this video.' : 'The party feed does not synchronize video playback.'} This preview uses an embedded YouTube player.</p></div>
+        <div><h1>The game, with your crew on top.</h1><p>Open a panel from the bar above.</p><p>{fixture ? 'Sample scores are not synced to this video.' : 'The party feed does not synchronize video playback.'} This preview uses an embedded YouTube player.</p></div>
         <form onSubmit={(event) => {
           event.preventDefault();
           const next = youtubeId(source);
-          if (!next) { setError('Paste a YouTube video link. Other streaming sites need a separate integration.'); return; }
+          if (!next) { setError('Paste a YouTube link.'); return; }
           setError(''); setVideo(next);
         }}>
           <label htmlFor="watch-source">YouTube link</label><div className="watch-source-row"><input id="watch-source" value={source} onChange={(event) => setSource(event.target.value)} /><button type="submit">Load video</button></div>

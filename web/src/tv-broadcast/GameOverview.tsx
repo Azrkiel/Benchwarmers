@@ -10,7 +10,7 @@ export function GameOverview({ state, onNavigate }: { state: PartyStateResponse;
   let guidance = 'The next question will appear here. Open Picks for updates.';
   if (prop) guidance = 'Open Picks for the question, timing, and results.';
   else if (state.party.status === 'drafting') guidance = 'Open Draft to see the players and your crew’s rosters.';
-  else if (state.party.status === 'final') guidance = 'Open Results for tonight’s winner and the season standings.';
+  else if (state.party.status === 'final') guidance = 'Tonight’s winner and the season.';
   const primaryMode = state.party.status === 'drafting' ? 'draft' : state.party.status === 'final' ? 'final' : 'picks';
   const primaryLabel = primaryMode === 'draft' ? 'Open draft' : primaryMode === 'final' ? 'See results' : 'View live pick';
   return (

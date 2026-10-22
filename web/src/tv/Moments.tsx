@@ -139,7 +139,7 @@ export function MomentsHost({ demo = false, children }: { demo?: boolean; childr
       {children}
       <PlayBanner banner={banners.current} />
       <BurstLayer bursts={bursts.items} />
-      <ToastLayer toasts={toasts.items} />
+      <ToastLayer toasts={toasts.items} placement="top" />
     </MomentsContext.Provider>
   );
 }

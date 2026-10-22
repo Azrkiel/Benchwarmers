@@ -16,7 +16,7 @@ const TOO_SHORT = 'Too short. Try again and speak for 2–3 seconds.';
 /** Plain-language text for a mic/capture error message. */
 export function describeMicError(message: string): string {
   if (/denied|notallowed|permission/i.test(message)) {
-    return 'Microphone access was denied. Allow the microphone for this site in your browser settings, then try again.';
+    return 'Microphone blocked. Allow it in your browser settings and try again.';
   }
   if (/notfound|no microphone|requested device/i.test(message)) {
     return 'No microphone found. Plug one in and try again.';
