@@ -59,7 +59,7 @@ function Option({ prop, state, option }: { prop: PropView; state: PartyStateResp
 export function Picks({ state, now }: { state: PartyStateResponse; now: number }) {
   const prop = currentQuestion(state);
   return <section className="lg-picks-view"><span className="lg-eyebrow">Pick’em · {questionStatus(state, now)}</span><h1>{prop?.question ?? 'The next call is coming.'}</h1>
-    {prop ? <><div className="lg-options">{prop.options.map((option) => <Option key={option.id} state={state} prop={prop} option={option} />)}</div><p className="lg-picks-explanation">{prop.status === 'resolved' ? prop.explanation ?? 'The correct answer is marked above.' : 'Make your own pick by voice or on your device. The room’s choices appear here.'}</p></> : <div className="lg-empty"><p>There isn’t a question open right now. Your crew’s next call will appear here.</p></div>}
+    {prop ? <><div className="lg-options">{prop.options.map((option) => <Option key={option.id} state={state} prop={prop} option={option} />)}</div><p className="lg-picks-explanation">{prop.status === 'resolved' ? prop.explanation ?? 'The correct answer is marked above.' : 'Pick by voice or on your device.'}</p></> : <div className="lg-empty"><p>No call open. The next one lands here.</p></div>}
   </section>;
 }
 

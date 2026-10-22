@@ -1,9 +1,12 @@
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { BrandLockup } from '../brand/Brand';
-import { FootballField, HostControls, Leaderboard, Question, RoomRules, RoomScore } from './components';
+import { BurstLayer, PlayBanner, ToastLayer } from '../fx/fx';
+import { Face, FinalPodium, FootballField, HostControls, Leaderboard, PlayFeed, Question, RoomRules, RoomScore } from './components';
+import { useRoomMoments } from './moments';
 import { useRoom } from './useRoom';
 import './room.css';
+import './broadcast.css';
 
 export function RoomTvPage() {
   const code = (useParams().code ?? '').toUpperCase();
@@ -11,6 +14,7 @@ export function RoomTvPage() {
   const root = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const initialized = useRef(false);
+  const moments = useRoomMoments(view);
   useEffect(() => {
     if (view && !initialized.current) {
       root.current?.querySelector<HTMLElement>('[data-tv-first]')?.focus();
@@ -62,40 +66,40 @@ export function RoomTvPage() {
 
   const joinPath = `/room/${encodeURIComponent(code)}`;
   const joinUrl = `${window.location.origin}${joinPath}`;
+  const phase = view.room.phase;
   return (
-    <main className="rm rm-tv" ref={root} onKeyDown={navigateRemote}>
+    <main className={`rm rm-tv is-${phase}`} ref={root} onKeyDown={navigateRemote}>
       <div className="rm-tv-top">
         <header className="rm-tv-header">
           <BrandLockup size={38} />
-          <div><h1>{view.room.name}</h1><span>{view.room.participantCount} players in the room</span></div>
+          <div><h1>{view.room.name}</h1><span>{view.room.participantCount} {view.room.participantCount === 1 ? 'player' : 'players'} in the room</span></div>
           <a data-tv-first className="rm-join-code" href={joinPath} aria-label={`Join on your phone: ${joinUrl}`}>
-            <span>Join on your phone</span><b>{code}</b><small>{joinUrl}</small>
+            <span>Join on your phone</span><b>{code}</b><small>{joinUrl.replace(/^https?:\/\//, '')}</small>
           </a>
         </header>
-        {stale && <p className="rm-reconnecting" role="status">Reconnecting... showing the last received score.</p>}
+        {stale && <p className="rm-reconnecting" role="status">Reconnecting…</p>}
         {error && <p className="rm-error" role="alert">{error}</p>}
       </div>
       <div className="rm-tv-layout">
         <div className="rm-tv-game">
           <RoomScore view={view} large />
           <FootballField view={view} />
-          <Question view={view} tv />
-          <section className="rm-play-feed" role="region" aria-label="Recent football plays" tabIndex={0}>
-            <span className="rm-eyebrow">From the field</span>
-            {view.game.recentPlays.length ? (
-              <ol>{view.game.recentPlays.slice(-3).reverse().map((play) => (
-                <li key={play.id}><span>Q{play.quarter} | {play.clock}</span><p>{play.text}</p></li>
-              ))}</ol>
-            ) : <p>Get your lineup ready. The host starts the game when the room is set.</p>}
-          </section>
+          {phase === 'final' ? <FinalPodium view={view} /> : phase === 'lobby' ? (
+            <section className="rm-lobby" role="region" aria-label="Prediction details" tabIndex={0}>
+              <span className="rm-eyebrow">Pregame</span>
+              <h2>Grab your phone and join.</h2>
+              <div className="rm-lobby-join"><span>{joinUrl.replace(/^https?:\/\//, '').replace(/\/room\/.*/, '')}</span><b>{code}</b></div>
+              <div className="rm-lobby-crowd">{view.standings.map((row) => <span key={row.participantId} className="rm-lobby-seat"><Face name={row.name} size={44} />{row.name}</span>)}</div>
+            </section>
+          ) : <Question view={view} tv />}
+          <PlayFeed view={view} tv />
         </div>
         <aside className="rm-tv-standings">
           <Leaderboard view={view} tv />
-          {view.room.phase === 'final' && <Leaderboard view={view} season tv />}
+          {phase === 'final' && <Leaderboard view={view} season tv />}
         </aside>
       </div>
       <footer className="rm-tv-footer">
-        <span>Scripted football | Shared players | $50,000 cap</span>
         <div className="rm-tv-tools">
           <RoomRules view={view} tv />
           {credentials.hostToken && (
@@ -108,10 +112,12 @@ export function RoomTvPage() {
               </div>
             </details>
           )}
-          <Link to={joinPath}>Personal room / Back</Link>
+          <Link to={joinPath}>My lineup</Link>
         </div>
-        <span>Arrows move | Enter selects</span>
       </footer>
+      <PlayBanner banner={moments.banner} />
+      <BurstLayer bursts={moments.bursts} />
+      <ToastLayer toasts={moments.toasts} placement="top" />
     </main>
   );
 }

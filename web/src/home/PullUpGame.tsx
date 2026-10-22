@@ -50,7 +50,7 @@ export function PullUpGame({ navigate = hardNavigate }: { navigate?: Navigate })
     <section className="hm-pull" aria-labelledby={`${inputId}-title`}>
       <div className="hm-pull-copy">
         <h2 id={`${inputId}-title`}>Pull up a game</h2>
-        <p>Name a real, finished game and we replay it for the crew.</p>
+        <p>Replay any finished game with the crew.</p>
       </div>
       <form className="hm-pull-form" onSubmit={submit}>
         <label htmlFor={inputId}>Which game?</label>

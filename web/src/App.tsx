@@ -25,9 +25,9 @@ function Welcome() {
       <div className="home-intro"><section className="home-hero">
         <span className="home-eyebrow">Good company. Friendly competition.</span>
         <h1>Same game.<br /><span>Your rivalry.</span></h1>
-        <p>Draft your players. Call the next play. See who earns the bragging rights, one game night at a time.</p>
+        <p>Draft your players. Call the next play. Win the night.</p>
         <div className="home-actions"><Link className="home-primary" to="/tv2/latest">Open game night <span aria-hidden="true">↗</span></Link><Link className="home-secondary" to="/tv2/DEMO?fixture=live">Explore the demo <span aria-hidden="true">→</span></Link></div>
-        <span className="home-helper">Game night opens your crew’s current party. The demo uses sample data.</span>
+        
       </section>
       <aside className="home-scorebook" aria-label="Sample game-night scorebook">
         <div className="home-scorebook-top"><span>Inside the demo</span><span>Sample game</span></div>

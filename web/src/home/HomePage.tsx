@@ -22,15 +22,15 @@ type Card = { to: string; title: string; sub: string; detail?: string; icon: key
 const MAIN: Card[] = [
   { to: '/device/garcias', title: 'Austin device', sub: 'The Garcias', detail: 'Maya and Leo', icon: 'speaker' },
   { to: '/device/sams-place', title: 'Seattle device', sub: "Sam's Place", detail: 'Sam and Priya', icon: 'speaker' },
-  { to: '/tv/DEMO', title: 'TV view', sub: 'Party DEMO', detail: 'The big screen for game night', icon: 'tv', reload: true, feature: true },
-  { to: '/voice-lab', title: 'Voice ID lab', sub: "Who's talking", detail: 'Enroll voices and tune matching', icon: 'mic' },
+  { to: '/tv/DEMO', title: 'Big screen', sub: 'Party DEMO', detail: 'Draft, live calls, results', icon: 'tv', reload: true, feature: true },
+  { to: '/voice-lab', title: 'Voice ID', sub: "Who's talking", detail: 'Teach it your voices', icon: 'mic' },
 ];
 
 const MORE: Card[] = [
   { to: '/lounge/DEMO', title: 'Lounge', sub: 'Party DEMO', icon: 'tv', reload: true },
   { to: '/tv2/DEMO', title: 'Scorebook TV', sub: 'Party DEMO', icon: 'tv', reload: true },
   { to: '/watch/DEMO', title: 'YouTube overlay', sub: 'Preview', icon: 'tv', reload: true },
-  { to: '/control/latest', title: 'Overlay control', sub: 'Drives the extension', icon: 'tv', reload: true },
+  { to: '/control/latest', title: 'Overlay control', sub: 'For the extension', icon: 'tv', reload: true },
   { to: '/welcome', title: 'Scorebook welcome', sub: 'Landing page', icon: 'tv', reload: true },
 ];
 
@@ -43,7 +43,7 @@ export function HomePage() {
     <main className="hm">
       <aside className="hm-side">
         <BrandLockup size={52} stacked />
-        <p className="hm-tagline">Build your lineup. Call the next drive. Bring the whole room into the game.</p>
+        <p className="hm-tagline">Your crew’s game night.</p>
         <div className="hm-party"><span>Demo party</span><b>DEMO</b></div>
       </aside>
       <section className="hm-main">
