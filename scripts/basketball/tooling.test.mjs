@@ -3,11 +3,78 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { Blocked, Report, assertGame, exists, prepareState, sha256, writeJson } from './common.mjs';
+import { Blocked, Report, Server, assertGame, createRoom, freePort, join, exists, prepareState, sha256, writeJson } from './common.mjs';
+import { createServer } from 'node:http';
+import { Worker } from 'node:worker_threads';
 import { backup, restore } from './storage.mjs';
 import { candidateEvidence, requireEvidence, requireLoadEvidence } from './evidence.mjs';
 import { spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+
+test('service transport preserves UTF-8 JSON, credentials and status assertions', async t => {
+  const server = createServer(async (req, res) => {
+    let text = ''; for await (const chunk of req) text += chunk;
+    res.writeHead(req.url === '/status' ? 418 : 200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ method: req.method, authorization: req.headers.authorization, body: text ? JSON.parse(text) : null }));
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const client = new Server('', server.address().port);
+  const result = await client.request('/echo', { body: { name: 'Zoë 🏀' }, token: 'synthetic-credential' });
+  assert.deepEqual(result.body, { method: 'POST', authorization: 'Bearer synthetic-credential', body: { name: 'Zoë 🏀' } });
+  assert.equal((await client.request('/status', { expected: 418 })).status, 418);
+  await assert.rejects(client.request('/status'), /expected 200, got 418/);
+});
+
+test('service deadline covers both stalled headers and a stalled response body', async t => {
+  const server = createServer((req, res) => {
+    if (req.url === '/body') { res.writeHead(200); res.write('{'); }
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => { server.closeAllConnections(); return new Promise(resolve => server.close(resolve)); });
+  const client = new Server('', server.address().port);
+  for (const route of ['/headers', '/body']) await assert.rejects(client.request(route, { timeout: 50 }), error => error.name === 'AbortError');
+});
+
+test('a paused controller can read again after the server expires its idle connection', async t => {
+  // A separate server thread can expire a socket while the controller is paused.
+  const worker = new Worker(`
+    const {parentPort}=require('node:worker_threads');
+    const server=require('node:http').createServer((_req,res)=>{res.setHeader('Keep-Alive','timeout=5');res.end('{"ok":true}');});
+    server.keepAliveTimeout=1; server.keepAliveTimeoutBuffer=0;
+    server.listen(0,'127.0.0.1',()=>parentPort.postMessage(server.address().port));
+  `, { eval: true });
+  t.after(() => worker.terminate());
+  const port = await new Promise((resolve, reject) => { worker.once('message', resolve); worker.once('error', reject); });
+  const client = new Server('', port);
+  assert.equal((await client.request('/')).body.ok, true);
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1200);
+  assert.equal((await client.request('/')).body.ok, true);
+});
+
+test('isolated rehearsal ignores inherited SQLite and strict-session configuration', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bw-c-environment-'));
+  const privateFile = path.join(dir, 'unrelated.sqlite');
+  const original = 'unrelated-user-state-must-not-change'; await fs.writeFile(privateFile, original);
+  const override = { ROOM_STORAGE: 'sqlite', ROOM_SQLITE_FILE: privateFile, ROOM_SESSIONS: 'on', ROOM_SESSION_ORIGINS: 'https://rooms.example' };
+  const previous = Object.fromEntries(Object.keys(override).map(key => [key, process.env[key]]));
+  Object.assign(process.env, override);
+  const state = await prepareState(path.join(dir, 'rehearsal'));
+  const server = new Server(state, await freePort());
+  try {
+    await server.start();
+    const room = await createRoom(server, 'basketball');
+    const seat = await join(server, room, 'Isolated fan');
+    await server.request(`/api/rooms/${room.code}/auto-lineup`, { body: { participantToken: seat.participantToken } });
+    assert.equal(await fs.readFile(privateFile, 'utf8'), original);
+    assert.ok(await exists(path.join(state, 'data/rooms.json')));
+  } finally {
+    try { await server.stop(); } finally {
+      for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  }
+});
 
 async function directory(t) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bw-c-tooltest-'));

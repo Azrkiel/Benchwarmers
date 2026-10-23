@@ -1,4 +1,7 @@
 import type { EventView, Household, Sport } from '@shared/types';
+import { useRef } from 'react';
+import { useNewIds } from '../fx/fx';
+import { useFlip } from './flip';
 import { formatPop, memberColor } from './pops';
 
 const NEUTRAL = '#8892a6';
@@ -39,13 +42,16 @@ export function PlayByPlay({
   compact?: boolean;
 }) {
   const latest = events.slice(0, compact ? 1 : 3);
+  const fresh = useNewIds(events.map(event => event.id));
+  const list = useRef<HTMLOListElement>(null);
+  useFlip(list, latest.map(event => event.id));
   return (
     <div className={`tv-pbp${compact ? ' is-compact' : ''}`} aria-label="Recent plays">
-      <ol className="tv-pbp-list">
+      <ol className="tv-pbp-list" ref={list}>
         {latest.map((e) => {
           const color = e.team === 'home' ? homeColor : e.team === 'away' ? awayColor : NEUTRAL;
           return (
-            <li key={e.id} className="tv-pbp-row" data-type={e.type} style={{ ['--team' as string]: color }}>
+            <li key={e.id} data-flip-key={e.id} className={`tv-pbp-row${fresh.includes(e.id) ? ' is-new' : ''}`} data-type={e.type} style={{ ['--team' as string]: color }}>
               <span className="tv-pbp-time">{gameTag(e.t, sport, durationSec, regulationSec)}</span>
               <span className="tv-pbp-text">{e.text}</span>
               {e.fantasy.map((f, i) => (

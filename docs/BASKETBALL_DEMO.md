@@ -17,6 +17,8 @@ The command builds the widget and web app, starts one Express process on port 30
 
 Default data lives in ignored `server/data/c-integration/data/`; host credentials are saved separately with restrictive permissions in that state directory and never printed. Keep this directory private. On Windows, secure the directory with your user account's filesystem ACLs. A running process holds `server.lock`. If a machine crashes, verify its recorded process is gone and its port is unused before removing the stale lock; the tools never kill an unknown process or automatically break a lock.
 
+The owned server explicitly uses JSON room storage and the local rehearsal credential policy. Shell settings for SQLite or strict cookie sessions do not redirect this workflow to another database or deployment. These tools validate the default rehearsal; use the backend's dedicated SQLite/session tests for those opt-in modes.
+
 Use `--state-dir <new-empty-path>` and `--port <free-port>` for another independent rehearsal. Existing nonempty directories without C's ownership marker are refused. Existing servers and deployment files are left alone. Ctrl+C stops only the owned process. The original `npm run demo` and `npm run demo:reset` still operate the legacy workflow.
 
 ## Explicit room targeting
@@ -52,7 +54,7 @@ npm run qa:tracking
 
 For B's changed accessible labels/routes, pass `--selectors <json-file>`. Only the UI selectors are replaceable, not the service/game assertions. See [selector contract](qa/worker-c/SELECTORS.md). `qa:browser -- --smoke` omits the durable lost-response and final/restart gates and produces a different report kind; it cannot satisfy the full release gate.
 
-Use `--game football` for the current baseline. That result does not count as basketball readiness. Use `--no-build` only after building the exact candidate; this reuses widget/web outputs. By default each workflow rebuilds assets. `--timeout-ms` controls waits (default 240000 per game-state wait, maximum 900000). The supplied JSON-file backup adapter does not validate a future database, distributed sessions, or migrations.
+Use `--game football` for football compatibility. The browser runner selects that sport explicitly in the same host form. That result does not count as basketball readiness. Use `--no-build` only after building the exact candidate; this reuses widget/web outputs. By default each workflow rebuilds assets. `--timeout-ms` controls waits (default 240000 per game-state wait, maximum 900000). The JSON-file backup adapter does not validate SQLite or distributed sessions; SQLite restore checks live in the backend test suite.
 
 Evidence defaults to ignored `server/data/c-evidence/`. Set `--out <new-file.json>` for an explicit destination; existing reports are refused. Screenshots use a run-specific subdirectory. Exit 0 means all checks required by that command passed; 1 means a failed assertion/operation; 2 means a blocked prerequisite or required unrun gate. Every report includes its game, run ID, UTC timestamps, exact HEAD, code fingerprint, and per-check statuses. Publish only sanitized evidence, never state folders/backups: those contain credentials.
 

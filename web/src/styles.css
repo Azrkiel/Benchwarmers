@@ -1,5 +1,6 @@
 @import './fonts.css';
 @import './brand/brand.css';
+@import './fx/motion.css';
 
 :root, html.theme-scorebook { color-scheme:dark; font-family:var(--lg-sans); background:var(--lg-bg); color:var(--lg-text); font-synthesis:none; }
 body { margin:0; }

@@ -32,7 +32,7 @@ export function rememberPlayer(code: string, view: RoomView, participantToken: s
   return credentials;
 }
 export class RoomRequestError extends Error {
-  constructor(message: string, public status: number) { super(message); }
+  constructor(message: string, public status: number, public code?: string) { super(message); }
 }
 export async function roomRequest<T>(path: string, options: { body?: unknown; token?: string; signal?: AbortSignal } = {}): Promise<T> {
   const controller = new AbortController();
@@ -47,7 +47,7 @@ export async function roomRequest<T>(path: string, options: { body?: unknown; to
       body: options.body === undefined ? undefined : JSON.stringify(options.body), signal: controller.signal,
     });
     const data = await response.json();
-    if (!response.ok) throw new RoomRequestError(typeof data.error === 'string' ? data.error : typeof data.message === 'string' ? data.message : `The room request failed (${response.status}).`, response.status);
+    if (!response.ok) throw new RoomRequestError(typeof data.error === 'string' ? data.error : typeof data.message === 'string' ? data.message : `The room request failed (${response.status}).`, response.status, typeof data.code === 'string' ? data.code : undefined);
     return data as T;
   } catch (error) {
     if (controller.signal.aborted && !options.signal?.aborted) throw new Error('The room took too long to respond. Try again.');
@@ -55,3 +55,11 @@ export async function roomRequest<T>(path: string, options: { body?: unknown; to
   } finally { clearTimeout(timeout); options.signal?.removeEventListener('abort', abort); }
 }
 export function errorMessage(error: unknown) { return error instanceof Error ? error.message : 'Unable to reach the room. Try again.'; }
+/** Room codes this browser holds a seat or host credential for, newest storage order. */
+export function savedRooms(): { code: string; seated: boolean; host: boolean }[] {
+  const codes = new Set<string>();
+  try { for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key?.startsWith('bw.room.')) codes.add(key.slice(8)); } }
+  catch { storageUnavailable = true; }
+  for (const key of memory.keys()) if (key.startsWith('bw.room.')) codes.add(key.slice(8));
+  return [...codes].map((code) => { const value = roomCredentials(code); return { code, seated: !!value.participantToken, host: !!value.hostToken }; }).filter((room) => room.seated || room.host);
+}

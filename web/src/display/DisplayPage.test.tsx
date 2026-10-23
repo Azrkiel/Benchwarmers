@@ -67,6 +67,13 @@ describe('DisplayScreen', () => {
     expect(screen.getByTestId('display-screen').style.width).toBe('1280px');
   });
 
+  it('offers a compact 960x480 preset labeled as a Show 5 target simulation', () => {
+    renderAt('/display/garcias?size=compact', {});
+    expect(screen.getByRole('button', { name: /Compact 960x480 \(Show 5 target\)/ }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByTestId('display-screen').style.width).toBe('960px');
+    expect(screen.getByText('Simulated smart display')).toBeTruthy();
+  });
+
   it('honours ?size=large and ?clean=1 (no outside chrome)', () => {
     stubFetch();
     renderAt('/display/garcias?size=large&clean=1', {});

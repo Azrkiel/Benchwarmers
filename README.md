@@ -1,14 +1,16 @@
 # Benchwarmers
 
-## Basketball integration (Worker C)
+## Combined basketball and football app
 
-Independent integration tooling and handoff: [basketball demo operations](docs/BASKETBALL_DEMO.md), [C's handoff and acceptance contracts](docs/qa/worker-c/README.md), and [task/checkpoint status](docs/plans/2026-10-23-worker-c-integration.md). `npm run demo:basketball` uses isolated data and requires A's additive basketball room implementation; this main baseline still serves football rooms. `npm run qa:smoke -- --game football` validates the baseline. No fixture is counted as the connected basketball product.
+The combined app includes A's game service, B's phone/shared-display interface and C's integration tools. Run `npm run demo`, open the homepage, and choose **Host a party**. Basketball is the form's default; football remains selectable. Both are fictional scripted replays. Calls, point commitments, pregame picks and live-provider features remain disabled in ordinary startup.
 
-## Primary demo: one big football room
+For an isolated basketball rehearsal with private data and explicit room controls, run `npm run demo:basketball` on port 3037. See [basketball operations](docs/BASKETBALL_DEMO.md), [backend status](docs/BACKEND_COMPLETION.md), and [combined integration verification](docs/ABC_INTEGRATION.md). Historical A/B/C handoffs retain their original milestone context.
 
-Run `npm run demo`, then open **http://localhost:3001**. Create a football room, invite real players from their phones using the printed LAN address and room code, and open the shared TV view. Everyone builds a shared-player lineup: one captain plus four flex athletes under $50,000. The fictional Watch Party Fantasy script includes all 25 players, linemen and specialists, mixed predictions, position weights, and saved room/season standings. Final score: 27-24. No sports feed or cloud credentials required.
+## Room play
 
-Full instructions, player statistics, scoring, phone access, voice commands, and persistence: **[Football room demo](docs/ROOM_DEMO.md)**. The household-based implementation below remains available for existing parties; the primary demo now uses `/room/:code` and `/room/:code/tv`.
+Run `npm run demo`, then open **http://localhost:3001**. Create a basketball or football room, invite players through the printed LAN address and room code, and open the shared display. Everyone selects one captain plus four flex athletes under the salary cap shown for that game. The server controls picks, replay, scoring and saved season standings. No sports feed or cloud credentials are required.
+
+Full game instructions: [basketball](docs/BASKETBALL_DEMO.md) and [football](docs/ROOM_DEMO.md). Phones use `/room/:code`; the combined shared display uses `/room/:code/display`. The older `/room/:code/tv` and household-based views remain available.
 
 A one-night fantasy draft plus live pick'em for watching sports with friends, played by voice. It is built as an Alexa+ add-on for a hackathon (Alexa+ track, AWS Builder mini challenge).
 
@@ -27,7 +29,7 @@ flowchart LR
   end
   subgraph Server["Node server (Express 5)"]
     ASSIST["POST /api/assistant<br/>MCP client"]
-    MCP["POST /mcp<br/>MCP server, 22 tools"]
+    MCP["POST /mcp<br/>MCP server, 30 tools"]
     REST["REST /api<br/>party state"]
     ENGINE["Game engine + JSON store"]
     AI["AI worker<br/>fallback / Gemini / Bedrock"]
@@ -53,9 +55,9 @@ flowchart LR
 
 Protocol `2025-11-25` over Streamable HTTP, stateless (a fresh server per request), at `/mcp`. Auth is a static bearer token (`Authorization: Bearer <MCP_TOKEN>`).
 
-Tools (22): 11 household tools (`setup_watch_party`, `join_watch_party`, `start_watch_party`, `get_game_status`, `explain_last_result`, `get_my_roster`, `list_available_players`, `draft_player`, `make_pick`, `get_leaderboard`, `get_season_standings`) and 11 football room tools (`room_create`, `room_join`, `room_host`, `room_list`, `room_status`, `room_player_pool`, `room_set_lineup`, `room_auto_lineup`, `room_predict`, `room_leaderboard`, `room_season`).
+Tools (30): 11 household tools and 19 room tools. Room tools cover creation, joining, host controls, status, players, lineups, predictions, standings, `room_ask`, commitment review/acceptance, call review/creation and pregame picks/reference. Tool availability does not enable a gated feature; the authoritative room service enforces its settings.
 
-Five of them (`list_available_players`, `draft_player`, `make_pick`, `get_leaderboard`, `get_season_standings`) are registered as app tools and render the MCP App widget at `ui://benchwarmers/board.html` (single-file HTML with Draft board, Tonight and Season tabs).
+Five household tools (`list_available_players`, `draft_player`, `make_pick`, `get_leaderboard`, `get_season_standings`) render the MCP App widget at `ui://benchwarmers/board.html`. The combined room surface also provides a public-state room board through `room_status` and `room_ask` at `ui://benchwarmers/room-board.html`.
 
 Prompt: `watch_party_host`. Resources: `benchwarmers://rules`, `benchwarmers://room-rules` and the board's `ui://` HTML.
 
@@ -72,7 +74,8 @@ npm run demo
 
 | URL | What |
 |---|---|
-| http://localhost:3001/ | Create or join a football room |
+| http://localhost:3001/ | Create or join a basketball or football room |
+| http://localhost:3001/room/CODE/display | Combined shared display |
 | http://localhost:3001/room/CODE/tv | Shared screen for your room code |
 | http://localhost:3001/tv/DEMO | Legacy TV view for the seeded `DEMO` party |
 | http://localhost:3001/device/garcias | Legacy device simulator, The Garcias (Maya, Leo) |
@@ -93,7 +96,7 @@ Platform notes:
 
 ### Demo mode
 
-The demo defaults need no network or cloud credentials: `AI_MODE=fallback` uses committed content and `ASSISTANT_MODE=offline` uses a rule-based router. Create another football room to play another saved night. `npm run demo:reset` affects only the legacy `DEMO` household party, not football room history.
+The demo defaults need no network or cloud credentials: `AI_MODE=fallback` uses committed content and `ASSISTANT_MODE=offline` uses a rule-based router. Create another room to play another saved night. `npm run demo:reset` affects only the legacy `DEMO` household party, not room history.
 
 ## Configuration
 
@@ -105,8 +108,8 @@ Copy `.env.example` to `.env` in the repo root; the server loads it at startup.
 | `SPEED` | `4` | Game seconds per real second |
 | `MCP_TOKEN` | `dev-token-change-me` | Bearer token MCP clients must send |
 | `DATA_FILE` | `data/store.json` | JSON store path (relative to the working directory) |
-| `ROOM_DATA_FILE` | `data/rooms.json` | Separate saved football rooms and seasons |
-| `ROOM_SPEED` | `1` | Initial football replay speed, 1-4 |
+| `ROOM_DATA_FILE` | `data/rooms.json` | Separate saved rooms and seasons |
+| `ROOM_SPEED` | `1` | Initial room replay speed, 1-4 |
 | `AI_MODE` | `fallback` | Content source: `fallback`, `gemini`, or `bedrock` |
 | `AWS_REGION` | `us-east-1` | Region for Bedrock |
 | `BEDROCK_MODEL_ID` | empty | A Haiku-tier Claude inference profile id |

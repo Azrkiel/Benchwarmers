@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "runId": "83fd29aa-a824-44e8-97e0-ebaa5fac91fa",
+  "kind": "accept",
+  "game": "basketball",
+  "startedAt": "2026-10-23T12:42:56.714Z",
+  "runtime": {
+    "node": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 895,
+      "detail": {
+        "isolatedData": true,
+        "port": 52882,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "room-contract",
+      "status": "passed",
+      "ms": 47,
+      "detail": {
+        "code": "F528A5",
+        "game": "basketball"
+      }
+    },
+    {
+      "name": "join-lineup",
+      "status": "passed",
+      "ms": 63
+    },
+    {
+      "name": "authorization",
+      "status": "passed",
+      "ms": 18
+    },
+    {
+      "name": "voice-service",
+      "status": "passed",
+      "ms": 263,
+      "detail": {
+        "toolCount": 30,
+        "realMicrophone": "unrun",
+        "transport": "Streamable HTTP"
+      }
+    },
+    {
+      "name": "pause-restart",
+      "status": "passed",
+      "ms": 955
+    },
+    {
+      "name": "durable-receipts",
+      "status": "passed",
+      "ms": 910
+    },
+    {
+      "name": "lost-response-retry",
+      "status": "passed",
+      "ms": 48
+    },
+    {
+      "name": "request-id-conflict",
+      "status": "passed",
+      "ms": 20
+    },
+    {
+      "name": "lock-boundary",
+      "status": "passed",
+      "ms": 7902
+    },
+    {
+      "name": "final-season-restart",
+      "status": "passed",
+      "ms": 52659,
+      "detail": {
+        "score": [
+          57,
+          56
+        ],
+        "standings": 1
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "cc1468b9803bd35fe1965f650b0fed465b224f9b",
+    "fingerprint": "eaa904e1ce74e42770b627e56bcfd22e255427217e66f1ea10ca87ae8b5c0d3b"
+  },
+  "stateDirectory": "C:\\Users\\jiang\\AppData\\Local\\Temp\\bw-c-8Y9Sj6",
+  "completedAt": "2026-10-23T12:44:01.701Z",
+  "status": "passed"
+}

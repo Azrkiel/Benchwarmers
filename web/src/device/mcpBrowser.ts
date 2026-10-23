@@ -15,6 +15,8 @@ export type ReadResourceResultLike = {
 
 export type DeviceMcp = {
   callTool(name: string, args: Record<string, unknown>): Promise<CallToolResultLike>;
+  /** Tool names from tools/list (the simulator shows this in its MCP trace). */
+  listTools?(): Promise<string[]>;
   readResource(uri: string): Promise<ReadResourceResultLike>;
   close(): Promise<void>;
 };
@@ -51,6 +53,10 @@ export function createBrowserMcp(opts: { url?: string; token?: string } = {}): D
     async callTool(name, args) {
       const client = await connect();
       return (await client.callTool({ name, arguments: args })) as unknown as CallToolResultLike;
+    },
+    async listTools() {
+      const client = await connect();
+      return (await client.listTools()).tools.map((tool) => tool.name);
     },
     async readResource(uri) {
       const client = await connect();

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "runId": "cbba56ad-a5e2-4970-82e8-c0e01825dac0",
+  "kind": "smoke",
+  "game": "basketball",
+  "startedAt": "2026-10-23T12:42:53.137Z",
+  "runtime": {
+    "node": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 1115,
+      "detail": {
+        "isolatedData": true,
+        "port": 52865,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "room-contract",
+      "status": "passed",
+      "ms": 50,
+      "detail": {
+        "code": "669DFD",
+        "game": "basketball"
+      }
+    },
+    {
+      "name": "join-lineup",
+      "status": "passed",
+      "ms": 74
+    },
+    {
+      "name": "authorization",
+      "status": "passed",
+      "ms": 22
+    },
+    {
+      "name": "voice-service",
+      "status": "passed",
+      "ms": 262,
+      "detail": {
+        "toolCount": 30,
+        "realMicrophone": "unrun",
+        "transport": "Streamable HTTP"
+      }
+    },
+    {
+      "name": "pause-restart",
+      "status": "passed",
+      "ms": 955
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "cc1468b9803bd35fe1965f650b0fed465b224f9b",
+    "fingerprint": "eaa904e1ce74e42770b627e56bcfd22e255427217e66f1ea10ca87ae8b5c0d3b"
+  },
+  "stateDirectory": "C:\\Users\\jiang\\AppData\\Local\\Temp\\bw-c-m8Wx0W",
+  "completedAt": "2026-10-23T12:42:56.157Z",
+  "status": "passed"
+}

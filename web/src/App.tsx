@@ -6,6 +6,7 @@ import { VoiceLabPage } from './voiceid/VoiceLabPage';
 import { useScorebookTheme } from './lib/theme';
 import { HomePage } from './home/HomePage';
 import { WelcomePage } from './home/WelcomePage';
+import { ReplaysPage, SeasonPage, ToolsPage } from './home/SecondaryPages';
 import { NotFound, PageTitle, RouteBoundary, RouteLoading } from './shell/RouteStatus';
 
 // TV layouts keep their CSS in independent route chunks.
@@ -16,6 +17,9 @@ const WatchPage = lazy(() => import('./watch/WatchPage').then((m) => ({ default:
 const ControlPage = lazy(() => import('./control/ControlPage').then((m) => ({ default: m.ControlPage })));
 const RoomPage = lazy(() => import('./room/RoomPage').then((m) => ({ default: m.RoomPage })));
 const RoomTvPage = lazy(() => import('./room/RoomTvPage').then((m) => ({ default: m.RoomTvPage })));
+const RoomSimulatorPage = lazy(() => import('./room/RoomSimulatorPage').then((m) => ({ default: m.RoomSimulatorPage })));
+const PointsPreview = lazy(() => import('./room/PointsPreview').then((m) => ({ default: m.PointsPreview })));
+const RoomDisplayPage = lazy(() => import('./room/RoomDisplayPage').then((m) => ({ default: m.RoomDisplayPage })));
 
 function Scorebook({ children }: { children: ReactNode }) {
   useScorebookTheme();
@@ -29,15 +33,21 @@ export function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/room/:code" element={<RoomPage />} />
         <Route path="/room/:code/tv" element={<RoomTvPage />} />
+        <Route path="/room/:code/display" element={<RoomDisplayPage />} />
         <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/season" element={<SeasonPage />} />
+        <Route path="/replays" element={<ReplaysPage />} />
+        <Route path="/tools" element={<ToolsPage />} />
         <Route path="/tv/:code" element={<TvPage />} />
         <Route path="/tv2/:code" element={<Scorebook><BroadcastTvPage /></Scorebook>} />
         <Route path="/lounge/:code" element={<Scorebook><LoungePage /></Scorebook>} />
         <Route path="/watch/:code" element={<Scorebook><WatchPage /></Scorebook>} />
         <Route path="/control/:code" element={<Scorebook><ControlPage /></Scorebook>} />
         <Route path="/device/:household" element={<DevicePage />} />
+        <Route path="/display/room/:code" element={<RoomSimulatorPage />} />
         <Route path="/display/:household" element={<DisplayPage />} />
         <Route path="/voice-lab" element={<VoiceLabPage />} />
+        {import.meta.env.DEV && <Route path="/preview/points" element={<PointsPreview />} />}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

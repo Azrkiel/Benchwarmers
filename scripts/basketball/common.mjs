@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import net from 'node:net';
+import { request as httpRequest } from 'node:http';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -121,7 +122,9 @@ export class Server {
     this.token = this.report?.secret(randomUUID()) ?? randomUUID();
     const child = spawn(process.execPath, ['--import', 'tsx', '--import', pathToFileURL(path.join(root, 'scripts/basketball/parent-guard.mjs')).href, path.join(root, 'server/src/index.ts')], {
       cwd: path.join(root, 'server'), stdio: ['ignore', log.fd, log.fd, 'ipc'],
-      env: { ...process.env, PORT: String(this.port), DATA_FILE: path.join(this.directory, 'data/store.json'), ROOM_DATA_FILE: path.join(this.directory, 'data/rooms.json'), AI_MODE: 'fallback', ASSISTANT_MODE: 'offline', MCP_TOKEN: this.token, ALLOWED_HOSTS: 'localhost,127.0.0.1', SPEED: '4', ROOM_SPEED: '4' },
+      // These workflows validate isolated JSON rehearsals, never an inherited
+      // SQLite file or production cookie/session policy from the calling shell.
+      env: { ...process.env, PORT: String(this.port), DATA_FILE: path.join(this.directory, 'data/store.json'), ROOM_DATA_FILE: path.join(this.directory, 'data/rooms.json'), ROOM_STORAGE: 'json', ROOM_SESSIONS: 'off', AI_MODE: 'fallback', ASSISTANT_MODE: 'offline', MCP_TOKEN: this.token, ALLOWED_HOSTS: 'localhost,127.0.0.1', SPEED: '4', ROOM_SPEED: '4' },
     });
     this.child = child;
     let launchError;
@@ -153,8 +156,22 @@ export class Server {
     await fs.unlink(path.join(this.directory, 'server.lock'));
   }
   async request(route, { body, token, expected = 200, timeout = 10000 } = {}) {
-    const response = await fetch(this.base + route, { method: body === undefined ? 'GET' : 'POST', headers: { ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(timeout) });
-    const text = await response.text();
+    const payload = body === undefined ? undefined : JSON.stringify(body);
+    // Each probe owns its socket: a paused controller must not reuse an idle
+    // connection the server expired. No hidden retries or relaxed deadlines.
+    const response = await new Promise((resolve, reject) => {
+      const request = httpRequest(this.base + route, {
+        method: payload === undefined ? 'GET' : 'POST', signal: AbortSignal.timeout(timeout), agent: false,
+        headers: { ...(payload === undefined ? {} : { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      }, response => {
+        let text = ''; response.setEncoding('utf8');
+        response.on('data', chunk => { text += chunk; });
+        response.on('error', reject);
+        response.on('end', () => resolve({ status: response.statusCode, text }));
+      });
+      request.on('error', reject); request.end(payload);
+    });
+    const text = response.text;
     let data; try { data = JSON.parse(text); } catch { data = text; }
     assert.equal(response.status, expected, `${route}: expected ${expected}, got ${response.status} (${data?.code ?? 'no error code'})`);
     return { status: response.status, body: data };

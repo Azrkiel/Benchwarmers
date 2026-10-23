@@ -24,13 +24,12 @@ import {
 import { rulesMarkdown } from './rules.js';
 import type { RoomStore } from '../room/store.js';
 import { registerRoomTools } from '../room/mcp.js';
+import { readWidgetHtml } from './widgetHtml.js';
 
 export const BOARD_URI = 'ui://benchwarmers/board.html';
 export const DEFAULT_CREW_ID = 'sunday-crew';
 export const RULES_URI = 'benchwarmers://rules';
 
-const WIDGET_URL = new URL('./widget/dist/benchwarmers.html', import.meta.url);
-const WIDGET_FALLBACK = '<!doctype html><html><body><p>Widget not built. Run npm run build:widget -w server.</p></body></html>';
 const GENERIC_ERROR = 'Something went wrong on our side. Try again in a moment.';
 
 // ---------- result helpers ----------
@@ -791,13 +790,7 @@ export function createServer(store: Store, roomStore?: RoomStore): McpServer {
     BOARD_URI,
     { mimeType: RESOURCE_MIME_TYPE, description: 'Benchwarmers draft board and leaderboard widget.' },
     async () => {
-      let html: string;
-      try {
-        html = await fs.readFile(WIDGET_URL, 'utf8');
-      } catch {
-        html = WIDGET_FALLBACK;
-      }
-      return { contents: [{ uri: BOARD_URI, mimeType: RESOURCE_MIME_TYPE, text: html }] };
+      return { contents: [{ uri: BOARD_URI, mimeType: RESOURCE_MIME_TYPE, text: await readWidgetHtml() }] };
     },
   );
 

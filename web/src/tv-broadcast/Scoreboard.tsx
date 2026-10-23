@@ -1,4 +1,5 @@
 import type { PartyStateResponse } from '@shared/types';
+import { ScoreTick } from '../fx/fx';
 
 export function Scoreboard({ state, expanded = false }: { state: PartyStateResponse; expanded?: boolean }) {
   const { home, away, clock } = state.game;
@@ -13,9 +14,9 @@ export function Scoreboard({ state, expanded = false }: { state: PartyStateRespo
       </div>
       <div className="tv-sb-mid">
         <div className="tv-sb-scores">
-          <span className={`tv-sb-score${homeLead ? ' is-leading' : ''}`}>{home.score}</span>
+          <span className={`tv-sb-score${homeLead ? ' is-leading' : ''}`}><ScoreTick value={home.score} /></span>
           <span className="tv-sb-dash">–</span>
-          <span className={`tv-sb-score${awayLead ? ' is-leading' : ''}`}>{away.score}</span>
+          <span className={`tv-sb-score${awayLead ? ' is-leading' : ''}`}><ScoreTick value={away.score} /></span>
         </div>
         <div className="tv-sb-meta">
           <span className="tv-live-pill">{state.party.status === 'live' ? 'Playing' : state.party.status === 'final' ? 'Final' : 'Pregame'}</span>

@@ -12,9 +12,11 @@ import { WidgetHost, type WidgetStatus } from '../device/WidgetHost';
 import type { DeviceDeps } from '../device/DevicePage';
 import './display.css';
 
-export type DisplaySize = 'small' | 'large';
+export type DisplaySize = 'compact' | 'small' | 'large';
 
+// Browser presets only: a CSS size is not a device certification.
 export const SIZES: Record<DisplaySize, { w: number; h: number; label: string }> = {
+  compact: { w: 960, h: 480, label: 'Compact 960x480 (Show 5 target)' },
   small: { w: 1280, h: 800, label: 'Small 1280x800' },
   large: { w: 1920, h: 1080, label: 'Large 1920x1080' },
 };
@@ -66,7 +68,8 @@ export function DisplayPage() {
 export function DisplayScreen({ household, deps = {} }: { household: string; deps?: DeviceDeps }) {
   const [params, setParams] = useSearchParams();
   const clean = params.get('clean') === '1';
-  const size: DisplaySize = params.get('size') === 'large' ? 'large' : 'small';
+  const requestedSize = params.get('size');
+  const size: DisplaySize = requestedSize === 'large' || requestedSize === 'compact' ? requestedSize : 'small';
   const dims = SIZES[size];
   const setSize = (s: DisplaySize) => {
     const next = new URLSearchParams(params);

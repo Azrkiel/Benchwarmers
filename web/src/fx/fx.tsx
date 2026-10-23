@@ -161,15 +161,12 @@ export function ToastLayer({ toasts, placement = 'bottom' }: { toasts: (Toast & 
 
 // ---------- Score bump ----------
 
-/** A number that bumps and glows whenever it changes (not on first paint). */
+/** A number that pops whenever it changes (not on first paint). */
 export function ScoreTick({ value, className = '' }: { value: number | string; className?: string }) {
-  const first = useRef(true);
-  const [bump, setBump] = useState(0);
-  useEffect(() => {
-    if (first.current) { first.current = false; return; }
-    setBump((n) => n + 1);
-  }, [value]);
-  return <span key={bump} className={`fx-tick${bump ? ' is-bumped' : ''}${className ? ` ${className}` : ''}`}>{value}</span>;
+  // Track the value itself: mount effects run twice under StrictMode.
+  const [tick, setTick] = useState({ value, revision: 0 });
+  if (!Object.is(tick.value, value)) setTick({ value, revision: tick.revision + 1 });
+  return <span key={tick.revision} className={`fx-tick${tick.revision ? ' is-bumped' : ''}${className ? ` ${className}` : ''}`}>{value}</span>;
 }
 
 export const CONFETTI = ['#f51825', '#ffffff', '#bfc2c8'];

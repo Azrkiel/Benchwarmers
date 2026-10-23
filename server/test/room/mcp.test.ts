@@ -25,4 +25,55 @@ it('exposes room tools through the existing MCP endpoint and plays a real room f
   await call('room_predict',{code,participantToken:p.participantToken,questionId:s.question.id,optionId:'TD'});
   const publicState=await call('room_status',{code});expect(publicState.room.participantCount).toBe(1);expect(JSON.stringify(publicState)).not.toContain(p.participantToken);
   const denied=await client.callTool({name:'room_host',arguments:{code,hostToken:'wrong',action:'pause'}});expect(denied.isError).toBe(true);
+  // Spoken requests go through the same typed commands and say whether anything was accepted.
+  const rank=await client.callTool({name:'room_ask',arguments:{code,participantToken:p.participantToken,text:"what's my rank?"}});
+  expect((rank.content as {text:string}[])[0]!.text).toMatch(/^Sam, you are number 1 of 1/);
+  const hostless=await call('room_ask',{code,text:'pause the replay'});
+  expect(hostless).toMatchObject({accepted:false,reply:'Only the host can pause the replay.'});
+  expect(JSON.stringify(hostless)).not.toContain(p.participantToken);
+});
+
+it('accepts a basketball room_predict without a client request id and keeps retries idempotent',async()=>{
+  let now=3_000_000;const roomStore=new RoomStore({persist:false,now:()=>now,speed:4});
+  const app=createApp({store:new Store({persist:false}),roomStore});
+  server=await new Promise<http.Server>(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});
+  client=new Client({name:'room-basketball-test',version:'1.0.0'});
+  await client.connect(new StreamableHTTPClientTransport(new URL(`http://127.0.0.1:${(server.address() as AddressInfo).port}/mcp`),{requestInit:{headers:{authorization:`Bearer ${process.env.MCP_TOKEN??'dev-token-change-me'}`}}}));
+  const call=async(name:string,args:Record<string,unknown>)=>{const r=await client.callTool({name,arguments:args});expect(r.isError,JSON.stringify(r.content)).not.toBe(true);return r.structuredContent as any;};
+  const c=await call('room_create',{name:'MCP basketball',gameId:'harbor-vs-summit'});const code=c.view.room.code;
+  expect(c.view.game.sport).toBe('basketball');
+  const p=await call('room_join',{code,name:'Leo'});
+  await call('room_auto_lineup',{code,participantToken:p.participantToken});
+  await call('room_host',{code,hostToken:c.hostToken,action:'start'});
+  for(let i=0;i<4000&&roomStore.view(code).question?.status!=='open';i++){now+=250;roomStore.tick();}
+  const q=roomStore.view(code).question!;
+  const args={code,participantToken:p.participantToken,questionId:q.id,optionId:q.options[0]!.id};
+  const first=await call('room_predict',args);
+  expect(first.receipt).toMatchObject({questionId:q.id,optionId:q.options[0]!.id});
+  const again=await call('room_predict',args);
+  expect(again.me.currentPick.optionId).toBe(q.options[0]!.id);
+});
+
+it('quotes and commits points over MCP only with a quote, and retries are idempotent',async()=>{
+  let now=6_000_000;
+  const probabilities=(['harbor','summit'] as const).map(optionId=>({gameId:'harbor-vs-summit',templateId:'next_score_team',optionId,estimate:{p:.5,version:'t1',label:'Authored test probability',source:'demo_projection',observedAt:0,validUntil:100_000_000}}));
+  const roomStore=new RoomStore({persist:false,now:()=>now,speed:4,enableCommitments:true,probabilities});
+  const app=createApp({store:new Store({persist:false}),roomStore});
+  server=await new Promise<http.Server>(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});
+  client=new Client({name:'room-points-test',version:'1.0.0'});
+  await client.connect(new StreamableHTTPClientTransport(new URL(`http://127.0.0.1:${(server.address() as AddressInfo).port}/mcp`),{requestInit:{headers:{authorization:`Bearer ${process.env.MCP_TOKEN??'dev-token-change-me'}`}}}));
+  const call=async(name:string,args:Record<string,unknown>)=>{const r=await client.callTool({name,arguments:args});expect(r.isError,JSON.stringify(r.content)).not.toBe(true);return r.structuredContent as any;};
+  const c=await call('room_create',{gameId:'harbor-vs-summit'});const code=c.view.room.code;
+  const p=await call('room_join',{code,name:'Leo'});
+  await call('room_auto_lineup',{code,participantToken:p.participantToken});
+  await call('room_host',{code,hostToken:c.hostToken,action:'start'});
+  for(let i=0;i<4000&&(roomStore.view(code).question?.kind!=='next_score_team'||roomStore.view(code).question?.status!=='open');i++){now+=250;roomStore.tick();}
+  const q=roomStore.view(code).question!;
+  const {quote}=await call('room_quote_commitment',{code,participantToken:p.participantToken,questionId:q.id,optionId:'harbor',commitPoints:25});
+  expect(roomStore.view(code,p.participantToken).me!.bank!.availablePoints).toBe(100);
+  const first=await call('room_commit_points',{code,participantToken:p.participantToken,quoteId:quote.quoteId,requestId:'mcp-commit-1'});
+  const second=await call('room_commit_points',{code,participantToken:p.participantToken,quoteId:quote.quoteId,requestId:'mcp-commit-1'});
+  expect(second.commitment.callId).toBe(first.commitment.callId);
+  expect(roomStore.view(code,p.participantToken).me!.bank).toMatchObject({availablePoints:75,reservedPoints:25});
+  expect(JSON.stringify(await call('room_status',{code}))).not.toContain('"bank"');
 });

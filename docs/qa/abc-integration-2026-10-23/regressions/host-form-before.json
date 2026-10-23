@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "runId": "5288a440-0f4b-43d1-90d9-96a86f8dd0a7",
+  "kind": "browser",
+  "game": "basketball",
+  "startedAt": "2026-10-23T13:10:09.614Z",
+  "runtime": {
+    "node": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 1370,
+      "detail": {
+        "isolatedData": true,
+        "port": 49694,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "host-ui",
+      "status": "failed",
+      "ms": 15394,
+      "message": "locator.fill: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#rm-room-name')\u001b[22m\n"
+    },
+    {
+      "name": "join-lineup-ui",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "pick-ui",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "typed-assistant-ui",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "disconnect-recovery-ui",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "multi-display-ui",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "page-errors",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "lost-response-ui",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "final-restart-ui",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "3ec6410855746c7b6c4eee4a4728c5d80c60a494",
+    "fingerprint": "eaa904e1ce74e42770b627e56bcfd22e255427217e66f1ea10ca87ae8b5c0d3b"
+  },
+  "stateDirectory": "C:\\Users\\jiang\\AppData\\Local\\Temp\\bw-c-X3JRmF",
+  "completedAt": "2026-10-23T13:10:29.959Z",
+  "status": "failed"
+}
