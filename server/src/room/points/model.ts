@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { playerCallDraftSchema } from '../calls/model.js';
 
 export class PointsError extends Error {
   constructor(readonly status:number,readonly code:string,message:string){super(message);this.name='PointsError';}
@@ -7,7 +8,7 @@ export const unitsSchema=z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 const id=z.string().min(1);
 const time=z.number().finite().nonnegative();
 const quoteShape={quoteId:id,targetId:id,questionId:id,optionId:id,optionLabel:id,commitPoints:z.number().positive(),totalReturnPoints:z.number().nonnegative(),multiplier:z.number().min(.7).max(5),probabilityLabel:id,firstCaller:z.boolean(),expiresAt:time};
-export const storedQuoteSchema=z.object({...quoteShape,participantId:id,commitUnits:unitsSchema,totalReturnUnits:unitsSchema,multiplierHundredths:unitsSchema,targetVersion:id,probabilityVersion:id,probabilitySource:id,probabilityP:z.number().positive().max(1),pricingVersion:id,eligibleCount:unitsSchema,sameAccepted:unitsSchema}).strict();
+export const storedQuoteSchema=z.object({...quoteShape,participantId:id,commitUnits:unitsSchema,totalReturnUnits:unitsSchema,multiplierHundredths:unitsSchema,targetVersion:id,probabilityVersion:id,probabilitySource:id,probabilityP:z.number().positive().max(1),pricingVersion:id,eligibleCount:unitsSchema,sameAccepted:unitsSchema,playerCall:playerCallDraftSchema.optional()}).strict();
 export const storedCallSchema=z.object({
   callId:id,requestId:id,quoteId:id,questionId:id,optionId:id,optionLabel:id,
   commitPoints:z.number().positive(),totalReturnPoints:z.number().nonnegative(),
