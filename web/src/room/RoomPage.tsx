@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { BrandLockup } from '../brand/Brand';
-import { storageWarning } from './api';
+import { roomRequest, storageWarning } from './api';
 import { ScoreTick, ToastLayer } from '../fx/fx';
 import { FinalPodium, FootballField, HostControls, Leaderboard, PlayFeed, points, Question, RoomRules, RoomScore } from './components';
 import { BasketballCourt } from './BasketballCourt';
@@ -43,6 +43,7 @@ export function RoomPage() {
   const { receipt, submit } = usePickReceipt({
     send: (body) => send('picks', { ...body, participantToken: credentials.participantToken }),
     refresh,
+    lookup: (requestId) => roomRequest(`/api/rooms/${encodeURIComponent(code)}/receipts/${encodeURIComponent(requestId)}`, { token: credentials.participantToken }),
   });
   function choose(next: RoomViewId) {
     setTab(next);

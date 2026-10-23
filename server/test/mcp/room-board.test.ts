@@ -6,7 +6,7 @@ import { createApp } from '../../src/index.js';
 import { Store } from '../../src/game/store.js';
 import { RoomStore } from '../../src/room/store.js';
 import { ROOM_BOARD_URI } from '../../src/room/mcp.js';
-import { renderRoomBoard, roomViewOf } from '../../src/mcp/widget/src/roomBoard.ts';
+import { renderRoomBoard, roomViewOf } from '../../src/mcp/widget/src/roomBoard.js';
 
 describe('room board render', () => {
   const store = new RoomStore({ persist: false });

@@ -32,3 +32,24 @@ it('exposes room tools through the existing MCP endpoint and plays a real room f
   expect(hostless).toMatchObject({accepted:false,reply:'Only the host can pause the replay.'});
   expect(JSON.stringify(hostless)).not.toContain(p.participantToken);
 });
+
+it('accepts a basketball room_predict without a client request id and keeps retries idempotent',async()=>{
+  let now=3_000_000;const roomStore=new RoomStore({persist:false,now:()=>now,speed:4});
+  const app=createApp({store:new Store({persist:false}),roomStore});
+  server=await new Promise<http.Server>(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});
+  client=new Client({name:'room-basketball-test',version:'1.0.0'});
+  await client.connect(new StreamableHTTPClientTransport(new URL(`http://127.0.0.1:${(server.address() as AddressInfo).port}/mcp`),{requestInit:{headers:{authorization:`Bearer ${process.env.MCP_TOKEN??'dev-token-change-me'}`}}}));
+  const call=async(name:string,args:Record<string,unknown>)=>{const r=await client.callTool({name,arguments:args});expect(r.isError,JSON.stringify(r.content)).not.toBe(true);return r.structuredContent as any;};
+  const c=await call('room_create',{name:'MCP basketball',gameId:'harbor-vs-summit'});const code=c.view.room.code;
+  expect(c.view.game.sport).toBe('basketball');
+  const p=await call('room_join',{code,name:'Leo'});
+  await call('room_auto_lineup',{code,participantToken:p.participantToken});
+  await call('room_host',{code,hostToken:c.hostToken,action:'start'});
+  for(let i=0;i<4000&&roomStore.view(code).question?.status!=='open';i++){now+=250;roomStore.tick();}
+  const q=roomStore.view(code).question!;
+  const args={code,participantToken:p.participantToken,questionId:q.id,optionId:q.options[0]!.id};
+  const first=await call('room_predict',args);
+  expect(first.receipt).toMatchObject({questionId:q.id,optionId:q.options[0]!.id});
+  const again=await call('room_predict',args);
+  expect(again.me.currentPick.optionId).toBe(q.options[0]!.id);
+});

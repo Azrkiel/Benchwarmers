@@ -1,6 +1,6 @@
 // Room board: pure render of the public room snapshot. No DOM, no App import.
 import type { RoomView } from '../../../shared/room.js';
-import { escapeHtml as e, readableText, safeColor } from './render.ts';
+import { escapeHtml as e, readableText, safeColor } from './render.js';
 
 /** Accepts room tool results (room_status, room_ask) and keeps only public room state. */
 export function roomViewOf(sc: Record<string, unknown> | undefined): RoomView | undefined {

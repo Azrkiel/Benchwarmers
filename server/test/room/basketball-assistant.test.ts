@@ -128,3 +128,39 @@ describe('command execution', () => {
     expect(answerRoom(r.store, r.code, { text: 'show season standings' }).reply).toBe('Season standings open after the final.');
   });
 });
+
+describe('voice on a real basketball room', () => {
+  function basketball() {
+    let now = 2_000_000;
+    const store = new RoomStore({ persist: false, now: () => now, speed: 4 });
+    const created = store.create({ gameId: 'harbor-vs-summit' });
+    const code = created.view.room.code;
+    const seat = store.join(code, { name: 'Maya' });
+    store.autoLineup(code, { participantToken: seat.participantToken });
+    store.host(code, { hostToken: created.hostToken, action: 'start' });
+    for (let i = 0; i < 4000 && store.view(code).question?.status !== 'open'; i++) { now += 250; store.tick(); }
+    return { store, code, token: seat.participantToken };
+  }
+
+  it('answers an open basketball call by voice with a receipt-backed acceptance', () => {
+    const { store, code, token } = basketball();
+    const q = store.view(code).question!;
+    expect(store.view(code).game.sport).toBe('basketball');
+    const [first, second] = q.options;
+    const said = answerRoom(store, code, { text: first!.label, participantToken: token });
+    expect(said).toMatchObject({ accepted: true, reply: `${first!.label} accepted.` });
+    expect(said.view.me!.currentPick).toEqual({ questionId: q.id, optionId: first!.id });
+    // Change, then change back: each is a new request, so the latest answer wins.
+    expect(answerRoom(store, code, { text: second!.label, participantToken: token }).view.me!.currentPick!.optionId).toBe(second!.id);
+    expect(answerRoom(store, code, { text: first!.label, participantToken: token }).view.me!.currentPick!.optionId).toBe(first!.id);
+  });
+
+  it('reports possession from the basketball context', () => {
+    const { store, code } = basketball();
+    const reply = answerRoom(store, code, { text: 'who has the ball?' }).reply;
+    const view = store.view(code);
+    const id = view.game.context!.possessionTeamId;
+    const team = id === view.game.home.id ? view.game.home : id === view.game.away.id ? view.game.away : undefined;
+    expect(reply).toBe(team ? `${team.name} have the ball.` : 'Possession is unknown right now.');
+  });
+});

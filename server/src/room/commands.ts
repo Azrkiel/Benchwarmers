@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { RoomError, type RoomStore } from './store.js';
 import type { RoomView } from './types.js';
 
@@ -96,6 +97,16 @@ export function parseCommand(input: string, view: RoomView): RoomCommand {
   return { kind: 'read', topic: 'help' };
 }
 
+/**
+ * Stable request id for a spoken or tool pick. The same request retried (a duplicate
+ * model tool call) maps to the same id, so the server returns the original receipt;
+ * a changed answer, or changing back, includes the current pick and gets a new id.
+ */
+export function pickRequestId(prefix: 'voice' | 'mcp', participantId: string, questionId: string, optionId: string, currentOptionId: string | undefined): string {
+  const digest = createHash('sha256').update(`${participantId}:${questionId}:${optionId}:${currentOptionId ?? ''}`).digest('hex').slice(0, 40);
+  return `${prefix}-${digest}`;
+}
+
 const HOST_VERB = { start: 'start the game', pause: 'pause the replay', resume: 'resume the replay', set_speed: 'change the replay speed' } as const;
 
 function scoreLine(view: RoomView): string {
@@ -180,7 +191,8 @@ export function executeCommand(store: RoomStore, code: string, command: RoomComm
       if (!q || q.id !== command.questionId || q.status !== 'open') return done('That call has closed. Nothing was accepted.', { accepted: false });
       // A repeated command after success must not act twice.
       if (view.me.currentPick?.questionId === q.id && view.me.currentPick.optionId === command.optionId) return done(`${label} is already your pick.`, { accepted: true });
-      try { view = store.pick(code, { participantToken: token, questionId: q.id, optionId: command.optionId }); }
+      const current = view.me.currentPick?.questionId === q.id ? view.me.currentPick.optionId : undefined;
+      try { view = store.pick(code, { participantToken: token, questionId: q.id, optionId: command.optionId, requestId: pickRequestId('voice', view.me.participantId, q.id, command.optionId, current) }); }
       catch (err) {
         if (err instanceof RoomError && err.code === 'PICKS_LOCKED') return done(`That call closed before your answer arrived. ${label} was not accepted.`, { accepted: false });
         if (err instanceof RoomError && err.status < 500) return done(`${label} was not accepted: ${err.message}`, { accepted: false });

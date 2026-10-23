@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { RoomError, type RoomStore } from './store.js';
 import { autoLineupSchema, createRoomSchema, hostSchema, joinRoomSchema, lineupSchema, pickSchema, utteranceSchema } from './routes.js';
 import { answerRoom } from './assistant.js';
+import { pickRequestId } from './commands.js';
 import { registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { readWidgetHtml } from '../mcp/widgetHtml.js';
 
@@ -32,7 +33,13 @@ export function registerRoomTools(server:McpServer,store:RoomStore):void {
   register('room_player_pool','List every athlete, salary, position weight, and visible stat line. All participants can select the same athletes.',codeSchema,true,a=>{const v=store.view(a.code);return{players:v.players,rules:v.rules};});
   register('room_set_lineup','Save one captain and four different flex athletes within the salary cap shown in room_status rules. The captain costs and scores the captain multiplier. Lineups lock when the host starts the game.',codeSchema.extend(lineupSchema.shape),false,({code,...a})=>store.setLineup(code,a));
   register('room_auto_lineup','Build a legal shared-player lineup: balanced, stars, or value/sleepers.',codeSchema.extend(autoLineupSchema.shape),false,({code,...a})=>store.autoLineup(code,a));
-  register('room_predict','Answer the current room question before it locks (the server clock decides). Choose an option id from room_status. A response with me.currentPick equal to your answer is the acceptance; correct answers earn base points plus streak, timing and minority bonuses.',codeSchema.extend(pickSchema.shape),false,({code,...a})=>store.pick(code,a));
+  register('room_predict','Answer the current room question before it locks (the server clock decides). Choose an option id from room_status. Pass a requestId (letters, numbers, - or _) and reuse it when retrying; the response receipt confirms acceptance. Without one, a stable id is derived from the participant, question and answer. Correct answers earn base points plus streak, timing and minority bonuses.',codeSchema.extend(pickSchema.shape),false,({code,...a})=>{
+    if(a.requestId)return store.pick(code,a);
+    // Without a client id, derive a stable one so an identical retried call returns the original receipt.
+    const me=store.view(code,a.participantToken).me;
+    const current=me?.currentPick?.questionId===a.questionId?me.currentPick.optionId:undefined;
+    return store.pick(code,{...a,requestId:me?pickRequestId('mcp',me.participantId,a.questionId,a.optionId,current):undefined});
+  });
   register('room_leaderboard','Get the whole room leaderboard with shared ranks for ties. Night total is lineup points plus prediction points.',codeSchema,true,a=>({standings:store.view(a.code).standings}));
   register('room_season','Get persisted season standings across completed rooms.',codeSchema,true,a=>store.view(a.code).season);
   register('room_ask','Send one spoken or typed room request ("I choose three", "make Big Mo my captain", "what is my rank?", "pause the replay"). It becomes a typed command checked by the same rules as room_predict, room_set_lineup and room_host. Picks and lineups need the participant credential; host actions need the host credential. The reply states whether anything was accepted.',codeSchema.extend(utteranceSchema.shape),false,({code,...a})=>answerRoom(store,code,a),true);

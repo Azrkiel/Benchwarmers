@@ -38,6 +38,17 @@ describe('pick receipts', () => {
     expect(result.current.receipt?.status).toBe('accepted');
   });
 
+  it('looks up the original receipt by request id before anything else', async () => {
+    const send = sender(async () => { throw new Error('offline'); });
+    const refresh = vi.fn(async () => open);
+    const lookup = vi.fn(async (requestId: string) => ({ requestId, questionId: 'bball-q-004', optionId: 'three', acceptedAt: 5000 }));
+    const { result } = renderHook(() => usePickReceipt({ send, refresh, lookup }));
+    await act(() => result.current.submit('bball-q-004', 'three', 'Three'));
+    expect(lookup).toHaveBeenCalledWith(send.mock.calls[0]![0].requestId);
+    expect(refresh).not.toHaveBeenCalled();
+    expect(result.current.receipt).toMatchObject({ status: 'accepted', acceptedAt: 5000 });
+  });
+
   it('retries an unconfirmed pick with the same request id', async () => {
     const send = sender(async () => { throw new Error('offline'); });
     const refresh = vi.fn(async () => open);

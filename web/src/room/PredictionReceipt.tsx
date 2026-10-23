@@ -31,7 +31,7 @@ function rejection(problem: RoomRequestError): string {
  * Sends picks with an idempotency request id. A retry of the same answer reuses the id.
  * When the response is lost, it checks the saved state before offering a new attempt.
  */
-export function usePickReceipt({ send, refresh }: { send: (body: { questionId: string; optionId: string; requestId: string }) => Promise<RoomView>; refresh: () => Promise<RoomView> }) {
+export function usePickReceipt({ send, refresh, lookup }: { send: (body: { questionId: string; optionId: string; requestId: string }) => Promise<RoomView>; refresh: () => Promise<RoomView>; lookup?: (requestId: string) => Promise<ServerReceipt> }) {
   const [receipt, setReceipt] = useState<PickReceipt>();
   const inFlight = useRef(false);
   const submit = useCallback(async (questionId: string, optionId: string, label: string, retryOf?: PickReceipt) => {
@@ -49,13 +49,20 @@ export function usePickReceipt({ send, refresh }: { send: (body: { questionId: s
       else {
         // The request may or may not have landed. Look before offering a retry.
         setReceipt({ ...base, status: 'checking' });
+        // Ask for this request's own receipt first (Worker A's GET /receipts/:requestId).
+        if (lookup) {
+          try {
+            const found = await lookup(requestId);
+            if (found.questionId === questionId && found.optionId === optionId) { setReceipt({ ...base, status: 'accepted', acceptedAt: found.acceptedAt }); return; }
+          } catch { /* 404 or offline: fall back to the saved state below */ }
+        }
         try {
           const view = await refresh();
           setReceipt(confirms(view, questionId, optionId) ? { ...base, status: 'accepted' } : { ...base, status: 'unknown', message: view.question?.id === questionId && view.question.status === 'open' ? 'Not confirmed.' : 'Not accepted before closing.' });
         } catch { setReceipt({ ...base, status: 'unknown', message: 'Connection lost. Not confirmed yet.' }); }
       }
     } finally { inFlight.current = false; }
-  }, [send, refresh]);
+  }, [send, refresh, lookup]);
   return { receipt, submit, clear: () => setReceipt(undefined) };
 }
 
