@@ -33,7 +33,7 @@ describe('additive room contract', () => {
 
   it('rejects unsupported IDs before creating any room or season', () => {
     const store = new RoomStore({ persist: false });
-    for (const gameId of ['unknown', '__proto__', 'constructor', 'harbor-vs-summit']) {
+    for (const gameId of ['unknown', '__proto__', 'constructor']) {
       expect(() => store.create({ gameId })).toThrow(expect.objectContaining({ status: 400, code: 'GAME_NOT_SUPPORTED' }));
     }
     expect(store.list()).toEqual([]);

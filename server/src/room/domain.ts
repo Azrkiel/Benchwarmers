@@ -1,4 +1,4 @@
-import type { RoomLineup, RoomPhase, RoomPickScore, RoomQuestion, RoomRules, RoomSeasonStanding } from './types.js';
+import type { RoomLineup, RoomPhase, RoomPickScore, RoomQuestion, RoomRules, RoomSeasonStanding, PickReceipt } from './types.js';
 
 /** Private durable state. Never serialize these objects into a public response. */
 export type Stats = Record<string, Record<string, number>>;
@@ -11,6 +11,7 @@ export type Room = {
   phase: RoomPhase; speed: number; rules: RoomRules; participants: Participant[];
   beatIndex: number; elapsedMs: number; durationMs: number; windowElapsedMs: number;
   lastTickAt: number; stats: Stats; question?: QuestionState; lastQuestion?: QuestionState; recorded: boolean;
+  pickReceipts?: PickReceipt[];
 };
 export type Season = { id: string; name: string; identities: Identity[]; standings: RoomSeasonStanding[] };
 export type SavedRooms = { version: 2; rooms: Room[]; seasons: Season[] };

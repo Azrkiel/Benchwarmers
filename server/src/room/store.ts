@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { scorePrediction, statLine } from './scoring.js';
-import type { RoomLineup, RoomQuestion, RoomStanding, RoomSummary, RoomSnapshot } from './types.js';
+import type { RoomLineup, RoomQuestion, RoomStanding, RoomSummary, RoomSnapshot, PickReceipt, QuestionResolution } from './types.js';
 import type { Room, Season, Participant, QuestionState } from './domain.js';
 import { getRoomSportAdapter } from './sports/index.js';
 import { loadSavedRooms, validateSavedRooms, writeSavedRooms } from './persistence.js';
@@ -114,13 +114,25 @@ export class RoomStore {
   const style=input.style??'balanced';if(!['balanced','stars','value'].includes(style))fail(400,'BAD_STYLE','Choose balanced, stars, or value.');p.lineup=this.buildAutoLineup(r,style);return ()=>this.snapshot(r,p);
   });
  }
- pick(code:string,input:{participantToken:string;questionId:string;optionId:string}):RoomSnapshot {
+ receipt(code:string,participantToken:string,requestId:string):PickReceipt {
+  const r=this.room(code);const p=this.participant(r,participantToken);
+  const receipt=r.pickReceipts?.find(receipt=>receipt.participantId===p.id&&receipt.requestId===requestId);
+  if(!receipt)return fail(404,'RECEIPT_NOT_FOUND','No accepted pick was found for that request ID.');return clone(receipt);
+ }
+ pick(code:string,input:{participantToken:string;questionId:string;optionId:string;requestId?:string}):RoomSnapshot {
   this.tick();return this.transact(()=>{const r=this.room(code);const p=this.participant(r,input.participantToken);const q=r.question;
-  if(r.phase!=='live'||!q||q.view.id!==input.questionId||q.view.status!=='open')return fail(409,'PICKS_LOCKED','That question is not open.');
+  if(input.requestId!==undefined&&(!/^[A-Za-z0-9_-]{1,128}$/.test(input.requestId)))fail(400,'BAD_REQUEST','Use a request ID of 1-128 letters, numbers, underscores or hyphens.');
+  if(this.adapter(r).sport==='basketball'&&!input.requestId)fail(400,'BAD_REQUEST','Basketball picks require a requestId.');
+  const previous=r.pickReceipts?.find(receipt=>receipt.participantId===p.id&&receipt.requestId===input.requestId);
+  if(previous){if(previous.questionId!==input.questionId||previous.optionId!==input.optionId)fail(409,'IDEMPOTENCY_CONFLICT','That request ID was already used for another pick.');return ()=>({...this.snapshot(r,p),receipt:clone(previous)});}
+  if(r.phase!=='live'||!q||q.view.id!==input.questionId||q.view.status!=='open'||this.now()>=q.view.locksAt)return fail(409,'PICKS_LOCKED','That question is not open.');
+  if(q.view.target&&!q.view.target.eligibleParticipantIds.includes(p.id))fail(409,'NOT_ELIGIBLE','Join the next question; this question opened before you joined.');
   if(!q.view.options.some(o=>o.id===input.optionId))fail(400,'BAD_OPTION','Choose one of the displayed prediction options.');
   // Duplicate transmissions retain early-call timing. A changed mind gets the new time.
   if(q.picks[p.id]?.optionId!==input.optionId)q.picks[p.id]={optionId:input.optionId,elapsedFraction:r.elapsedMs/r.durationMs};
-  return ()=>this.snapshot(r,p);
+  let receipt:PickReceipt|undefined;
+  if(input.requestId){r.pickReceipts??=[];receipt={requestId:input.requestId,participantId:p.id,questionId:input.questionId,optionId:input.optionId,acceptedAt:this.now(),acceptanceSequence:(r.pickReceipts.at(-1)?.acceptanceSequence??0)+1};r.pickReceipts.push(receipt);}
+  return ()=>({...this.snapshot(r,p),...(receipt?{receipt:clone(receipt)}:{})});
   });
  }
  host(code:string,input:{hostToken:string;action:'start'|'pause'|'resume'|'set_speed';speed?:number}):RoomSnapshot {
@@ -171,15 +183,16 @@ export class RoomStore {
   r.elapsedMs=0;r.durationMs=adapter.duration(beat,r.speed);r.windowElapsedMs=0;
   if(adapter.locksQuestion(beat)&&r.question?.view.status==='open'){r.question.view.status='locked';r.question.view.remainingMs=0;}
   for(const [id,key,n] of beat.deltas){r.stats[id]??={};r.stats[id][key]=(r.stats[id][key]??0)+n;}
-  const question=adapter.question(beat,this.now(),r.durationMs);if(question)r.question={view:question,picks:{}};
+  const question=adapter.question(beat,this.now(),r.durationMs);if(question){if(question.target)question.target.eligibleParticipantIds=r.participants.map(p=>p.id);r.question={view:question,picks:{}};}
   const result=r.question?adapter.result(r.question.view,beat):undefined;if(result)this.resolveQuestion(r,result);
   if(beat.type==='final'){r.phase='final';this.recordSeason(r);}
  }
- private resolveQuestion(r:Room,result:{optionId:string;explanation:string}):void {
+ private resolveQuestion(r:Room,result:QuestionResolution):void {
   const q=r.question;if(!q)return;
+  if('voidReason' in result){q.view.status='void';q.view.remainingMs=0;q.view.voidReason=result.voidReason;r.lastQuestion=clone(q);return;}
   const {optionId}=result;
   const picks=Object.values(q.picks);
-  for(const p of r.participants){const pick=q.picks[p.id];if(!pick){p.streak=0;continue;}const option=q.view.options.find(o=>o.id===pick.optionId)!;
+  for(const p of r.participants){if(q.view.target&&!q.view.target.eligibleParticipantIds.includes(p.id))continue;const pick=q.picks[p.id];if(!pick){p.streak=0;continue;}const option=q.view.options.find(o=>o.id===pick.optionId)!;
    const score=scorePrediction({optionId:pick.optionId,result:optionId,base:option.basePoints,probability:option.probability,optionCount:q.view.options.length,streak:p.streak,elapsedFraction:pick.elapsedFraction,same:picks.filter(v=>v.optionId===pick.optionId).length,pickers:picks.length,factorCap:r.rules.pickFactorCap});
    p.predictionPoints+=score.points;p.lastPickScore=score;p.streak=score.correct?p.streak+1:0;
   }
@@ -190,7 +203,8 @@ export class RoomStore {
    const ids=p.lineup?[p.lineup.captainId,...p.lineup.flexIds]:[];
    const adapter=this.adapter(r);
    const roster=ids.map((id,index)=>{const player=adapter.playerById[id];const delta=Object.fromEntries(Object.entries(r.stats[id]??{}).map(([key,n])=>[key,n-(p.baseline[id]?.[key]??0)]));
-    return {playerId:id,captain:index===0,points:round(adapter.rawPoints(delta,player.role)*(r.rules.positionMultipliers[player.pos]??1)*(index===0?r.rules.captainMultiplier:1))};});
+    const rawPoints=adapter.rawPoints(delta,player.role),positionMultiplier=r.rules.positionMultipliers[player.pos]??1,captainMultiplier=index===0?r.rules.captainMultiplier:1;
+    return {playerId:id,captain:index===0,rawPoints:round(rawPoints),positionMultiplier,captainMultiplier,points:round(rawPoints*positionMultiplier*captainMultiplier)};});
    const fantasyPoints=round(roster.reduce((sum,p)=>sum+p.points,0));return {participantId:p.id,name:p.name,rank:0,total:round(fantasyPoints+p.predictionPoints),fantasyPoints,predictionPoints:p.predictionPoints,streak:p.streak,roster,...(p.lastPickScore?{lastPickScore:clone(p.lastPickScore)}:{})};
   }).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name));
   rows.forEach((row,i)=>row.rank=i>0&&row.total===rows[i-1].total?rows[i-1].rank:i+1);return rows;
@@ -207,7 +221,7 @@ export class RoomStore {
  private snapshot(r:Room,p?:Participant):RoomSnapshot {
   const adapter=this.adapter(r);
   const view:RoomSnapshot={version:r.version,serverNow:this.now(),rulesVersion:r.rulesVersion,room:this.summary(r),game:adapter.projectGame(r.beatIndex,r.phase),rules:clone(r.rules),
-   players:adapter.players.map(player=>{const stats=clone(r.stats[player.id]??{});const rawPoints=adapter.rawPoints(stats,player.role);return {id:player.id,name:player.name,teamId:player.team,teamShort:player.team,position:player.pos,role:player.role,salary:player.salary,multiplier:r.rules.positionMultipliers[player.pos]??1,stats,rawPoints:round(rawPoints),points:round(rawPoints*(r.rules.positionMultipliers[player.pos]??1)),statLine:statLine(stats)};}),standings:this.standings(r),season:{id:r.seasonId,name:this.season(r).name,standings:clone(this.season(r).standings).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name))}};
+   players:adapter.players.map(player=>{const stats=clone(r.stats[player.id]??{});const rawPoints=adapter.rawPoints(stats,player.role);return {id:player.id,name:player.name,teamId:player.team,teamShort:player.team,position:player.pos,role:player.role,salary:player.salary,...(player.projectedPoints!==undefined?{projectedPoints:player.projectedPoints,projectionSource:player.projectionSource,salaryModelVersion:player.salaryModelVersion}:{}),multiplier:r.rules.positionMultipliers[player.pos]??1,stats,rawPoints:round(rawPoints),points:round(rawPoints*(r.rules.positionMultipliers[player.pos]??1)),statLine:statLine(stats)};}),standings:this.standings(r),season:{id:r.seasonId,name:this.season(r).name,standings:clone(this.season(r).standings).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name))}};
   if(r.question)view.question=this.questionView(r.question);if(r.lastQuestion)view.lastQuestion=this.questionView(r.lastQuestion);
   if(p){view.me={participantId:p.id,name:p.name,...(p.lineup?{lineup:clone(p.lineup)}:{})};const pick=r.question?.picks[p.id];if(pick)view.me.currentPick={questionId:r.question!.view.id,optionId:pick.optionId};}
   return view;
