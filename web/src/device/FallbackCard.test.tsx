@@ -73,7 +73,7 @@ describe('mergeModel', () => {
 describe('FallbackCard', () => {
   it('shows an empty-state hint without a model', () => {
     render(<FallbackCard model={undefined} />);
-    expect(screen.getByText(/who's available\?/)).toBeTruthy();
+    expect(screen.getByText(/Who's available\?/)).toBeTruthy();
     expect(screen.getByLabelText('Party board')).toBeTruthy();
   });
 

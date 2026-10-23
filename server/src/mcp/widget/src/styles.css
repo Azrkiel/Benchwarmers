@@ -86,3 +86,21 @@ button:focus-visible, summary:focus-visible { outline:3px solid var(--fg); outli
 main { overflow-wrap:anywhere; }
 summary { cursor:pointer; }
 @media(min-width:640px) { .cols.draft { grid-template-columns:1fr 1fr; } }
+
+/* compact player cards, choose-player prompt, season columns */
+.player { padding:8px 12px; margin-bottom:8px; }
+.phead { display:flex; align-items:center; gap:8px; justify-content:space-between; }
+.pname { font-weight:800; }
+.phead .meta { font-size:.85rem; }
+.player .note { margin:2px 0 0; }
+.player p.note { font-size:.85rem; }
+.draft-btn { flex:0 0 auto; min-height:44px; padding:0 16px; font:inherit; font-weight:800; border-radius:4px; border:0; background:var(--accent); color:var(--accent-fg); cursor:pointer; }
+.draft-btn:disabled { background:var(--card); color:var(--muted); border:1px solid var(--line); cursor:not-allowed; }
+.choose-player { margin:.4rem 0; padding:8px 12px; border:1px solid var(--accent); border-radius:4px; font-weight:600; }
+.season-head, .standing.season-row { display:grid; grid-template-columns:24px minmax(0,1fr) 4.5rem 3rem; gap:4px 8px; }
+.season-head { color:var(--muted); font-size:.8rem; font-weight:700; text-transform:uppercase; padding:4px 0; border-bottom:1px solid var(--line); }
+.season-head span:nth-child(n+3), .season-row .total, .season-row .wins { text-align:right; }
+.season-row .wins { grid-column:4; grid-row:1; font-weight:800; font-size:1.2rem; }
+.season-row .total { grid-column:3; }
+.season-row .split { grid-column:2 / 5; }
+.season-row .badge { grid-column:2; }

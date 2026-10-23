@@ -7,12 +7,13 @@ import { Ticker } from './Ticker';
 import { GameOverview } from './GameOverview';
 import type { TvMode } from './modes';
 
-export function LiveView({ state, serverNow, showStandings = false, showPick = false, overview = false, onNavigate }: {
+export function LiveView({ state, serverNow, showStandings = false, showPick = false, overview = false, summary = true, onNavigate }: {
   state: PartyStateResponse;
   serverNow: () => number;
   showStandings?: boolean;
   showPick?: boolean;
   overview?: boolean;
+  summary?: boolean;
   onNavigate?: (mode: TvMode, originId: string) => void;
 }) {
   return (
@@ -27,7 +28,7 @@ export function LiveView({ state, serverNow, showStandings = false, showPick = f
           <Standings rows={state.standings} households={state.households} />
           <Ticker lines={state.ticker} />
         </aside>
-      ) : overview ? null : (
+      ) : overview || !summary ? null : (
         <ol className="tv-overlay-summary" aria-label="Top of the standings">
           {[...state.standings].sort((a, b) => a.rank - b.rank).slice(0, 3).map(r => (
             <li key={r.memberId}><span className="tv-overlay-rank">{r.rank}</span><span>{r.name}</span><b>{r.total.toFixed(1)}</b></li>

@@ -91,18 +91,25 @@ export function renderMemberChips(households: Household[], selected: string | un
 
 function playerCard(d: DraftBoardEntry, state: PartyStateResponse, selectedMember?: string): string {
   const p = d.player;
-  const nick = p.nickname ? `<div class="nick">${e(p.nickname)}</div>` : '';
-  const meta = `<div class="meta">${e(p.name)} · #${p.number} · <span class="pos">${e(p.position)}</span></div>`;
-  const note = d.scoutingNote ? `<details class="note"><summary>Scouting note</summary><p>${e(d.scoutingNote)}</p></details>` : '';
+  const title = `<div class="pname">${e(p.name)}</div><div class="meta"><span class="pos">${e(p.position)}</span> · ${e(d.teamShort)}</div>`;
+  const full = d.scoutingNote ?? '';
+  const short = full.length > 60 ? `${full.slice(0, 57).trimEnd()}…` : full;
+  const note = full
+    ? full.length > 60
+      ? `<details class="note"><summary>${e(short)}</summary><p>${e(full)}</p></details>`
+      : `<p class="note">${e(full)}</p>`
+    : '';
   if (d.ownerMemberId) {
     const h = householdOf(state.households, d.householdId);
     const label = `${d.ownerName ?? 'Someone'}${h ? ` · ${h.name}` : ''}`;
-    return `<article class="player taken">${nick}${meta}${note}<div>Drafted by ${badge(label, h?.color)}</div></article>`;
+    return `<article class="player taken"><div class="phead">${title}</div>${note}<div>Drafted by ${badge(label, h?.color)}</div></article>`;
   }
   const member = state.households.flatMap(h => h.members).find(m => m.name === selectedMember);
-  const full = member && state.draftBoard.filter(d => d.ownerMemberId === member.id).length >= 3;
-  const unavailable = !member || full || state.party.status !== 'drafting';
-  return `<article class="player">${nick}${meta}${note}<button class="big" data-action="draft" data-player="${e(p.id)}"${unavailable ? ' disabled' : ''}>${!member ? 'Choose player to draft' : full ? 'Roster full' : state.party.status !== 'drafting' ? 'Draft closed' : `Draft ${e(p.nickname ?? p.name)}`}</button></article>`;
+  const full3 = member && state.draftBoard.filter(x => x.ownerMemberId === member.id).length >= 3;
+  const unavailable = !member || full3 || state.party.status !== 'drafting';
+  const label = !member ? 'Choose player' : full3 ? 'Roster full' : state.party.status !== 'drafting' ? 'Draft closed' : 'Draft';
+  const aria = member && !unavailable ? ` aria-label="Draft ${e(p.name)}"` : '';
+  return `<article class="player"><div class="phead">${title}<button class="draft-btn" data-action="draft" data-player="${e(p.id)}"${aria}${unavailable ? ' disabled' : ''}>${label}</button></div>${note}</article>`;
 }
 
 export function renderDraft(state: PartyStateResponse, selectedMember?: string): string {
@@ -160,7 +167,8 @@ function pickCard(prop: PropView, state: PartyStateResponse, lockLeftMs: number 
     .filter((p) => p.propId === prop.id)
     .map((p) => `<li>${e(p.memberName)}: ${e(p.optionLabel)}</li>`)
     .join('');
-  return `<section class="card pick"><div class="row"><h2>${e(prop.question)}</h2><div class="countdown" data-countdown>${locked ? 'Locked' : `Closes in ${formatCountdown(left)}`}</div></div>${oddsLine(prop)}<div class="options">${opts}</div>${who ? `<ul class="who-picked">${who}</ul>` : ''}</section>`;
+  const prompt = !member && !locked ? '<p class="choose-player" role="status">Choose player to make a pick.</p>' : '';
+  return `<section class="card pick"><div class="row"><h2>${e(prop.question)}</h2><div class="countdown" data-countdown>${locked ? 'Locked' : `Closes in ${formatCountdown(left)}`}</div></div>${oddsLine(prop)}${prompt}<div class="options">${opts}</div>${who ? `<ul class="who-picked">${who}</ul>` : ''}</section>`;
 }
 
 function lastResolved(state: PartyStateResponse): string {
@@ -181,7 +189,7 @@ export function renderStandings(rows: StandingRow[], state: PartyStateResponse):
 export function renderTonight(state: PartyStateResponse, now: number, lockAt?: number, selectedMember?: string): string {
   const prop = state.activeProp;
   const left = lockAt !== undefined ? lockAt - now : undefined;
-  const active = prop ? pickCard(prop, state, left, selectedMember) : state.party.status === 'final' ? '<section class="card"><h2>Final</h2><p>Replay finished. See results and season standings.</p><button class="big" data-action="tab" data-view="season">View season</button></section>' : state.party.status === 'drafting' ? '<section class="card"><h2>Pregame</h2><p>Draft players before the replay starts.</p></section>' : '<section class="card"><h2>No open pick</h2><p>Waiting for next pick</p></section>' ;
+  const active = prop ? pickCard(prop, state, left, selectedMember) : state.party.status === 'final' ? '<section class="card"><h2>Final</h2><p>Replay finished. See results and season standings.</p><button class="big" data-action="tab" data-view="season">View season</button></section>' : state.party.status === 'drafting' ? '<section class="card"><h2>Pregame</h2><p>Draft players before the replay starts.</p></section>' : (state.props.some((x) => x.status === 'locked') ? '<section class="card"><h2>Picks locked</h2><p>Waiting for result</p></section>' : '<section class="card"><h2>Between picks</h2><p>Waiting for next pick</p></section>');
   const others = state.picks.filter((p) => p.propId !== state.activeProp?.id);
   const groups = [...new Set(others.map(p => p.propId))].reverse();
   const lockedList = groups.length ? `<details class="card"><summary>Pick history</summary>${groups.map(id => {
@@ -195,9 +203,9 @@ export function renderTonight(state: PartyStateResponse, now: number, lockAt?: n
 export function renderSeason(season: SeasonResponse): string {
   const rows = season.rows.map((r) => {
     const h = householdOf(season.households, r.householdId);
-    return `<li class="standing"><span class="rank">${r.rank}</span><span class="name">${e(r.name)}</span>${badge(r.household, h?.color)}<span class="total">${(r.points + r.fantasyPoints).toFixed(1)} pts</span><span class="split">picks ${r.points} + fantasy ${r.fantasyPoints} &middot; best streak ${r.bestStreak} &middot; nights won ${r.nightsWon} &middot; ${r.correct}/${r.total} correct</span></li>`;
+    return `<li class="standing season-row"><span class="rank">${r.rank}</span><span class="name">${e(r.name)}</span>${badge(r.household, h?.color)}<span class="total">${(r.points + r.fantasyPoints).toFixed(1)}</span><span class="wins">${r.nightsWon}</span><span class="split">Picks ${r.points} · Fantasy ${r.fantasyPoints} · ${r.correct}/${r.total} correct · Best streak ${r.bestStreak}</span></li>`;
   });
-  return `<section class="card"><h2>${e(season.crew.name)} season</h2><p class="metric-note">Total points = picks + fantasy. Rank follows season standings.</p><ol class="standings">${rows.join('')}</ol></section>`;
+  return `<section class="card"><h2>${e(season.crew.name)} season</h2><p class="metric-note">Total points = picks + fantasy. Rank follows season standings.</p><div class="season-head" aria-hidden="true"><span></span><span>Player</span><span>Pts</span><span>Wins</span></div><ol class="standings">${rows.join('')}</ol></section>`;
 }
 
 export function renderApp(model: Model): string {

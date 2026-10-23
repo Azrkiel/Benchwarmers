@@ -152,23 +152,37 @@ describe('SpeakerBar', () => {
     fireEvent.click(screen.getByTestId('member-leo'));
     expect(onPick).toHaveBeenCalledWith('Leo');
     rerender(<SpeakerBar members={members} screenPick="Leo" onPick={onPick} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Change player' }));
     expect(screen.getByTestId('member-leo').getAttribute('aria-pressed')).toBe('true');
     fireEvent.click(screen.getByTestId('member-leo'));
     expect(onPick).toHaveBeenLastCalledWith(undefined);
   });
 
-  it('recognized chip', () => {
+  it('shows one effective identity and a Change player control', () => {
+    const onPick = vi.fn();
+    const { rerender } = render(<SpeakerBar members={members} onPick={onPick} />);
+    expect(screen.getByTestId('speaker-current').textContent).toContain("Choose who’s speaking");
+    rerender(<SpeakerBar members={members} screenPick="Leo" onPick={onPick} recognized={{ memberName: 'Maya', confidence: 0.84, provisional: false }} />);
+    expect(screen.getByTestId('speaker-current').textContent).toContain('Leo');
+    expect(screen.getByTestId('speaker-current').textContent).not.toContain('Maya');
+    expect(screen.queryByTestId('member-maya')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Change player' }));
+    expect(screen.getByTestId('member-maya')).toBeTruthy();
+  });
+
+  it('voice match becomes the identity; low confidence only prompts', () => {
     const { rerender } = render(
       <SpeakerBar members={members} onPick={vi.fn()} recognized={{ memberName: 'Maya', confidence: 0.84, provisional: false }} />,
     );
-    const chip = screen.getByTestId('recognized-chip');
-    expect(chip.textContent).toContain('Voice matched: Maya');
-    expect(chip.textContent).not.toContain('84%');
-    expect(chip.textContent).not.toContain('guess');
+    const cur = screen.getByTestId('speaker-current');
+    expect(cur.textContent).toContain('Maya');
+    expect(cur.textContent).toContain('voice match');
+    expect(cur.textContent).not.toContain('84%');
     rerender(
       <SpeakerBar members={members} onPick={vi.fn()} recognized={{ memberName: 'Maya', confidence: 0.84, provisional: true }} />,
     );
-    expect(screen.getByTestId('recognized-chip').textContent).toContain('Choose your name to confirm');
+    expect(screen.getByTestId('speaker-current').textContent).toContain("Choose who’s speaking");
+    expect(screen.getByTestId('member-maya')).toBeTruthy();
   });
 });
 

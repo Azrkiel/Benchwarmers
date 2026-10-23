@@ -252,8 +252,17 @@ describe('DeviceScreen', () => {
     const req = send.mock.calls[0][0];
     expect(req.text).toBe('draft Big Mo');
     expect(req.speaker).toEqual({ memberName: 'Maya', confidence: 0.84, source: 'voice-id' } satisfies SpeakerHint);
-    expect(screen.getByTestId('recognized-chip').textContent).toContain('Voice matched: Maya');
+    expect(screen.getByTestId('speaker-current').textContent).toContain('Maya');
     await screen.findByText('Okay, Maya.');
+  });
+
+  it('offers a roster suggestion, a prompt to choose a speaker, and a mic hint', async () => {
+    stubFetch();
+    render(<DeviceScreen household="garcias" deps={{ send: vi.fn(), synth: fakeSynth(), recognizerFactory: null }} />);
+    await waitForParty('DEMO');
+    expect(screen.getByRole('button', { name: 'Show my roster' })).toBeTruthy();
+    expect(screen.getByTestId('speaker-current').textContent).toContain("Choose who’s speaking");
+    expect(screen.getByTestId('mic-hint').textContent).toBe('Talk');
   });
 
   it('speaker from screen picker: chip pick is sent with the typed turn', async () => {
@@ -263,7 +272,7 @@ describe('DeviceScreen', () => {
     await waitForParty('DEMO');
 
     fireEvent.click(screen.getByTestId('member-leo'));
-    expect(screen.getByTestId('member-leo').getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByTestId('speaker-current').textContent).toContain('Leo');
     typeAndSubmit('draft Big Mo');
 
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));

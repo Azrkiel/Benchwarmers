@@ -25,3 +25,11 @@
 .drawer :is(button,input,select,summary):focus-visible { outline:3px solid #fff;outline-offset:3px; }
 .drawer summary{cursor:pointer;min-height:44px;}
 @media(prefers-reduced-motion:reduce){.drawer{animation:none;}}
+
+.sp-bar { gap: 8px; padding: 0; }
+.sp-current { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; width: 100%; }
+.sp-current .sp-label { opacity: 1; font-weight: 600; margin: 0; }
+.sp-source { font-size: 0.8rem; color: var(--lg-muted, #9a9ca3); }
+.sp-change { min-height: 44px; padding: 0 12px; border: 0; background: transparent; color: var(--lg-text); text-decoration: underline; font: inherit; font-size: 0.9rem; cursor: pointer; }
+.sp-chips { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.sp-chips .sp-chip { min-height: 44px; padding: 0 14px; font-size: 1rem; }

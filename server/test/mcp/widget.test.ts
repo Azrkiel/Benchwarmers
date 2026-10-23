@@ -77,6 +77,32 @@ describe('widget views from real state', () => {
     expect(html).toContain('<h2>Final</h2>');
     expect(html).not.toContain('opens soon');
   });
+  it('player cards are compact: no nickname line, compact Draft button', async () => {
+    const { state } = await liveState();
+    const html = renderDraft(state, 'Maya');
+    expect(html).toContain('class="draft-btn"');
+    expect(html).not.toContain('class="nick"');
+    expect(html).not.toContain('class="big" data-action="draft"');
+    expect(renderDraft(state)).toContain('>Choose player</button>');
+  });
+  it('tonight prompts Choose player when no member is selected', async () => {
+    const { state } = await liveState();
+    expect(renderTonight(state, T0, T0 + 30_000)).toContain('Choose player to make a pick');
+    expect(renderTonight(state, T0, T0 + 30_000, 'Sam')).not.toContain('Choose player to make a pick');
+  });
+  it('separates result-pending from between-picks', async () => {
+    const { state } = await liveState();
+    const s = structuredClone(state);
+    delete s.activeProp;
+    s.props = s.props.map((p) => ({ ...p, status: 'resolved' as const }));
+    let html = renderTonight(s, T0);
+    expect(html).toContain('Waiting for next pick');
+    expect(html).not.toContain('No open pick');
+    s.props = s.props.map((p, i) => (i === 0 ? { ...p, status: 'locked' as const } : p));
+    html = renderTonight(s, T0);
+    expect(html).toContain('Waiting for result');
+    expect(html).not.toContain('Waiting for next pick');
+  });
   it('draft board lists available players with Draft buttons and taken players with owner + household color', async () => {
     const code = (await call('setup_watch_party', { crewName: 'Sunday Crew' })).structuredContent!.code as string;
     await call('draft_player', { code, memberName: 'Maya', player: 'Big Mo' });
@@ -88,7 +114,7 @@ describe('widget views from real state', () => {
     const maya = state.households.find((h) => h.members.some((m) => m.name === 'Maya'))!;
     expect(html).toContain(`Maya · ${maya.name}`);
     expect(html).toContain(`background:${maya.color}`);
-    expect(html).toContain('Big Mo');
+    expect(html).toContain('Moses Adeyemi');
     expect(html).toContain('1/3');
     expect(html).toContain('Harbor');
     expect(html).toContain('Summit');
@@ -118,8 +144,10 @@ describe('widget views from real state', () => {
     const season = res.structuredContent!.season as SeasonResponse;
     const html = renderSeason(season);
     for (const n of ['Maya', 'Leo', 'Sam', 'Priya']) expect(html).toContain(n);
-    expect(html).toContain('best streak');
-    expect(html).toContain('nights won');
+    expect(html).toContain('Best streak');
+    expect(html).toContain('<span>Wins</span>');
+    expect(html).toContain('class="wins"');
+    expect(html).not.toContain('nights won');
   });
 
   it('renders the whole app with tabs and the free-to-play footer, without Alexa/Amazon names', async () => {

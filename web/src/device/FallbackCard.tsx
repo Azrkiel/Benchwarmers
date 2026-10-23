@@ -201,7 +201,7 @@ export function FallbackCard({ model, householdId }: { model: FallbackModel | un
   if (!model) {
     return (
       <section className="fb-card" data-view="empty" aria-label="Party board">
-        <p className="fb-empty">Ask “who's available?” to bring up the draft board.</p>
+        <p className="fb-empty">Ask “Who's available?” or choose Draft</p>
       </section>
     );
   }

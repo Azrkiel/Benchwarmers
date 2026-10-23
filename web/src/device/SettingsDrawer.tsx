@@ -20,7 +20,7 @@ export function SettingsDrawer({
   voice: VoiceId;
   muted: boolean;
   onToggleMute: () => void;
-  partyCode: string;
+  partyCode?: string;
   householdName: string;
   diagnostics?: ReactNode;
 }) {
@@ -93,7 +93,7 @@ export function SettingsDrawer({
         </section>
         <section className="drawer-section">
           <h3>Party</h3>
-          <p className="drawer-row">Party code: <strong>{partyCode}</strong></p>
+          {partyCode ? <p className="drawer-row">Party code: <strong>{partyCode}</strong></p> : <p className="drawer-row">No party selected</p>}
           <p className="drawer-row">Household: <strong>{householdName}</strong></p>
         </section>
       </aside>

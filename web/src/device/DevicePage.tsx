@@ -133,8 +133,8 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
 
         <div className="ds-body">
           <section className="ds-left" aria-label="Conversation">
-            <div className="ds-identity"><SpeakerBar members={members} screenPick={speaker.screenPick} onPick={speaker.setScreenPick} recognized={speaker.recognized} /></div>
-            <div className="ds-suggestions" aria-label="Suggested messages">{["Who's available?", 'Show standings', 'Show season standings'].map(text => <button key={text} type="button" disabled={assistant.pending} onClick={() => { setDraft(text); input.current?.focus(); }}>{text}</button>)}</div>
+            <div className="ds-suggestions" aria-label="Suggested messages">{["Who's available?", 'Show standings', 'Show season standings', 'Show my roster'].map(text => <button key={text} type="button" disabled={assistant.pending} onClick={() => { setDraft(text); input.current?.focus(); }}>{text}</button>)}</div>
+            {code ? null : <p className="ds-hint" data-testid="party-hint">No party yet. Say or type &ldquo;Set up a party&rdquo; to create one, or open a party link to join.</p>}
             <button className="ds-conversation-toggle" type="button" aria-expanded={conversationOpen} aria-controls="device-conversation" onClick={() => setConversationOpen(value => !value)}>Conversation {assistant.turns.length ? `(${assistant.turns.length})` : ''}</button>
             <div className="ds-transcript-wrap" id="device-conversation" hidden={!conversationOpen}><Transcript
               turns={assistant.turns}
@@ -142,6 +142,7 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
               listening={speechInput.listening}
               interim={speechInput.interim}
             /></div>
+            <div className="ds-identity"><SpeakerBar members={members} screenPick={speaker.screenPick} onPick={speaker.setScreenPick} recognized={speaker.recognized} /></div>
             <div className="ds-input-area">
               <div className="ds-mic-wrap">
                 <button
@@ -157,7 +158,7 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
                   <span className="ds-mic-ring" aria-hidden="true" />
                   <svg className="ds-mic-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>
                 </button>
-                <p className="ds-mic-hint">{speechInput.listening ? 'Stop listening' : 'Talk'}</p>
+                <p className="ds-mic-hint" data-testid="mic-hint" role="status">{assistant.pending ? 'Sending…' : speechInput.listening ? 'Listening… Tap to stop' : 'Talk'}</p>
               </div>
               <form className="ds-type" onSubmit={onSubmit}>
                 <input
@@ -215,7 +216,7 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
         voice={speaker.voice}
         muted={speech.muted}
         onToggleMute={speech.toggleMute}
-        partyCode={code ?? '…'}
+        partyCode={code}
         diagnostics={<>
 
           {mode ? <p>Assistant mode: <span className={`mode-badge mode-${mode}`} data-testid="mode-badge">{mode}</span></p> : null}

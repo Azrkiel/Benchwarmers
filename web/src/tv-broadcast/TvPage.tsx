@@ -94,7 +94,7 @@ export function TvPage() {
             <span className="tv-party-code"><span>Party code</span><b>{state.party.code}</b></span>
           </header> : null}
           <main ref={contentRef} className={`tv-body${showControls ? '' : ' is-clean'}`}><span className="tv-clean-source">{!showControls ? fixture || ['harbor-vs-summit', 'riverton-vs-ironwood'].includes(state.game.id) ? 'Demo' : 'Replay' : ''}</span>
-            <LiveView state={state} serverNow={serverNow} overview={!overlay && mode === 'live'} showStandings={mode === 'standings'} showPick={mode === 'picks'}
+            <LiveView state={state} serverNow={serverNow} overview={!overlay && mode === 'live'} summary={mode === 'live'} showStandings={mode === 'standings'} showPick={mode === 'picks'}
               onNavigate={(next, originId) => { returnFocusRef.current = originId; setManualMode(next); }} />
             {mode !== 'live' ? <div className="tv-screen-meta"><span className="tv-kicker">{state.party.crewName}</span><span>{views.find((v) => v.mode === mode)?.label}</span></div> : null}
             {mode === 'draft' || mode === 'rosters' || mode === 'final' ? (
