@@ -122,12 +122,35 @@ describe('useSpeechInput', () => {
     expect(result.current.listening).toBe(false);
   });
 
+  it('keeps continuous phrases separate and waits for stop before sending', () => {
+    const onEnd = vi.fn();
+    const { result } = renderHook(() => useSpeechInput({ factory: () => rec, onFinal: vi.fn(), onEnd }));
+    act(() => result.current.start({ continuous: true }));
+    expect(rec.continuous).toBe(true);
+    act(() => rec.emit([{ t: "Who's", final: true }, { t: 'winning?', final: true }]));
+    expect(result.current.listening).toBe(true);
+    expect(onEnd).not.toHaveBeenCalled();
+    act(() => result.current.stop());
+    act(() => rec.onend?.());
+    expect(onEnd).toHaveBeenCalledWith("Who's winning?");
+  });
+
   it('factory null is unsupported', () => {
     const { result } = renderHook(() => useSpeechInput({ factory: null, onFinal: vi.fn() }));
     expect(result.current.supported).toBe(false);
     act(() => result.current.start());
     expect(result.current.error).toBe("Voice input isn't supported in this browser. Type instead.");
     expect(result.current.listening).toBe(false);
+  });
+
+  it('reports a failed microphone start and ends capture instead of silently disappearing', () => {
+    vi.spyOn(rec, 'start').mockImplementationOnce(() => { throw new DOMException('Permission denied', 'NotAllowedError'); });
+    const onEnd = vi.fn();
+    const { result } = renderHook(() => useSpeechInput({ factory: () => rec, onFinal: vi.fn(), onEnd }));
+    act(() => result.current.start({ continuous: true }));
+    expect(result.current.listening).toBe(false);
+    expect(result.current.error).toContain('Microphone blocked');
+    expect(onEnd).toHaveBeenCalledWith('');
   });
 
   it('calls onEnd with empty string and no onFinal when nothing was said', () => {
