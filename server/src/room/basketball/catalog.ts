@@ -18,7 +18,7 @@ export function salaryFor(projectedPoints: number): number {
   return Math.round(Math.max(3500, Math.min(11500, projectedPoints * 350)) / 500) * 500;
 }
 export const basketballPlayers = [...source.home.roster, ...source.away.roster].map(player => ({
-  id: player.id, name: player.name, team: player.teamId, pos: player.position, role: player.position,
+  id: player.id, name: player.name, ...(player.nickname ? { nickname: player.nickname } : {}), team: player.teamId, pos: player.position, role: player.position,
   projectedPoints: projections[player.id], projectionSource: 'demo_projection' as const,
   salaryModelVersion: SALARY_MODEL_VERSION, salary: salaryFor(projections[player.id]),
 }));

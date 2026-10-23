@@ -1,6 +1,6 @@
 import type { RoomGameMetadata, RoomPhase, RoomQuestion, RoomRules, RoomView, QuestionResolution } from '../types.js';
 
-export type RoomCatalogPlayer = { id: string; name: string; team: string; pos: string; role: string; salary: number; projectedPoints?: number; projectionSource?: 'demo_projection'; salaryModelVersion?: string };
+export type RoomCatalogPlayer = { id: string; name: string; nickname?: string; team: string; pos: string; role: string; salary: number; projectedPoints?: number; projectionSource?: 'demo_projection'; salaryModelVersion?: string };
 export type RoomReplayBeat = { type: string; deltas: [string, string, number][]; gameElapsedMs?:number };
 
 /** Pure sport behavior only: no credentials, disk, HTTP, or rendering. */

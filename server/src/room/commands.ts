@@ -60,7 +60,7 @@ export function resolveOption(view: RoomView, text: string): { optionId: string 
   return null;
 }
 
-type Player = RoomView['players'][number] & { nickname?: string };
+type Player = RoomView['players'][number];
 /** One athlete by full name, unique first or last name, nickname or id; ambiguity asks. */
 export function resolvePlayer(view: RoomView, query: string): { playerId: string } | { reply: string } {
   const q = query.toLowerCase().replace(/[.!?]+$/, '').trim();

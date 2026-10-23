@@ -6,6 +6,7 @@ export type Announcement = { key: string; text: string; priority: number };
 
 const SCORING = new Set(['score', 'td', 'fg']);
 const BASKET: Record<number, string> = { 1: 'Free throw', 2: 'Two', 3: 'Three' };
+const points = (n: number) => `${n} ${n === 1 ? 'point' : 'points'}`;
 
 /**
  * Short spoken cues for what changed between two public snapshots. It never reads
@@ -36,7 +37,7 @@ export function announcementsFor(prev: RoomView | undefined, next: RoomView): An
     const team = homeDelta > 0 ? next.game.home : next.game.away;
     const delta = homeDelta > 0 ? homeDelta : awayDelta;
     const short = team.name.split(' ').at(-1);
-    const what = next.game.sport === 'basketball' && scored.length === 1 ? BASKET[delta] ?? `${delta} points` : scored.at(-1)!.kind === 'td' ? 'Touchdown' : scored.at(-1)!.kind === 'fg' ? 'Field goal' : `${delta} points`;
+    const what = next.game.sport === 'basketball' && scored.length === 1 ? BASKET[delta] ?? points(delta) : scored.at(-1)!.kind === 'td' ? 'Touchdown' : scored.at(-1)!.kind === 'fg' ? 'Field goal' : points(delta);
     const leaderBefore = prev.standings.filter((r) => r.rank === 1).map((r) => r.participantId).join();
     const leaders = next.standings.filter((r) => r.rank === 1);
     const lead = leaders.length === 1 && leaders[0]!.participantId !== leaderBefore && leaders[0]!.total > 0 ? ` ${leaders[0]!.name} takes the lead.` : '';
