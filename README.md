@@ -57,7 +57,7 @@ Protocol `2025-11-25` over Streamable HTTP, stateless (a fresh server per reques
 
 Tools (30): 11 household tools and 19 room tools. Room tools cover creation, joining, host controls, status, players, lineups, predictions, standings, `room_ask`, commitment review/acceptance, call review/creation and pregame picks/reference. Tool availability does not enable a gated feature; the authoritative room service enforces its settings.
 
-Five of them (`list_available_players`, `draft_player`, `make_pick`, `get_leaderboard`, `get_season_standings`) are registered as app tools and render the MCP App widget at `ui://benchwarmers/board.html` (single-file HTML with Draft board, Tonight and Season tabs).
+Five household tools (`list_available_players`, `draft_player`, `make_pick`, `get_leaderboard`, `get_season_standings`) render the MCP App widget at `ui://benchwarmers/board.html`. The combined room surface also provides a public-state room board through `room_status` and `room_ask` at `ui://benchwarmers/room-board.html`.
 
 Prompt: `watch_party_host`. Resources: `benchwarmers://rules`, `benchwarmers://room-rules` and the board's `ui://` HTML.
 
@@ -108,8 +108,8 @@ Copy `.env.example` to `.env` in the repo root; the server loads it at startup.
 | `SPEED` | `4` | Game seconds per real second |
 | `MCP_TOKEN` | `dev-token-change-me` | Bearer token MCP clients must send |
 | `DATA_FILE` | `data/store.json` | JSON store path (relative to the working directory) |
-| `ROOM_DATA_FILE` | `data/rooms.json` | Separate saved football rooms and seasons |
-| `ROOM_SPEED` | `1` | Initial football replay speed, 1-4 |
+| `ROOM_DATA_FILE` | `data/rooms.json` | Separate saved rooms and seasons |
+| `ROOM_SPEED` | `1` | Initial room replay speed, 1-4 |
 | `AI_MODE` | `fallback` | Content source: `fallback`, `gemini`, or `bedrock` |
 | `AWS_REGION` | `us-east-1` | Region for Bedrock |
 | `BEDROCK_MODEL_ID` | empty | A Haiku-tier Claude inference profile id |

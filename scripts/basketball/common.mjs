@@ -122,7 +122,9 @@ export class Server {
     this.token = this.report?.secret(randomUUID()) ?? randomUUID();
     const child = spawn(process.execPath, ['--import', 'tsx', '--import', pathToFileURL(path.join(root, 'scripts/basketball/parent-guard.mjs')).href, path.join(root, 'server/src/index.ts')], {
       cwd: path.join(root, 'server'), stdio: ['ignore', log.fd, log.fd, 'ipc'],
-      env: { ...process.env, PORT: String(this.port), DATA_FILE: path.join(this.directory, 'data/store.json'), ROOM_DATA_FILE: path.join(this.directory, 'data/rooms.json'), AI_MODE: 'fallback', ASSISTANT_MODE: 'offline', MCP_TOKEN: this.token, ALLOWED_HOSTS: 'localhost,127.0.0.1', SPEED: '4', ROOM_SPEED: '4' },
+      // These workflows validate isolated JSON rehearsals, never an inherited
+      // SQLite file or production cookie/session policy from the calling shell.
+      env: { ...process.env, PORT: String(this.port), DATA_FILE: path.join(this.directory, 'data/store.json'), ROOM_DATA_FILE: path.join(this.directory, 'data/rooms.json'), ROOM_STORAGE: 'json', ROOM_SESSIONS: 'off', AI_MODE: 'fallback', ASSISTANT_MODE: 'offline', MCP_TOKEN: this.token, ALLOWED_HOSTS: 'localhost,127.0.0.1', SPEED: '4', ROOM_SPEED: '4' },
     });
     this.child = child;
     let launchError;

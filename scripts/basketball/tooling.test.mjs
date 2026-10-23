@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { Blocked, Report, Server, assertGame, exists, prepareState, sha256, writeJson } from './common.mjs';
+import { Blocked, Report, Server, assertGame, createRoom, freePort, join, exists, prepareState, sha256, writeJson } from './common.mjs';
 import { createServer } from 'node:http';
 import { Worker } from 'node:worker_threads';
 import { backup, restore } from './storage.mjs';
@@ -50,6 +50,30 @@ test('a paused controller can read again after the server expires its idle conne
   assert.equal((await client.request('/')).body.ok, true);
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1200);
   assert.equal((await client.request('/')).body.ok, true);
+});
+
+test('isolated rehearsal ignores inherited SQLite and strict-session configuration', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bw-c-environment-'));
+  const privateFile = path.join(dir, 'unrelated.sqlite');
+  const original = 'unrelated-user-state-must-not-change'; await fs.writeFile(privateFile, original);
+  const override = { ROOM_STORAGE: 'sqlite', ROOM_SQLITE_FILE: privateFile, ROOM_SESSIONS: 'on', ROOM_SESSION_ORIGINS: 'https://rooms.example' };
+  const previous = Object.fromEntries(Object.keys(override).map(key => [key, process.env[key]]));
+  Object.assign(process.env, override);
+  const state = await prepareState(path.join(dir, 'rehearsal'));
+  const server = new Server(state, await freePort());
+  try {
+    await server.start();
+    const room = await createRoom(server, 'basketball');
+    const seat = await join(server, room, 'Isolated fan');
+    await server.request(`/api/rooms/${room.code}/auto-lineup`, { body: { participantToken: seat.participantToken } });
+    assert.equal(await fs.readFile(privateFile, 'utf8'), original);
+    assert.ok(await exists(path.join(state, 'data/rooms.json')));
+  } finally {
+    try { await server.stop(); } finally {
+      for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  }
 });
 
 async function directory(t) {
