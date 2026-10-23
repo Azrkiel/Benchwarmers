@@ -22,10 +22,12 @@ function deviceId(): string {
  * until someone takes over explicitly. Without the server route (older servers), the
  * screen falls back to this-browser-only coordination and says so.
  */
-export function usePlaybackLease(code: string, audio: SharedAudio, { hostToken, label = 'Shared screen' }: { hostToken?: string; label?: string } = {}) {
+export function usePlaybackLease(code: string, audio: SharedAudio, { hostToken, label: labelOverride }: { hostToken?: string; label?: string } = {}) {
   const state = useAudioState(audio);
   const [lease, setLease] = useState<LeaseState>({ mode: 'idle' });
   const id = useRef(deviceId());
+  // A short per-browser name so 'Sound plays on Screen 4F2A' tells screens apart.
+  const label = labelOverride ?? `Screen ${id.current.replace(/[^a-z0-9]/gi, '').slice(-4).toUpperCase()}`;
   const force = useRef(false);
   const [attempt, setAttempt] = useState(0);
   const wantsSound = state.enabled;
@@ -45,12 +47,17 @@ export function usePlaybackLease(code: string, audio: SharedAudio, { hostToken, 
       } catch { if (active) { setLease((current) => current.mode === 'idle' ? { mode: 'local' } : current); timer = setTimeout(claim, RENEW_MS); } }
     }
     void claim();
-    return () => {
-      active = false; clearTimeout(timer);
-      void fetch(`/api/rooms/${encodeURIComponent(code)}/playback/release`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId: id.current }), keepalive: true }).catch(() => undefined);
-    };
+    // No release here: a retry or takeover restarts this effect, and a release sent now
+    // could land after the new claim and drop the lease this screen just took.
+    return () => { active = false; clearTimeout(timer); };
   }, [code, wantsSound, hostToken, label, attempt, audio]);
+  // Release only when this screen stops wanting sound for this room (sound off, room change, unmount).
+  useEffect(() => {
+    if (!wantsSound || !code) return;
+    const device = id.current;
+    return () => { void fetch(`/api/rooms/${encodeURIComponent(code)}/playback/release`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId: device }), keepalive: true }).catch(() => undefined); };
+  }, [code, wantsSound]);
   /** Explicit takeover (a host credential lets it replace another screen's lease). */
   const takeOver = () => { force.current = true; void audio.enable(); setAttempt((n) => n + 1); };
-  return { lease, takeOver };
+  return { lease, takeOver, label };
 }

@@ -67,7 +67,7 @@ export function RoomDisplayPage() {
   const [correction, setCorrection] = useState(false);
   useEffect(() => { if (!corrected) return; setCorrection(true); const timer = setTimeout(() => setCorrection(false), 4000); return () => clearTimeout(timer); }, [corrected]);
   useEffect(() => () => audio.stop(), [audio]);
-  const { lease, takeOver } = usePlaybackLease(fixture ? '' : code, audio, { hostToken: room.credentials.hostToken });
+  const { lease, takeOver, label: screenName } = usePlaybackLease(fixture ? '' : code, audio, { hostToken: room.credentials.hostToken });
   const speech = useSpeechOutput({ storageKey: 'bw.display.voiceMuted' });
   useEffect(() => { audio.setSpeaking(speech.speaking); }, [audio, speech.speaking]);
   // Only the playback leader with sound enabled speaks; every screen shows the caption.
@@ -101,7 +101,7 @@ export function RoomDisplayPage() {
           if (result?.navigate === 'season' || result?.navigate === 'standings') change(result.navigate === 'season' && final ? 'results' : 'standings');
           return result?.reply === undefined ? undefined : { reply: result.reply, accepted: result.accepted, navigate: result.navigate };
         }} />}
-        <AudioControls audio={audio} lease={lease} onTakeOver={takeOver} /></>}
+        <AudioControls audio={audio} lease={lease} onTakeOver={takeOver} name={screenName} /></>}
       overlay={<BasketballCelebration celebration={celebration} coalesced={coalesced} reducedMotion={reducedMotion} audio={audio} status={view.question ? questionStatus(view) : undefined} />} />
   </div>;
 }
