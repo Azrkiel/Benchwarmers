@@ -42,6 +42,9 @@ describe('Lounge version', () => {
     expect(screen.getByRole('button', { name: 'Picks' }).getAttribute('aria-current')).toBe('page');
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'View picks' }));
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' });
+    fireEvent.keyDown(window, { key: 'Backspace' });
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'View picks' }));
   });
 
   it('opens a friend’s roster, confines modal focus, and returns to the same seat', () => {

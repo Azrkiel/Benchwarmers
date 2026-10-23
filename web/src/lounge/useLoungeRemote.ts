@@ -11,7 +11,7 @@ export function useLoungeRemote(root: RefObject<HTMLDivElement | null>, onBack: 
       const key = event.key && event.key !== 'Unidentified' ? event.key : LEGACY[event.keyCode];
       const active = document.activeElement as HTMLElement | null;
       const modal = root.current?.querySelector<HTMLElement>('[role="dialog"]');
-      if (key === 'Escape' || key === 'BrowserBack' || key === 'GoBack') {
+      if (key === 'Escape' || key === 'Backspace' || key === 'BrowserBack' || key === 'GoBack') {
         if (event.repeat) { event.preventDefault(); return; }
         if (onBack()) event.preventDefault();
         return;
