@@ -24,6 +24,39 @@ The compact smart-display simulator uses actual MCP Streamable HTTP through the 
 - JSON is the compatibility default. The explicit SQLite profile provides transactional room storage, immutable acceptance evidence and consistent snapshots. C validates one API/timer process; it is not a distributed service claim.
 - `AI_MODE=fallback` and `ASSISTANT_MODE=offline` run the demo without cloud credentials. Gemini integration is available, but real model-provider execution is not part of C's acceptance evidence.
 
+## Testing instructions and credentials for judges
+
+**No account, password, API key, paid subscription, or Echo device is required for the standard demo.** Use a recent desktop Chrome browser. This is a simulated Alexa+ experience backed by real MCP calls and fictional scripted games.
+
+### Try the app
+
+The documented hosted demo is https://benchwarmers.fly.dev. If it is unavailable, use the local instructions below. Hosted availability was not independently confirmed during this documentation update because the cloud environment blocked the outbound check.
+
+1. Choose **Host a party**, select basketball or football, and create a room.
+2. Join as a player and save one captain plus four flex athletes within the salary cap. To test another player, use a separate browser profile, private window, or device and enter the room code.
+3. Select **Open shared screen**. From the host controls, choose **Start game**; use up to 4× replay speed for a shorter test.
+4. Answer a prediction while its question window is open. Check that the accepted pick, scores, and standings update, then view the final and season results.
+5. Select **Open simulated smart display** to test the MCP-backed assistant. Try typing “what's the score?” and inspect the tool trace. Speech is optional: grant microphone permission if using it, or continue with typed input.
+
+Room and participant credentials are created automatically and stored by the browser. Keep the host session open to retain its controls; no shared judge login is needed. Create a fresh room for each independent test.
+
+### Run locally
+
+Requires Node.js 22+ and npm. Clone the public repository and run from its root:
+
+```sh
+git clone https://github.com/Azrkiel/Benchwarmers.git
+cd Benchwarmers
+npm ci
+npm run demo
+```
+
+Open `http://localhost:3001` in your browser and follow the same steps. Defaults use `AI_MODE=fallback` and `ASSISTANT_MODE=offline`; no `.env` file or Gemini key is needed. If your shell already sets these variables, select those defaults before starting. On CPU-only Linux, use `ONNXRUNTIME_NODE_INSTALL=skip npm ci` to omit optional GPU downloads if needed.
+
+For optional direct **local** MCP Inspector testing, connect to `http://localhost:3001/mcp` using Streamable HTTP and `Authorization: Bearer dev-token-change-me` with the unmodified local defaults. A custom local `MCP_TOKEN` replaces that default. This is not a credential for the hosted service; the in-app simulator needs no manual bearer setup.
+
+Optional automated checks: `npm test`, `npm run typecheck`, and `npm run qa:smoke`. The smoke command starts its own isolated server. Physical Alexa/Echo execution and real-person voice-ID accuracy are outside the verified test scope.
+
 ## Optional feature rehearsal
 
 Points commitments, player-created calls and pregame picks remain off in ordinary startup. C's separate private rehearsal enables them using authored test probabilities, then exercises HTTP/MCP/typed-command confirmation, idempotent acceptance, settlement, restart and SQLite restore. The 25-point first-caller example returns 55 total under that fixture's declared `.5` probability. These are synthetic test terms, not measured sports forecasts or live market prices. All amounts are in-game points.
