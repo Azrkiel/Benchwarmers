@@ -5,7 +5,7 @@ import { HostRoomForm } from './RoomLanding';
 import { RoomPage } from './RoomPage';
 import { RoomTvPage } from './RoomTvPage';
 import { FinalPodium, Leaderboard, Question, RoomScore } from './components';
-import { Lineup } from './Lineup';
+import { clearLineupDrafts, Lineup } from './Lineup';
 import { useRoom } from './useRoom';
 import type { RoomView } from '@shared/room';
 
@@ -13,7 +13,7 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 import { fixture } from './roomFixture';
 
 beforeEach(() => localStorage.clear());
-afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); clearLineupDrafts(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 function showRoom(tv = false) {
   return render(<MemoryRouter initialEntries={[`/room/ABCD${tv ? '/tv' : ''}`]}><Routes><Route path="/room/:code" element={<RoomPage />} /><Route path="/room/:code/tv" element={<RoomTvPage />} /></Routes></MemoryRouter>);

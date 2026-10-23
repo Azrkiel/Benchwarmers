@@ -70,6 +70,22 @@ export function useRoom(code: string, spectator = false, enabled = true) {
     } catch (problem) { if (mounted.current && !controller.signal.aborted) setError(errorMessage(problem)); return undefined; }
     finally { mutations.current.delete(controller); busyRef.current = false; revision.current++; if (mounted.current) setBusy(false); }
   }, [base, code, credentials.participantToken]);
+  /** Like mutate, but throws so callers can tell a server rejection from a lost response. */
+  const send = useCallback(async (action: string, body: unknown): Promise<RoomView> => {
+    revision.current++;
+    const controller = new AbortController(); mutations.current.add(controller);
+    try {
+      const fresh = await roomRequest<RoomView>(`${base}/${action}`, { body, signal: controller.signal });
+      if (mounted.current && !controller.signal.aborted) { setSnapshot({ code, view: fresh }); setStale(false); setUpdatedAt(Date.now()); }
+      return fresh;
+    } finally { mutations.current.delete(controller); revision.current++; }
+  }, [base, code]);
+  /** Fetch the private snapshot now (used to confirm a pick whose response was lost). */
+  const refresh = useCallback(async (): Promise<RoomView> => {
+    const fresh = await roomRequest<RoomView>(base, { token: credentials.participantToken });
+    if (mounted.current) { revision.current++; setSnapshot({ code, view: fresh }); setStale(false); setUpdatedAt(Date.now()); }
+    return fresh;
+  }, [base, code, credentials.participantToken]);
   const acceptJoin = (fresh: RoomView, next: RoomCredentials) => { revision.current++; setSnapshot({ code, view: fresh }); setCredentials(next); setError(''); setStale(false); };
-  return { view, credentials, error, stale, busy, mutate, acceptJoin, retry: () => setRetryKey((key) => key + 1), updatedAt };
+  return { view, credentials, error, stale, busy, mutate, send, refresh, acceptJoin, retry: () => setRetryKey((key) => key + 1), updatedAt };
 }

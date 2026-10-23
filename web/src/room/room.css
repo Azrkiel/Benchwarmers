@@ -95,3 +95,19 @@
 .rm-player-info>h3,.rm-lineup-slot b { overflow-wrap:anywhere; }
 
 .rm-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+/* Lineup filters: position, team and sort in one row; search below. */
+.rm .rm-filters { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.rm .rm-filters>label:last-child { grid-column:1/-1; }
+.rm-projection { display:block; font-size:14px; color:var(--lg-muted); font-weight:600; }
+/* Phone room views */
+.rm-source-line { color:var(--lg-muted); font-size:14px; margin:4px 0 0; }
+.rm-phone-nav { position:sticky; top:0; z-index:4; margin:16px -4px 12px; background:var(--lg-bg); border-bottom:1px solid var(--lg-line); }
+.rm-phone-nav [role=tablist] { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); }
+.rm .rm-phone-nav button { border:0; border-bottom:3px solid transparent; border-radius:0; background:transparent; min-height:48px; padding:8px 4px; font-size:15px; color:var(--lg-muted); }
+.rm .rm-phone-nav button.is-active { color:var(--lg-text); border-bottom-color:var(--lg-orange); box-shadow:none; }
+.rm .rm-phone-nav button:disabled { opacity:.45; background:transparent; }
+.rm-view { display:flex; flex-direction:column; gap:16px; }
+.rm-receipt { margin-top:12px; padding:10px 12px; border-radius:4px; border-left:4px solid var(--lg-muted); background:var(--lg-deep); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.rm-receipt p { margin:0; font-weight:600; }
+.rm-receipt.is-accepted { border-left-color:var(--lg-good); }
+.rm-receipt.is-rejected, .rm-receipt.is-unknown { border-left-color:var(--lg-bad); }

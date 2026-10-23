@@ -3,6 +3,7 @@ import type { RoomStanding, RoomView } from '@shared/room';
 import { ScoreTick, useNewIds } from '../fx/fx';
 import { useFlip } from '../tv/flip';
 import { ordinal, playLabel } from './moments';
+import { PredictionReceipt, type PickReceipt } from './PredictionReceipt';
 
 /** Black or white text, whichever reads better on a team colour. */
 export function inkOn(hex: string): string {
@@ -108,9 +109,11 @@ export function HostControls({ view, busy, onAction }: { view: RoomView; busy: b
   return <section className="rm-host" aria-label="Host controls"><h2>Host controls</h2><div className="rm-host-row">{phase === 'lobby' && <button className="rm-primary" disabled={busy} onClick={() => onAction('start')}>Start game</button>}{phase === 'live' && <button disabled={busy} onClick={() => onAction('pause')}>Pause game</button>}{phase === 'paused' && <button className="rm-primary" disabled={busy} onClick={() => onAction('resume')}>Resume game</button>}{phase === 'final' && <span>Final · Season saved</span>}<div><span className="rm-muted">Replay speed</span><div className="rm-speeds" role="group" aria-label="Replay speed">{[1, 2, 3, 4].map((speed) => <button key={speed} aria-pressed={view.room.speed === speed} aria-label={`Replay ${speed} times speed`} disabled={busy || phase === 'final'} onClick={() => onAction('set_speed', speed)}>{speed}×</button>)}</div></div></div>{phase === 'lobby' && <p>{incomplete} {incomplete === 1 ? 'player needs a lineup' : 'players need lineups'}. Starting locks saved lineups and auto-fills missing lineups.</p>}</section>;
 }
 
-export function Question({ view, busy = false, onPick, tv = false }: { view: RoomView; busy?: boolean; tv?: boolean; onPick?: (questionId: string, optionId: string) => Promise<boolean | undefined> | void }) {
+export function Question({ view, busy = false, onPick, tv = false, receipt, onRetry }: { view: RoomView; busy?: boolean; tv?: boolean; onPick?: (questionId: string, optionId: string) => Promise<boolean | undefined> | void; receipt?: PickReceipt; onRetry?: (receipt: PickReceipt) => void }) {
   const question = view.question;
-  const [attempt, setAttempt] = useState<{ questionId: string; optionId: string; status: 'saving' | 'failed' | 'saved' }>();
+  const [localAttempt, setAttempt] = useState<{ questionId: string; optionId: string; status: 'saving' | 'failed' | 'saved' }>();
+  // With a server receipt, only an accepted receipt counts as saved; otherwise fall back to the local attempt.
+  const attempt = receipt ? { questionId: receipt.questionId, optionId: receipt.optionId, status: receipt.status === 'accepted' ? 'saved' as const : receipt.status === 'sending' || receipt.status === 'checking' ? 'saving' as const : 'failed' as const } : localAttempt;
   const result = view.lastQuestion?.result ? view.lastQuestion : question?.result ? question : undefined;
   const total = question ? Object.values(question.pickCounts).reduce((a, b) => a + b, 0) : 0;
   const span = question ? Math.max(1, question.locksAt - question.opensAt) : 1;
@@ -120,6 +123,7 @@ export function Question({ view, busy = false, onPick, tv = false }: { view: Roo
   const editable = view.room.phase === 'live' && question?.status === 'open' && question.remainingMs > 0;
   const currentAttempt = attempt?.questionId === question?.id ? attempt : undefined;
   async function pick(questionId: string, optionId: string) {
+    if (receipt !== undefined || onRetry) { await onPick?.(questionId, optionId); return; }
     setAttempt({ questionId, optionId, status: 'saving' });
     try {
       const saved = await onPick?.(questionId, optionId);
@@ -134,16 +138,19 @@ export function Question({ view, busy = false, onPick, tv = false }: { view: Roo
     <h2 id="rm-question-title">{question?.text ?? (view.room.phase === 'lobby' ? 'Picks open at kickoff' : view.room.phase === 'final' ? 'Game complete' : 'Waiting for the next pick')}</h2>
     {question && <div className="rm-options">{question.options.map((option) => {
       const confirmed = view.me?.currentPick?.questionId === question.id && view.me.currentPick.optionId === option.id;
-      const selected = currentAttempt ? currentAttempt.optionId === option.id : confirmed;
+      const attempted = currentAttempt?.optionId === option.id;
+      // A previously accepted pick stays marked even while a different answer is in flight or failed.
+      const selected = attempted || (confirmed && currentAttempt?.status !== 'saved');
       const winner = question.result?.optionId === option.id;
       const count = question.pickCounts[option.id] ?? 0;
       const share = total ? count / total : 0;
-      const content = <><span className="rm-option-top"><span className="rm-clamp" title={option.label}>{option.label}</span><b>{winner ? '✓ Correct' : `${option.basePoints} pts`}</b></span><span className="rm-split" aria-hidden="true"><i style={{ width: `${share * 100}%` }} /></span><small>Room: {count} {count === 1 ? 'pick' : 'picks'} ({Math.round(share * 100)}%){option.probability !== undefined && <span className="rm-history-rate">Historical rate: {Math.round(option.probability * 100)}%</span>}</small>{selected && <strong className="rm-your-pick">{currentAttempt?.status === 'saving' ? 'Saving…' : currentAttempt?.status === 'failed' ? 'Your choice · Not saved' : '✓ Your pick'}</strong>}</>;
+      const content = <><span className="rm-option-top"><span className="rm-clamp" title={option.label}>{option.label}</span><b>{winner ? '✓ Correct' : `${option.basePoints} pts`}</b></span><span className="rm-split" aria-hidden="true"><i style={{ width: `${share * 100}%` }} /></span><small>Room: {count} {count === 1 ? 'pick' : 'picks'} ({Math.round(share * 100)}%){option.probability !== undefined && <span className="rm-history-rate">Historical rate: {Math.round(option.probability * 100)}%</span>}</small>{selected && <strong className="rm-your-pick">{attempted && currentAttempt?.status === 'saving' ? 'Saving…' : attempted && currentAttempt?.status === 'failed' ? 'Your choice · Not saved' : '✓ Your pick'}</strong>}</>;
       const className = `${winner ? 'is-winner' : ''}${question.result && !winner ? ' is-out' : ''}${selected ? ' is-selected' : ''}`;
       return tv ? <div key={option.id} className={`rm-option-info ${className}`}>{content}</div> : <button key={option.id} className={className} disabled={!onPick || busy || currentAttempt?.status === 'saving' || !editable} aria-pressed={selected} onClick={() => { void pick(question.id, option.id); }}>{content}</button>;
     })}</div>}
     {!tv && <span className="rm-sr-only" role="status">{currentAttempt?.status === 'saved' ? `Pick saved: ${question?.options.find(o => o.id === currentAttempt.optionId)?.label ?? ''}` : ''}</span>}
-    {currentAttempt?.status === 'failed' && <div className="rm-pick-failure"><p role="alert">Pick not saved. Try again.</p>{editable && <button disabled={busy} onClick={() => { void pick(currentAttempt.questionId, currentAttempt.optionId); }}>Retry pick</button>}</div>}
+    {onRetry && receipt?.questionId === question?.id && <PredictionReceipt receipt={receipt} canRetry={!!editable && !busy} onRetry={() => receipt && onRetry(receipt)} />}
+    {!onRetry && currentAttempt?.status === 'failed' && <div className="rm-pick-failure"><p role="alert">Pick not saved. Try again.</p>{editable && <button disabled={busy} onClick={() => { void pick(currentAttempt.questionId, currentAttempt.optionId); }}>Retry pick</button>}</div>}
     {result?.result && <details className="rm-result"><summary>Previous pick · {result.options.find((option) => option.id === result.result?.optionId)?.label ?? result.result.optionId}</summary><p>{result.text}</p><p>{result.result.explanation}</p></details>}
   </section>;
 }
