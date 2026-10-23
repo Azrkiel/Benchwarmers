@@ -89,7 +89,10 @@ export function RoomPage() {
         {current === 'standings' && <><Leaderboard view={view} />{(final || view.season.standings.length > 0) && <Leaderboard view={view} season />}</>}
         {current === 'results' && final && <><FinalPodium view={view} /><details className="rm-pick-review"><summary>Previous pick</summary><Question view={view} /></details><Leaderboard view={view} season /></>}
       </div>
-      <RoomAssistant busy={busy} onCommand={async (text) => (await mutate('assistant', { text, participantToken: credentials.participantToken, hostToken: credentials.hostToken }, true))?.reply} />
+      <RoomAssistant busy={busy} onNavigate={(target) => choose(target === 'season' || target === 'standings' ? 'standings' : target === 'lineups' ? 'lineups' : 'game')} onCommand={async (text) => {
+        const result = await mutate('assistant', { text, participantToken: credentials.participantToken, hostToken: credentials.hostToken }, true);
+        return result?.reply === undefined ? undefined : { reply: result.reply, accepted: result.accepted, navigate: result.navigate };
+      }} />
     </>}
     <ToastLayer toasts={moments.toasts.slice(-1)} placement="top" />
   </main>;

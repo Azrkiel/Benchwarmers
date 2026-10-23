@@ -5,6 +5,10 @@ import { sharedAudio } from '../fx/audio';
 import { AudioControls } from '../fx/AudioControls';
 import { BasketballCelebration } from '../fx/BasketballCelebration';
 import { prefersReducedMotion, useCelebrations } from '../fx/celebrations';
+import { usePlaybackLease } from '../fx/playbackLease';
+import { useSpeechOutput } from '../device/useSpeechOutput';
+import { DisplayVoice } from './DisplayVoice';
+import { useRoomAnnouncements } from './useRoomAnnouncements';
 import { basketballFixture, FIXTURE_STATES, type FixtureState } from './fixtures/basketball';
 import { layoutFor, RoomDisplay, type DisplayLayout } from './RoomDisplay';
 import { ROOM_VIEWS, type RoomViewId } from './RoomNav';
@@ -61,6 +65,13 @@ export function RoomDisplayPage() {
   const [correction, setCorrection] = useState(false);
   useEffect(() => { if (!corrected) return; setCorrection(true); const timer = setTimeout(() => setCorrection(false), 4000); return () => clearTimeout(timer); }, [corrected]);
   useEffect(() => () => audio.stop(), [audio]);
+  const { lease, takeOver } = usePlaybackLease(fixture ? '' : code, audio, { hostToken: room.credentials.hostToken });
+  const speech = useSpeechOutput({ storageKey: 'bw.display.voiceMuted' });
+  useEffect(() => { audio.setSpeaking(speech.speaking); }, [audio, speech.speaking]);
+  // Only the playback leader with sound enabled speaks; every screen shows the caption.
+  const { caption } = useRoomAnnouncements(view, (text) => { if (audio.canPlay()) speech.speak(text); });
+  const [reply, setReply] = useState('');
+  useEffect(() => { if (!reply) return; const timer = setTimeout(() => setReply(''), 8000); return () => clearTimeout(timer); }, [reply]);
   useEffect(() => { if (current === 'results' && view && !final) setCurrent('game'); }, [current, final, view]);
 
   function change(next: RoomViewId) {
@@ -80,7 +91,14 @@ export function RoomDisplayPage() {
   const joinUrl = `${window.location.origin}/room/${encodeURIComponent(view.room.code)}`;
   return <div ref={root} onKeyDown={onKeyDown} className="rd-root">
     <RoomDisplay view={view} layout={layout} current={current} onView={change} joinUrl={joinUrl} stale={!fixture && room.stale} host={!!room.credentials.hostToken} fixture={!!fixture}
-      voice={<>{correction && <span className="rd-correction" role="status">Score corrected</span>}<AudioControls audio={audio} /></>}
+      caption={reply || caption}
+      voice={<>{correction && <span className="rd-correction" role="status">Score corrected</span>}
+        {!fixture && <DisplayVoice audio={audio} speak={speech.speak} cancelSpeech={speech.cancel} onReply={setReply} onCommand={async (text) => {
+          const result = await room.mutate('assistant', { text, hostToken: room.credentials.hostToken }, true);
+          if (result?.navigate === 'season' || result?.navigate === 'standings') change(result.navigate === 'season' && final ? 'results' : 'standings');
+          return result?.reply === undefined ? undefined : { reply: result.reply, accepted: result.accepted, navigate: result.navigate };
+        }} />}
+        <AudioControls audio={audio} lease={lease} onTakeOver={takeOver} /></>}
       overlay={<BasketballCelebration celebration={celebration} coalesced={coalesced} reducedMotion={reducedMotion} audio={audio} status={view.question ? questionStatus(view) : undefined} />} />
   </div>;
 }

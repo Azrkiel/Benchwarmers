@@ -133,9 +133,9 @@ function Lineups({ view, perPage }: { view: RoomViewNext; perPage: number }) {
   </section>;
 }
 
-export function RoomDisplay({ view: input, layout, current, onView, joinUrl, stale = false, host = false, fixture = false, voice, overlay, highlightId }: {
+export function RoomDisplay({ view: input, layout, current, onView, joinUrl, stale = false, host = false, fixture = false, voice, overlay, highlightId, caption }: {
   view: RoomViewNext; layout: DisplayLayout; current: RoomViewId; onView: (view: RoomViewId) => void; joinUrl: string;
-  stale?: boolean; host?: boolean; fixture?: boolean; voice?: ReactNode; overlay?: ReactNode; highlightId?: string;
+  stale?: boolean; host?: boolean; fixture?: boolean; voice?: ReactNode; overlay?: ReactNode; highlightId?: string; caption?: string;
 }) {
   const view = toDisplayModel(input);
   const config = LAYOUT[layout];
@@ -171,7 +171,7 @@ export function RoomDisplay({ view: input, layout, current, onView, joinUrl, sta
     </div>
     <footer className="rd-foot">
       {!config.court && basketball && phase !== 'lobby' && <span className="rd-foot-ball">{court}</span>}
-      <div className="rd-foot-play" aria-label="Latest play">{latest.length ? latest.map((play) => <p key={play.id}><span className="rd-tag">{playLabel(play.kind) ?? (play.kind === 'score' ? 'Score' : 'Play')}</span>{play.text}</p>) : <p className="rd-muted">{phase === 'lobby' ? 'Waiting for the host to start' : final ? 'Game over' : 'Waiting for the next play'}</p>}</div>
+      <div className="rd-foot-play" aria-label="Latest play">{caption ? <p className="rd-caption" aria-live="polite">{caption}</p> : latest.length ? latest.map((play) => <p key={play.id}><span className="rd-tag">{playLabel(play.kind) ?? (play.kind === 'score' ? 'Score' : 'Play')}</span>{play.text}</p>) : <p className="rd-muted">{phase === 'lobby' ? 'Waiting for the host to start' : final ? 'Game over' : 'Waiting for the next play'}</p>}</div>
       <div className="rd-foot-voice">{voice}<span className="rd-muted rd-source-label">{basketball ? 'Fictional basketball replay' : 'Fictional football replay'}</span></div>
     </footer>
     {overlay}

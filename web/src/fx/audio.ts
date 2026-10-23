@@ -51,6 +51,8 @@ export class SharedAudio {
     } catch { this.set({ error: 'Sound could not start. Captions stay on.' }); return false; }
   }
   disable() { this.stop(); this.set({ enabled: false, leader: false }); }
+  /** Another screen holds the room's playback lease: stay enabled but silent. */
+  yieldLeader() { this.stop(); if (this.state.leader) this.set({ leader: false }); }
   setMuted(muted: boolean) { if (muted) this.stop(); this.set({ muted }); }
   setVolume(volume: number) { this.set({ volume: Math.max(0, Math.min(1, volume)) }); }
   /** Microphone or assistant speech in progress: stop and hold all sound. */

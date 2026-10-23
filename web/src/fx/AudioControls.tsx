@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { AudioState, SharedAudio } from './audio';
+import type { LeaseState } from './playbackLease';
 
 export function useAudioState(audio: SharedAudio): AudioState {
   const [state, setState] = useState(audio.snapshot);
@@ -8,8 +9,11 @@ export function useAudioState(audio: SharedAudio): AudioState {
 }
 
 /** Explicit opt-in for this screen's sound, plus mute and volume. Captions never depend on it. */
-export function AudioControls({ audio }: { audio: SharedAudio }) {
+export function AudioControls({ audio, lease, onTakeOver }: { audio: SharedAudio; lease?: LeaseState; onTakeOver?: () => void }) {
   const state = useAudioState(audio);
+  if (state.enabled && lease?.heldBy) {
+    return <span className="ac"><small>Sound plays on {lease.heldBy}</small><button type="button" onClick={onTakeOver}>Play here</button></span>;
+  }
   if (!state.enabled || !state.leader) {
     return <span className="ac">
       <button type="button" onClick={() => { void audio.enable(); }}>{state.enabled ? 'Play sound here' : 'Enable sound'}</button>
@@ -19,6 +23,7 @@ export function AudioControls({ audio }: { audio: SharedAudio }) {
   return <span className="ac">
     <button type="button" aria-pressed={state.muted} onClick={() => audio.setMuted(!state.muted)}>{state.muted ? 'Unmute' : 'Mute'}</button>
     <label className="ac-volume">Volume<input type="range" min={0} max={100} step={10} value={Math.round(state.volume * 100)} onChange={(event) => audio.setVolume(Number(event.target.value) / 100)} /></label>
+    {lease?.mode === 'local' && <small title="The server has no shared playback lease yet">This browser only</small>}
     {state.error && <small role="status">{state.error}</small>}
   </span>;
 }

@@ -56,7 +56,7 @@ export function useRoom(code: string, spectator = false, enabled = true) {
     busyRef.current = true; setBusy(true); setError(''); revision.current++;
     const controller = new AbortController(); mutations.current.add(controller);
     try {
-      const result = await roomRequest<RoomView | { view: RoomView; reply: string }>(`${base}/${action}`, { body, signal: controller.signal });
+      const result = await roomRequest<RoomView | { view: RoomView; reply: string; accepted?: boolean; navigate?: string }>(`${base}/${action}`, { body, signal: controller.signal });
       if (!mounted.current || controller.signal.aborted) return undefined;
       let fresh = assistant ? (result as { view: RoomView }).view : result as RoomView;
       // Host actions return a public snapshot; restore the private lineup before
@@ -66,7 +66,8 @@ export function useRoom(code: string, spectator = false, enabled = true) {
         if (!mounted.current || controller.signal.aborted) return undefined;
       }
       setSnapshot({ code, view: fresh }); setStale(false); setUpdatedAt(Date.now());
-      return { view: fresh, reply: assistant ? (result as { reply: string }).reply : undefined };
+      const reply = assistant ? result as { reply: string; accepted?: boolean; navigate?: string } : undefined;
+      return { view: fresh, reply: reply?.reply, accepted: reply?.accepted, navigate: reply?.navigate };
     } catch (problem) { if (mounted.current && !controller.signal.aborted) setError(errorMessage(problem)); return undefined; }
     finally { mutations.current.delete(controller); busyRef.current = false; revision.current++; if (mounted.current) setBusy(false); }
   }, [base, code, credentials.participantToken]);

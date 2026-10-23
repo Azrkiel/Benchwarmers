@@ -168,3 +168,8 @@
 .rd-correction { color:var(--bw-warning); font-weight:600; font-size:calc(var(--rd-s) * .8); }
 .rd.is-compact .rd-source-label { display:none; }
 .rd.is-compact .rd-foot-voice:not(:has(.ac)) .rd-source-label { display:inline; }
+.rd-caption { color:var(--lg-text); font-weight:600; white-space:normal!important; }
+.rd-voice { display:inline-flex; align-items:center; gap:8px; }
+.rd .rd-voice button { display:inline-flex; align-items:center; gap:6px; min-height:40px; font-size:calc(var(--rd-s) * .75); }
+.rd .rd-voice button[aria-pressed=true] { border-color:var(--lg-orange); box-shadow:inset 3px 0 var(--lg-orange); }
+.rd-voice small, .rd .ac small { color:var(--lg-muted); font-size:calc(var(--rd-s) * .65); max-width:16em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
