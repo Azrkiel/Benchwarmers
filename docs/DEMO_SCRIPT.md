@@ -15,34 +15,34 @@ Every utterance below is traced to a router test or rule in the appendix. Tested
 - Draft Big Mo only once per take. A fresh party or reset is needed before another take; avoid resetting a shared production party during another person's demo.
 - Recording, the public video upload, and the Devpost form remain owner steps. Keep the UNVERIFIED wording in `SUBMISSION.md`: no real Alexa+ device/host, no real-microphone voice-ID proof, and no live Bedrock proof.
 
-### Setup
+### Local rehearsal setup
 - [ ] Node 22+ (HANDOFF says >= 22). `npm ci` at repo root.
-- [ ] Ports free. Codex's Vite owns **5173** on this machine (HANDOFF §3). Use `WEB_PORT=5175`. Server `PORT=3001` (default).
-  PowerShell: `$env:PORT=3001; $env:WEB_PORT=5175; npm run demo`
-- [ ] `npm run demo` (root). It runs `build:widget -w server` first (the `/mcp` widget must be built or it serves "Widget not built"), then server (`SPEED=4`) and web. Prints the URLs. Ctrl+C stops both.
-- [ ] Check `http://localhost:3001/healthz`. Check `POST http://localhost:3001/mcp` returns 401 without the bearer.
+- [ ] Choose a free port; leave existing servers alone. This example uses **3031**.
+  PowerShell: `$env:PORT=3031; npm run demo`
+- [ ] `npm run demo` (root) builds the widget and web, then serves both from one Express process (`SPEED=4`). `WEB_PORT` is not used. Ctrl+C stops this demo server.
+- [ ] Check `http://localhost:3031/healthz`. Check `POST http://localhost:3031/mcp` returns 401 without the bearer.
 - [ ] Avast on this machine can stall loopback `/mcp` (HANDOFF §6). If `/mcp` hangs, re-run the take, do not debug live.
 - [ ] `ASSISTANT_MODE` unset or `offline`. Offline needs zero AWS creds. Bedrock is **not** part of this demo.
 - [ ] `AI_MODE` unset or `fallback`. Props and recap come from fallback content.
 
 ### Browser and mic
 - [ ] Chrome only. Web Speech recognition is not in Firefox (`voice-id` notes, VOICE_ID §9). Use Chrome for both device windows.
-- [ ] Mic permission granted to `localhost:5175` in Chrome before recording (site settings > microphone).
+- [ ] Mic permission granted to the recording origin in Chrome before recording (site settings > microphone): production or `localhost:3031` for this local setup.
 - [ ] USB headset, not the laptop mic. Set Windows default input to the headset.
 - [ ] Dry run in the same Chrome profile: both device pages capturing at once. HANDOFF §9 lists "Chrome shares the mic between Web Speech and getUserMedia" as **unverified**. Confirm in the dry run.
 
 ### Voice ID
-- [ ] Open `http://localhost:5175/voice-lab`. Choose household **garcias**. Wait for the model to load. First load is slow (102 MB download, VOICE_ID §3). Once cached it is about 20 s (VOICE_ID §5a). Warm it the day before and keep the same browser profile.
+- [ ] Open `/voice-lab` on the recording origin. Choose household **garcias**. Wait for the model to load. First load is slow (102 MB download, VOICE_ID §3). Once cached it is about 20 s (VOICE_ID §5a). Warm it before the take and keep the same browser profile.
 - [ ] Enroll **Maya** and **Leo** (Garcias) with the three sentences in `EnrollPanel` (each clip needs >= 1.5 s speech).
 - [ ] Enroll **Sam** and **Priya** on `household=sams-place` the same way.
 - [ ] Test "Who's talking?" a few times at the device distance, with the TV audio on. Note whether Maya is recognised. If it is not, use the fallbacks in section 3.
 
 ### Data and reset
-- [ ] `npm run demo:reset` before **every** take. It posts `/api/parties/DEMO/reset` (PORT default 3001). It restores DEMO and season stats.
+- [ ] For an isolated local rehearsal, set `PORT=3031` and run `npm run demo:reset` before each take. It posts `/api/parties/DEMO/reset`, restoring DEMO and season stats. For a shared production take, create a fresh party instead of resetting another person's party.
 - [ ] Setup creates a new party every time it runs (`store.createParty`). Reset does not delete those. Device pages pick the newest non-final party for the crew (`store.getCurrentPartyCode`). Reset re-stamps DEMO (`seedState(now)`), so DEMO should win again. Confirm with the party chip after reset.
 
 ### Recording
-- [ ] OBS. Scene: TV view large (`http://localhost:5175/tv/DEMO`, or `/tv/<CODE>` after setup), Austin device (`/device/garcias`) and Seattle device (`/device/sams-place`) small, side by side. Browser zoom so each device fits without scroll.
+- [ ] OBS. Scene: TV view large (`/tv/<CODE>`), Austin smart display (`/display/garcias`) and Seattle device (`/device/sams-place`). Use F11 and normal browser zoom. The simulated display scales itself to fit.
 - [ ] Hide bookmarks, notifications and the Settings drawer unless the shot needs it.
 - [ ] Record 2 to 3 takes. Keep the best. Do not edit a live game in one take into several; see the live beat timing (section 2, beat 4).
 - [ ] Optional: 10 s of the TV on a real screen for the intro (plan §10). Not required.
