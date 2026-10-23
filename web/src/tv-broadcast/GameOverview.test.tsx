@@ -8,24 +8,24 @@ afterEach(cleanup);
 describe('GameOverview', () => {
   it('shows the latest room ranking and distinguishes the leader without color', () => {
     const { rerender } = render(<GameOverview state={liveFixture} />);
-    const room = screen.getByRole('region', { name: 'Around the room' });
+    const room = screen.getByRole('region', { name: 'Standings' });
     expect(within(room).getAllByRole('article')[0]!.textContent).toContain('Maya');
-    expect(within(room).getAllByText('Leading')).toHaveLength(1);
+    expect(within(room).getAllByText('Leader')).toHaveLength(1);
     const standings = liveFixture.standings.map((row) => ({ ...row, rank: row.name === 'Sam' ? 1 : row.name === 'Maya' ? 2 : row.rank }));
     rerender(<GameOverview state={{ ...liveFixture, standings }} />);
     expect(within(room).getAllByRole('article')[0]!.textContent).toContain('Sam');
   });
 
   it('shows the resolved answer instead of treating the last question as open', () => {
-    render(<GameOverview state={{ ...finalFixture, activeProp: undefined, props: [], lastResolvedProp: liveFixture.lastResolvedProp }} />);
-    expect(screen.getByText('Last call')).toBeTruthy();
+    render(<GameOverview state={{ ...liveFixture, activeProp: undefined, props: [], lastResolvedProp: liveFixture.lastResolvedProp }} />);
+    expect(screen.getByText('Result')).toBeTruthy();
     expect(screen.getByText('✓ Correct')).toBeTruthy();
-    expect(screen.queryByText('The next call')).toBeNull();
+    expect(screen.queryByText('Current pick')).toBeNull();
   });
 
   it('explains an empty room and the wait for a new question', () => {
     render(<GameOverview state={{ ...liveFixture, standings: [], props: [], activeProp: undefined, lastResolvedProp: undefined }} />);
     expect(screen.getByText('Your crew will appear here when they join the party.')).toBeTruthy();
-    expect(screen.getByText('The next question will appear here. Open Picks for updates.')).toBeTruthy();
+    expect(screen.getByText('The next question will appear here.')).toBeTruthy();
   });
 });

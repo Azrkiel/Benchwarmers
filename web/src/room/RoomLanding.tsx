@@ -4,7 +4,7 @@ import type { RoomView } from '@shared/room';
 import { errorMessage, forgetSeasonToken, rememberPlayer, RoomRequestError, roomRequest, saveCredentials, seasonToken, storageWarning, type RoomCredentials } from './api';
 import './room.css';
 
-export function JoinRoom({ code, seasonId, onJoin }: { code: string; seasonId: string; onJoin: (view: RoomView, credentials: RoomCredentials) => void }) {
+export function JoinRoom({ code, seasonId, phase = 'lobby', onJoin }: { code: string; seasonId: string; phase?: RoomView['room']['phase']; onJoin: (view: RoomView, credentials: RoomCredentials) => void }) {
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -22,13 +22,13 @@ export function JoinRoom({ code, seasonId, onJoin }: { code: string; seasonId: s
       if (!controller.current.signal.aborted) {
         if (problem instanceof RoomRequestError && problem.status === 401 && seasonToken(seasonId)) {
           forgetSeasonToken(seasonId); setFreshSeat(true);
-          setError('We couldn’t find your old seat. Join as a new player. Your previous season history will not link to this one.');
+          setError('Join as a new player. Your previous season history will not link to this one.');
         } else setError(errorMessage(problem));
       }
     }
     finally { if (!controller.current?.signal.aborted) setBusy(false); }
   }
-  return <form className="rm-join" onSubmit={join}><h2>Take your seat.</h2><p>Pick five players and call every drive.</p><label htmlFor="rm-name">Your name</label><input id="rm-name" value={name} maxLength={24} autoComplete="nickname" onChange={(event) => setName(event.target.value)} placeholder="What should we call you?" required /><button className="rm-primary" disabled={busy || !name.trim()}>{busy ? 'Joining…' : freshSeat ? 'Join as new player' : 'Join room'}</button>{error && <p role="alert" className="rm-error">{error}</p>}</form>;
+  return <form className="rm-join" onSubmit={join}><h2>Join room</h2><p>{phase === 'lobby' ? 'Choose five players, then make picks during the game.' : phase === 'final' ? 'The game has ended. Joining adds an automatic lineup; you cannot make picks.' : 'The game has started. You’ll receive a locked automatic lineup and can make picks when play resumes.'}</p><label htmlFor="rm-name">Your name</label><input id="rm-name" value={name} maxLength={24} autoComplete="nickname" onChange={(event) => setName(event.target.value)} placeholder="Name, up to 24 characters" required aria-invalid={!!error} aria-describedby={error ? 'rm-join-error' : undefined} /><button className="rm-primary" disabled={busy || !name.trim()}>{busy ? 'Joining…' : freshSeat ? 'Join as new player' : 'Join room'}</button>{error && <p id="rm-join-error" role="alert" className="rm-error">{error}</p>}</form>;
 }
 
 export function RoomLanding() {
@@ -50,5 +50,5 @@ export function RoomLanding() {
     } catch (problem) { if (!controller.current.signal.aborted) setError(errorMessage(problem)); }
     finally { if (!controller.current?.signal.aborted) setBusy(false); }
   }
-  return <section className="rm-landing" aria-labelledby="rm-landing-title"><div className="rm-landing-copy"><span className="rm-eyebrow">Football · Live room</span><h2 id="rm-landing-title">Your Sunday rivalry.</h2><p>Build a lineup, call every drive, and see who runs the room.</p></div><div className="rm-landing-forms"><form onSubmit={create}><label htmlFor="rm-room-name">Room name</label><input id="rm-room-name" value={name} maxLength={60} onChange={(event) => setName(event.target.value)} /><button className="rm-primary" disabled={busy}>{busy ? 'Opening…' : 'Create football room'}</button></form><form onSubmit={(event) => { event.preventDefault(); if (code.trim()) navigate(`/room/${encodeURIComponent(code.trim().toUpperCase())}`); }}><label htmlFor="rm-code">Have a code?</label><div className="rm-input-row"><input id="rm-code" autoCapitalize="characters" value={code} maxLength={12} onChange={(event) => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} placeholder="ROOM CODE" required /><button disabled={!code.trim()}>Find room</button></div></form>{error && <p role="alert" className="rm-error">{error}</p>}{storageWarning() && <p className="rm-muted">{storageWarning()}</p>}</div></section>;
+  return <section className="rm-landing" aria-labelledby="rm-landing-title"><div className="rm-landing-copy"><span className="rm-eyebrow">Football · Replay</span><h2 id="rm-landing-title">Create or join a room</h2><p>Five-player lineups. Picks on every drive. Follow the standings together.</p></div><div className="rm-landing-forms"><form onSubmit={create}><label htmlFor="rm-room-name">Room name</label><input id="rm-room-name" value={name} maxLength={60} onChange={(event) => setName(event.target.value)} /><button className="rm-primary" disabled={busy}>{busy ? 'Creating…' : 'Create room'}</button></form><form onSubmit={(event) => { event.preventDefault(); if (code.trim()) navigate(`/room/${encodeURIComponent(code.trim().toUpperCase())}`); }}><label htmlFor="rm-code">Room code</label><div className="rm-input-row"><input id="rm-code" autoCapitalize="characters" autoComplete="off" value={code} maxLength={12} onChange={(event) => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} placeholder="Enter code" required /><button disabled={!code.trim()}>Join room</button></div></form>{error && <p role="alert" className="rm-error">{error}</p>}{storageWarning() && <p className="rm-muted">{storageWarning()}</p>}</div></section>;
 }

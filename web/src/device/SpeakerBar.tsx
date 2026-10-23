@@ -14,7 +14,7 @@ export function SpeakerBar({
 }) {
   return (
     <div className="sp-bar">
-      <span className="sp-label">Who's talking?</span>
+      <span className="sp-label">{screenPick ? `Playing as ${screenPick}` : 'Choose player for typed actions'}</span>
       {members.map((m) => {
         const on = screenPick === m.name;
         return (
@@ -33,9 +33,8 @@ export function SpeakerBar({
       })}
       {recognized && (
         <span className="sp-chip sp-recognized" data-testid="recognized-chip">
-          Hi {recognized.memberName}
-          <span className="sp-conf">{Math.round(recognized.confidence * 100)}%</span>
-          {recognized.provisional && <span className="sp-guess">guess</span>}
+          {recognized.provisional ? 'Check voice match: ' : 'Voice matched: '}{recognized.memberName}
+          {recognized.provisional && <span className="sp-guess">Choose your name to confirm</span>}
         </span>
       )}
     </div>

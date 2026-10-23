@@ -162,18 +162,25 @@ describe('SpeakerBar', () => {
       <SpeakerBar members={members} onPick={vi.fn()} recognized={{ memberName: 'Maya', confidence: 0.84, provisional: false }} />,
     );
     const chip = screen.getByTestId('recognized-chip');
-    expect(chip.textContent).toContain('Hi Maya');
-    expect(chip.textContent).toContain('84%');
+    expect(chip.textContent).toContain('Voice matched: Maya');
+    expect(chip.textContent).not.toContain('84%');
     expect(chip.textContent).not.toContain('guess');
     rerender(
       <SpeakerBar members={members} onPick={vi.fn()} recognized={{ memberName: 'Maya', confidence: 0.84, provisional: true }} />,
     );
-    expect(screen.getByTestId('recognized-chip').textContent).toContain('guess');
+    expect(screen.getByTestId('recognized-chip').textContent).toContain('Choose your name to confirm');
   });
 });
 
 describe('SettingsDrawer', () => {
   const base = { members, voice: fakeVoice(outcome()), muted: false, partyCode: 'ABCD', householdName: 'The Garcias' };
+
+  it('keeps focus in place when parent data and callbacks refresh', () => {
+    const view=render(<SettingsDrawer {...base} open onClose={()=>undefined} onToggleMute={vi.fn()} />);
+    const speech=screen.getByLabelText('Speak replies');speech.focus();
+    view.rerender(<SettingsDrawer {...base} partyCode="NEXT" open onClose={()=>undefined} onToggleMute={vi.fn()} />);
+    expect(document.activeElement).toBe(speech);
+  });
 
   it('renders nothing when closed', () => {
     const { container } = render(<SettingsDrawer {...base} open={false} onClose={vi.fn()} onToggleMute={vi.fn()} />);
@@ -200,7 +207,7 @@ describe('SettingsDrawer', () => {
     const voice = { ...fakeVoice(outcome()), status: 'idle' as const };
     render(<SettingsDrawer {...base} voice={voice} open onClose={vi.fn()} onToggleMute={vi.fn()} />);
     expect(voice.load).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByText('Load voice model'));
+    fireEvent.click(screen.getByText('Prepare voice recognition'));
     expect(voice.load).toHaveBeenCalled();
   });
 });

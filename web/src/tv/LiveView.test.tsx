@@ -24,14 +24,14 @@ describe('LiveView', () => {
 
   it('shows the leader spotlight and standings arrows', () => {
     render(<LiveView state={liveFixture} serverNow={now} />);
-    expect(screen.getByText(/top of the bench/i)).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Standings' })).toBeTruthy();
     const leaderName = liveFixture.standings.find((r) => r.rank === 1)!.name;
     expect(leaderName).toBe('Maya');
-    expect(screen.getByTestId('leader').textContent).toContain('Maya');
+    expect(screen.getByText('Maya', { selector: '.tv-stand-name' })).toBeTruthy();
     expect(screen.getAllByText('▲').length).toBeGreaterThan(0);
     expect(screen.getAllByText('▼').length).toBeGreaterThan(0);
     expect(screen.getAllByText('142.5').length).toBeGreaterThan(0);
-    expect(screen.getByText('🔥3')).toBeTruthy();
+    expect(screen.getByText('3 streak')).toBeTruthy();
   });
 
   it('shows the active prop with countdown and percentages', () => {
@@ -73,9 +73,9 @@ describe('LiveView', () => {
     const next: PartyStateResponse = { ...liveFixture, recentEvents: [newEvent, ...liveFixture.recentEvents] };
     rerender(<LiveView state={next} serverNow={now} />);
 
-    const pops = container.querySelectorAll('.tv-pop-float');
-    expect(pops).toHaveLength(1);
-    expect(pops[0]!.textContent).toBe('+2 Maya');
+    expect(container.querySelectorAll('.tv-pop-float')).toHaveLength(0);
+    expect(screen.getByText('Big Mo finishes inside.')).toBeTruthy();
+    expect(screen.getByText('+2 Maya', { selector: '.tv-chip' })).toBeTruthy();
 
     act(() => {
       vi.advanceTimersByTime(3000);
@@ -91,11 +91,11 @@ describe('LiveView', () => {
       props: [liveFixture.props[0]!, lockedProp, liveFixture.props[2]!],
     };
     render(<LiveView state={state} serverNow={now} />);
-    expect(screen.getByText('LOCKED — waiting for the result')).toBeTruthy();
+    expect(screen.getByText('Waiting for the result')).toBeTruthy();
     expect(screen.getByText('Will the next score be a 3-pointer?')).toBeTruthy();
     expect(screen.getByText('41%')).toBeTruthy();
     expect(screen.getByText('59%')).toBeTruthy();
-    expect(screen.getAllByText('2 picks').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('2/4 picks').length).toBeGreaterThan(0);
     expect(screen.queryByText(/Answer:/)).toBeNull();
     expect(screen.queryByText('Who scores first after halftime?')).toBeNull();
   });
@@ -104,7 +104,7 @@ describe('LiveView', () => {
     const locked: PropView = { ...liveFixture.activeProp!, id: 'prop-9', status: 'locked', realSecondsToLock: undefined };
     render(<LiveView state={{ ...liveFixture, props: [locked, liveFixture.activeProp!] }} serverNow={now} />);
     expect(screen.getByText('0:12')).toBeTruthy();
-    expect(screen.queryByText('LOCKED — waiting for the result')).toBeNull();
+    expect(screen.queryByText('Waiting for the result')).toBeNull();
   });
 
   it('does not pop fantasy for events already present on the first load, even under StrictMode', () => {

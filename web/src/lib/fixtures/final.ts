@@ -110,8 +110,6 @@ export const finalFixture: PartyStateResponse = {
     'Leo missed the combined total',
     'Ice finishes as the Benchwarmer of the Night',
   ],
-  recap:
-    "Maya takes Sunday Crew night with 194.3 points. Big Mo and Rafa carried her roster, and she hit a pick streak late. " +
-    "Sam held second, while Priya's cold night with Ice kept her third. Harbor Hawks edged Summit Foxes 88-84.",
+  recap: "Maya wins with 194.3 points. Sam finishes second and Priya third. Harbor Hawks beat Summit Foxes 88-84.",
   benchwarmerOfTheNight: { playerId: 'sum-sf-14', playerName: 'Ice', ownerName: 'Priya', points: 2.4 },
 };

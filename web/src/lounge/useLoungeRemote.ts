@@ -17,18 +17,26 @@ export function useLoungeRemote(root: RefObject<HTMLDivElement | null>, onBack: 
         return;
       }
       if (modal) {
-        const close = modal.querySelector<HTMLButtonElement>('button');
-        if (key === 'Tab' || key?.startsWith('Arrow')) { event.preventDefault(); close?.focus(); }
-        if (key === 'Enter') { event.preventDefault(); if (!event.repeat) close?.click(); }
+        const targets = Array.from(modal.querySelectorAll<HTMLElement>('button, [data-lg-scroll]'));
+        const index = Math.max(0, targets.indexOf(active!));
+        if (key === 'Tab') { event.preventDefault(); targets[(index + (event.shiftKey ? targets.length - 1 : 1)) % targets.length]?.focus(); }
+        if (key === 'ArrowDown' || key === 'ArrowUp') {
+          event.preventDefault();
+          if (active?.hasAttribute('data-lg-scroll') && (key === 'ArrowDown' || active.scrollTop > 0)) active.scrollTop += key === 'ArrowDown' ? 180 : -180;
+          else targets[key === 'ArrowDown' ? targets.length - 1 : 0]?.focus();
+        }
+        if (key === 'ArrowLeft' || key === 'ArrowRight') { event.preventDefault(); targets[key === 'ArrowLeft' ? 0 : targets.length - 1]?.focus(); }
+        if (key === 'Enter' && active?.tagName === 'BUTTON') { event.preventDefault(); if (!event.repeat) active.click(); }
         return;
       }
+      if (active?.hasAttribute('data-lg-scroll') && (key === 'ArrowDown' || key === 'ArrowUp') && (key === 'ArrowDown' || active.scrollTop > 0)) { event.preventDefault(); active.scrollTop += key === 'ArrowDown' ? 180 : -180; return; }
       if (key === 'Enter' && active?.matches('[data-lg-row]')) {
         event.preventDefault();
         if (!event.repeat) active.click();
         return;
       }
       if (!key?.startsWith('Arrow')) return;
-      const controls = Array.from(root.current?.querySelectorAll<HTMLElement>('[data-lg-row]') ?? []);
+      const controls = Array.from(root.current?.querySelectorAll<HTMLElement>('[data-lg-row]') ?? []).filter(el => !el.closest('details:not([open])') || el.tagName === 'SUMMARY');
       const row = active?.dataset.lgRow;
       const selectedMenu = controls.find((el) => el.dataset.lgRow === 'nav' && el.getAttribute('aria-current') === 'page');
       if (!row) { event.preventDefault(); selectedMenu?.focus(); return; }
@@ -54,6 +62,7 @@ export function useLoungeRemote(root: RefObject<HTMLDivElement | null>, onBack: 
       }
       event.preventDefault();
       target?.focus();
+      target?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     };
     window.addEventListener('keydown', keydown);
     return () => window.removeEventListener('keydown', keydown);

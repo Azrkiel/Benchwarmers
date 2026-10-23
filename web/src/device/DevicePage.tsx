@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import type { AssistantRequest, AssistantResponse } from '@shared/types';
 import type { VoiceId } from '../voiceid';
@@ -49,8 +49,11 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
   const speech = useSpeechOutput({ synth: deps.synth, makeUtterance: deps.makeUtterance });
 
   const [draft, setDraft] = useState('');
+  const input = useRef<HTMLInputElement>(null);
+  const sending = useRef(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showTrace, setShowTrace] = useState(false);
+  const [conversationOpen, setConversationOpen] = useState(() => window.innerWidth >= 960);
   const [widgetStatus, setWidgetStatus] = useState<WidgetStatus>('loading');
   const [widgetStructured, setWidgetStructured] = useState<Record<string, unknown> | undefined>(undefined);
 
@@ -87,11 +90,12 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
-    if (!text) return;
-    setDraft('');
+    if (!text || sending.current || assistant.pending) return;
+    sending.current = true;
     speech.cancel();
     const res = await assistant.send(text, speaker.speakerForTyped());
-    if (res) speech.speak(res.reply);
+    if (res) { setDraft(''); speech.speak(res.reply); }
+    sending.current = false;
   };
 
   const code = partyCode ?? state?.party.code;
@@ -104,21 +108,17 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
 
   return (
     <div className="device-stage">
-      <div className="device-bezel" data-testid="device-bezel">
+      <div className="device-bezel" data-testid="device-bezel" inert={settingsOpen}>
         <header className="ds-head">
           <div className="ds-head-left">
-            <BrandLockup size={22} />
+            <a href="/" aria-label="Benchwarmers home"><BrandLockup size={22} /></a>
             <h1 className="ds-household" data-testid="household-name">
               {householdName(household, state)}
             </h1>
             <span className="party-chip" data-testid="party-code" aria-label="Party code">
-              {code ?? '…'}
+              {code ? `Party ${code}` : 'No party selected'}
             </span>
-            {mode ? (
-              <span className={`mode-badge mode-${mode}`} data-testid="mode-badge">
-                {mode}
-              </span>
-            ) : null}
+            {code ? <a className="ds-tv-link" href={`/tv/${encodeURIComponent(code)}`}>TV view</a> : null}
           </div>
           <button
             type="button"
@@ -127,18 +127,21 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
             data-testid="settings-button"
             onClick={() => setSettingsOpen(true)}
           >
-            ⚙
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/></svg>
           </button>
         </header>
 
         <div className="ds-body">
           <section className="ds-left" aria-label="Conversation">
-            <Transcript
+            <div className="ds-identity"><SpeakerBar members={members} screenPick={speaker.screenPick} onPick={speaker.setScreenPick} recognized={speaker.recognized} /></div>
+            <div className="ds-suggestions" aria-label="Suggested messages">{["Who's available?", 'Show standings', 'Show season standings'].map(text => <button key={text} type="button" disabled={assistant.pending} onClick={() => { setDraft(text); input.current?.focus(); }}>{text}</button>)}</div>
+            <button className="ds-conversation-toggle" type="button" aria-expanded={conversationOpen} aria-controls="device-conversation" onClick={() => setConversationOpen(value => !value)}>Conversation {assistant.turns.length ? `(${assistant.turns.length})` : ''}</button>
+            <div className="ds-transcript-wrap" id="device-conversation" hidden={!conversationOpen}><Transcript
               turns={assistant.turns}
               pending={assistant.pending}
               listening={speechInput.listening}
               interim={speechInput.interim}
-            />
+            /></div>
             <div className="ds-input-area">
               <div className="ds-mic-wrap">
                 <button
@@ -147,38 +150,35 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
                   aria-label="Talk to the assistant"
                   aria-pressed={speechInput.listening}
                   data-testid="mic-button"
-                  disabled={!speechInput.supported}
+                  disabled={!speechInput.supported || assistant.pending}
                   title={speechInput.supported ? undefined : UNSUPPORTED}
                   onClick={onMic}
                 >
                   <span className="ds-mic-ring" aria-hidden="true" />
-                  <span className="ds-mic-icon" aria-hidden="true">●</span>
+                  <svg className="ds-mic-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>
                 </button>
-                <p className="ds-mic-hint">Tap to talk</p>
+                <p className="ds-mic-hint">{speechInput.listening ? 'Stop listening' : 'Talk'}</p>
               </div>
               <form className="ds-type" onSubmit={onSubmit}>
                 <input
+                  ref={input}
                   className="ds-input"
                   data-testid="chat-input"
                   type="text"
                   aria-label="Type a message"
                   placeholder="Type a message…"
                   autoComplete="off"
+                  readOnly={assistant.pending}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                 />
-                <button type="submit" className="ds-send" data-testid="send-button" disabled={!draft.trim()}>
-                  Send
+                <button type="submit" className="ds-send" data-testid="send-button" disabled={!draft.trim() || assistant.pending}>
+                  {assistant.pending ? 'Sending…' : 'Send'}
                 </button>
               </form>
             </div>
+            {assistant.error && draft ? <p className="ds-retry" role="status">Message not sent. Your text is ready to retry with Send.</p> : null}
             <div className="ds-under">
-              <SpeakerBar
-                members={members}
-                screenPick={speaker.screenPick}
-                onPick={speaker.setScreenPick}
-                recognized={speaker.recognized}
-              />
               {notice ? (
                 <p className="ds-notice" data-testid="notice">
                   {notice}
@@ -205,19 +205,7 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
           </section>
         </div>
 
-        <footer className="ds-foot">
-          <label className="trace-toggle">
-            <input
-              type="checkbox"
-              aria-label="Show agent trace"
-              data-testid="trace-toggle"
-              checked={showTrace}
-              onChange={(e) => setShowTrace(e.target.checked)}
-            />
-            Show agent trace
-          </label>
-          {showTrace ? <TracePanel calls={assistant.lastResponse?.toolCalls ?? []} /> : null}
-        </footer>
+
       </div>
 
       <SettingsDrawer
@@ -228,6 +216,22 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
         muted={speech.muted}
         onToggleMute={speech.toggleMute}
         partyCode={code ?? '…'}
+        diagnostics={<>
+
+          {mode ? <p>Assistant mode: <span className={`mode-badge mode-${mode}`} data-testid="mode-badge">{mode}</span></p> : null}
+          <label className="trace-toggle">
+            <input
+              type="checkbox"
+              aria-label="Tool activity"
+              data-testid="trace-toggle"
+              checked={showTrace}
+              onChange={(e) => setShowTrace(e.target.checked)}
+            />
+            Tool activity
+          </label>
+          {showTrace ? <TracePanel calls={assistant.lastResponse?.toolCalls ?? []} /> : null}
+          
+        </>}
         householdName={householdName(household, state)}
       />
     </div>

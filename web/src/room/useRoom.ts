@@ -11,6 +11,8 @@ export function useRoom(code: string, spectator = false) {
   const [error, setError] = useState('');
   const [stale, setStale] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
+  const [updatedAt, setUpdatedAt] = useState<number>();
   const revision = useRef(0);
   const mounted = useRef(true);
   const mutations = useRef(new Set<AbortController>());
@@ -30,7 +32,7 @@ export function useRoom(code: string, spectator = false) {
       try {
         const fresh = await roomRequest<RoomView>(base, { token: spectator ? undefined : credentials.participantToken, signal: controller.signal });
         if (active && version === revision.current && !busyRef.current) {
-          setSnapshot({ code, view: fresh }); setStale(false);
+          setSnapshot({ code, view: fresh }); setStale(false); setUpdatedAt(Date.now());
           if (pollError.current) { setError(''); pollError.current = false; }
         }
       } catch (problem) {
@@ -46,7 +48,7 @@ export function useRoom(code: string, spectator = false) {
     }
     void poll();
     return () => { active = false; clearTimeout(timer); controller.abort(); };
-  }, [base, code, credentials.participantToken, credentials.hostToken, spectator]);
+  }, [base, code, credentials.participantToken, credentials.hostToken, spectator, retryKey]);
 
   const mutate = useCallback(async (action: string, body: unknown, assistant = false) => {
     if (busyRef.current) return undefined;
@@ -62,11 +64,11 @@ export function useRoom(code: string, spectator = false) {
         fresh = await roomRequest<RoomView>(base, { token: credentials.participantToken, signal: controller.signal });
         if (!mounted.current || controller.signal.aborted) return undefined;
       }
-      setSnapshot({ code, view: fresh }); setStale(false);
+      setSnapshot({ code, view: fresh }); setStale(false); setUpdatedAt(Date.now());
       return { view: fresh, reply: assistant ? (result as { reply: string }).reply : undefined };
     } catch (problem) { if (mounted.current && !controller.signal.aborted) setError(errorMessage(problem)); return undefined; }
     finally { mutations.current.delete(controller); busyRef.current = false; revision.current++; if (mounted.current) setBusy(false); }
   }, [base, code, credentials.participantToken]);
   const acceptJoin = (fresh: RoomView, next: RoomCredentials) => { revision.current++; setSnapshot({ code, view: fresh }); setCredentials(next); setError(''); setStale(false); };
-  return { view, credentials, error, stale, busy, mutate, acceptJoin };
+  return { view, credentials, error, stale, busy, mutate, acceptJoin, retry: () => setRetryKey((key) => key + 1), updatedAt };
 }

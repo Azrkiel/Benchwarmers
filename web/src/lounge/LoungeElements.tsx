@@ -28,12 +28,12 @@ export function MemberFace({ row }: { row: Pick<StandingRow, 'name' | 'avatar'> 
 export function Seats({ state, onMember, full = false }: { state: PartyStateResponse; onMember: (id: string) => void; full?: boolean }) {
   const rows = [...state.standings].sort((a, b) => a.rank - b.rank);
   return <section className={`lg-seats${full ? ' is-full' : ''}`} aria-labelledby="lg-seats-title">
-    <header><h2 id="lg-seats-title">{full ? 'The crew' : 'Your seats'}</h2><span>{state.households.map((h) => h.city).join(' + ')}</span></header>
-    {rows.length ? <div className="lg-seat-grid">{rows.map((row, index) => <button className="lg-seat lg-focus" type="button" key={row.memberId} id={`lg-seat-${row.memberId}`} data-lg-row={full ? String(1 + Math.floor(index / 2)) : '1'} onClick={() => onMember(row.memberId)} aria-label={`${row.name}, ${row.total.toFixed(1)} points, view roster`}>
-      <span className="lg-seat-top"><MemberFace row={row} /><span className="lg-seat-name">{!full && row.name.length > 16 ? row.name.split(/\s+/)[0] : row.name}<small>{row.household}</small></span><span className="lg-seat-arrow"><LoungeIcon name="arrow" /></span></span>
-      <span className="lg-seat-bottom"><span>{row.rank === 1 ? <><i className="lg-crown" aria-hidden="true">♔</i> Leading the room</> : `#${row.rank} in the room`}</span><b>{row.total.toFixed(1)}<small> pts</small></b></span>
+    <header><h2 id="lg-seats-title">Standings</h2><span>{rows.length} players · View roster</span></header>
+    {rows.length ? <div className="lg-seat-grid">{rows.map((row, index) => <button className="lg-seat lg-focus" type="button" key={row.memberId} id={`lg-seat-${row.memberId}`} data-lg-row={String(1 + Math.floor(index / (full ? 2 : 4)))} onClick={() => onMember(row.memberId)} aria-label={`${row.name}, ${row.total.toFixed(1)} points, view roster`}>
+      <span className="lg-seat-top"><MemberFace row={row} /><span className="lg-seat-name">{row.name}<small>{row.household}</small></span><span className="lg-seat-arrow"><LoungeIcon name="arrow" /></span></span>
+      <span className="lg-seat-bottom"><span>Rank {row.rank}{row.rank === 1 ? ' · Leader' : ''}</span><b>{row.total.toFixed(1)}<small> pts</small></b></span>
       {full ? <span className="lg-seat-breakdown">Draft {row.draftPoints.toFixed(1)}<span>Picks {row.pickPoints.toFixed(1)}</span></span> : null}
-    </button>)}</div> : <div className="lg-empty"><h3>A seat for everyone.</h3><p>Your friends will appear here when they join this party.</p></div>}
+    </button>)}</div> : <div className="lg-empty"><h3>No players yet</h3><p>Players appear here when they join this party.</p></div>}
   </section>;
 }
 

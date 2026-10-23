@@ -6,14 +6,20 @@ export function RoomAssistant({ busy, onCommand }: { busy: boolean; onCommand: (
   const [reply, setReply] = useState('');
   const [listening, setListening] = useState(false);
   const [speechError, setSpeechError] = useState('');
+  const [sending, setSending] = useState(false);
+  const [request, setRequest] = useState('');
   const recognizer = useRef<RecognizerLike | null>(null);
   const mounted = useRef(true);
   const command = useRef(onCommand); command.current = onCommand;
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; recognizer.current?.abort(); }; }, []);
   async function send(value: string) {
-    if (!value.trim() || busy) return;
-    const response = await command.current(value.trim());
-    if (mounted.current && response) { setReply(response); setText(''); }
+    if (!value.trim() || busy || sending) return;
+    setSending(true); setRequest(value.trim()); setReply('');
+    try {
+      const response = await command.current(value.trim());
+      if (mounted.current) { setReply(response ?? 'Could not send. Try again.'); if (response) setText(''); }
+    } catch { if (mounted.current) setReply('Could not send. Try again.'); }
+    finally { if (mounted.current) setSending(false); }
   }
   function submit(event: FormEvent) { event.preventDefault(); void send(text); }
   function listen() {
@@ -28,8 +34,8 @@ export function RoomAssistant({ busy, onCommand }: { busy: boolean; onCommand: (
     recognition.onerror = (event) => { if (mounted.current) { setSpeechError(describeSpeechError(event.error)); setListening(false); } };
     recognition.onend = () => { if (mounted.current) setListening(false); };
     try { setSpeechError(''); setListening(true); recognition.start(); }
-    catch { setSpeechError('Microphone could not start. Type your command instead.'); setListening(false); }
+    catch { setSpeechError('Microphone could not start. Try again or type below.'); setListening(false); }
   }
   const canSpeak = !!getRecognizerFactory(window) && window.isSecureContext !== false;
-  return <section className="rm-assistant"><span className="rm-eyebrow">Assistant</span><form onSubmit={submit}><label htmlFor="rm-command">Ask the room assistant</label><div className="rm-input-row"><input id="rm-command" value={text} maxLength={500} onChange={(event) => setText(event.target.value)} placeholder="“Pick touchdown” or “auto lineup”" /><button className="rm-primary" disabled={busy || !text.trim()}>Send command</button><button type="button" disabled={!canSpeak || busy} aria-pressed={listening} aria-label={listening ? 'Stop microphone' : 'Speak command'} onClick={listen}>{listening ? 'Stop' : 'Mic'}</button></div></form>{!canSpeak && <p className="rm-muted">Voice isn’t available in this browser. Typing works.</p>}{listening && <p role="status">Listening…</p>}{speechError && <p className="rm-error" role="alert">{speechError}</p>}<p className="rm-assistant-reply" role="status">{reply}</p></section>;
+  return <section className="rm-assistant"><form onSubmit={submit}><label htmlFor="rm-command">Ask the room assistant</label><div className="rm-input-row"><input id="rm-command" value={text} maxLength={500} onChange={(event) => setText(event.target.value)} placeholder="Try “pick touchdown”" /><button className="rm-primary" disabled={busy || sending || !text.trim()}>{sending ? 'Sending…' : 'Send'}</button><button type="button" disabled={!canSpeak || busy || sending} aria-pressed={listening} aria-label={listening ? 'Stop microphone' : 'Speak command'} onClick={listen}><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>{listening ? 'Stop' : 'Speak'}</button></div></form><div className="rm-assistant-state" role="status">{speechError || (listening ? 'Listening…' : sending ? 'Sending…' : !canSpeak ? 'Voice unavailable · Type your request' : 'Type or speak your request')}</div>{request && <div className="rm-assistant-reply"><p>You: {request}</p><p role="status">{reply}</p></div>}</section>;
 }

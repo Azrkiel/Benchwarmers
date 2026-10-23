@@ -4,6 +4,8 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { RoomLanding } from './RoomLanding';
 import { RoomPage } from './RoomPage';
 import { RoomTvPage } from './RoomTvPage';
+import { FinalPodium, Leaderboard, Question, RoomScore } from './components';
+import { Lineup } from './Lineup';
 import { useRoom } from './useRoom';
 import type { RoomView } from '@shared/room';
 
@@ -18,10 +20,120 @@ function showRoom(tv = false) {
 }
 
 describe('football rooms', () => {
+  it('recovers from an unavailable room with Retry and offers code editing', async () => {
+    let failed = true;
+    vi.stubGlobal('fetch', vi.fn(async () => failed ? json({ error: 'Room temporarily unavailable' }, 503) : json(fixture)));
+    showRoom(true);
+    const retry = await screen.findByRole('button', { name: 'Retry' });
+    expect(screen.getByRole('link', { name: 'Edit room code' }).getAttribute('href')).toBe('/');
+    failed = false;
+    fireEvent.click(retry);
+    await screen.findByRole('link', { name: /Join on your phone/ });
+  });
+
+  it('places the active pick before game details and final results before personal review', async () => {
+    localStorage.setItem('bw.room.ABCD', JSON.stringify({ participantToken: 'player-private' }));
+    vi.stubGlobal('fetch', vi.fn(async () => json({ ...fixture, room: { ...fixture.room, phase: 'live' } })));
+    showRoom();
+    const pick = await screen.findByRole('heading', { name: fixture.question!.text });
+    const game = screen.getByText('Game details', { selector: 'summary' });
+    expect(pick.compareDocumentPosition(game) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('keeps Back on the shared screen until an explicit exit is chosen', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(fixture)));
+    showRoom(true);
+    const join = await screen.findByRole('link', { name: /Join on your phone/ });
+    fireEvent.keyDown(join, { key: 'Escape' });
+    expect(screen.getByRole('link', { name: /Join on your phone/ })).toBeTruthy();
+    expect(screen.getByText('Shared screen. Use Open phone view to leave.')).toBeTruthy();
+  });
+
+  it('moves TV focus toward the requested screen direction instead of DOM order', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(fixture)));
+    showRoom(true);
+    const join = await screen.findByRole('link', { name: /Join on your phone/ });
+    const predictions = screen.getByRole('region', { name: 'Prediction details' });
+    const standings = screen.getByRole('region', { name: 'Room leaderboard' });
+    for (const [element, x, y] of [[join, 600, 0], [predictions, 0, 200], [standings, 600, 300]] as const) {
+      const rect = { x, y, left: x, right: x + 120, top: y, bottom: y + 60, width: 120, height: 60, toJSON: () => ({}) };
+      vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(rect);
+      vi.spyOn(element, 'getClientRects').mockReturnValue([rect] as unknown as DOMRectList);
+    }
+    join.focus();
+    fireEvent.keyDown(join, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(standings);
+  });
+
+  it('shows lineup slots and explains incomplete saves, with recovery from empty filters', () => {
+    render(<Lineup view={fixture} busy={false} onSave={vi.fn()} onAuto={vi.fn()} />);
+    expect(screen.getByRole('group', { name: 'Selected lineup' })).toBeTruthy();
+    expect(screen.getByText('Choose a captain and 4 flex players')).toBeTruthy();
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'no matching name' } });
+    expect(screen.getByText('No players match')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(screen.getByRole('button', { name: 'Captain Player 0' })).toBeTruthy();
+  });
+
+  it('does not label unrelated host activity as a lineup save', () => {
+    render(<Lineup view={fixture} busy onSave={vi.fn()} onAuto={vi.fn()} />);
+    expect(screen.getByText('Choose a captain and 4 flex players')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Saving…' })).toBeNull();
+  });
+
+  it('keeps save failure beside the lineup action for retry', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    render(<Lineup view={fixture} busy={false} onSave={onSave} onAuto={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Captain Player 0' }));
+    for (let i = 1; i <= 4; i++) fireEvent.click(screen.getByRole('button', { name: `Add Player ${i}` }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save lineup' }));
+    expect(await screen.findByText('Lineup not saved. Try again.')).toBeTruthy();
+    expect((screen.getByRole('button', { name: 'Save lineup' }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('marks replay source and presents shared-screen picks as information', () => {
+    render(<><RoomScore view={{ ...fixture, room: { ...fixture.room, phase: 'live' } }} /><Question view={fixture} tv /></>);
+    expect(screen.getByText('Replay')).toBeTruthy();
+    expect(screen.getByText('Playing')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Touchdown/ })).toBeNull();
+    expect(screen.getByText('Make picks on your phone')).toBeTruthy();
+    expect(screen.getByText('Closes in 0:10')).toBeTruthy();
+  });
+
+  it('announces a closing threshold without announcing each timer tick', () => {
+    const live: RoomView = { ...fixture, room: { ...fixture.room, phase: 'live' } };
+    const { rerender } = render(<Question view={live} />);
+    const announcement = screen.getByRole('status', { name: 'Pick window status' });
+    expect(announcement.textContent).toBe('');
+    rerender(<Question view={{ ...live, question: { ...live.question!, remainingMs: 4000 } }} />);
+    expect(announcement.textContent).toBe('Picks close in under five seconds');
+    rerender(<Question view={{ ...live, question: { ...live.question!, remainingMs: 3000 } }} />);
+    expect(announcement.textContent).toBe('Picks close in under five seconds');
+  });
+
+  it('keeps an attempted pick visible and retries a failed submission', async () => {
+    const onPick = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    render(<Question view={{ ...fixture, room: { ...fixture.room, phase: 'live' } }} onPick={onPick} />);
+    fireEvent.click(screen.getByRole('button', { name: /Touchdown/ }));
+    expect(await screen.findByText('Pick not saved. Try again.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Touchdown/ }).getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Retry pick' }));
+    await waitFor(() => expect(onPick).toHaveBeenCalledTimes(2));
+    expect(onPick).toHaveBeenLastCalledWith('q1', 'TD');
+  });
+
+  it('shows tied winners and uses equal season points as equal display ranks', () => {
+    const tied = { ...fixture, standings: [fixture.standings[0], { ...fixture.standings[0], participantId: 'person-2', name: 'Alex' }], season: { ...fixture.season, standings: ['Taylor', 'Alex'].map((name, i) => ({ participantId: String(i), name, points: 10, fantasyPoints: 5, predictionPoints: 5, nightsPlayed: 1, nightsWon: 1 })) } };
+    render(<><FinalPodium view={tied} /><Leaderboard view={tied} season /></>);
+    expect(screen.getByText('Tied winners')).toBeTruthy();
+    const rows = within(screen.getByRole('region', { name: 'Season leaderboard' })).getAllByRole('listitem');
+    expect(rows.map((row) => row.querySelector('.rm-row-rank')?.textContent)).toEqual(['1', '1']);
+  });
+
   it('creates a room, keeps the host secret out of the URL and stores it privately', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => json({ view: fixture, hostToken: 'host-private' })));
     render(<MemoryRouter><Routes><Route path="/" element={<RoomLanding />} /><Route path="/room/:code" element={<p>Room opened</p>} /></Routes></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: 'Create football room' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
     await screen.findByText('Room opened');
     expect(localStorage.getItem('bw.room.ABCD')).toContain('host-private');
     expect(fetch).toHaveBeenCalledWith('/api/rooms', expect.objectContaining({ method: 'POST' }));
@@ -78,9 +190,9 @@ describe('football rooms', () => {
       return json({ ...fixture, me: { ...fixture.me, lineup: { captainId: 'p0', flexIds: ['p1', 'p2', 'p3', 'p4'], salaryUsed: 44000 } } });
     }));
     showRoom();
-    fireEvent.click(await screen.findByRole('button', { name: 'Auto balanced' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Auto-pick lineup' }));
     expect((await screen.findByRole('alert')).textContent).toContain('Try that again.');
-    fireEvent.click(screen.getByRole('button', { name: 'Auto balanced' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Auto-pick lineup' }));
     await waitFor(() => expect((screen.getByRole('button', { name: 'Captain Player 0' }) as HTMLButtonElement).getAttribute('aria-pressed')).toBe('true'));
   });
 
@@ -91,12 +203,13 @@ describe('football rooms', () => {
     expect(within(screen.getByRole('region', { name: 'Room leaderboard' })).getByText('Fan 32')).toBeTruthy();
     expect(screen.getByRole('region', { name: 'Room leaderboard' }).getAttribute('tabindex')).toBe('0');
     expect(screen.getByRole('link', { name: /Join on your phone/ }).getAttribute('href')).toContain('/room/ABCD');
+    expect(screen.getByRole('region', { name: 'Latest football play' }).getAttribute('tabindex')).toBe('0');
+    fireEvent.click(screen.getByText('Game details', { selector: 'summary' }));
     const field = screen.getByRole('region', { name: 'Football field' });
     const endzones = field.querySelectorAll('.rm-endzone');
     // Away end zone on the left, matching the scorebug (away left, home right).
     expect([...endzones].map((zone) => zone.textContent)).toEqual(['AWY', 'HOM']);
     expect(screen.getByRole('region', { name: 'Prediction details' }).getAttribute('tabindex')).toBe('0');
-    expect(screen.getByRole('region', { name: 'Recent football plays' }).getAttribute('tabindex')).toBe('0');
   });
 
   it('opens TV host controls by remote and Back dismisses them before leaving the screen', async () => {
@@ -119,7 +232,7 @@ describe('football rooms', () => {
     vi.stubGlobal('fetch', request);
     showRoom();
     fireEvent.change(await screen.findByLabelText('Ask the room assistant'), { target: { value: 'auto lineup' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Send command' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
     expect(await screen.findByText('Your lineup is ready.')).toBeTruthy();
     expect(request.mock.calls.some(([url]) => url.endsWith('/assistant'))).toBe(true);
   });

@@ -22,16 +22,29 @@ function toast(msg: string) {
   toastTimer = setTimeout(() => (toastEl.hidden = true), 4000);
 }
 
+function actionKey(el: HTMLElement): string { return ['action','view','member','player','prop','option'].map(key => el.dataset[key] ?? '').join('|'); }
 function render() {
+  const focused = document.activeElement as HTMLElement | null;
+  const focusKey = focused && appEl.contains(focused) && focused.dataset.action ? actionKey(focused) : undefined;
   model.now = Date.now();
   appEl.innerHTML = renderApp(model);
+  const controls = [...appEl.querySelectorAll<HTMLButtonElement>('[data-action]')];
+  if (model.pending) controls.forEach(el => {
+    el.setAttribute('aria-disabled','true');
+    if (actionKey(el) !== focusKey) el.disabled = true;
+  });
+  if (focusKey) {
+    const same = controls.find(el => actionKey(el) === focusKey && !el.disabled);
+    (same ?? controls.find(el => el.dataset.action === 'member' && el.getAttribute('aria-pressed') === 'true' && !el.disabled))?.focus();
+  }
 }
 
 type ToolResult = { isError?: boolean; content?: { type: string; text?: string }[]; structuredContent?: Record<string, any> };
 
 function handleResult(res: ToolResult) {
   if (res.isError) {
-    toast(res.content?.find((c) => c.type === 'text')?.text ?? 'Something went wrong.');
+    model.error = res.content?.find((c) => c.type === 'text')?.text ?? 'Could not complete that action.';
+    render();
     return;
   }
   const sc = res.structuredContent;
@@ -47,12 +60,15 @@ function handleResult(res: ToolResult) {
   render();
 }
 
+let lastCall: { name: string; args: Record<string, unknown> } | undefined;
 async function call(name: string, args: Record<string, unknown>) {
+  if (model.pending) return;
+  lastCall = {name,args}; model.pending = true; model.error = undefined; render();
   try {
     handleResult((await app.callServerTool({ name, arguments: args })) as ToolResult);
   } catch (err) {
-    toast(err instanceof Error ? err.message : 'Could not reach the game.');
-  }
+    model.error = err instanceof Error ? err.message : 'Could not reach the game.';
+  } finally { model.pending = false; render(); }
 }
 
 const app = new App({ name: 'Benchwarmers', version: '0.1.0' });
@@ -65,9 +81,14 @@ app.onerror = console.error;
 appEl.addEventListener('click', (ev) => {
   const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-action]');
   if (!el || (el as HTMLButtonElement).disabled) return;
+  if (model.pending) return;
   const d = el.dataset;
   const code = model.code ? { code: model.code } : {};
   switch (d.action) {
+    case 'retry':
+      if (lastCall) void call(lastCall.name, lastCall.args);
+      else void app.connect().then(() => { model.error = undefined; render(); }).catch(() => { model.error = 'Could not connect to the game. Retry to reconnect.'; render(); });
+      break;
     case 'tab':
       void call(TOOL_FOR_VIEW[d.view as View], code);
       break;
@@ -82,7 +103,7 @@ appEl.addEventListener('click', (ev) => {
       break;
     case 'pick':
     case 'draft':
-      if (!model.selectedMember) return toast('Tap your name first.');
+      if (!model.selectedMember) return toast('Choose a player to continue.');
       if (d.action === 'pick') void call('make_pick', { ...code, memberName: model.selectedMember, choice: d.option, propId: d.prop, source: 'screen' });
       else void call('draft_player', { ...code, memberName: model.selectedMember, player: d.player });
       break;
@@ -93,11 +114,11 @@ setInterval(() => {
   const el = appEl.querySelector('[data-countdown]');
   if (!el || model.lockAt === undefined) return;
   const left = model.lockAt - Date.now();
-  el.textContent = formatCountdown(left);
+  el.textContent = left > 0 ? `Closes in ${formatCountdown(left)}` : 'Picks locked';
   if (left <= 0) appEl.querySelectorAll<HTMLButtonElement>('[data-action="pick"]').forEach((b) => (b.disabled = true));
 }, 250);
 
 render();
-await app.connect();
+try { await app.connect(); } catch { model.error = 'Could not connect to the game. Retry to reconnect.'; render(); }
 const ctx = app.getHostContext();
 if (ctx?.theme) document.documentElement.classList.toggle('light', ctx.theme === 'light');

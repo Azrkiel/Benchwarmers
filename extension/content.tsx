@@ -48,7 +48,7 @@ function refresh(){
   const menuOpen=[...player.querySelectorAll<HTMLElement>('.ytp-settings-menu,.ytp-contextmenu,.ytp-share-panel')]
     .some(element=>{const css=getComputedStyle(element);return css.display!=='none'&&css.visibility!=='hidden'&&css.opacity!=='0'&&element.getBoundingClientRect().height>0;});
   const geometry=`${bounds.width},${bounds.height},${menuOpen}`;
-  if(geometry!==lastGeometry){lastGeometry=geometry;root!.render(<CrewOverlay read={reader!} width={bounds.width} height={bounds.height} hostBusy={menuOpen} onHide={()=>void chrome.storage.local.set({bwEnabled:false})}/>);}
+  if(geometry!==lastGeometry){lastGeometry=geometry;root!.render(<CrewOverlay controlsBase="http://127.0.0.1:5173" read={reader!} width={bounds.width} height={bounds.height} hostBusy={menuOpen} onHide={()=>void chrome.storage.local.set({bwEnabled:false})}/>);}
 }
 function onSettings(_changes:Record<string,unknown>,area:string){if(area==='local')void settings();}
 let timer:ReturnType<typeof setInterval>;

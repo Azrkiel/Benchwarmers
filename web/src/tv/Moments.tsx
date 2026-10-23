@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
 import type { EventView, PartyStateResponse, TeamScore } from '@shared/types';
-import { BurstLayer, CONFETTI, PlayBanner, ToastLayer, useBanners, useBursts, useNewIds, useToasts, type Banner, type Burst, type Toast } from '../fx/fx';
+import { BurstLayer, PlayBanner, ToastLayer, useBanners, useBursts, useNewIds, useToasts, type Banner, type Burst, type Toast } from '../fx/fx';
 import { formatPoints } from './pops';
 
 // Broadcast "moments" for the TV: play banners, side bursts and lower-third toasts.
@@ -126,10 +126,8 @@ export function MomentsHost({ demo = false, children }: { demo?: boolean; childr
   useEffect(() => {
     if (!demo) return;
     const timer = setTimeout(() => {
-      moments.banner({ title: 'THREE!', sub: 'Demo play', tone: 'score', color: '#eda77b' });
-      moments.burst({ side: 'left', top: 40, colors: CONFETTI });
-      moments.burst({ side: 'right', top: 40, colors: CONFETTI });
-      moments.toast({ text: 'Maya moves up to 1st', tone: 'win', color: '#8fb9d9' });
+      moments.banner({ title: 'THREE!', sub: 'Demo play', tone: 'score', color: '#c8102e' });
+
     }, 1000);
     return () => clearTimeout(timer);
   }, [demo, moments]);
@@ -139,7 +137,7 @@ export function MomentsHost({ demo = false, children }: { demo?: boolean; childr
       {children}
       <PlayBanner banner={banners.current} />
       <BurstLayer bursts={bursts.items} />
-      <ToastLayer toasts={toasts.items} placement="top" />
+      <ToastLayer toasts={banners.current ? [] : toasts.items} placement="top" />
     </MomentsContext.Provider>
   );
 }

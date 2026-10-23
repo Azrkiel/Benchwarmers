@@ -99,7 +99,7 @@ describe('LiveView moments', () => {
     const toasts = [...container.querySelectorAll('.fx-toast')].map((t) => t.textContent);
     expect(toasts).toContain(`${last.name} moves up to 1st`);
     expect(container.querySelectorAll('.fx-toast.is-win').length).toBeGreaterThan(0);
-    expect(container.querySelectorAll('.fx-burst').length).toBe(2);
+    expect(container.querySelectorAll('.fx-burst')).toHaveLength(0);
   });
 
   it('toasts a newly resolved prop, but not on first load', () => {

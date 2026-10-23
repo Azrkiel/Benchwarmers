@@ -21,7 +21,8 @@ export function Stage({ children, overlay = false }: { children: ReactNode; over
     return () => window.removeEventListener('resize', onResize);
   }, []);
   return (
-    <div className={`tv-viewport${overlay ? ' is-overlay' : ''}`}>
+    <div className={`tv-viewport tv-broadcast${overlay ? ' is-overlay' : ''}`}>
+      <div className="tv-small-screen"><h1>Open your companion view</h1><p>This shared display needs a wider screen.</p><a className="tv-action tv-action-primary" href={`/control/${encodeURIComponent(location.pathname.split('/').pop() || 'latest')}${location.search}`}>Open companion view</a><a className="tv-home" href="/">Home</a></div>
       <div
         className="tv-stage"
         style={{ width: STAGE_W, height: STAGE_H, transform: `translate(${fit.offsetX}px, ${fit.offsetY}px) scale(${fit.scale})` }}

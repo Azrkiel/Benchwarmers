@@ -61,7 +61,7 @@ function Draft({ state, code }: { state: PartyStateResponse; code?: string }) {
       ))}
       <h3 className="fb-section">Top available</h3>
       {available.length === 0 ? (
-        <p className="fb-muted">Nobody left on the board.</p>
+        <p className="fb-muted">No available players</p>
       ) : (
         <ul className="fb-list" data-testid="top-available">
           {available.map((e) => (
@@ -123,7 +123,7 @@ function Tonight({ state, householdId }: { state: PartyStateResponse; householdI
             <th>#</th>
             <th>Name</th>
             <th>Household</th>
-            <th>Total</th>
+            <th>Total pts</th>
             <th>Streak</th>
           </tr>
         </thead>
@@ -136,7 +136,7 @@ function Tonight({ state, householdId }: { state: PartyStateResponse; householdI
                 <Dot color={colorOf(state.households, r.householdId)} />
                 {r.household}
               </td>
-              <td>{r.total}</td>
+              <td>{r.total.toFixed(1)}</td>
               <td>{r.streak}</td>
             </tr>
           ))}
@@ -144,7 +144,7 @@ function Tonight({ state, householdId }: { state: PartyStateResponse; householdI
       </table>
       {state.activeProp ? (
         <p className="fb-prop">
-          <span className="fb-tag">Live question</span> {state.activeProp.question}
+          <span className="fb-tag">Current pick</span> {state.activeProp.question}
         </p>
       ) : null}
       {state.activeProp && oddsLine(state.activeProp) ? (
@@ -170,7 +170,7 @@ function Season({ season, householdId }: { season: SeasonResponse; householdId?:
             <th>#</th>
             <th>Name</th>
             <th>Household</th>
-            <th>Points</th>
+            <th>Pick pts</th>
             <th>Nights won</th>
             <th>Correct</th>
           </tr>
@@ -184,7 +184,7 @@ function Season({ season, householdId }: { season: SeasonResponse; householdId?:
                 <Dot color={colorOf(season.households, r.householdId)} />
                 {r.household}
               </td>
-              <td>{r.points}</td>
+              <td>{r.points.toFixed(1)}</td>
               <td>{r.nightsWon}</td>
               <td>
                 {r.correct}/{r.total}
@@ -206,7 +206,7 @@ export function FallbackCard({ model, householdId }: { model: FallbackModel | un
     );
   }
   return (
-    <section className="fb-card" data-view={model.view} aria-label="Party board">
+    <section className="fb-card" data-view={model.view} aria-label="Party board"><p className="fb-readonly">Read-only board ? Use the message box to draft or make a pick.</p>
       {model.view === 'draft' && model.state ? <Draft state={model.state} code={model.code} /> : null}
       {model.view === 'tonight' && model.state ? <Tonight state={model.state} householdId={householdId} /> : null}
       {model.view === 'season' && model.season ? <Season season={model.season} householdId={householdId} /> : null}

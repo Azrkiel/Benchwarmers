@@ -9,7 +9,7 @@ describe('DraftBoard', () => {
   it('renders 16 cards with owners, count and on-the-clock', () => {
     render(<DraftBoard state={draftingFixture} />);
     expect(screen.getAllByTestId('draft-card')).toHaveLength(16);
-    expect(screen.getByText('Draft night')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Draft' })).toBeTruthy();
     expect(screen.getByText(/7 of 12/)).toBeTruthy();
     expect(screen.getAllByText('Maya').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Big Mo').length).toBeGreaterThan(0);

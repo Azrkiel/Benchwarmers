@@ -125,7 +125,7 @@ function fakeBridge(connect: () => Promise<void>) {
 const BOARD_URI = 'ui://benchwarmers/board.html';
 
 async function waitForParty(code: string) {
-  await waitFor(() => expect(screen.getByTestId('party-code').textContent).toBe(code));
+  await waitFor(() => expect(screen.getByTestId('party-code').textContent).toBe(`Party ${code}`));
 }
 
 function typeAndSubmit(text: string) {
@@ -170,10 +170,11 @@ describe('DeviceScreen', () => {
 
     const transcript = screen.getByTestId('transcript');
     expect(within(transcript).getByText("I'm Maya, draft Big Mo")).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByTestId('mode-badge').textContent).toBe('offline');
     expect((screen.getByLabelText('Type a message') as HTMLInputElement).value).toBe('');
 
-    fireEvent.click(screen.getByLabelText('Show agent trace'));
+    fireEvent.click(screen.getByLabelText('Tool activity'));
     expect(screen.getByText('draft_player')).toBeTruthy();
     expect(screen.getByText('Maya drafted Big Mo')).toBeTruthy();
     expect(screen.getByText('42 ms')).toBeTruthy();
@@ -190,7 +191,8 @@ describe('DeviceScreen', () => {
     await waitForParty('DEMO');
     typeAndSubmit('hi');
     await screen.findByText('Hello.');
-    fireEvent.click(screen.getByLabelText('Show agent trace'));
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    fireEvent.click(screen.getByLabelText('Tool activity'));
     expect(screen.getByText('No tool calls yet')).toBeTruthy();
   });
 
@@ -203,6 +205,7 @@ describe('DeviceScreen', () => {
     await waitForParty('DEMO');
     typeAndSubmit('hi');
     await screen.findByText('Hi there.');
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByTestId('mode-badge').textContent).toBe('gemini');
   });
 
@@ -249,7 +252,7 @@ describe('DeviceScreen', () => {
     const req = send.mock.calls[0][0];
     expect(req.text).toBe('draft Big Mo');
     expect(req.speaker).toEqual({ memberName: 'Maya', confidence: 0.84, source: 'voice-id' } satisfies SpeakerHint);
-    expect(screen.getByTestId('recognized-chip').textContent).toContain('Hi Maya');
+    expect(screen.getByTestId('recognized-chip').textContent).toContain('Voice matched: Maya');
     await screen.findByText('Okay, Maya.');
   });
 
@@ -283,10 +286,25 @@ describe('DeviceScreen', () => {
     const alert = await screen.findByRole('alert');
     expect(alert.textContent).toMatch(/couldn't reach the game/);
     expect(alert.textContent).toContain('boom');
+    expect((screen.getByLabelText('Type a message') as HTMLInputElement).value).toBe('first');
 
     typeAndSubmit('second');
     await screen.findByText('Back online.');
     expect(send).toHaveBeenCalledTimes(2);
+  });
+
+  it('settings is modal, closes on Escape and restores focus', async () => {
+    stubFetch();
+    render(<DeviceScreen household="garcias" deps={{ synth: fakeSynth(), recognizerFactory: null }} />);
+    await waitForParty('DEMO');
+    const trigger = screen.getByRole('button', { name: 'Settings' });
+    trigger.focus(); fireEvent.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Settings' });
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 
   it('fallback card renders from structuredContent when the widget cannot start', async () => {

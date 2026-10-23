@@ -6,7 +6,7 @@ export function Scoreboard({ state, expanded = false }: { state: PartyStateRespo
   const awayLead = away.score > home.score;
   return (
     <header className="tv-live-scoreboard">
-      {expanded ? <div className="tv-sb-heading"><span className="tv-kicker">Tonight’s matchup</span><span className="tv-sb-game-title">{state.game.title}</span></div> : null}
+      
       <div className={`tv-sb-team tv-sb-home${homeLead ? ' is-leading' : ''}`} style={{ ['--team' as string]: home.color }}>
         <span className="tv-sb-name">{home.name}</span>
         <span className="tv-sb-short">{home.short}</span>
@@ -18,7 +18,7 @@ export function Scoreboard({ state, expanded = false }: { state: PartyStateRespo
           <span className={`tv-sb-score${awayLead ? ' is-leading' : ''}`}>{away.score}</span>
         </div>
         <div className="tv-sb-meta">
-          <span className="tv-live-pill">{state.party.status === 'live' ? 'Live' : state.party.status === 'final' ? 'Final' : 'Pre-game'}</span>
+          <span className="tv-live-pill">{state.party.status === 'live' ? 'Playing' : state.party.status === 'final' ? 'Final' : 'Pregame'}</span>
           {state.party.status !== 'final' ? <span className="tv-sb-clock">{clock}</span> : null}
         </div>
       </div>

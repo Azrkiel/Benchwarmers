@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import type { EventView, PartyStateResponse, PickScore, PropView } from '@shared/types';
 import { LiveView } from './LiveView';
+import { RostersView } from './RostersView';
 import { DraftBoard } from './DraftBoard';
 import { gameTag } from './PlayByPlay';
 import { liveFixture } from '../lib/fixtures';
@@ -88,7 +89,7 @@ describe('football TV', () => {
 
   it('shows historical drive percentages on paired yes/no cards, using odds when options omit probability', () => {
     const { container } = render(<LiveView state={state()} serverNow={now} />);
-    expect(screen.getByText('Drives like this score 36% of the time')).toBeTruthy();
+    expect(screen.getAllByText('Historical rate')).toHaveLength(2);
     expect(screen.getByText('36%')).toBeTruthy();
     expect(screen.getByText('64%')).toBeTruthy();
     expect(container.querySelector('.tv-pick-options.is-binary')).toBeTruthy();
@@ -99,7 +100,8 @@ describe('football TV', () => {
     s.activeProp = undefined;
     s.props = [{ ...prop, status: 'locked', resolver: { kind: 'driveResult', driveId: 'd04', outcome: 'td' } }];
     render(<LiveView state={s} serverNow={now} />);
-    expect(screen.getByText('Drives like this get a touchdown 36% of the time')).toBeTruthy();
+    expect(screen.getAllByText('Historical rate')).toHaveLength(2);
+    expect(screen.getByText('Picks locked')).toBeTruthy();
   });
 
   it('omits historical context for missing or invalid probabilities', () => {
@@ -115,10 +117,10 @@ describe('football TV', () => {
   });
 
   it('shows QB position and server-formatted football stats in the leader panel', () => {
-    render(<LiveView state={state()} serverNow={now} />);
-    const leader = within(screen.getByTestId('leader'));
-    expect(leader.getByText('QB')).toBeTruthy();
-    expect(leader.getByText('76 PASS YDS, 1 PASS TD')).toBeTruthy();
+    render(<RostersView state={state()} serverNow={now} />);
+    const roster = screen.getByRole('region', { name: 'Maya roster' });
+    expect(roster.textContent).toContain('QB');
+    expect(within(roster).getByText('76 PASS YDS, 1 PASS TD')).toBeTruthy();
   });
 
   it('shows football positions in draft cards', () => {
@@ -151,6 +153,7 @@ describe('TV pick bonuses', () => {
     { propId: 'unrelated', memberId: 'sam', partyId: 'party', at: 0, source: 'voice',
       optionId: 'yes', memberName: 'Sam', optionLabel: 'Yes', score: { ...score, correct: false } }];
     render(<LiveView state={s} serverNow={now} />);
+    fireEvent.click(screen.getByText('Pick bonuses', { selector: 'summary' }));
     const bonuses = screen.getByRole('region', { name: 'Last pick bonuses' });
     expect(bonuses.textContent).toContain('Maya');
     expect(bonuses.textContent).toContain('Lone call');

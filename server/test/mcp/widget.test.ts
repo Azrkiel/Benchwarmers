@@ -63,6 +63,20 @@ describe('render helpers', () => {
 });
 
 describe('widget views from real state', () => {
+  it('requires a player before drafting and shows that player’s saved answer', async () => {
+    const { state } = await liveState();
+    expect(renderDraft(state)).toMatch(/data-action="draft"[^>]*disabled/);
+    const html = renderApp({ view: 'tonight', state, selectedMember: 'Sam', now: T0, lockAt: T0 + 30000 });
+    expect(html).toContain('Your pick');
+    expect(html).toContain('aria-pressed="true"');
+  });
+  it('shows Final without promising another pick', async () => {
+    const { state } = await liveState();
+    state.party.status = 'final'; delete state.activeProp;
+    const html = renderTonight(state, T0);
+    expect(html).toContain('<h2>Final</h2>');
+    expect(html).not.toContain('opens soon');
+  });
   it('draft board lists available players with Draft buttons and taken players with owner + household color', async () => {
     const code = (await call('setup_watch_party', { crewName: 'Sunday Crew' })).structuredContent!.code as string;
     await call('draft_player', { code, memberName: 'Maya', player: 'Big Mo' });
@@ -94,7 +108,7 @@ describe('widget views from real state', () => {
     // a streak shows flames capped at 3 plus the number
     const hot = structuredClone(state);
     hot.standings[0].streak = 5;
-    expect(renderTonight(hot, T0, T0 + 30_000)).toContain('🔥🔥🔥5');
+    expect(renderTonight(hot, T0, T0 + 30_000)).toContain('Streak 5');
     // after lock time the buttons are disabled
     expect(renderTonight(state, T0 + 31_000, T0 + 30_000)).toContain('Locked');
   });

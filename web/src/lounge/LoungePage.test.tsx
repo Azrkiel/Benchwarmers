@@ -14,13 +14,14 @@ describe('Lounge version', () => {
   it('shows the actual matchup, crew seats, and a link to the preserved version', () => {
     show();
     expect(screen.getByRole('heading', { name: /Harbor Hawks.*Summit Foxes/ })).toBeTruthy();
-    expect(screen.getByRole('region', { name: 'Your seats' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Scorebook version' }).getAttribute('href')).toBe('/tv2/DEMO?fixture=live');
+    expect(screen.getByRole('region', { name: 'Standings' })).toBeTruthy();
+    fireEvent.click(screen.getByText('Demo tools', { selector: 'summary' }));
+    expect(screen.getByRole('link', { name: 'Broadcast view' }).getAttribute('href')).toBe('/tv2/DEMO?fixture=live');
   });
 
   it('moves through the sidebar without selecting until Enter', () => {
     show();
-    const tonight = screen.getByRole('button', { name: 'Tonight' });
+    const tonight = screen.getByRole('button', { name: 'Game' });
     const picks = screen.getByRole('button', { name: 'Picks' });
     expect(document.activeElement).toBe(tonight);
     fireEvent.keyDown(tonight, { key: 'ArrowDown' });
@@ -34,13 +35,13 @@ describe('Lounge version', () => {
   it('opens picks from the primary action and restores focus on Back', () => {
     show();
     fireEvent.keyDown(window, { key: 'ArrowRight' });
-    const primary = screen.getByRole('button', { name: 'See live picks' });
+    const primary = screen.getByRole('button', { name: 'View picks' });
     expect(document.activeElement).toBe(primary);
     fireEvent.keyDown(primary, { key: 'Enter' });
     fireEvent.keyDown(window, { key: 'Enter', repeat: true });
     expect(screen.getByRole('button', { name: 'Picks' }).getAttribute('aria-current')).toBe('page');
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'See live picks' }));
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'View picks' }));
   });
 
   it('opens a friend’s roster, confines modal focus, and returns to the same seat', () => {
@@ -55,6 +56,8 @@ describe('Lounge version', () => {
     const close = screen.getByRole('button', { name: 'Close roster' });
     expect(document.activeElement).toBe(close);
     fireEvent.keyDown(close, { key: 'Tab' });
+    expect(document.activeElement).toBe(screen.getByRole('region', { name: 'Roster players' }));
+    fireEvent.keyDown(document.activeElement!, { key: 'Tab' });
     expect(document.activeElement).toBe(close);
     fireEvent.keyDown(close, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -63,12 +66,12 @@ describe('Lounge version', () => {
 
   it('offers a draft shortcut before play and results after the game', () => {
     const draft = show('/lounge/DEMO?fixture=drafting');
-    fireEvent.click(screen.getByRole('button', { name: 'Explore the draft' }));
-    expect(screen.getByRole('heading', { name: 'The draft' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'View draft' }));
+    expect(screen.getByRole('heading', { name: 'Draft' })).toBeTruthy();
     draft.unmount();
     show('/lounge/DEMO?fixture=final');
-    fireEvent.click(screen.getByRole('button', { name: 'See tonight’s results' }));
-    expect(screen.getByRole('heading', { name: 'Maya takes the night.' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'View results' }));
+    expect(screen.getByRole('heading', { name: 'Maya wins' })).toBeTruthy();
   });
 
   it('follows the visual two-row crew grid with Down and Up', () => {
@@ -93,14 +96,15 @@ describe('Lounge version', () => {
     payload = { ...liveFixture, version: 43, standings: liveFixture.standings.filter((member) => member.memberId !== 'sam') };
     await act(async () => { vi.advanceTimersByTime(1000); });
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Tonight' }));
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Game' }));
   });
 
   it('provides a remote-reachable recovery link while the API is unavailable', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('offline'));
     show('/lounge/DEMO');
     await act(async () => {});
-    expect(screen.getByRole('heading', { name: 'We can’t reach your game night.' })).toBeTruthy();
-    expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Open the scorebook version' }));
+    expect(screen.getByRole('heading', { name: 'Party unavailable' })).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Retry' }));
+    expect(screen.getByRole('link', { name: 'Edit code' })).toBeTruthy();
   });
 });

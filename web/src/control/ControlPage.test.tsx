@@ -23,3 +23,9 @@ it('starts the backend game and leaves fixture mode out of the operator',async()
   await waitFor(()=>expect(request).toHaveBeenCalledWith('/api/parties/DEMO/start',expect.objectContaining({method:'POST'})));
   expect(screen.getByText(/Fictional game replay/)).toBeTruthy();
 });
+it('places shared player identity before all player actions and hides drafting after play starts',async()=>{
+  vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify(liveFixture))));show();
+  await screen.findByLabelText('Player');
+  expect(screen.getByText('Actions apply to Maya')).toBeTruthy();
+  expect(screen.queryByRole('heading',{name:'Draft for Maya'})).toBeNull();
+});

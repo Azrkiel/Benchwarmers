@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { TvPage } from './TvPage';
+import { liveFixture } from '../lib/fixtures';
 
 const realFetch = globalThis.fetch;
 let fetchMock: ReturnType<typeof vi.fn>;
@@ -29,7 +30,7 @@ afterEach(() => {
 describe('TvPage', () => {
   it('renders draft night from the drafting fixture without fetching', () => {
     renderAt('/tv/DEMO?fixture=drafting');
-    expect(screen.getByText('Draft night')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Draft' })).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -49,7 +50,7 @@ describe('TvPage', () => {
   it('renders the rosters view when forced', () => {
     const { container } = renderAt('/tv/DEMO?fixture=live&mode=rosters');
     expect(container.querySelector('.tv-rosters')).toBeTruthy();
-    expect(screen.getByText('Rosters')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Rosters' })).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -65,4 +66,25 @@ describe('TvPage', () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     expect(screen.getByText(/Connecting/)).toBeTruthy();
   });
+  it('offers an immediate retry with a route to edit the party code', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('offline')).mockResolvedValue({ ok: true, json: async () => liveFixture });
+    renderAt('/tv/DEMO');
+    await screen.findByRole('heading', { name: 'Party unavailable' });
+    const retry = screen.getByRole('button', { name: 'Retry' });
+    expect(document.activeElement).toBe(retry);
+    expect(screen.getByRole('link', { name: 'Edit code' }).getAttribute('href')).toBe('/');
+    fireEvent.click(retry);
+    await screen.findByRole('navigation', { name: 'TV views' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('reaches rotation and Home from the TV remote menu', () => {
+    renderAt('/tv/DEMO?fixture=live');
+    const rosters = screen.getByRole('button', { name: 'Rosters' }); rosters.focus();
+    fireEvent.keyDown(rosters, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(screen.getByRole('checkbox', { name: 'Auto rotate' }));
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(screen.getAllByRole('link', { name: 'Home' }).find(el => el.closest('.tv-stage')));
+  });
+
 });

@@ -37,19 +37,19 @@ describe('VoiceLabPage', () => {
     renderLab();
 
     expect(
-      screen.getByText('Everything stays on this device. No audio or voiceprints are sent to the server.'),
+      screen.getByText('Voice ID audio and voiceprints stay on this device.'),
     ).toBeTruthy();
 
     // Default household is The Garcias.
     expect(screen.getByRole('heading', { name: 'Maya' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'Leo' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Leo' })).toBeTruthy();
 
     expect(await screen.findByText('MFCC fallback — lower accuracy')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: "Sam's Place" }));
 
     expect(screen.getByRole('heading', { name: 'Sam' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'Priya' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Priya' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Maya' })).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Leo' })).toBeNull();
   });
@@ -59,7 +59,7 @@ describe('VoiceLabPage', () => {
 
     expect(screen.getByRole('slider', { name: 'Threshold' })).toBeTruthy();
     expect(screen.getByRole('slider', { name: 'Margin' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Reset to defaults' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Reset calibration' })).toBeTruthy();
   });
 });
 
@@ -86,23 +86,23 @@ describe('EnrollPanel', () => {
     clear: () => undefined,
   } as unknown as VoiceId;
 
-  it('shows the three sentences and a Record button per member', () => {
+  it('guides one selected player through one current sample', () => {
     render(<EnrollPanel members={members} voice={fakeVoice} />);
 
-    for (const sentence of ENROLL_SENTENCES) {
-      expect(screen.getAllByText(sentence)).toHaveLength(members.length);
-    }
-    expect(screen.getAllByRole('button', { name: /record/i })).toHaveLength(members.length);
-    expect(screen.getAllByText('0/3 clips')).toHaveLength(members.length);
+    expect(screen.getByText(ENROLL_SENTENCES[0])).toBeTruthy();
+    expect(screen.queryByText(ENROLL_SENTENCES[1])).toBeNull();
+    expect(screen.getByRole('button', { name: 'Record sample 1 of 3' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Leo' }));
+    expect(screen.getByRole('heading', { name: 'Leo' })).toBeTruthy();
   });
 
-  it('keeps the members separated into their own cards', () => {
-    render(<EnrollPanel members={members} voice={fakeVoice} />);
-
-    const cards = screen.getAllByRole('article');
-    expect(cards).toHaveLength(2);
-    expect(within(cards[0]).getByRole('heading', { name: 'Maya' })).toBeTruthy();
-    expect(within(cards[1]).getByRole('heading', { name: 'Leo' })).toBeTruthy();
+  it('confirms profile deletion and does not start a replacement recording', () => {
+    const clear=vi.fn();
+    render(<EnrollPanel members={members} voice={{ ...fakeVoice, clear, profiles: [{memberId:'maya',samples:[[1],[1],[1]]}] } as unknown as VoiceId} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Record again' }));
+    expect(clear).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Delete and start over' }));
+    expect(clear).toHaveBeenCalledWith('maya');
   });
 });
 

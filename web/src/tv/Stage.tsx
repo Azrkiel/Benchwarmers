@@ -21,7 +21,8 @@ export function Stage({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('resize', onResize);
   }, []);
   return (
-    <div className="tv-viewport">
+    <div className="tv-viewport tv-original">
+      <div className="tv-small-screen"><h1>Open your companion view</h1><p>This shared display needs a wider screen.</p><a className="tv-action tv-action-primary" href={`/control/${encodeURIComponent(location.pathname.split('/').pop() || 'latest')}${location.search}`}>Open companion view</a><a className="tv-home" href="/">Home</a></div>
       <div
         className="tv-stage"
         style={{ width: STAGE_W, height: STAGE_H, transform: `translate(${fit.offsetX}px, ${fit.offsetY}px) scale(${fit.scale})` }}
