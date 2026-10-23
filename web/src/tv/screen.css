@@ -12,10 +12,12 @@
 .tv-nav-marker { display:none; position:absolute; inset:auto 14px 0; height:4px; background:var(--accent); }
 .tv-nav button[aria-pressed='true'] .tv-nav-marker { display:block; }
 .tv-nav button:hover { background:var(--panel-2); color:var(--text); }
+.tv-nav button { border:1px solid transparent; }
+.tv-nav button:hover { border-color:#73767d; }
 .tv-viewport :is(button,a,input,summary,[tabindex='0']):focus { outline:3px solid white; outline-offset:4px; box-shadow:0 0 0 7px #101113; }
 .tv-viewport :is([data-tv-scroll],summary):focus { position:relative; z-index:4; }
-.tv-action { display:inline-flex; align-items:center; justify-content:center; gap:18px; min-height:60px; padding:12px 22px; border:1px solid var(--border); border-radius:4px; background:var(--panel-2); color:white; font:600 28px/1.2 Barlow,Arial,sans-serif; cursor:pointer; text-decoration:none; }
-.tv-action-primary { background:#c8102e; border-color:#c8102e; }
+.tv-action { display:inline-flex; align-items:center; justify-content:center; gap:18px; min-height:60px; padding:12px 22px; border:1px solid #73767d; border-radius:4px; background:var(--panel-2); color:white; font:600 28px/1.2 Barlow,Arial,sans-serif; cursor:pointer; text-decoration:none; }
+.tv-action-primary { background:#c8102e; border-color:#d4172f; }
 .tv-action:hover { background:#383a3e; }
 .tv-action-primary:hover { background:#a70e26; }
 .tv-home { color:white; font-size:26px; text-underline-offset:5px; padding:10px; }
