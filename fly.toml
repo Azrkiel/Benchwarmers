@@ -1,0 +1,32 @@
+app = "benchwarmers"
+primary_region = "iad"
+
+[build]
+
+[env]
+  PORT = "3001"
+  AI_MODE = "fallback"
+  ASSISTANT_MODE = "offline"
+
+[mounts]
+  source = "bw_data"
+  destination = "/app/server/data"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  # Rooms and game clocks tick in memory, so keep one machine up during the demo.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "20s"
+    interval = "30s"
+    method = "GET"
+    path = "/healthz"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"

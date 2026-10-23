@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+!.env.example
+**/data
+.git
+design-archives
+docs/img
+extension/dist
+tools/odds/.cache
+coverage
+*.log
