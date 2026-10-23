@@ -1,5 +1,13 @@
 # Handoff — Benchwarmers (resume here)
 
+## Latest: Session 6 (2026-10-22 night): ESPN UI/UX pass merged to `dev`
+**Full resume doc: `.claude/handoffs/2026-10-22-2225.md`. Read it first.**
+- The whole app now follows ESPN's design language: dark neutrals, a red accent, Barlow Condensed headings and short plain copy. This **supersedes the "Lounge look everywhere" note in §0 below.** Tokens are in `web/src/brand/brand.css`; `--lg-*` names stay as aliases.
+- Plan: `docs/plans/2026-10-22-espn-uiux-audit.md` (Codex audit, 214 findings). QA records and screenshots: `docs/qa/`.
+- PRs #11 and #12 are merged into `dev` (`3a5a245`). `dev` → `main` PR opened at session end.
+- Checks: web 483/483, server 742/742, typecheck clean, build OK, 36-screen smoke with 0 errors.
+- Next: merge to `main` → redeploy Fly → TV labels ≥24px → remaining contrast fixes → widget check in a real host → manual TV pass. Details in the resume doc §13.
+
 ## 0. Session 4 (2026-10-22) — everything merged onto `dev`
 - Merged `feature/tv-football` (Codex: football field + pick bonuses on the original TV) and Codex's **uncommitted** redesign from `C:/Users/jiang/Benchwarmers` (`design/tv-broadcast`, snapshotted as branch `codex/wip-snapshot` without touching that working tree).
 - **Two UIs, original is default** (user prefers it): `/tv/:code` = original TV (`web/src/tv`). `/tv2/:code` = Codex scorebook redesign (`web/src/tv-broadcast`). Also from Codex: `/welcome`, `/lounge/:code`, `/watch/:code` (YouTube embed + overlay preview), `/control/:code` (dev controller), `web/src/overlay` (shared CrewOverlay), `extension/` (MV3 overlay on real youtube.com; `npm run build:extension`, load `extension/dist` unpacked; backend fixed at 127.0.0.1:3001; run `npm run dev:overlay -w server`).
