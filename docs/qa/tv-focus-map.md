@@ -264,3 +264,25 @@ Initial focus is what `document.activeElement` is after the page loads and settl
 | menu "Home" | stays | stays | stays | stays | **BODY** (navigated away to /) | nav "Game" (scroll 0,0 to 0) (view Results to Game) |
 
 Notes on the tables: "(view X to Y)" is the pressed nav button before and after the key. `/tv live (no mode param)` and `/tv2 live (no mode param)` load `?fixture=live` without `mode`, i.e. not a forced view, so Escape from a nav button stays put; on the `mode=live` rows the view is forced and Escape from any element returns to Game. On `/tv` draft the nav Escape cells "stay" because the party status `drafting` makes Draft the automatic view (`tv/modes.ts`).
+
+## Laptop as TV (1536x864 @125%)
+
+2026-10-22. Demo plan: no TV, a 1920x1080 laptop at 125% scaling. CSS viewport is 1536x864 in F11 fullscreen, about 1536x730 with the tab and address bars showing, devicePixelRatio 1.25. Input is keyboard plus touchpad. Headless Chromium (Playwright), prod `https://benchwarmers.fly.dev` for the audit, local vite for the fix check. Scripts and screenshots are in the session scratchpad (`laptop-tv/`).
+
+| Surface (both 1536x864 and 1536x730) | Result |
+| --- | --- |
+| `/tv` live, draft, rosters, final, plain | Pass. No overflow, scrollbars or notice. Stage scale 0.800 (864) and 0.676 (730); side bars at 730 are plain dark letterbox. |
+| `/tv2` live, picks, standings, rosters, draft, final, plain | Pass, same as above. |
+| `/lounge` tonight, picks, crew, draft, final | Pass. |
+| Room TV lobby | Pass. QR shows at 132x132 CSS px (about 165 device px) beside the join code. Small-screen notice absent. |
+| Room TV playing | **Fail at 864, fixed.** See below. Pass at 730. |
+
+- Small-screen notice (`StageNotice`, lounge notice, `.rm-tv-small`) never shows at either size; it needs under 900x500 (stage) or under 1000 px wide (room).
+- Smallest on-screen text: stage TVs and lounge 24 canvas px, so 19.2 CSS px at 864 and 16.2 CSS px at 730. Room TV 16 px (join URL) and 18 px for labels at both sizes, 24 px at 1920x1080. Nothing under 14 px.
+- Console and page errors: none on any route.
+- Bug fixed: room TV at 1536x864 used the 1080p layout (`min-width:1400px` and `min-height:850px`) with 1080p font sizes in a 100dvh grid. The score bug was clipped (scores half cut off, team names gone) and the second pick-option row slid under the "Last play" strip. The big-screen block now needs `min-height:960px`, and the compact block covers up to `max-height:959px` (`web/src/room/broadcast.css`). 1920x1080 is unchanged; 1366x768, 1536x864, 1536x900 and 1536x730 show no clipping.
+- Keyboard (Tab, arrows, Enter, Escape): every `/tv`, `/tv2` and lounge view reachable and left again, focus ring visible on every stop, no trap. Tab passes through BODY once per cycle (leaves the page to browser chrome), which is normal. Room TV: Tab and arrows reach every link and the Game details, How scoring works, Lineups, Picks, Bonuses panels; Escape closes a panel back onto its summary.
+- Backspace did nothing on any TV; added as an alias of Escape/Back on `/tv`, `/tv2`, lounge and room TV (`ViewNav.tsx`, `useLoungeRemote.ts`, `RoomTvPage.tsx`, with tests). `/tv2` Enter on the open panel still closes it, by design.
+- Touchpad: clicking each nav button on `/tv`, `/tv2` and lounge switches the view; nav buttons are about 86x48 CSS px.
+- F11 vs windowed: both sizes pass; the only difference is the stage scale and letterbox.
+- Not done: decoding the QR (no decoder installed; the code comes from `uqr`), a real laptop run, and a real phone scan.
