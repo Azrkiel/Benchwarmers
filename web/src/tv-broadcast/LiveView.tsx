@@ -27,7 +27,7 @@ export function LiveView({ state, serverNow, showStandings = false, showPick = f
           <Standings rows={state.standings} households={state.households} />
           <Ticker lines={state.ticker} />
         </aside>
-      ) : (
+      ) : overview ? null : (
         <ol className="tv-overlay-summary" aria-label="Top of the standings">
           {[...state.standings].sort((a, b) => a.rank - b.rank).slice(0, 3).map(r => (
             <li key={r.memberId}><span className="tv-overlay-rank">{r.rank}</span><span>{r.name}</span><b>{r.total.toFixed(1)}</b></li>
