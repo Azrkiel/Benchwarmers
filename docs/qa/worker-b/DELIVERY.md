@@ -42,7 +42,7 @@ Not covered by this run: a spoken command through a real microphone, restart mid
 | P08.2-P08.6 | Done | SVG ball/hoop/confetti, unseen-score-event trigger, bounded queue, synthesized sound with explicit enable/mute/volume, reduced-motion banner. |
 | P08.7 | Done | Winner/tied winners first; Season after 6 s (host earlier); reload quiet. |
 | P10.6, P10.8 | Connected (points rooms) | Merged A's `77d16d0`; UI/voice/MCP use A's service. Browser run on a points-enabled rehearsal server (authored test probabilities, outside the repo): phone commit 25 on Harbor Hawks -> won (+30); simulator voice 'put 10 points on Two' -> offer read with stake/return/max loss, plain 'yes' ignored, 'confirm' committed -> lost (-10); settled net +20, bank 132.5, public snapshot has no bank. Script/captures `docs/qa/worker-b/points/`. Points stay off by default (A's gate). |
-| P11.5, P11.7, P13.4, P13.5 | Built, dormant | Screens and tests done against the plan's contracts (`CommitPoints`, `BankPanel`, `CreateCall`, `Calls`, `PregamePick`); hidden until the snapshot carries the fields. Exact field/route requests: `CONTRACT_REQUESTS.md`. Dev preview `/preview/points`. Voice commitment phrases parse to commit commands that refuse without mutating until A's P10.7 service exists. Not connected: A's services do not exist yet. |
+| P11.5, P11.7, P13.4, P13.5 | Connected (gated rooms) | Merged A's `fc66bf6` (calls) and `1e96ec5` (pregame). Browser run on a rehearsal server with commitments + pregame on (`docs/qa/worker-b/calls/`): lobby winner pick 'HAR' recorded, 'No market reference: these are fictional teams'; composer filled from 'Hawks score next, 25 points', featured deadline first, offer reviewed, call created; phone shows 'Your call' + Player calls; shared screen has a Calls tab and caption; public snapshot has the call with accepted counts and no bank/quote data. One intermittent `POST /calls` 500 seen (request to A below). Previously dormant status: | Screens and tests done against the plan's contracts (`CommitPoints`, `BankPanel`, `CreateCall`, `Calls`, `PregamePick`); hidden until the snapshot carries the fields. Exact field/route requests: `CONTRACT_REQUESTS.md`. Dev preview `/preview/points`. Voice commitment phrases parse to commit commands that refuse without mutating until A's P10.7 service exists. Not connected: A's services do not exist yet. |
 | P14.2-P14.6 | Dropped (owner decision) | No Alexa and no physical device: the simulated experience is the device story. Replaced by the room smart-display simulator `/display/room/:code` (real MCP `tools/list` + `room_ask`, presets incl. 960x480, explicit Speaking-as). See `DEVICE_AND_TRACKING.md`. |
 | P15.3-P15.4 | Done (prototype + assessment) | Bounded ball tracking in `BasketballCourt`; benefit assessment in `DEVICE_AND_TRACKING.md`. |
 
@@ -60,7 +60,9 @@ No root scripts, manifests, lockfile, deployment config, or A-owned files were e
 3. Basketball `recentPlays` kinds `score` / `final` drive celebrations and announcements; please keep those names.
 4. `projectedPoints` on `RoomPlayer` (your in-progress name) is what the lineup sorts by.
 
-**To Worker C:** `docs/DEMO_SCRIPT.md`, `docs/SUBMISSION.md`, `docs/MCP_HOSTS.md` still say 22 tools; it is 25 now (`room_ask`, `room_quote_commitment`, `room_commit_points`). No dependency or script request.
+**To Worker A (new):** an intermittent `500 INTERNAL` on `POST /api/rooms/:code/calls` was seen once in four browser runs (not reproducible over plain HTTP or in-process). `routes.ts` logs only '[room] request failed', so please log the error/stack server-side to diagnose. The client now treats any 5xx as unconfirmed and retries with the same request id.
+
+**To Worker C:** `docs/DEMO_SCRIPT.md`, `docs/SUBMISSION.md`, `docs/MCP_HOSTS.md` still say 22 tools; it is 30 now (adds `room_ask`, commitment, call and pregame tools). No dependency or script request.
 
 ## Commands and observed results (latest run)
 

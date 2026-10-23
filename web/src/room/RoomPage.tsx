@@ -87,7 +87,7 @@ export function RoomPage() {
     {catalog ? <CreateCall catalog={catalogTemplates(catalog, [view.game.home, view.game.away], view.question?.target?.horizonGameElapsedMs)} bank={mine.bank}
         onQuote={async (draft) => { if (!catalog.window) throw new RoomRequestError('No call window right now.', 409, 'STALE_ANCHOR'); return api.quoteCall(draft, catalog.window.anchorSequence); }}
         onCreate={async (quote, _draft, requestId) => { const r = await api.createCall(quote, requestId); refreshSoon(); return r; }} onClose={() => setCatalog(null)} />
-      : <div className="rm-commit-row"><button onClick={() => { setCatalogError(''); void api.catalog().then(setCatalog).catch(() => setCatalogError('Calls are unavailable right now.')); }}>Make a call</button>{catalogError && <span className="rm-error" role="alert">{catalogError}</span>}</div>}
+      : view.question?.status === 'open' && <div className="rm-commit-row"><button onClick={() => { setCatalogError(''); void api.catalog().then(setCatalog).catch(() => setCatalogError('Calls are unavailable right now.')); }}>Make a call</button>{catalogError && <span className="rm-error" role="alert">{catalogError}</span>}</div>}
     {extra.calls.length > 0 && <CallsList calls={extra.calls} standings={view.standings} className="rm-calls" />}
   </>;
   return <main className={`rm rm-phone is-${livePhase}`}>

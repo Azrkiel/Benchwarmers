@@ -72,6 +72,18 @@ describe('call composer', () => {
     expect(await screen.findByText('Call created')).toBeTruthy();
   });
 
+  it('treats a server error on create as unconfirmed and retries with the same request id', async () => {
+    const onCreate = vi.fn().mockRejectedValueOnce(new RoomRequestError('Could not complete the room request.', 500, 'INTERNAL')).mockResolvedValueOnce({ callId: 'c', requestId: 'r', quoteId: 'q', questionId: 'call', optionId: 'harbor', optionLabel: 'Harbor Hawks', commitPoints: 25, totalReturnPoints: 60, acceptedAt: 1, acceptedSequence: 3, state: 'pending' });
+    render(<CreateCall catalog={catalog} bank={bank} onQuote={async () => quote} onCreate={onCreate} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Harbor Hawks' }));
+    fireEvent.click(screen.getByRole('button', { name: '25 pts' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review offer' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Create call and commit' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Retry' }));
+    expect(await screen.findByText('Call created')).toBeTruthy();
+    expect(onCreate.mock.calls[0]![2]).toBe(onCreate.mock.calls[1]![2]);
+  });
+
   it('shows the unsupported reason and suggestions without changing the form', () => {
     render(<CreateCall catalog={catalog} bank={bank} onQuote={vi.fn()} onCreate={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Describe your call'), { target: { value: 'next shot is a dunk' } });

@@ -47,7 +47,8 @@ export function parseCallPhrase(text: string, catalog: CallTemplate[]): ParsedCa
 }
 
 function createError(problem: unknown): { message: string; retry?: boolean } {
-  if (!(problem instanceof RoomRequestError)) return { message: 'Not confirmed yet. Retry sends the same request.', retry: true };
+  // A lost response or a server error (5xx) is not a rejection: retry the same request.
+  if (!(problem instanceof RoomRequestError) || problem.status >= 500) return { message: 'Not confirmed yet. Retry sends the same request.', retry: true };
   const messages: Record<string, string> = {
     CALL_LIMIT_REACHED: 'You already have an active call or are cooling down. Try again shortly.',
     TARGET_UNSUPPORTED: 'That call is not supported for this game.',
@@ -83,7 +84,7 @@ export function CreateCall({ catalog, bank, onQuote, onCreate, onClose }: {
   const complete = !!(template && draft.optionId && draft.horizonId && draft.amount);
 
   if (created) return <section className="rm-create-call" aria-label="Your call"><p role="status"><b>Call created</b> · {created.optionLabel} · {created.commitPoints} committed. Returns {created.totalReturnPoints} if correct. Cannot be changed.</p>{onClose && <button onClick={onClose}>Done</button>}</section>;
-  if (!first) return <section className="rm-create-call" aria-label="Make a call"><p>No calls are available for this game right now.</p></section>;
+  if (!first) return <section className="rm-create-call" aria-label="Make a call"><p>{catalog[0]?.unavailableReason === 'Calls are off in this room' ? 'Calls are off in this room.' : 'Calls open while a featured call is open. Try again at the next call.'}</p>{onClose && <button onClick={onClose}>Close</button>}</section>;
   if (bank.correctionDebt > 0 || bank.availablePoints < COMMIT_AMOUNTS[0]) return <section className="rm-create-call" aria-label="Make a call"><p>Calls need at least {COMMIT_AMOUNTS[0]} available points{bank.correctionDebt > 0 ? ' and no open correction' : ''}. Free picks still count.</p></section>;
 
   function fromPhrase(event: FormEvent) {

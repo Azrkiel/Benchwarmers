@@ -15,7 +15,8 @@ export function offerSentence(quote: Pick<CommitQuote, 'commitPoints' | 'totalRe
 }
 
 function commitError(problem: unknown): { message: string; requote?: boolean; retry?: boolean } {
-  if (!(problem instanceof RoomRequestError)) return { message: 'Not confirmed yet. Retry sends the same request, so it cannot commit twice.', retry: true };
+  // A lost response or a server error (5xx) is not a rejection: retry the same request.
+  if (!(problem instanceof RoomRequestError) || problem.status >= 500) return { message: 'Not confirmed yet. Retry sends the same request, so it cannot commit twice.', retry: true };
   switch (problem.code) {
     case 'QUOTE_EXPIRED': case 'QUOTE_CHANGED': case 'BAD_QUOTE': return { message: 'The offer changed. Review the new offer before committing.', requote: true };
     case 'FEATURE_DISABLED': return { message: 'Point commitments are off in this room. Free picks still count.' };
