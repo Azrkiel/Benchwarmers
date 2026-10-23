@@ -59,6 +59,9 @@ export class RoomStore {
  private participant(room:Room,token:string):Participant {const p=room.participants.find(p=>token&&p.token===token);if(!p)return fail(401,'BAD_CREDENTIAL','A valid participant credential is required.');return p;}
  private season(room:Room):Season{return this.seasons.find(s=>s.id===room.seasonId)!;}
  private summary(r:Room):RoomSummary{return {code:r.code,name:r.name,seasonId:r.seasonId,phase:r.phase,speed:r.speed,participantCount:r.participants.length,createdAt:r.createdAt};}
+ /** Read-only lookups for auxiliary services; neither advances replay nor writes storage. */
+ roomSummary(code:string):RoomSummary {return this.summary(this.room(code));}
+ isHost(code:string,token:string):boolean {const r=this.room(code);return Boolean(token)&&token===r.hostToken;}
  create(input:{name?:string;seasonId?:string;speed?:number;gameId?:string}={}):{view:RoomSnapshot;hostToken:string}{
   const adapter=getRoomSportAdapter(input.gameId);if(!adapter)return fail(400,'GAME_NOT_SUPPORTED','Choose a supported room game.');
   return this.transact(()=>{

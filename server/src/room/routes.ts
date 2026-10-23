@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { RoomError, type RoomStore } from './store.js';
 import { answerRoom } from './assistant.js';
+import { createPlaybackRouter, PlaybackLeases } from './playback.js';
 
 const token=z.string().min(1).max(200);
 export const createRoomSchema=z.object({name:z.string().trim().min(1).max(80).optional(),seasonId:z.string().trim().regex(/^[a-zA-Z0-9-]{1,64}$/).optional(),speed:z.number().int().min(1).max(4).optional(),gameId:z.string().min(1).max(100).optional()});
@@ -17,6 +18,11 @@ export function createRoomRouter(store:RoomStore):express.Router {
   router.use(express.json({limit:'16kb'}));
   router.get('/',(_req,res)=>res.json({rooms:store.list()}));
   router.post('/',(req,res)=>res.status(201).json(store.create(createRoomSchema.parse(req.body??{}))));
+  const playback=createPlaybackRouter(new PlaybackLeases(),(code,token)=>store.isHost(code,token));
+  router.use('/:code/playback',(req,res,next)=>{
+    req.params.code=store.roomSummary(req.params.code).code;
+    playback(req,res,next);
+  });
   router.get('/:code',(req,res)=>{
     const auth=req.headers.authorization;
     if(auth && !/^Bearer\s+\S+$/i.test(auth))throw new RoomError(401,'UNAUTHORIZED','Use your saved room participant credential.');
