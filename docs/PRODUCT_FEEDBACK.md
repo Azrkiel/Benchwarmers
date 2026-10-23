@@ -1,6 +1,6 @@
 # Product feedback
 
-Feedback on the tools and SDKs used to build Benchwarmers. Distilled from [FRICTION_LOG.md](FRICTION_LOG.md) (entries cited by title), [MCP_HOSTS.md](MCP_HOSTS.md), [GEMINI.md](GEMINI.md), [AWS.md](AWS.md), [VOICE_ID.md](VOICE_ID.md) and [HANDOFF.md](HANDOFF.md). Anything not exercised is marked **unverified**. Environment: Windows 11, Node 22.23.3.
+Feedback on the tools and SDKs used to build Benchwarmers. See the current root [friction log](../FRICTION_LOG.md) for prioritized feedback. Historical feedback below is distilled from [original observations](FRICTION_LOG.md) (entries cited by title), [MCP_HOSTS.md](MCP_HOSTS.md), [GEMINI.md](GEMINI.md), [AWS.md](AWS.md), [VOICE_ID.md](VOICE_ID.md) and [HANDOFF.md](HANDOFF.md). Anything not exercised is marked **unverified**. Environment: Windows 11, Node 22.23.3.
 
 ## Summary
 

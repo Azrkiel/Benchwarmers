@@ -1,5 +1,7 @@
 # Demo script (<= 2:50)
 
+Developer experience feedback is maintained separately in the root [friction log](../FRICTION_LOG.md).
+
 ## Worker C: basketball recording candidate
 
 Use [basketball demo operations](BASKETBALL_DEMO.md) and [C's observed results](qa/worker-c/RESULTS.md) first. The older household script below remains a separate legacy scenario. Do not combine its evidence with basketball room claims. The integrated main now supplies the basketball contract and receipts. Follow C's current integrated gate and rehearse the exact candidate before recording. The default take remains free scripted play; points/calls/pregame are separate gated rehearsals. **Recording-review hold:** C’s latest first-final screenshot shows the last-score animation obscuring the winner card. B must fix and recheck that frame before treating this take as approved; see [the reproducible case](qa/worker-c/INTEGRATION_FINDINGS.md).

@@ -13,7 +13,8 @@ Orchestration + phase status: `docs/ORCHESTRATION.md`. Resume point: `docs/HANDO
 - `web/` Vite + React 19 + react-router 7. Routes: `/tv/:code` (original TV, default), `/tv2/:code` (scorebook redesign, `web/src/tv-broadcast`), `/lounge/:code`, `/watch/:code`, `/control/:code`, `/welcome`, `/device/:household`, `/voice-lab`. `extension/` = YouTube overlay (MV3).
   - Look: ESPN-style (dark neutrals, red accent, Barlow/Barlow Condensed) app-wide — tokens `web/src/brand/brand.css` (`--lg-*` names kept as aliases, `--bw-*` for actions/borders), logo `web/src/brand/Brand.tsx`. Use them for new UI. Audit + plan: `docs/plans/2026-10-22-espn-uiux-audit.md`; QA records: `docs/qa/`.
   - Import contract types via `@shared/types`. Dev proxy: `/api`, `/mcp` → `http://localhost:3001`.
-- `docs/` FRICTION_LOG, PRODUCT_FEEDBACK, AWS, DEMO_SCRIPT, SUBMISSION, ORCHESTRATION, HANDOFF.
+- `FRICTION_LOG.md` — current developer feedback at the repository root; `docs/FRICTION_LOG.md` preserves historical observations.
+- `docs/` PRODUCT_FEEDBACK, AWS, DEMO_SCRIPT, SUBMISSION, ORCHESTRATION, HANDOFF.
 
 ## Fixed ids (seed data; UIs and tests rely on them)
 - Crew `sunday-crew` "Sunday Crew". Households: `garcias` "The Garcias" (Austin): members `maya` Maya, `leo` Leo;
@@ -27,6 +28,6 @@ Orchestration + phase status: `docs/ORCHESTRATION.md`. Resume point: `docs/HANDO
 - MCP tools must answer < 500 ms and never call Bedrock synchronously (AI runs in the background worker).
 - `AI_MODE=fallback` and `ASSISTANT_MODE=offline` must always work with zero AWS credentials.
 - Root `.env` loads at server startup; shell variables win. Gemini keys stay server-side. Setup: `docs/GEMINI.md`.
-- When a tool/SDK/doc misbehaves, append to `docs/FRICTION_LOG.md` using the template there.
+- When a tool/SDK/doc misbehaves, append to `FRICTION_LOG.md` using the template there.
 - Commits: `phase N: <summary>` (one per task is fine). Never weaken a test to get green.
 - Windows: Node on PATH is a bundled v22; use Git Bash for npm commands with `--`.
