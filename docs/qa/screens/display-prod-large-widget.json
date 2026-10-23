@@ -1,0 +1,79 @@
+{
+  "base": "https://benchwarmers.fly.dev",
+  "route": "/display/garcias?size=large",
+  "mode": "widget",
+  "requests": [
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "method": "POST",
+      "hasAuthorization": false
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "method": "POST",
+      "hasAuthorization": false
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "method": "GET",
+      "hasAuthorization": false
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "method": "POST",
+      "hasAuthorization": false
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "method": "POST",
+      "hasAuthorization": false
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "method": "POST",
+      "hasAuthorization": false
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "status": 200
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "status": 202
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "status": 405
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "status": 200
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "status": 200
+    },
+    {
+      "url": "https://benchwarmers.fly.dev/api/mcp-widget",
+      "status": 200
+    }
+  ],
+  "layout": {
+    "widgetSlots": 1,
+    "conversation": {
+      "top": 100.39436340332031,
+      "bottom": 204.4615936279297,
+      "height": 104.06723022460938
+    },
+    "fallback": null,
+    "screen": {
+      "top": 61.943660736083984,
+      "bottom": 754.0563316345215,
+      "height": 692.1126708984375
+    }
+  },
+  "errors": [],
+  "frameText": "BENCHWARMERS REPLAY · PREGAME\nHarbor Hawks vs. Summit Foxes\nParty DEMO\nDraft\nTonight\nSeason\nPlaying as\nMaya\nLeo\nSam\nPriya\nWho scores first?\nCloses in 0:10\n\nChoose player to make a pick.\n\nHawks\n0 picks\nFoxes\n0 picks\nStandings\n1\nLeo\nThe Garcias\n0.0 pts\ndraft 0.0 + picks 0.0\n2\nMaya\nThe Garcias\n0.0 pts\ndraft 0.0 + picks 0.0\n3\nPriya\nSam's Place\n0.0 pts\ndraft 0.0 + picks 0.0\n4\nSam\nSam's Place\n0.0 pts\ndraft 0.0 + picks 0.0\nFree to play. No real money."
+}
