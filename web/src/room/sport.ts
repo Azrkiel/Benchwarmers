@@ -24,3 +24,32 @@ export function roomSport(view: Pick<RoomView, 'game'>): RoomSport {
 export function sourceLabel(view: Pick<RoomView, 'game'>): string {
   return roomSport(view) === 'basketball' ? 'Fictional basketball replay' : 'Fictional football replay';
 }
+
+/* Proposed additive fields, copied from the master plan's P01.3 contract fragment so
+ * the UI can be built before Worker A exports them. Replace with A's exported types
+ * once published; do not grow this into a separate room model. */
+export type SourceMode = 'scripted' | 'live';
+export type SourceStatus = 'healthy' | 'delayed' | 'stale' | 'unavailable';
+export type CourtPoint = { x: number; y: number };
+export type BasketballContext = {
+  sport: 'basketball';
+  possessionTeamId: string | null;
+  possessionPlayerId: string | null;
+  ball: { point: CourtPoint; observedAt: number } | null;
+  tracking: 'score_only' | 'team_possession' | 'player_possession' | 'ball';
+};
+export type FootballContext = { sport: 'football'; possessionTeamId: string | null; ballOn: number; down: number | null; toGo: number | null };
+export type GameContext = BasketballContext | FootballContext;
+export type RoomGameNext = RoomView['game'] & { gameId?: string; sport?: RoomSport; sourceMode?: SourceMode; sourceStatus?: SourceStatus; context?: GameContext };
+export type RoomViewNext = Omit<RoomView, 'game'> & { version?: number; serverNow?: number; rulesVersion?: string; game: RoomGameNext };
+
+/** Team id with the ball, or null when unknown. Never inferred from the last scorer. */
+export function possessionTeamId(view: Pick<RoomView, 'game'>): string | null {
+  const context = (view.game as RoomGameNext).context;
+  if (context) return context.possessionTeamId;
+  return view.game.possession;
+}
+
+export function sourceStatus(view: Pick<RoomView, 'game'>): SourceStatus {
+  return (view.game as RoomGameNext).sourceStatus ?? 'healthy';
+}

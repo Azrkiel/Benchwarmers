@@ -17,6 +17,7 @@ const WatchPage = lazy(() => import('./watch/WatchPage').then((m) => ({ default:
 const ControlPage = lazy(() => import('./control/ControlPage').then((m) => ({ default: m.ControlPage })));
 const RoomPage = lazy(() => import('./room/RoomPage').then((m) => ({ default: m.RoomPage })));
 const RoomTvPage = lazy(() => import('./room/RoomTvPage').then((m) => ({ default: m.RoomTvPage })));
+const RoomDisplayPage = lazy(() => import('./room/RoomDisplayPage').then((m) => ({ default: m.RoomDisplayPage })));
 
 function Scorebook({ children }: { children: ReactNode }) {
   useScorebookTheme();
@@ -30,6 +31,7 @@ export function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/room/:code" element={<RoomPage />} />
         <Route path="/room/:code/tv" element={<RoomTvPage />} />
+        <Route path="/room/:code/display" element={<RoomDisplayPage />} />
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/season" element={<SeasonPage />} />
         <Route path="/replays" element={<ReplaysPage />} />

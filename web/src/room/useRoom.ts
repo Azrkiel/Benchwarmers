@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RoomView } from '@shared/room';
 import { errorMessage, RoomRequestError, roomCredentials, roomRequest, saveCredentials, type RoomCredentials } from './api';
 
-export function useRoom(code: string, spectator = false) {
+export function useRoom(code: string, spectator = false, enabled = true) {
   const [credentialState, setCredentialState] = useState(() => ({ code, value: roomCredentials(code) }));
   const credentials = credentialState.code === code ? credentialState.value : roomCredentials(code);
   const setCredentials = (value: RoomCredentials) => setCredentialState({ code, value });
@@ -24,6 +24,7 @@ export function useRoom(code: string, spectator = false) {
     return () => { mounted.current = false; for (const controller of mutations.current) controller.abort(); busyRef.current = false; revision.current++; };
   }, [code]);
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
     let active = true;
@@ -48,7 +49,7 @@ export function useRoom(code: string, spectator = false) {
     }
     void poll();
     return () => { active = false; clearTimeout(timer); controller.abort(); };
-  }, [base, code, credentials.participantToken, credentials.hostToken, spectator, retryKey]);
+  }, [base, code, credentials.participantToken, credentials.hostToken, spectator, retryKey, enabled]);
 
   const mutate = useCallback(async (action: string, body: unknown, assistant = false) => {
     if (busyRef.current) return undefined;
