@@ -26,7 +26,7 @@ Points commitments, player-created calls and pregame picks remain off in ordinar
 
 ## Evidence to show
 
-A first-final winner-card occlusion remains open for B, with a screenshot and reproduction in [C’s findings](qa/worker-c/INTEGRATION_FINDINGS.md). Automated acceptance does not close this recording-review issue.
+The first-final winner-card occlusion from [C’s findings](qa/worker-c/INTEGRATION_FINDINGS.md) is fixed: the final now replaces any scoring animation still playing, so no hoop or dim layer covers the winner card ([first final frame, 1920×1080](qa/worker-b/first-final-1920.png)). Recheck the first final frame in the recorded take.
 
 Use the connected native room and simulated display from the same room code. Show a saved lineup, an accepted pick receipt, a real MCP trace, score/standings agreement, final results and a rehearsed restart. See [the recording script](DEMO_SCRIPT.md), [operation instructions](BASKETBALL_DEMO.md), and C's current sanitized JSON reports/screenshots. A fixture preview is layout evidence only. State any time compression in the video and preserve the full original capture.
 

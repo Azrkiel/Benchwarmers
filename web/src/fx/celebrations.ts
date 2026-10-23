@@ -9,12 +9,12 @@ export const REDUCED_MS = 1400;
 
 /**
  * One main celebration at a time. Ordinary scores that arrive meanwhile are only
- * counted (the play feed already lists them); a final waits as the single pending
- * high-priority effect. Nothing queues long enough to lag behind the game.
+ * counted (the play feed already lists them). A final replaces whatever is playing,
+ * so a last-second basket never dims or covers the winner reveal.
  */
 export function enqueue(queue: CelebrationQueue, next: Celebration): CelebrationQueue {
   if (!queue.current) return { current: next, pending: null, coalesced: 0 };
-  if (next.kind === 'final') return { ...queue, pending: next };
+  if (next.kind === 'final') return { current: next, pending: null, coalesced: 0 };
   return { ...queue, coalesced: queue.coalesced + 1 };
 }
 export function advance(queue: CelebrationQueue): CelebrationQueue {
