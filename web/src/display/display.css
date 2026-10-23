@@ -64,3 +64,15 @@
 .is-large .sd-note { font-size:30px; margin:20px 56px 32px; }
 @media (prefers-reduced-motion:reduce) { .sd-lightbar[data-active="true"] { animation:none; } }
 .sd-root * { font-variant-numeric:tabular-nums; }
+/* Compact 960x480 preset (Show 5 target, simulated): its own spacing and type, not a scaled-down canvas. */
+.is-compact .sd-status { padding:14px 24px 0; font-size:20px; }
+.is-compact .sd-idle { padding-bottom:24px; }
+.is-compact .sd-clock { font-size:112px; }
+.is-compact .sd-hint { font-size:30px; margin-top:10px; }
+.is-compact .sd-hint2 { font-size:20px; }
+.is-compact .sd-convo { padding:14px 28px 4px; gap:6px; }
+.is-compact .sd-caption { font-size:22px; }
+.is-compact .sd-reply { font-size:32px; max-width:900px; }
+.is-compact .sd-reply.is-long, .is-compact.has-widget .sd-reply { font-size:24px; -webkit-line-clamp:2; }
+.is-compact .sd-widget { margin:6px 20px 0; }
+.is-compact .sd-widget .widget-frame { zoom:1; }
