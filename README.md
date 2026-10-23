@@ -1,18 +1,18 @@
 # Benchwarmers
 
-[Friction log and hackathon feedback](FRICTION_LOG.md) · [Submission draft](docs/SUBMISSION.md) · [Recording guide](docs/DEMO_SCRIPT.md)
+[Friction log and hackathon feedback](FRICTION_LOG.md) · [Testing instructions](docs/TESTING.md)
 
 ## Combined basketball and football app
 
-The combined app includes A's game service, B's phone/shared-display interface and C's integration tools. Run `npm run demo`, open the homepage, and choose **Host a party**. Basketball is the form's default; football remains selectable. Both are fictional scripted replays. Calls, point commitments, pregame picks and live-provider features remain disabled in ordinary startup.
+Run `npm run demo`, open the homepage, and choose **Host a party**. Basketball is the form's default; football remains selectable. Both are fictional scripted replays. Calls, point commitments, pregame picks and live-provider features remain disabled in ordinary startup.
 
-For an isolated basketball rehearsal with private data and explicit room controls, run `npm run demo:basketball` on port 3037. See [basketball operations](docs/BASKETBALL_DEMO.md), [backend status](docs/BACKEND_COMPLETION.md), and [combined integration verification](docs/ABC_INTEGRATION.md), and [C’s storage/load/rollback follow-up](docs/qa/worker-c/FOLLOWUP.md). Historical A/B/C handoffs retain their original milestone context.
+For an isolated basketball rehearsal with private data and explicit room controls, run `npm run demo:basketball` on port 3037.
 
 ## Room play
 
 Run `npm run demo`, then open **http://localhost:3001**. Create a basketball or football room, invite players through the printed LAN address and room code, and open the shared display. Everyone selects one captain plus four flex athletes under the salary cap shown for that game. The server controls picks, replay, scoring and saved season standings. No sports feed or cloud credentials are required.
 
-Full game instructions: [basketball](docs/BASKETBALL_DEMO.md) and [football](docs/ROOM_DEMO.md). Phones use `/room/:code`; the combined shared display uses `/room/:code/display`. The older `/room/:code/tv` and household-based views remain available.
+Step-by-step testing: [docs/TESTING.md](docs/TESTING.md). Football room details: [docs/ROOM_DEMO.md](docs/ROOM_DEMO.md). Phones use `/room/:code`; the combined shared display uses `/room/:code/display`. The older `/room/:code/tv` and household-based views remain available.
 
 A one-night fantasy draft plus live pick'em for watching sports with friends, played by voice. It is built as an Alexa+ add-on for a hackathon (main Alexa+ track).
 
@@ -150,7 +150,7 @@ Correct picks in both games earn points multipliers on top of the streak multipl
 | Lone call / Against the room | only picker of that option (3+ pickers) / under half the pickers (2+) | ×1.5 / ×1.2 |
 | Bold call (football drive questions) | `0.5 / p` of the option picked, clamped to 0.5–2 | up to ×2 |
 
-The combined multiplier is capped at ×5 (50 points per pick). Full rules: `benchwarmers://rules`, plan.md §10c.
+The combined multiplier is capped at ×5 (50 points per pick). Full rules: `benchwarmers://rules`.
 
 ## Pull up a real game
 
@@ -186,7 +186,7 @@ npm run play -w server    # scripted full party, prints standings
 npm run play -w server -- --game riverton-vs-ironwood   # same, football
 ```
 
-Counts come from the last recorded run (`docs/HANDOFF.md`). The server suite was occasionally flaky on one machine with antivirus loopback interception; re-run if it stalls.
+Counts come from the last recorded run. The server suite was occasionally flaky on one machine with antivirus loopback interception; re-run if it stalls.
 
 ## Known gaps
 
@@ -201,8 +201,7 @@ Counts come from the last recorded run (`docs/HANDOFF.md`). The server suite was
 
 - `server/` Express 5 + TypeScript: engine, store, REST, MCP, widget, AI, assistant
 - `web/` Vite + React 19: TV view, device page, voice lab
-- `docs/` host checks, voice ID, Gemini, friction log, handoff
-- `plan.md` original product spec
+- `docs/` testing, MCP host checks, voice ID, Gemini, room security, friction log archive
 
 ## License
 

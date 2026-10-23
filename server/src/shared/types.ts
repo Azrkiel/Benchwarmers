@@ -1,7 +1,7 @@
 // Shared contract for Benchwarmers. Owned by the lead: phases read it, never edit it.
 // Changes go through the lead so server, MCP, AI worker and web stay in sync.
 
-// ---------- Domain (from plan.md §5) ----------
+// ---------- Domain ----------
 
 export type Sport = 'basketball' | 'football';
 
@@ -233,7 +233,7 @@ export type StandingRow = {
   lastPickScore?: PickScore;
 };
 
-// ---------- Scoring config (plan.md §5, one config object) ----------
+// ---------- Scoring config (one config object) ----------
 
 export const FANTASY_SCORING: Record<StatType, number> = {
   pts2: 2,
@@ -276,7 +276,7 @@ export const PICK_BASE_POINTS = 10;
 export const STREAK_MULTIPLIERS = [1, 1.5, 2] as const;
 export const ROSTER_SIZE = 3;
 
-// Phase 8 pick bonuses (plan.md section 10c "Scoring bonuses"). points = round to nearest 0.5 of
+// Phase 8 pick bonuses. points = round to nearest 0.5 of
 // PICK_BASE_POINTS x min(PICK_FACTOR_CAP, streak x odds x speed x contrarian); wrong picks score 0.
 
 /** f = (pick.gameT - opensAt) / (locksAt - opensAt); first bucket with f <= maxF wins, else x1. */

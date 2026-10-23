@@ -25,7 +25,7 @@ const { values: flags, positionals } = parseArgs({ allowPositionals: true, optio
 } });
 const command = positionals[0];
 if (flags.help || !command) {
-  console.log(`Worker C integration tools (Node >=22)\n\nCommands: start, reset --room CODE, control --room CODE --action start|pause|resume,\nsmoke, accept, browser [--smoke] [--selectors FILE], backup, load, inventory, tracking, release, service --storage sqlite, features\n\n--storage json|sqlite selects only private rehearsal data. --service-gates adds SQLite/feature/rollback evidence to release.\nDefault game: basketball (requires A's additive contract). Use --game football for baseline checks.\nstart uses isolated persistent data; checks boot their own isolated server. --no-build reuses assets.\nAll results are JSON; exit 0 = passed, 1 = failed, 2 = blocked/unrun.\nSee docs/BASKETBALL_DEMO.md and docs/qa/worker-c/README.md.`);
+  console.log(`Benchwarmers room QA tools (Node >=22)\n\nCommands: start, reset --room CODE, control --room CODE --action start|pause|resume,\nsmoke, accept, browser [--smoke] [--selectors FILE], backup, load, inventory, tracking, release, service --storage sqlite, features\n\n--storage json|sqlite selects only private rehearsal data. --service-gates adds SQLite/feature/rollback evidence to release.\nDefault game: basketball (requires A's additive contract). Use --game football for baseline checks.\nstart uses isolated persistent data; checks boot their own isolated server. --no-build reuses assets.\nAll results are JSON; exit 0 = passed, 1 = failed, 2 = blocked/unrun.`);
   process.exit(0);
 }
 assert.equal(positionals.length, 1, 'Use named flags after the command');
@@ -105,7 +105,7 @@ try {
       // A safe gate decision is possible without fabricating measurements.
       report.data.decision = 'NO-GO';
       report.data.limitations.push('No licensed time-series feed or measured real-game freshness/interaction data is available. A provides normalization tests and B synthetic rendering tests; these do not establish continuous tracking.');
-      return { decision: 'NO-GO', capability: 'continuous ball tracking', evidence: ['docs/BACKEND_COMPLETION.md', 'docs/qa/worker-b/DEVICE_AND_TRACKING.md'], permittedDemo: 'scripted score and team possession', reopenWhen: 'licensed timestamped observations, measured gaps/latency and demonstrated fair prediction windows' };
+      return { decision: 'NO-GO', capability: 'continuous ball tracking', evidence: [], permittedDemo: 'scripted score and team possession', reopenWhen: 'licensed timestamped observations, measured gaps/latency and demonstrated fair prediction windows' };
     });
   } else if (command === 'release') {
     for (const [name, script] of [['typecheck', 'typecheck'], ['tests', 'test'], ['tooling-tests', 'test:integration-tools']]) await report.check(name, () => npmRun(script));
