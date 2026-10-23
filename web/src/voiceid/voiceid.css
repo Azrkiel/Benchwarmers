@@ -174,7 +174,7 @@
 
 .vid-btn-primary {
   background: var(--vid-accent);
-  border-color: var(--vid-accent);
+  border-color: var(--bw-action-edge, #d4172f);
   color: var(--vid-on-accent);
 }
 

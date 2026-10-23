@@ -12,8 +12,8 @@
 .rm button:disabled,.rm-landing button:disabled { color:var(--lg-muted); background:var(--lg-raised); cursor:default; opacity:1; }
 .rm input::placeholder,.rm-landing input::placeholder { color:var(--lg-muted); font-weight:400; }
 .rm button[aria-pressed=true] { background:var(--lg-raised); color:#fff; border-color:var(--lg-orange); box-shadow:inset 3px 0 var(--lg-orange); }
-.rm .rm-primary,.rm-landing .rm-primary { background:var(--bw-action,#c8102e); border-color:var(--bw-action,#c8102e); color:#fff; }
-.rm .rm-primary:hover:not(:disabled),.rm-landing .rm-primary:hover:not(:disabled) { background:#aa0d26; border-color:#aa0d26; }
+.rm .rm-primary,.rm-landing .rm-primary { background:var(--bw-action,#c8102e); border-color:var(--bw-action-edge,#d4172f); color:#fff; }
+.rm .rm-primary:hover:not(:disabled),.rm-landing .rm-primary:hover:not(:disabled) { background:#aa0d26; border-color:var(--bw-action-edge,#d4172f); }
 .rm .rm-primary:disabled,.rm-landing .rm-primary:disabled { background:var(--lg-raised); border-color:var(--lg-line); color:var(--lg-muted); }
 .rm :is(button,a,input,select,summary,[tabindex]):focus-visible,.rm-landing :is(button,input,select):focus-visible { outline:3px solid #fff; outline-offset:4px; box-shadow:0 0 0 6px var(--lg-bg); }
 .rm label,.rm-landing label { display:block; font-size:14px; font-weight:600; color:var(--lg-muted); }
