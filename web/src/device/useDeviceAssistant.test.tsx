@@ -8,7 +8,7 @@ function json(body: unknown, ok = true, status = 200): Response {
 }
 
 function reply(over: Partial<AssistantResponse> = {}): AssistantResponse {
-  return { reply: 'Got it.', toolCalls: [], mode: 'bedrock', ...over };
+  return { reply: 'Got it.', toolCalls: [], mode: 'gemini', ...over };
 }
 
 /** Routes GET crew lookups to `code` (or 404 when null) and POST /api/assistant to `post`. */

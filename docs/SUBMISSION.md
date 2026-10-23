@@ -1,5 +1,7 @@
 # Benchwarmers: submission draft
 
+**Submission scope: main Alexa+ track only.**
+
 Hackathon tool feedback and development obstacles: [friction log](../FRICTION_LOG.md).
 
 Draft for owner review. Nothing has been submitted, uploaded or deployed by C. Use the exact recorded candidate and the current [acceptance evidence](qa/worker-c/FOLLOWUP.md) when filling submission fields.
@@ -20,7 +22,7 @@ The compact smart-display simulator uses actual MCP Streamable HTTP through the 
 - A 30-tool MCP surface: 11 household tools and 19 room tools, including room commands, commitment/call review and pregame operations. Read the live tools/list count for the recorded candidate. Historical Inspector screenshots show an older 22-tool build.
 - A server-owned scripted game/lineup/prediction engine with durable request IDs, cutoff validation, scoring and season accounting. Models do not decide sports results.
 - JSON is the compatibility default. The explicit SQLite profile provides transactional room storage, immutable acceptance evidence and consistent snapshots. C validates one API/timer process; it is not a distributed service claim.
-- `AI_MODE=fallback` and `ASSISTANT_MODE=offline` run the demo without cloud credentials. Gemini/Bedrock integrations exist but real model-provider execution is not part of C's acceptance evidence.
+- `AI_MODE=fallback` and `ASSISTANT_MODE=offline` run the demo without cloud credentials. Gemini integration is available, but real model-provider execution is not part of C's acceptance evidence.
 
 ## Optional feature rehearsal
 
@@ -40,4 +42,4 @@ There is no licensed live basketball/tracking feed in this candidate. Continuous
 
 Production deployment, HTTPS strict-session client acceptance, topology, retention/recovery objectives and real-provider permissions require their own profile and owner decisions. Local rehearsal rollback proves a previous compatible server can read a separate restored SQLite snapshot; it does not authorize an arbitrary down-migration or a production rollout.
 
-The owner reviews hackathon eligibility, narrative, attribution, video and submission before publishing. There is no verified installed Alexa skill, Echo-hosted execution, live Bedrock call or live provider game in C's evidence.
+The owner reviews hackathon eligibility, narrative, attribution, video and submission before publishing. There is no verified installed Alexa skill, Echo-hosted execution, or live provider game in C's evidence.

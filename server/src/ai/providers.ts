@@ -15,7 +15,6 @@ import type {
 } from '../shared/types.js';
 import { round1 } from '../game/engine.js';
 import { BONUS_COPY } from '../shared/types.js';
-import { converseJson, type BedrockLike, type ConverseJsonOptions } from './bedrock.js';
 import { generateGeminiJson, type GeminiLike } from './gemini.js';
 import { checkText, sanitizeText } from './guardrails.js';
 import { validateGeneratedProps } from './propValidation.js';
@@ -209,7 +208,7 @@ export class FallbackProvider implements AiContentProvider {
   }
 }
 
-// ---------- bedrock ----------
+// ---------- generated content ----------
 
 const SYSTEM =
   'You are a family-friendly sports commentator for a fictional sports league. ' +
@@ -240,13 +239,15 @@ function eventSummary(e: GameEvent): string {
   return `t=${e.t}${e.team ? ` ${e.team}` : ''}${e.points ? ` +${e.points}` : ''}: ${e.text}`;
 }
 
-type JsonGenerator = <T>(opts: Omit<ConverseJsonOptions<T>, 'client'>) => Promise<T>;
+type JsonGenerator = typeof generateGeminiJson;
 
-/** Shared prompts, schemas, prop validation and text guardrails for both model providers. */
+/** Shared prompts, schemas, prop validation and text guardrails for generated game content. */
 class GeneratedProvider implements AiContentProvider {
   private readonly fallback = new FallbackProvider();
 
-  constructor(readonly mode: 'bedrock' | 'gemini', private readonly json: JsonGenerator) {}
+  readonly mode = 'gemini' as const;
+
+  constructor(private readonly json: JsonGenerator) {}
 
   async generateProps(ctx: PropGenContext): Promise<Prop[]> {
     if (ctx.game.sport === 'football') return [];
@@ -347,22 +348,15 @@ class GeneratedProvider implements AiContentProvider {
   }
 }
 
-export class BedrockProvider extends GeneratedProvider {
-  constructor(client?: BedrockLike) {
-    super('bedrock', (opts) => converseJson({ ...opts, client }));
-  }
-}
-
 export class GeminiProvider extends GeneratedProvider {
   constructor(client?: GeminiLike) {
-    super('gemini', (opts) => generateGeminiJson({ ...opts, client }));
+    super((opts) => generateGeminiJson({ ...opts, client }));
   }
 }
 
-export function createAiProvider(mode?: AiMode, opts?: { client?: BedrockLike; gemini?: GeminiLike }): AiContentProvider {
+export function createAiProvider(mode?: AiMode, opts?: { gemini?: GeminiLike }): AiContentProvider {
   const configured = process.env.AI_MODE?.toLowerCase();
-  const m: AiMode = mode ?? (configured === 'bedrock' || configured === 'gemini' ? configured : 'fallback');
-  if (m === 'bedrock') return new BedrockProvider(opts?.client);
+  const m: AiMode = mode ?? (configured === 'gemini' ? configured : 'fallback');
   if (m === 'gemini') return new GeminiProvider(opts?.gemini);
   return new FallbackProvider();
 }

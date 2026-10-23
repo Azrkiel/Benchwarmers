@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import { extractJson } from './bedrock.js';
+import { extractJson } from './json.js';
 
 export type GeminiPart = Record<string, unknown> & { text?: string; thought?: boolean };
 export type GeminiContent = { role: 'user' | 'model'; parts: GeminiPart[] };

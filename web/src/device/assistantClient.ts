@@ -12,7 +12,7 @@ export type DeviceTurn = {
   text: string;
   speaker?: SpeakerHint;
   toolCalls?: ToolCallTrace[];
-  /** Any mode string the server reports (offline, bedrock, gemini, ...). */
+  /** Any mode string the server reports (offline, gemini, ...). */
   mode?: AssistantResponse['mode'];
   error?: boolean;
 };

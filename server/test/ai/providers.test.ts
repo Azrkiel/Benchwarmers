@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { checkText } from '../../src/ai/guardrails.js';
-import { BedrockProvider, createAiProvider, FallbackProvider, validateGeneratedProps } from '../../src/ai/providers.js';
+import { GeminiProvider, createAiProvider, FallbackProvider, validateGeneratedProps } from '../../src/ai/providers.js';
 import type { DraftBoardEntry, Game, GameEvent, Player, Prop, PropGenContext, RecapContext, StandingRow } from '../../src/shared/types.js';
 
 const realGame = JSON.parse(
@@ -27,14 +27,14 @@ const game: Game = {
 const ctx: PropGenContext = { game, gameT: 50, score: { home: 10, away: 8 }, existing: [] };
 
 function reply(text: string) {
-  return { output: { message: { content: [{ text }] } }, usage: { inputTokens: 5, outputTokens: 5 } };
+  return { candidates: [{ content: { role: 'model', parts: [{ text }] } }] };
 }
 
 function client(...texts: string[]) {
-  const send = vi.fn();
-  for (const t of texts) send.mockResolvedValueOnce(reply(t));
-  send.mockResolvedValue(reply(texts[texts.length - 1] ?? ''));
-  return { send };
+  const generateContent = vi.fn();
+  for (const t of texts) generateContent.mockResolvedValueOnce(reply(t));
+  generateContent.mockResolvedValue(reply(texts[texts.length - 1] ?? ''));
+  return { generateContent };
 }
 
 const nextScore = {
@@ -50,10 +50,10 @@ const nextScore = {
   resolvesAt: 220,
 };
 
-describe('BedrockProvider.generateProps', () => {
+describe('GeminiProvider.generateProps', () => {
   it('accepts valid props', async () => {
     const c = client(JSON.stringify({ props: [nextScore] }));
-    const props = await new BedrockProvider(c).generateProps(ctx);
+    const props = await new GeminiProvider(c).generateProps(ctx);
     expect(props).toHaveLength(1);
     expect(props[0]).toMatchObject({
       id: 'ai-g1-100',
@@ -63,7 +63,7 @@ describe('BedrockProvider.generateProps', () => {
       locksAt: 160,
       resolver: { kind: 'nextScoreType', afterT: 160 },
     });
-    const prompt = JSON.stringify(c.send.mock.calls[0]![0].input);
+    const prompt = JSON.stringify(c.generateContent.mock.calls[0]![0]);
     expect(prompt).toContain('Jet hits a three');
   });
 
@@ -93,7 +93,7 @@ describe('BedrockProvider.generateProps', () => {
       atT: 470,
       line: 60,
     };
-    const props = await new BedrockProvider(client(JSON.stringify({ props: [tsf, tpo] }))).generateProps(ctx);
+    const props = await new GeminiProvider(client(JSON.stringify({ props: [tsf, tpo] }))).generateProps(ctx);
     expect(props.map((p) => p.resolver.kind)).toEqual(['teamScoresFirst']); // tpo lock gap is only 30
   });
 
@@ -106,7 +106,7 @@ describe('BedrockProvider.generateProps', () => {
       { ...nextScore, question: 'Place a bet on the next score?' },
       { ...nextScore, options: [{ id: 'three', label: 'Cash prize' }, { id: 'two', label: 'B' }, { id: 'ft', label: 'C' }] },
     ];
-    const props = await new BedrockProvider(client(JSON.stringify({ props: bad }))).generateProps(ctx);
+    const props = await new GeminiProvider(client(JSON.stringify({ props: bad }))).generateProps(ctx);
     expect(props).toEqual([]);
   });
 
@@ -124,15 +124,15 @@ describe('BedrockProvider.generateProps', () => {
         source: 'fallback',
       },
     ];
-    const props = await new BedrockProvider(client(JSON.stringify({ props: [nextScore] }))).generateProps({ ...ctx, existing });
+    const props = await new GeminiProvider(client(JSON.stringify({ props: [nextScore] }))).generateProps({ ...ctx, existing });
     expect(props).toEqual([]);
   });
 
   it('falls back to [] after invalid JSON twice', async () => {
-    const send = vi.fn().mockResolvedValue(reply('not json at all'));
-    const props = await new BedrockProvider({ send }).generateProps(ctx);
+    const generateContent = vi.fn().mockResolvedValue(reply('not json at all'));
+    const props = await new GeminiProvider({ generateContent }).generateProps(ctx);
     expect(props).toEqual([]);
-    expect(send).toHaveBeenCalledTimes(2);
+    expect(generateContent).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -303,24 +303,24 @@ function full0(): Record<string, unknown> {
   };
 }
 
-describe('BedrockProvider text calls', () => {
+describe('GeminiProvider text calls', () => {
   it('uses model text, sanitized', async () => {
-    const p = new BedrockProvider(client(JSON.stringify({ text: 'Great night, no cash needed.' })));
+    const p = new GeminiProvider(client(JSON.stringify({ text: 'Great night, no cash needed.' })));
     const text = await p.recap(recapCtx);
     expect(checkText(text).ok).toBe(true);
     expect(text).toContain('points');
   });
 
   it('explain and recap fall back to templates after invalid JSON twice', async () => {
-    const send = vi.fn().mockResolvedValue(reply('nope'));
-    const p = new BedrockProvider({ send });
+    const generateContent = vi.fn().mockResolvedValue(reply('nope'));
+    const p = new GeminiProvider({ generateContent });
     const prop: Prop = { ...(full0() as Prop), correctOptionId: 'three' };
     expect(await p.explainResult({ game, prop, events: game.events })).toContain('A three');
     expect(await p.recap(recapCtx)).toContain('warming the bench');
   });
 
   it('scoutingNotes fills missing ids from fallback', async () => {
-    const p = new BedrockProvider(client(JSON.stringify({ notes: { 'har-pg-1': 'Fast and fun.', bogus: 'ignored' } })));
+    const p = new GeminiProvider(client(JSON.stringify({ notes: { 'har-pg-1': 'Fast and fun.', bogus: 'ignored' } })));
     const notes = await p.scoutingNotes(realGame);
     expect(notes['har-pg-1']).toBe('Fast and fun.');
     expect(notes['sum-sf-8']).toBe('Slow-starting wing who builds into the game.');
@@ -337,9 +337,9 @@ describe('createAiProvider', () => {
     expect(createAiProvider().mode).toBe('fallback');
   });
 
-  it('honours AI_MODE=bedrock and explicit mode', () => {
-    vi.stubEnv('AI_MODE', 'bedrock');
-    expect(createAiProvider().mode).toBe('bedrock');
+  it('honours AI_MODE=gemini and explicit mode', () => {
+    vi.stubEnv('AI_MODE', 'gemini');
+    expect(createAiProvider().mode).toBe('gemini');
     expect(createAiProvider('fallback').mode).toBe('fallback');
   });
 });

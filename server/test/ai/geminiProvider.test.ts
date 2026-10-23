@@ -17,7 +17,7 @@ describe('Gemini game content', () => {
     expect(createAiProvider('fallback').mode).toBe('fallback');
   });
 
-  it('shares sanitized recaps, notes and fallback behavior with Bedrock', async () => {
+  it('sanitizes generated recaps and notes and preserves fallback behavior', async () => {
     const ctx = { game, standings: [], draftBoard: [], season: [] };
     const p = new GeminiProvider(client({ text: 'Great night, no cash needed.' }));
     expect(checkText(await p.recap(ctx)).ok).toBe(true);

@@ -1,6 +1,6 @@
 # Product feedback
 
-Feedback on the tools and SDKs used to build Benchwarmers. See the current root [friction log](../FRICTION_LOG.md) for prioritized feedback. Historical feedback below is distilled from [original observations](FRICTION_LOG.md) (entries cited by title), [MCP_HOSTS.md](MCP_HOSTS.md), [GEMINI.md](GEMINI.md), [AWS.md](AWS.md), [VOICE_ID.md](VOICE_ID.md) and [HANDOFF.md](HANDOFF.md). Anything not exercised is marked **unverified**. Environment: Windows 11, Node 22.23.3.
+Feedback on the tools and SDKs used to build Benchwarmers. See the current root [friction log](../FRICTION_LOG.md) for prioritized feedback. Historical feedback below is distilled from [original observations](FRICTION_LOG.md) (entries cited by title), [MCP_HOSTS.md](MCP_HOSTS.md), [GEMINI.md](GEMINI.md), [VOICE_ID.md](VOICE_ID.md) and [HANDOFF.md](HANDOFF.md). Anything not exercised is marked **unverified**. Environment: Windows 11, Node 22.23.3.
 
 ## Summary
 
@@ -10,7 +10,6 @@ Feedback on the tools and SDKs used to build Benchwarmers. See the current root 
 | MCP Apps / ext-apps | Yes (basic-host, own host) | Yes, with doc fixes |
 | MCP Inspector 2.11.0 | Yes | Yes |
 | Alexa+ docs / Local Inspector | No (package E404; onboarding not done) | Unknown |
-| Bedrock / AWS SDK | No (mocked only) | Unknown |
 | Gemini REST + key pool | Yes | Yes |
 | transformers.js / WavLM | Yes | Yes, as an opt-in feature |
 | Vite 8 | Yes | Yes |
@@ -65,14 +64,6 @@ Feedback on the tools and SDKs used to build Benchwarmers. See the current root 
 - **Suggestions:** state in Getting Started where the Local Inspector package is hosted (private registry? access request?) and how to get access; document the minimum Node version per toolkit component instead of one global requirement.
 - **Workaround used:** MCP Inspector + ext-apps basic-host + our own simulated device page.
 - **Build again?** Unknown. Open item for the human: optional Local Inspector access (HANDOFF section 11).
-
-## Amazon Bedrock / AWS SDK (`@aws-sdk/client-bedrock-runtime`, Converse API)
-
-- **Used for:** designed as the content and assistant provider via `ConverseCommand`, Haiku-tier model through a cross-region inference profile (AWS.md). Tested with **mocks only**; the Bedrock path has **never run live** (HANDOFF sections 9 and 10; GEMINI.md: a live Bedrock test is still required).
-- **What worked (as designed, not live-verified):** background worker keeps Bedrock out of the request path; zod-validated JSON with one retry; fallback content with zero credentials; usage counters (`getAiUsage()`).
-- **What hurt:** no friction-log entries because no live run happened. Open risks, all **unverified**: model access and permissions, inference profile id, real tool-use shapes versus mocks, and empty forced-final text handling (HANDOFF section 10). Because AWS setup was deferred, Gemini served as the live stand-in (GEMINI.md).
-- **Suggestions:** none evidenced.
-- **Build again?** Unknown. Pending human steps: account, Model access, `aws configure`, `BEDROCK_MODEL_ID`, $5 budget alarm (HANDOFF section 11).
 
 ## Gemini (REST `generateContent`, 3.8 Flash, key pool)
 

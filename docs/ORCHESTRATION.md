@@ -1,5 +1,7 @@
 # Orchestration plan (lead session)
 
+> Scope update (2026-10-23): main Alexa+ track only. Current modes are Gemini and fallback/offline. Obsolete integration plans have been removed; historical counts below describe their original runs. Use README.md for current setup.
+
 Spec: `plan.md` (status-marked). Resume state: `docs/HANDOFF.md`. This file says **how** the work is split across subagents:
 lead procedure, ownership, and ready-to-paste phase-manager briefs for the remaining work.
 
@@ -57,43 +59,15 @@ Helpers: `tools/screenshot.mjs`, `tools/voice-test.mjs`, `tools/tts-clips.ps1` (
 
 ## 5. Remaining phases (ready-to-paste briefs)
 
-Waves: **A** = 4a + 7b (parallel, disjoint files) · **B** = 2b manual MCP checks (after 4a) · **C** = 4b device page (assigned to Claude) · **D** = 6 polish · **3b** real Bedrock whenever AWS creds exist.
+Waves: **A** = 4a + 7b (parallel, disjoint files) · **B** = 2b manual MCP checks (after 4a) · **C** = 4b device page (assigned to Claude) · **D** = 6 polish
 
-### 4a — Assistant backend (`phase/4a-assistant`, wave A, model: opus)
-- Goal: `POST /api/assistant` turns a text utterance (+ optional voice-ID speaker) into MCP tool calls against our own `/mcp`
-  and returns `AssistantResponse`, in two modes: `ASSISTANT_MODE=offline` (rule-based router, zero AWS) and `bedrock`
-  (Converse tool-use loop).
-- Owned: `server/src/assistant/**`, `server/test/assistant/**`, `server/src/index.ts` (mount only, in the slot above the `/api`
-  router), `docs/FRICTION_LOG.md` (append).
-- Read-only: contract (`AssistantRequest`, `AssistantResponse`, `ToolCallTrace`, `UiResourcePayload`, `SpeakerHint`),
-  `server/src/mcp/**` (tool names, input schemas, structuredContent `{view, code, state, season}`), `server/src/ai/bedrock.ts`
-  (usage counters, JSON helpers), `server/src/game/**`.
-- Spec:
-  1. `mcpClient.ts`: `@modelcontextprotocol/client` `Client` + `StreamableHTTPClientTransport` to `http://127.0.0.1:${PORT}/mcp`
-     with `Authorization: Bearer ${MCP_TOKEN}` via `requestInit`. Cache `tools/list`. Injectable for tests.
-  2. `offlineRouter.ts` (pure where possible): maps the plan §8 demo utterances to tools + args: "set up a watch party for tonight's
-     game with the Sunday Crew" → `setup_watch_party`; "who's available at center?" → `list_available_players {position:'C'}`;
-     "I'm Maya, draft Big Mo" / "draft Big Mo" → `draft_player`; "put me down for the Hawks scoring first" / "Priya takes the over"
-     → `make_pick`; "how's my roster doing?" → `get_my_roster`; "who's winning (in our house)?" → `get_leaderboard`; "why did that
-     one go the other way?" → `explain_last_result`; "how am I doing this season?" → `get_season_standings`; "start the game" →
-     `start_watch_party`; "what's the score?" → `get_game_status`. Member name priority: explicit "I'm X"/"X takes" in the text >
-     `speaker.memberName` (voice ID) > ask "Who's picking?" (reply only, no tool call). Household from `request.household`.
-     Unknown intent → helpful reply listing what you can say.
-  3. `bedrockLoop.ts`: tools/list → Converse `toolConfig` (JSON schema from each tool's inputSchema); system prompt from the
-     `watch_party_host` prompt + household/speaker context; loop Bedrock → toolUse → MCP `callTool` → toolResult, max 3 rounds,
-     then final text. BedrockRuntimeClient injectable; on any Bedrock error fall back to the offline router for that turn and set
-     `mode: 'offline'`. Keep reply short and speakable (voice).
-  4. Response: `toolCalls` trace (name, args, ok, summary, ms); `uiResource` = the last called tool that has
-     `_meta.ui.resourceUri` (uri, toolName, toolInput, raw toolResult) so the device can render the MCP App; `partyCode` from
-     tool results (e.g. after setup). Log per-turn latency.
-  5. `routes.ts`: express router for `POST /api/assistant` with zod validation of `AssistantRequest`; 400 on bad input.
-  6. Tests (vitest, real server on an ephemeral port + real MCP endpoint, mocked Bedrock client): every utterance in item 2 in
-     offline mode (correct tool + args + non-empty reply), speaker-hint path ("draft Big Mo" with speaker Maya → Maya's roster),
-     missing-speaker ask path, uiResource present for UI tools, Bedrock loop with a scripted mock (toolUse → toolResult → final
-     text), Bedrock failure → offline fallback, 3-round cap.
-- Acceptance: `npm run typecheck -w server` 0; `npm test -w server` all green; live: start server on 3015 with a temp DATA_FILE,
-  `curl -s -X POST localhost:3015/api/assistant -H "content-type: application/json" -d '{"text":"I'\''m Maya, draft Big Mo","household":"garcias","partyCode":"DEMO"}'`
-  → 200 JSON with `mode:"offline"`, a `draft_player` tool call, and `uiResource.uri` `ui://benchwarmers/board.html`. Stop by PID.
+### 4a — Assistant backend (`phase/4a-assistant`, wave A)
+- Goal: `POST /api/assistant` turns text and an optional speaker hint into MCP tool calls against our own `/mcp`, returning an `AssistantResponse`.
+- Modes: `ASSISTANT_MODE=offline` uses the rule-based router; `ASSISTANT_MODE=gemini` uses the optional function-call loop.
+- Implementation: `mcpClient.ts` manages authenticated Streamable HTTP; `offlineRouter.ts` maps supported utterances; `geminiLoop.ts` preserves native response parts and caps tool rounds at three. Completed mutations must never be repeated during fallback.
+- Context: `context.ts` builds the host/speaker prompt; `trace.ts` records calls and the widget resource. Shared content JSON extraction lives in `server/src/ai/json.ts`.
+- Tests: verify tool names and arguments, explicit-name and speaker-hint attribution, unknown-intent help, UI resources, bounded rounds, and safe fallback after provider failure.
+- Acceptance: server type checks and tests pass; a real HTTP request to `/api/assistant` in offline mode returns the expected tool trace and widget resource without cloud credentials.
 
 ### 7b — Voice ID tuning (`phase/7b-voiceid-tuning`, wave A, model: sonnet)
 - Goal: voice ID fast and accurate enough for live turns: WavLM accepts true speakers, embed < 3 s per utterance.
@@ -133,11 +107,6 @@ Waves: **A** = 4a + 7b (parallel, disjoint files) · **B** = 2b manual MCP check
 - Acceptance: typecheck/test/build green; Checkpoint 4: two headless pages (`/device/garcias`, `/device/sams-place`) — a typed pick
   in one shows in the other's widget within ~2 s (verify with tools/screenshot.mjs); season question answers after server restart.
 
-### 3b — Real Bedrock run (`phase/3b-bedrock-live`, any time, lead or sonnet) — blocked on 🧑 AWS creds
-- Set `AI_MODE=bedrock ASSISTANT_MODE=bedrock BEDROCK_MODEL_ID=<haiku inference profile> AWS_REGION=…`; run a full party
-  (SPEED=8) + a few assistant turns; record token counts/costs and any schema-retry events in docs/AWS.md; fix prompt issues in
-  `server/src/ai/**` / `server/src/assistant/**`.
-
 ### 6 — Polish + submission (`phase/6-polish`, wave D, model: sonnet)
 - Owned: root `package.json` (`demo` script, e.g. `concurrently` server SPEED=4 + web + printed cloudflared command; no bash-only
   syntax), `README.md`, `docs/{PRODUCT_FEEDBACK,DEMO_SCRIPT,SUBMISSION}.md`, `scripts/**`.
@@ -156,7 +125,6 @@ Spec: plan.md §10c. Contract committed by the lead first (`195c5ac` on dev): `S
 
 Waves: **E** = 8a odds table ∥ 8b bonuses (disjoint files) → **F** = 8c football game (needs 8a's `driveOddsProp` and 8b's engine)
 → **G** = lead: docs/status, TV smoke on a football party (report gaps to Codex, don't edit `web/src/tv/**`), PR dev → main on ask.
-3b (real Bedrock) stays blocked on AWS creds.
 
 Lead decisions (all phase 8 briefs):
 1. Wrong picks 0 points and reset the streak. `points = roundHalf(PICK_BASE_POINTS × min(PICK_FACTOR_CAP, streak × odds × speed × contrarian))`,
@@ -237,9 +205,7 @@ Lead decisions (all phase 8 briefs):
 ## 6. History (session 1, 2026-10-20)
 Wave 1: 1-engine (opus), 3-ai (sonnet), 5-tv (opus) in parallel → merged; lead wired AI worker. 5b TV polish (worker).
 Wave 2: 2-mcp (opus), 7-voiceid (opus) → rate-limited mid-run, resumed, merged. All phase branches are on origin.
-Session 2: wave A 4a (opus) + 7b (sonnet) → merged (lead fixed a Bedrock-fallback double-mutation bug); 2b (sonnet) + 4b (opus)
-in parallel → 4b hit the usage limit, resumed via SendMessage, merged. Remaining: 6 polish, 3b real model run.
+The device page hit the usage limit, resumed via SendMessage, and merged. Remaining at that milestone: submission polish.
 Then wave D 6 (sonnet) → merged; PRs #1/#2 dev → main. Phase 8 planned (plan §10c) and, session 3, built as waves E (8a ∥ 8b) → F (8c).
 Session 3 detail: 8a (sonnet-tier) + 8b merged first try; 8c stalled once (stream watchdog) mid MCP task, resumed via SendMessage,
 merged. Lead fixes: contract `195c5ac`; vitest `maxWorkers: 6` (29 server files × own HTTP servers on 16 cores broke the <500 ms
-latency asserts). Remaining: 3b (AWS creds), Codex TV football view, human tasks.

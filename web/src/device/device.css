@@ -96,11 +96,6 @@ body:has(.device-stage) {
   color: var(--dv-muted);
 }
 
-.mode-badge.mode-bedrock {
-  background: rgba(169, 211, 180, 0.15);
-  color: var(--dv-good);
-}
-
 .ds-gear {
   width: 44px;
   height: 44px;

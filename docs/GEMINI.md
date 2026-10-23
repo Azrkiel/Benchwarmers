@@ -1,6 +1,6 @@
 # Test Benchwarmers with Gemini
 
-Gemini can power both game content and the simulated assistant while retaining Bedrock for the final AWS integration. No UI or game-engine changes are required.
+Gemini can power both game content and the simulated assistant for the main Alexa+ track. No UI or game-engine changes are required.
 
 ## Put your keys here
 
@@ -64,23 +64,14 @@ Key switching retries only generation with the same conversation. Already-execut
 
 Gemini transport errors expose only local status summaries, never Google's raw response text. Assistant logs show provider, tool count, token counts and elapsed time; set `ASSISTANT_LOG=0` to silence them. `AI_LOG=0` silences background fallback warnings.
 
-## Switch back to Bedrock
+## Use the offline demo
 
-Edit root `.env`, configure AWS credentials/model access, then restart:
-
-```dotenv
-AI_MODE=bedrock
-ASSISTANT_MODE=bedrock
-AWS_REGION=us-east-1
-BEDROCK_MODEL_ID=YOUR_SUPPORTED_INFERENCE_PROFILE_ID
-```
-
-Gemini keys may remain in the ignored file; Bedrock mode does not use them. A live Bedrock test is still required: Gemini tests do not verify AWS permissions, model-specific settings, or real model tool use. For a no-network demo, use `AI_MODE=fallback` and `ASSISTANT_MODE=offline`.
+Set `AI_MODE=fallback` and `ASSISTANT_MODE=offline`, then restart. This uses committed content and the rule-based assistant without network access or cloud credentials.
 
 ## Code map
 
 - `server/src/ai/gemini.ts`: native REST client, shared key pool, cooldowns, deadlines, JSON validation/retry.
-- `server/src/ai/providers.ts`: shared content prompts, schemas, guardrails, Gemini/Bedrock selection.
+- `server/src/ai/providers.ts`: shared content prompts, schemas, guardrails, Gemini/fallback selection.
 - `server/src/assistant/geminiLoop.ts`: native Gemini function-call loop over the existing MCP client.
 - `server/src/assistant/routes.ts`: selects the assistant provider.
 - `server/src/config.ts`: loads root `.env` while preserving shell overrides.

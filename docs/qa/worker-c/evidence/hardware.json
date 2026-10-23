@@ -43,22 +43,6 @@
             "present": false
           },
           {
-            "name": "AWS_REGION",
-            "present": false
-          },
-          {
-            "name": "AWS_ACCESS_KEY_ID",
-            "present": false
-          },
-          {
-            "name": "AWS_SESSION_TOKEN",
-            "present": false
-          },
-          {
-            "name": "BEDROCK_MODEL_ID",
-            "present": false
-          },
-          {
             "name": "CHROMIUM_PATH",
             "present": false
           }
@@ -76,5 +60,8 @@
     "fingerprint": "320d912370130511d40bd66a92ba958ae7e849573c01c489e1caf3a4f45f954a"
   },
   "completedAt": "2026-10-23T11:00:37.094Z",
-  "status": "passed"
+  "status": "passed",
+  "metadataRedactions": [
+    "Out-of-scope provider environment-presence entries removed on 2026-10-23; original run results and source identity retained."
+  ]
 }

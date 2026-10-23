@@ -116,7 +116,7 @@ describe('ai worker', () => {
     expect(f.calls.scouting).toHaveLength(1);
   });
 
-  it('adds props on party_created in bedrock mode, not in fallback', async () => {
+  it('adds props on party_created in gemini mode, not in fallback', async () => {
     const fb = fakeSink({ a: { gameId: 'g1' } });
     const fbProv = fakeProvider('fallback');
     const w1 = startAiWorker({ sink: fb.sink, provider: fbProv });
@@ -127,7 +127,7 @@ describe('ai worker', () => {
     expect(fbProv.generateProps).not.toHaveBeenCalled();
 
     const br = fakeSink({ a: { gameId: 'g1' } });
-    const brProv = fakeProvider('bedrock');
+    const brProv = fakeProvider('gemini');
     const w2 = startAiWorker({ sink: br.sink, provider: brProv });
     br.emit({ type: 'party_created', partyId: 'a' });
     await w2.idle();
@@ -140,7 +140,7 @@ describe('ai worker', () => {
 
   it('does not add props when the provider returns none', async () => {
     const f = fakeSink({ a: { gameId: 'g1' } });
-    const w = startAiWorker({ sink: f.sink, provider: fakeProvider('bedrock', []) });
+    const w = startAiWorker({ sink: f.sink, provider: fakeProvider('gemini', []) });
     f.emit({ type: 'party_started', partyId: 'a' });
     await w.idle();
     expect(f.calls.addProps).toHaveLength(0);

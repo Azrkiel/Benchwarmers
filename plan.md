@@ -1,12 +1,13 @@
 # Benchwarmers — Build Plan for Claude Code (Alexa+ track)
 
+> Scope update (2026-10-23): main Alexa+ track only. Current modes are Gemini and fallback/offline. Obsolete integration plans have been removed; historical counts below describe their original runs. Use README.md for current setup.
+
 > **STATUS (2026-10-20, Claude session 2)** — branch `dev` @ GitHub. Legend: ✅ done · 🟡 partial · ⬜ not started · 🔀 owned by Codex.
 > | Phase | Status |
 > |---|---|
-> | 0 Environment | 🟡 done except 🧑 items (AWS creds, OBS, Local Inspector not on npm) |
+> | 0 Environment | 🟡 done except 🧑 items (OBS, Local Inspector not on npm) |
 > | 1 Engine, store, REST | ✅ merged (`phase/1-engine`) |
 > | 2 MCP server + MCP App | ✅ merged (`phase/2-mcp`, `phase/2b-mcp-hosts`); verified in Inspector, ext-apps basic-host, cloudflared tunnel (docs/MCP_HOSTS.md) |
-> | 3 Bedrock | ✅ code + mocked tests merged (`phase/3-ai`); 🟡 never run against real Bedrock (no AWS creds) |
 > | 4 Simulated device + assistant | ✅ merged (`phase/4a-assistant`, `phase/4b-device`); Checkpoint 4 passed headless (sync 0.98 s); real mic untested |
 > | 5 TV view | ✅ merged (`phase/5-tv`, `phase/5b-tv-polish`); 🔀 further TV work is Codex's |
 > | 6 Polish + submission | ✅ merged (`phase/6-polish`): `npm run demo` (fresh clone → running in ~35 s), README, DEMO_SCRIPT, PRODUCT_FEEDBACK, SUBMISSION draft; 🧑 video + Devpost links TODO |
@@ -17,8 +18,6 @@
 > **How to use this file:** put it at the root of an empty repo, open Claude Code there, and say:
 > *"Read PLAN.md. Do Phase 0 checks, then build phase by phase. Stop at each checkpoint, run its verification, commit, and continue."*
 > Items marked **🧑 HUMAN** need you. Claude Code should list them and keep working on everything else.
->
-> **Constraints:** Windows laptop, no Amazon hardware, ~$0 budget. Everything runs locally; the only paid service is Bedrock (cents to a few dollars, capped, with an offline fallback).
 
 ---
 
@@ -36,12 +35,11 @@
 - **No real money, ever.** No wallets or wagers. "Odds" are info-only probabilities.
 
 **Hackathon:** Build, Ship, Shape (Devpost). Deadline **Friday Oct 23, 2026, 12:00 PM PT**. Submit by **10:00 AM PT**.
-- Primary track: **Alexa+**. Mini challenge: **AWS Builder** (Bedrock). Optional: **Open Source**.
+- Primary track: **Alexa+**. The submission focuses only on this track.
 
 ### What judges reward (from the rules) and how we hit it
 | Judges call "obvious" | Judges call "creative" | Benchwarmers |
 |---|---|---|
-| single-turn Q&A bot, basic MCP wrapper around an API | agentic workflow across services, add-on that keeps state across sessions, media support (cards), **MCP Apps**, Agent Skills | multi-step watch-party tool, persistent streaks/standings, MCP App widget, Bedrock-generated content |
 
 ### Hard requirements (do not violate)
 1. A **self-hosted MCP server, spec 2025-11-25 or later, over Streamable HTTP**, actually imported and called in code. Demo video must show it working.
@@ -61,8 +59,8 @@
   • sim/ voice device ──▶│  • /api  REST for the TV view    │
   • MCP Inspector     ──▶│  • game engine: clock, props, scoring     │
   • ext-apps basic-host─▶│  • store: JSON file (persists sessions)   │
-  • Alexa Local Insp. ──▶│  • ai worker ──▶ Amazon Bedrock (Claude)  │
-    (optional)           │  • /api/assistant: text → Bedrock         │
+  • Alexa Local Insp. ──▶│  • ai worker ──▶ Gemini (optional)  │
+    (optional)           │  • /api/assistant: text → Gemini         │
                          │      tool-use → MCP client → /mcp         │
                          └───────────────────────────────────────────┘
   web/  (Vite, one app, two routes)
@@ -73,10 +71,10 @@
 ```
 
 **Key decisions:**
-- **MCP tools never call Bedrock synchronously.** Alexa+ requires MCP round-trip latency **< 500 ms**. A background worker pre-generates props, explanations, and recaps; tools read cached state.
+- **MCP tools never call model providers synchronously.** Alexa+ requires MCP round-trip latency **< 500 ms**. A background worker pre-generates props, explanations, and recaps; tools read cached state.
 - **Server owns the game clock.** All clients compute game time from `serverNow`, so both households see props open and lock at the same moment.
 - **Persistence:** a JSON file store (`data/store.json`), written on each change. Enough for "state across sessions" without a database.
-- **Deterministic demo mode:** `AI_MODE=fallback` uses committed JSON so the demo works with zero AWS spend.
+- **Deterministic demo mode:** `AI_MODE=fallback` uses committed JSON so the demo works with zero cloud spend.
 - **Two households = two browser windows** (Austin and Seattle), each a `/device/:household` page.
 
 ---
@@ -97,11 +95,11 @@ benchwarmers/
 │   │   ├── mcp/server.ts         # createServer(): tools, prompts, app resource
 │   │   ├── mcp/http.ts           # Streamable HTTP wiring + bearer auth
 │   │   ├── mcp/widget/           # MCP App View (vite singlefile → dist/benchwarmers.html)
-│   │   ├── ai/bedrock.ts  ai/worker.ts  ai/fallback/*.json
-│   │   └── assistant/route.ts    # Bedrock tool-use loop over MCP client
+│   │   ├── ai/gemini.ts  ai/worker.ts  ai/fallback/*.json
+│   │   └── assistant/route.ts    # Gemini tool-use loop over MCP client
 │   └── test/
 ├── web/                          # Vite + React: /device and /tv
-└── docs/  FRICTION_LOG.md  PRODUCT_FEEDBACK.md  AWS.md  DEMO_SCRIPT.md  SUBMISSION.md
+└── docs/  FRICTION_LOG.md  PRODUCT_FEEDBACK.md  DEMO_SCRIPT.md  SUBMISSION.md
 ```
 
 ---
@@ -116,13 +114,8 @@ benchwarmers/
    /plugin marketplace add modelcontextprotocol/ext-apps
    /plugin install mcp-apps@modelcontextprotocol-ext-apps
    ```
-4. **AWS (Bedrock):** create/sign in to an AWS account; **set a billing alarm at $5** (Billing → Budgets). Enable access to a Claude model in Bedrock. Run `aws configure`, then find an inference profile ID:
-   ```powershell
-   aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?contains(inferenceProfileId,'anthropic')].inferenceProfileId"
-   ```
-   Pick a **Haiku-tier** model (cheapest, fast). Newer Claude models must be called through an inference profile ID (`global.` / `us.` prefix).
-5. *(Optional, free)* **Amazon Developer account** → try the **Alexa+ Local Inspector** Getting Started guide (needs Node 24+, `@alexa-ai/addon-local-inspector`). It renders your MCP widget inside Alexa device frames, which is great footage for the video. If access is gated, skip it.
-6. *(Optional)* **Amazon Devices Builder Tools** for docs search in Claude Code:
+4. *(Optional, free)* **Amazon Developer account** → try the **Alexa+ Local Inspector** Getting Started guide (needs Node 24+, `@alexa-ai/addon-local-inspector`). It renders your MCP widget inside Alexa device frames, which is great footage for the video. If access is gated, skip it.
+5. *(Optional)* **Amazon Devices Builder Tools** for docs search in Claude Code:
    `npx -y @amazon-devices/amazon-devices-buildertools-mcp@latest init-context --agent claude-code-cli`
 
 ### 🤖 Claude Code tasks
@@ -131,12 +124,11 @@ benchwarmers/
   - No real money, real teams/leagues, or Amazon/Alexa logos.
   - Append to `docs/FRICTION_LOG.md` (template §11) whenever a tool, SDK, or doc misbehaves.
   - Commit at each checkpoint: `phase N: <summary>`.
-- Verify: `node -v` (24), `aws sts get-caller-identity`, `cloudflared --version`.
+- Verify: `node -v` (>=22), `cloudflared --version` if using a tunnel.
 
 **Checkpoint 0:** checks pass or blockers logged with workarounds.
 
 > **Status 🟡:** scaffold, MIT, .gitignore, .env.example, CLAUDE.md, FRICTION_LOG done. Node is v22 (not 24; MCP SDK fine).
-> No `aws` CLI / credentials on the build machine. `cloudflared` exe is in Downloads (not on PATH).
 > `@alexa-ai/addon-local-inspector` → npm E404 (logged). MCP Apps Claude Code plugin not installed (not needed: ext-apps cloned for reference).
 
 ---
@@ -266,25 +258,9 @@ cloudflared tunnel --url http://localhost:3001   # free public HTTPS URL
 
 ---
 
-## 7. Phase 3 — Bedrock (Wednesday morning)
+## 7. Phase 3 — Generated content
 
-- `ai/bedrock.ts`: `@aws-sdk/client-bedrock-runtime` `ConverseCommand`; `BEDROCK_MODEL_ID` (inference profile), `AWS_REGION`; top-level `system` prompt; JSON output validated with zod; one retry then fallback. `maxTokens` small.
-- `ai/worker.ts` (background only, never in a request path):
-  1. **Props:** from upcoming scripted events + score, generate 1–2 props constrained to the `ResolverSpec` kinds (model picks kind/params/wording; engine stays source of truth), with info-only probabilities.
-  2. **Explanations** after each resolution, written for newcomers.
-  3. **Recap** at final: each member's best moment, best and worst draft pick ("Leo drafted Big Mo, who spent the night warming the bench"), and season implications.
-  4. **Scouting notes:** one fun line per player for `list_available_players`, generated once per game and cached.
-- **Cost guard:** cache everything per game; `AI_MODE=fallback` default for development; `bedrock` only for checkpoint runs and recording. Log calls + token counts.
-- Guardrails: fictional teams, no gambling language ("bet", "wager"), family-friendly.
-- `docs/AWS.md`: which services, how, and why (required for the AWS Builder mini challenge).
-
-> **Status 🟡** (phase/3-ai): bedrock.ts (Converse, zod, retry, token log), providers (fallback + Bedrock with per-call fallback),
-> prop validation, guardrails, worker (wired in index.ts main()), scouting.json, docs/AWS.md. Fallback path verified end-to-end.
-> Not done: a real `AI_MODE=bedrock` run (needs 🧑 AWS creds + BEDROCK_MODEL_ID).
-
-**Checkpoint 3:** a full party in `AI_MODE=bedrock` shows AI props/explanations/recap; `AI_MODE=fallback` works with no AWS credentials.
-
----
+Content uses Gemini or committed fallback templates. Generated questions are validated, text passes guardrails, and a background worker keeps model calls out of the MCP request path. See [Gemini setup](docs/GEMINI.md).
 
 ## 8. Phase 4 — Simulated Alexa+ device `web/device` (Wednesday)
 
@@ -292,18 +268,16 @@ The rules allow a simulated Alexa+ experience in a web app; ours also drives the
 
 - `/device/:household` — a generic smart-display frame (our own neutral design, no Amazon branding): wake button + mic, transcript, spoken reply, and a **widget area**.
 - Voice in: Web Speech API (Chrome on Windows). Typed input fallback box (for reliability while recording).
-- `POST /api/assistant {text, household, history}` → `assistant/route.ts`:
-  - Connect an MCP client (`@modelcontextprotocol/client` v2) to our own `/mcp`; convert `tools/list` to Bedrock Converse `toolConfig`.
-  - Loop: Bedrock → tool calls → MCP → results → Bedrock, until final text. Keep ≤ 3 tool rounds.
+- `POST /api/assistant {text, household, history}` → `assistant/routes.ts`:
+  - Connect the MCP client to our own server; use the offline router or optional Gemini function calls.
+  - Limit generation to three tool rounds and preserve completed results during fallback.
   - Return `{ reply, toolCalls[], uiResource? }` (when a called tool has `_meta.ui.resourceUri`, include it).
 - Voice out: `speechSynthesis`.
 - **Render the MCP App** in the widget area with `@modelcontextprotocol/ext-apps/app-bridge` (follow `examples/basic-host`). Fallback if time runs short: show the leaderboard as a native React card.
 - "Show agent trace" toggle listing tool calls (judges like seeing the agentic flow).
 - Demo utterances: "Set up a watch party for tonight's game with the Sunday Crew" · "Who's available at center?" · "I'm Maya, draft Big Mo" · "I'm Sam, put me down for the Hawks scoring first" · "How's my roster doing?" · "Priya takes the over" · "Who's winning in our house?" · "Why did that one go the other way?" · "How am I doing this season?"
 
-> **Status 🟡** — backend ✅ (phase/4a-assistant): `POST /api/assistant`, `server/src/assistant/` (MCP client → own /mcp,
-> offline rule-based router for the demo utterances, Bedrock Converse tool loop ≤3 rounds with offline fallback that never repeats a
-> state change, speaker hint from voice ID); 105 tests, mocked Bedrock only. Device page ✅ (phase/4b-device): `/device/:household` smart display, Web Speech in + speechSynthesis out, typed fallback, agent trace,
+> Historical device milestone: `POST /api/assistant` connects the simulated device to our own MCP server. The device includes speech input/output, typed input, an agent trace, and the
 > MCP App in a sandboxed srcdoc iframe via app-bridge (live-refreshed from polled state) + native fallback card, voice ID / screen
 > speaker picker. Checkpoint 4 passed in headless Chrome (pick in Garcias → Sam's Place iframe in 0.98 s; season answer after restart).
 
@@ -362,14 +336,12 @@ A web page built for a TV across the room ("10-foot UI"): 1920×1080 layout, hug
   4. 1:10–1:50 Live: voice picks from both households, synced lock, fantasy pop-ups ("+3 Maya"), standings reorder on the TV view.
   5. 1:50–2:15 Final podium + AI recap ("Benchwarmer of the night"); "How am I doing this season?" (cross-session memory).
   6. 2:15–2:30 Same server in MCP Inspector / Local Inspector: real MCP 2025-11-25 over Streamable HTTP, MCP App widget.
-  7. 2:30–2:50 Architecture slide (MCP + MCP Apps + Bedrock) and the "official broadcast sync" vision line.
-- **docs/PRODUCT_FEEDBACK.md** per tool (MCP TS SDK v2, MCP Apps/ext-apps, MCP Inspector, Alexa+ docs/Local Inspector, Bedrock, cloudflared): used for / worked / needs work / onboarding / build again? Draft from the friction log.
-- **docs/SUBMISSION.md:** all Devpost fields drafted; track = Alexa+; mini = AWS Builder (+ Open Source if done).
+  7. 2:30–2:50 Architecture slide (MCP + MCP Apps + optional Gemini) and the "official broadcast sync" vision line.
+- **docs/PRODUCT_FEEDBACK.md** per tool (MCP TS SDK v2, MCP Apps/ext-apps, MCP Inspector, Alexa+ docs/Local Inspector, cloudflared): used for / worked / needs work / onboarding / build again? Draft from the friction log.
+- **docs/SUBMISSION.md:** all submission fields drafted for the main Alexa+ track only.
 - **Repo public with MIT license** visible in GitHub's About panel (no collaborator invites needed).
-- *(Optional, Open Source mini)* publish `game/engine.ts` + resolvers as a separate MIT repo `sports-replay-engine` with tests.
 
-> **Status ⬜.** Friction log has 10 entries; docs/AWS.md and docs/VOICE_ID.md exist. README, PRODUCT_FEEDBACK, DEMO_SCRIPT,
-> SUBMISSION, `npm run demo` remain.
+> Historical milestone: submission polish and the combined demo launcher were the remaining tasks.
 
 **Done:** fresh clone → README → working demo in < 15 minutes; video public; submitted by Friday 10:00 AM PT.
 
@@ -516,11 +488,10 @@ down and distance to the bucket key → "3rd and 7 at midfield — will they sco
 ```
 
 ## 12. Cut list (drop in this order)
-1. Open Source mini challenge
 2. TV view Rosters mode + auto-rotation → Draft, Live, and Final modes only
 3. app-bridge rendering in the sim → native React card (keep the real MCP App shown in basic-host)
 4. Local Inspector
-5. AI-generated props + scouting notes → fallback content (keep Bedrock for the recap + the assistant loop so AWS Builder still qualifies)
+5. AI-generated props and scouting notes → committed fallback content
 6. Rank-change animations → static reorder
 7. Season standings (last resort; it's a key "state across sessions" point)
 - **Don't cut:** the draft and the TV standings view. They're the hook and the most visual part of the video.
@@ -530,4 +501,3 @@ down and distance to the bucket key → "3rd and 7 at midfield — will they sco
 - Alexa+ MCP toolkit: https://developer.amazon.com/docs/alexaplus/add-ons/mcp-toolkit-overview · quickstart: …/mcp-toolkit-quickstart · Local Inspector: …/mcp-toolkit-local-inspector
 - MCP Streamable HTTP (2025-11-25): https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#streamable-http
 - MCP Apps + quickstart + basic-host: https://apps.extensions.modelcontextprotocol.io/api/ · https://github.com/modelcontextprotocol/ext-apps
-- Claude on Bedrock (inference profiles): https://platform.claude.com/docs/en/build-with-claude/claude-on-amazon-bedrock-legacy

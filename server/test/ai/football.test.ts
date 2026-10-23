@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { checkText } from '../../src/ai/guardrails.js';
-import { BedrockProvider, FallbackProvider, validateGeneratedProps } from '../../src/ai/providers.js';
+import { GeminiProvider, FallbackProvider, validateGeneratedProps } from '../../src/ai/providers.js';
 import { startAiWorker } from '../../src/ai/worker.js';
 import type { AiContentProvider, AiSink, DraftBoardEntry, Game, PartyLifecycleEvent, Prop, PropGenContext, RecapContext, WatchParty } from '../../src/shared/types.js';
 
@@ -61,9 +61,9 @@ describe('football AI props', () => {
 
   it('fallback and model providers return no props', async () => {
     expect(await new FallbackProvider().generateProps(ctx)).toEqual([]);
-    const send = vi.fn().mockResolvedValue({ output: { message: { content: [{ text: '{"props":[]}' }] } }, usage: { inputTokens: 1, outputTokens: 1 } });
-    expect(await new BedrockProvider({ send }).generateProps(ctx)).toEqual([]);
-    expect(send).not.toHaveBeenCalled();
+    const generateContent = vi.fn();
+    expect(await new GeminiProvider({ generateContent }).generateProps(ctx)).toEqual([]);
+    expect(generateContent).not.toHaveBeenCalled();
   });
 
   it('validation rejects a driveResult resolver', () => {

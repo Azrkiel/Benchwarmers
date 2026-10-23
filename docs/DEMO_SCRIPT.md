@@ -35,7 +35,7 @@ Every utterance below is traced to a router test or rule in the appendix. Tested
 - Show `/display/garcias` and call it a **simulated smart display**. Small is 1280x800; `?size=large` selects 1920x1080; `?clean=1` hides the outer controls after setup. Keep the controls visible for typed input.
 - Keep the MCP Inspector proof segment around 15 seconds and say **30 tools**. For Inspector use your local server and its configured bearer; the production `/mcp` remains protected.
 - Draft Big Mo only once per take. A fresh party or reset is needed before another take; avoid resetting a shared production party during another person's demo.
-- Recording, the public video upload, and the Devpost form remain owner steps. Keep the UNVERIFIED wording in `SUBMISSION.md`: no real Alexa+ device/host, no real-microphone voice-ID proof, and no live Bedrock proof.
+- Recording, the public video upload, and the Devpost form remain owner steps. Keep the UNVERIFIED wording in `SUBMISSION.md`: no real Alexa+ device/host and no real-microphone voice-ID proof.
 
 ### Local rehearsal setup
 - [ ] Node 22+ (HANDOFF says >= 22). `npm ci` at repo root.
@@ -44,7 +44,7 @@ Every utterance below is traced to a router test or rule in the appendix. Tested
 - [ ] `npm run demo` (root) builds the widget and web, then serves both from one Express process (`SPEED=4`). `WEB_PORT` is not used. Ctrl+C stops this demo server.
 - [ ] Check `http://localhost:3031/healthz`. Check `POST http://localhost:3031/mcp` returns 401 without the bearer.
 - [ ] Avast on this machine can stall loopback `/mcp` (HANDOFF §6). If `/mcp` hangs, re-run the take, do not debug live.
-- [ ] `ASSISTANT_MODE` unset or `offline`. Offline needs zero AWS creds. Bedrock is **not** part of this demo.
+- [ ] `ASSISTANT_MODE` unset or `offline`. Offline needs no cloud credentials.
 - [ ] `AI_MODE` unset or `fallback`. Props and recap come from fallback content.
 
 ### Browser and mic
@@ -96,7 +96,7 @@ Run `npm run demo:reset` before the take. Timestamps follow plan §10. Utterance
 | 1:50–2:15 | TV | none, let the game reach its end (about 2:00 after start at SPEED=4) | Final view with podium. `Benchwarmer of the night` from state (`store.ts` ~616). AI recap from fallback content | none |
 | 1:50–2:15 | Austin device | **Voice or typed**: `How am I doing this season?` with Maya as speaker, or type `I'm Maya, how am I doing this season?` | Season standings widget with Maya's row | `get_season_standings` `{memberName:'Maya'}` |
 | 2:15–2:30 | Browser: MCP Inspector, bearer header set | none (narration) | 30 tools listed. Protocol 2025-11-25 over Streamable HTTP. Widget renders from `_meta.ui` | none (not a router call) |
-| 2:30–2:50 | Architecture slide | none (narration) | Architecture: MCP server + MCP App widget + Bedrock (not run in this demo). Vision line | none |
+| 2:30–2:50 | Architecture slide | none (narration) | Architecture: MCP server + MCP App widget + optional Gemini generation. Vision line | none |
 
 Optional inserts (only if time):
 - Agent-trace toggle is on the Austin device at beat 2. Show `Show agent trace` (`data-testid="trace-toggle"`) listing each call. In offline mode it lists one call per turn (see quirks).
@@ -118,7 +118,7 @@ Bonus chips: Sam's pick at about 0.5 s lands in the first 25% of the fb-1 window
 
 **2:15–2:30 Protocol.** "Same server, plain MCP. This is the MCP Inspector: 30 tools, Streamable HTTP, protocol 2025-11-25. The widget is an MCP App."
 
-**2:30–2:50 Architecture.** "MCP server, MCP Apps widget, and Bedrock for the assistant loop and recap. This demo runs offline, with no AWS account, so Bedrock is wired but not exercised here." Then the vision line: "official broadcast sync": "the same party state could drive an official broadcast overlay." Mark it as a vision line, not a built feature.
+**2:30–2:50 Architecture.** "An MCP server connects the assistant to the game, and the MCP App widget displays shared state. Gemini is optional; this demo runs offline with no cloud account." Then the vision line: "official broadcast sync": "the same party state could drive an official broadcast overlay." Mark it as a vision line, not a built feature.
 
 ## 2. Live-beat timing (SPEED=4)
 
@@ -143,7 +143,7 @@ Bonus chips: Sam's pick at about 0.5 s lands in the first 25% of the fb-1 window
 
 ## 3. Known quirks (know before the take)
 
-1. **One tool call per turn in offline mode.** `runOffline` makes exactly one `callTraced` (`offlineRouter.ts` ~167-190). Do not say "multi-step tool calls" in narration. The multi-step Bedrock loop (≤3 rounds) is not run in this demo.
+1. **One tool call per turn in offline mode.** `runOffline` makes exactly one `callTraced` (`offlineRouter.ts` ~167-190). Do not say "multi-step tool calls" in narration. The optional Gemini loop supports up to three tool rounds; it is not run in this offline demo.
 2. **`Priya takes the over` fails in fb-1.** Test 9 expects `ok:false` and `not one of the choices` because the open prop is scoring-first. Works only in an over/under window (section 2). This is timing, not a routing bug (HANDOFF §10).
 3. **Setup creates a new party code.** Put the TV on `/tv/<CODE>` after the setup line. The device page adopts the code from the setup response on the Austin device only. Seattle must reload to see it (`resolvePartyCode` runs on mount).
 4. **No wake word.** The mic button says "Tap to talk"; tap it, then speak.

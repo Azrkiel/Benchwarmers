@@ -58,7 +58,7 @@ Screenshot-adjacent JSON files contain request/status evidence and measured layo
 
 Code, security and cleanup passes found no remaining blocking issue. Forwarding reuses the request parser, size limit, host allowlist, bearer check, transport and cleanup rather than opening a second network hop. The endpoint is intentionally a public demo host, like the public REST API; Origin filtering is a browser safeguard, not user authentication. External clients can call the public demo host without a bearer, and room host/participant authorization remains enforced by the tools. No production secret is copied into web assets or responses.
 
-Recording, real-microphone voice-ID proof, Alexa+ device/host proof and live Bedrock proof were not performed. The submission's UNVERIFIED statements remain.
+Recording, real-microphone voice-ID proof, and Alexa+ device/host proof were not performed. The submission's UNVERIFIED statements remain.
 
 ## Handoff tasks remaining
 

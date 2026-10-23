@@ -135,9 +135,9 @@ describe('trace helpers', () => {
     expect(r.partyCode).toBe('BBBB');
     expect(r.mode).toBe('offline');
 
-    const none = buildResponse({ reply: 'x', calls: [], mode: 'bedrock' });
+    const none = buildResponse({ reply: 'x', calls: [], mode: 'gemini' });
     expect('uiResource' in none).toBe(false);
     expect('partyCode' in none).toBe(false);
-    expect(buildResponse({ reply: 'x', calls: [], mode: 'bedrock', requestPartyCode: 'REQ1' }).partyCode).toBe('REQ1');
+    expect(buildResponse({ reply: 'x', calls: [], mode: 'gemini', requestPartyCode: 'REQ1' }).partyCode).toBe('REQ1');
   });
 });

@@ -2,7 +2,7 @@
 
 Building a shared sports game night with MCP tools, an MCP App, and a simulated smart display.
 
-**Recorded October 20–23, 2026.** This is the main feedback document. The [original dated notes](docs/FRICTION_LOG.md) preserve detailed diagnostics; [product feedback](docs/PRODUCT_FEEDBACK.md) covers the wider tool evaluation.
+**Main Alexa+ track. Recorded October 20–23, 2026.** This is the main feedback document. The [original dated notes](docs/FRICTION_LOG.md) preserve detailed diagnostics; [product feedback](docs/PRODUCT_FEEDBACK.md) covers the wider tool evaluation.
 
 The MCP server, widget, and credential-free demo gave us a workable foundation. Most integration friction came from connecting that foundation to authenticated hosts, Windows networking, and browser voice inference. The entries below describe the versions we used, rather than claiming the same behavior in every release.
 
@@ -150,7 +150,7 @@ Legacy household instructions, newer room flows, old tool counts, and historical
 
 The recorded work demonstrates MCP calls, widget rendering in tested hosts, scripted gameplay, and credential-free local operation. Linux onboarding recorded 991 passing server tests with one skipped, 607 passing web tests, successful type checks and builds, and a passing basketball service smoke check. These are October 23 results, not a promise about later candidates.
 
-Physical Alexa/Echo execution, real-person microphone accuracy, and live Bedrock execution remain unverified in this evidence. Typed simulator turns, synthetic voices, and mocked provider tests should be described by their actual input and execution mode. The final-screen visual issue above remains a separate recording check.
+Physical Alexa/Echo execution and real-person microphone accuracy remain unverified in this evidence. Typed simulator turns, synthetic voices, and mocked provider tests should be described by their actual input and execution mode. The final-screen visual issue above remains a separate recording check.
 
 See [submission scope](docs/SUBMISSION.md) and [recording preparation](docs/DEMO_SCRIPT.md) for the demonstrated workflow.
 

@@ -97,7 +97,7 @@ try {
       const devicePaths = ['/dev/snd', '/dev/video0', '/dev/nvidia0'];
       const devices = [];
       for (const device of devicePaths) devices.push({ path: device, exposed: await exists(device) });
-      const variableNames = ['GEMINI_API_KEY', 'GEMINI_API_KEYS', 'AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SESSION_TOKEN', 'BEDROCK_MODEL_ID', 'CHROMIUM_PATH'];
+      const variableNames = ['GEMINI_API_KEY', 'GEMINI_API_KEYS', 'CHROMIUM_PATH'];
       return { platform: os.platform(), arch: os.arch(), logicalCpus: os.availableParallelism(), memoryBytes: os.totalmem(), devices, bindings: variableNames.map(name => ({ name, present: !!process.env[name] })), microphone: 'not verified', echo: 'not accessible', alexaConsole: 'not verified', speech: 'browser simulation only; no hardware claim' };
     });
   } else if (command === 'tracking') {

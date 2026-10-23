@@ -109,10 +109,9 @@ describe('POST /api/assistant validation', () => {
   });
 });
 
-describe('bedrock mode', () => {
-  it('falls back to offline with no model id', async () => {
-    setEnv('ASSISTANT_MODE', 'bedrock');
-    setEnv('BEDROCK_MODEL_ID', undefined);
+describe('Gemini mode', () => {
+  it('uses offline for an unsupported mode', async () => {
+    setEnv('ASSISTANT_MODE', 'unsupported');
     const r = await post(srv.base, { text: "I'm Maya, draft Big Mo", household: 'garcias', partyCode: 'DEMO' });
     expect(r.status).toBe(200);
     const j = (await r.json() as any);
@@ -127,19 +126,17 @@ describe('bedrock mode', () => {
     const app = express();
     mountMcp(app, { store, token });
     const replies = [
-      { content: [{ toolUse: { toolUseId: 't1', name: 'get_leaderboard', input: {} } }], stopReason: 'tool_use' },
-      { content: [{ text: 'Nobody has scored yet.' }], stopReason: 'end_turn' },
+      { parts: [{ functionCall: { id: 't1', name: 'get_leaderboard', args: {} } }] },
+      { parts: [{ text: 'Nobody has scored yet.' }] },
     ];
     let n = 0;
-    const send = vi.fn(async () => {
+    const generateContent = vi.fn(async () => {
       const r = replies[n++];
       return {
-        output: { message: { role: 'assistant', content: r.content } },
-        stopReason: r.stopReason,
-        usage: { inputTokens: 1, outputTokens: 1 },
+        candidates: [{ content: { role: 'model' as const, parts: r.parts }, finishReason: 'STOP' }],
       };
     });
-    app.use(createAssistantRouter({ token, mode: 'bedrock', bedrock: { send }, modelId: 'test-model' }));
+    app.use(createAssistantRouter({ token, mode: 'gemini', gemini: { generateContent } }));
     const server = await new Promise<http.Server>((resolve) => {
       const s = app.listen(0, '127.0.0.1', () => resolve(s));
     });
@@ -148,7 +145,7 @@ describe('bedrock mode', () => {
       const r = await post(base, { text: 'who is ahead', household: 'garcias', partyCode: 'DEMO' });
       expect(r.status).toBe(200);
       const j = (await r.json() as any);
-      expect(j.mode).toBe('bedrock');
+      expect(j.mode).toBe('gemini');
       expect(j.reply).toBe('Nobody has scored yet.');
       expect(j.toolCalls).toHaveLength(1);
       expect(j.toolCalls[0].name).toBe('get_leaderboard');
