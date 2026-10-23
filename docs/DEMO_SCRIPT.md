@@ -6,6 +6,15 @@ Every utterance below is traced to a router test or rule in the appendix. Tested
 
 ## 0. Pre-recording checklist
 
+### Production laptop setup (2026-10-23)
+
+- Use `https://benchwarmers.fly.dev` for the take. `/display/garcias` and `/device/garcias` load the real MCP widget through the same-origin host; no browser token setup is needed. Type `Who's winning?` before recording to check the Tonight tab.
+- The laptop is the TV: use F11 at the normal browser zoom (1920x1080 panel, 125% Windows scaling -> 1536x864 CSS pixels). Use `/room/<CODE>/tv` for football rooms or `/tv/<CODE>` for household parties.
+- Show `/display/garcias` and call it a **simulated smart display**. Small is 1280x800; `?size=large` selects 1920x1080; `?clean=1` hides the outer controls after setup. Keep the controls visible for typed input.
+- Keep the MCP Inspector proof segment around 15 seconds and say **22 tools**. For Inspector use your local server and its configured bearer; the production `/mcp` remains protected.
+- Draft Big Mo only once per take. A fresh party or reset is needed before another take; avoid resetting a shared production party during another person's demo.
+- Recording, the public video upload, and the Devpost form remain owner steps. Keep the UNVERIFIED wording in `SUBMISSION.md`: no real Alexa+ device/host, no real-microphone voice-ID proof, and no live Bedrock proof.
+
 ### Setup
 - [ ] Node 22+ (HANDOFF says >= 22). `npm ci` at repo root.
 - [ ] Ports free. Codex's Vite owns **5173** on this machine (HANDOFF §3). Use `WEB_PORT=5175`. Server `PORT=3001` (default).

@@ -45,7 +45,7 @@ Benchwarmers is a free-to-play, one-night fantasy league plus live pick'em for w
 ## How we built it
 
 - **MCP server** (Node 22, TypeScript strict, Express 5, official MCP TypeScript SDK). Spec **2025-11-25**, Streamable HTTP, stateless transport, bearer auth. **22 tools**. Watch party (11): `setup_watch_party`, `join_watch_party`, `start_watch_party`, `get_game_status`, `explain_last_result`, `get_my_roster`, `draft_player`, `list_available_players`, `get_leaderboard`, `get_season_standings`, `make_pick`. Football rooms (11): `room_create`, `room_join`, `room_host`, `room_list`, `room_status`, `room_player_pool`, `room_set_lineup`, `room_auto_lineup`, `room_predict`, `room_leaderboard`, `room_season`. Also a `watch_party_host` prompt and two resources, `benchwarmers://rules` and `benchwarmers://room-rules`. Tools answer in under 500 ms.
-- **MCP App widget** (`@modelcontextprotocol/ext-apps`), a single-file 246 kB HTML bundle served as a `ui://` resource.
+- **MCP App widget** (`@modelcontextprotocol/ext-apps`), a single-file 343 kB HTML bundle (135 kB gzip), including embedded Barlow fonts, served as a `ui://` resource. Our simulated display and device host use a same-origin server endpoint that keeps the MCP bearer token out of the browser.
 - **Game engine.** Pure functions: server-owned clock, prop lifecycle, three resolvers, streaks, draft with auto-fill, fantasy scoring, standings and tiebreaks, season roll-up. The engine, not the model, decides who is right. State is a JSON file store, so sessions survive restarts.
 - **Amazon Bedrock** (Converse API, Claude Haiku tier) in two places. (1) A background worker writes prop wording, plain-language explanations, the end-of-night recap and scouting notes, validated with zod, with one retry and a deterministic fallback. (2) A device assistant loop (`POST /api/assistant`) does tool use against our own `/mcp` through an MCP client, at most 3 rounds. Tools never call Bedrock synchronously, which is how we keep the latency budget.
 - **Offline path.** `AI_MODE=fallback` and `ASSISTANT_MODE=offline` run the whole demo with zero AWS credentials: committed JSON content and a rule-based router for the demo utterances.
@@ -53,13 +53,13 @@ Benchwarmers is a free-to-play, one-night fantasy league plus live pick'em for w
 - **Voice ID** (`web/src/voiceid/`): 16 kHz capture, WavLM x-vector (`Xenova/wavlm-base-plus-sv`) in a Web Worker through transformers.js, an MFCC fallback and instant first guess, per-member enrollment, nearest-centroid match with threshold 0.70 and margin 0.05. Everything runs on the device; audio and embeddings never go to the server. Output is a `SpeakerHint` passed to the assistant.
 - **Process.** Contract-first (one shared types file), per-phase branches with file ownership, parallel agents for backend, TV view and voice ID. `docs/ORCHESTRATION.md` has the details.
 
-Verified numbers (from `docs/HANDOFF.md`):
+Verified numbers (2026-10-23 checks; older timing measurements from `docs/HANDOFF.md`):
 
 | Check | Result |
 | --- | --- |
-| Server tests | 519 passing |
-| Web tests | 274 passing |
-| MCP tools | 11 |
+| Server tests | 744 passing |
+| Web tests | 494 passing |
+| MCP tools | 22 |
 | MCP protocol negotiated | 2025-11-25 (Inspector, ext-apps basic-host, and a cloudflared tunnel initialize) |
 | Voice ID embed time | 0.9-2.1 s per clip (was 7.4 s before tuning) |
 | Voice ID separation (headless Chrome, TTS voices) | held-out own-speaker 0.80 or higher |
@@ -79,7 +79,7 @@ Full detail is in `docs/FRICTION_LOG.md` (and the per-tool write-up in `docs/PRO
 
 ## Accomplishments that we're proud of
 
-- A real MCP 2025-11-25 server with 22 tools, a prompt, two resources and an MCP App, passing 742 server tests and 483 web tests, and checked in three independent MCP clients.
+- A real MCP 2025-11-25 server with 22 tools, a prompt, two rules resources and an MCP App, passing 744 server tests and 494 web tests, and checked in three independent MCP clients.
 - A whole party that plays end to end offline in one command (`npm run play -w server` prints standings and "Benchwarmer of the night: Big Mo"), so judges need no AWS account.
 - Two households staying in sync within about 1 s (0.98 s in Checkpoint 4) with identical lock times from a server-owned clock.
 - On-device speaker recognition that removes "I'm Maya" from every request, without sending any audio off the device.
@@ -182,7 +182,7 @@ Deadline Fri 2026-10-23 12:00 PM PT. **Aim to submit by 10:00 AM PT.**
 
 Before recording
 - [x] Gemini commits published on `dev`; `dev` merged to `main` (PR #1). Merge phase 6 the same way.
-- [ ] Confirm the repo is public with the MIT license showing in GitHub's About panel.
+- [x] Confirm the repo is public with the MIT license (GitHub repository API, 2026-10-23).
 - [ ] Fresh-clone test: README steps -> working demo in under 15 minutes (`npm ci`, `npm run typecheck && npm test`, `npm run play -w server`). Re-run the server tests if they flake.
 - [ ] AWS: do the proof checklist above (or decide to ship with the honest wording).
 - [ ] Optional: try the Alexa+ Local Inspector or Private Preview if you can get access. Do not claim it otherwise.
