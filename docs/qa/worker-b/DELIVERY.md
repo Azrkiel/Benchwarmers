@@ -41,8 +41,9 @@ Not covered by this run: a spoken command through a real microphone, restart mid
 | P08.1 | Done | Via P00.3. |
 | P08.2-P08.6 | Done | SVG ball/hoop/confetti, unseen-score-event trigger, bounded queue, synthesized sound with explicit enable/mute/volume, reduced-motion banner. |
 | P08.7 | Done | Winner/tied winners first; Season after 6 s (host earlier); reload quiet. |
-| P10.6, P10.8, P11.5, P11.7, P13.4, P13.5 | Not started | Waiting for A's ledger/quote/call/market services (brief: B5 after A publishes). |
-| P14.2-P14.6, P15.3-P15.4 | Not started | No physical device or Alexa developer access on this machine. |
+| P10.6, P10.8, P11.5, P11.7, P13.4, P13.5 | Built, dormant | Screens and tests done against the plan's contracts (`CommitPoints`, `BankPanel`, `CreateCall`, `Calls`, `PregamePick`); hidden until the snapshot carries the fields. Exact field/route requests: `CONTRACT_REQUESTS.md`. Dev preview `/preview/points`. Voice commitment phrases parse to commit commands that refuse without mutating until A's P10.7 service exists. Not connected: A's services do not exist yet. |
+| P14.2-P14.6 | Blocked | No physical device or Alexa developer access; assessment in `DEVICE_AND_TRACKING.md`. |
+| P15.3-P15.4 | Done (prototype + assessment) | Bounded ball tracking in `BasketballCourt`; benefit assessment in `DEVICE_AND_TRACKING.md`. |
 
 ## Owned paths changed
 
@@ -62,8 +63,8 @@ No root scripts, manifests, lockfile, deployment config, or A-owned files were e
 
 ## Commands and observed results (latest run)
 
-- `npx vitest run --root web`: 569 passed.
-- `npx vitest run --root server --maxWorkers=6`: 52 files, 829 passed (includes A's basketball suites).
+- `npx vitest run --root web`: 591 passed.
+- `npx vitest run --root server --maxWorkers=6`: 52 files, 831 passed (includes A's basketball suites).
 - `npm run typecheck` (server, widget, web): passed. `npm run build:widget -w server`: passed.
 - Chromium (Playwright, headless): homepage 5 viewports; display 6 fixture states x 960x480 / 1280x800 / 1920x1080; live football room display + Escape focus; phone 360x800 join -> auto-lineup -> live pick "✓ Touchdown accepted", no horizontal overflow; celebration timed frames (score already updated at overlay mount, ball reaches rim ~1.1 s, label ~1.1-2.0 s, removed by ~2.2 s; reduced motion 1.4 s static banner; focus unchanged; pointer-events none).
 
