@@ -151,6 +151,14 @@ describe('football rooms', () => {
     expect(String(vi.mocked(fetch).mock.calls[0][1]?.body)).toContain('"gameId":"harbor-vs-summit"');
   });
 
+  it('explains GAME_NOT_SUPPORTED without creating anything', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json({ error: 'Game is not supported', code: 'GAME_NOT_SUPPORTED' }, 400)));
+    render(<MemoryRouter><Routes><Route path="/" element={<HostRoomForm />} /><Route path="/room/:code" element={<p>Room opened</p>} /></Routes></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Create party' }));
+    expect((await screen.findByRole('alert')).textContent).toBe("Basketball isn't available on this server yet. Choose another game.");
+    expect(localStorage.getItem('bw.room.ABCD')).toBeNull();
+  });
+
   it('says so when an older server ignores the basketball choice', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => json({ view: fixture, hostToken: 'host-private' })));
     render(<MemoryRouter><Routes><Route path="/" element={<HostRoomForm />} /><Route path="/room/:code" element={<p>Room opened</p>} /></Routes></MemoryRouter>);

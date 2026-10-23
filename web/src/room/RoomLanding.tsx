@@ -58,7 +58,10 @@ export function HostRoomForm({ onCancel }: { onCancel?: () => void }) {
       // dropping the host into the wrong sport.
       if (game.id !== roomSport(result.view)) { setFallbackCode(code); return; }
       navigate(`/room/${code}`);
-    } catch (problem) { if (!controller.current.signal.aborted) setError(errorMessage(problem)); }
+    } catch (problem) {
+      if (controller.current.signal.aborted) return;
+      setError(problem instanceof RoomRequestError && problem.code === 'GAME_NOT_SUPPORTED' ? `${game.label} isn't available on this server yet. Choose another game.` : errorMessage(problem));
+    }
     finally { if (!controller.current?.signal.aborted) setBusy(false); }
   }
   return <form className="rm-host-form" onSubmit={create} aria-label="Host a party">

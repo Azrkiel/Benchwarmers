@@ -32,7 +32,7 @@ export function rememberPlayer(code: string, view: RoomView, participantToken: s
   return credentials;
 }
 export class RoomRequestError extends Error {
-  constructor(message: string, public status: number) { super(message); }
+  constructor(message: string, public status: number, public code?: string) { super(message); }
 }
 export async function roomRequest<T>(path: string, options: { body?: unknown; token?: string; signal?: AbortSignal } = {}): Promise<T> {
   const controller = new AbortController();
@@ -47,7 +47,7 @@ export async function roomRequest<T>(path: string, options: { body?: unknown; to
       body: options.body === undefined ? undefined : JSON.stringify(options.body), signal: controller.signal,
     });
     const data = await response.json();
-    if (!response.ok) throw new RoomRequestError(typeof data.error === 'string' ? data.error : typeof data.message === 'string' ? data.message : `The room request failed (${response.status}).`, response.status);
+    if (!response.ok) throw new RoomRequestError(typeof data.error === 'string' ? data.error : typeof data.message === 'string' ? data.message : `The room request failed (${response.status}).`, response.status, typeof data.code === 'string' ? data.code : undefined);
     return data as T;
   } catch (error) {
     if (controller.signal.aborted && !options.signal?.aborted) throw new Error('The room took too long to respond. Try again.');
