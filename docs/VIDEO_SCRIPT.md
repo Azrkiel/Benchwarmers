@@ -101,6 +101,33 @@ This script follows the **current room flow** on `main`: homepage, two phones, s
 
 ---
 
+## Graphics and transitions
+
+Everything is in `docs/video/`. Open `graphics.html` in a browser to preview each graphic and play its animation. The rendered files are in `docs/video/renders/`.
+
+| Where in the script | File | How to use it |
+|---|---|---|
+| 0:12–0:20 title card | `title.mp4` (4.5 s; animates in, holds, then the text lifts out) | Put it on its own track. Start the VO line as the tagline lands, about 1 s in |
+| 0:20 Maya and Leo on their phones | `lt-maya`, `lt-leo` (4 s each) | Overlay them as each phone first appears |
+| Every Scene B shot | `lt-sim` | Overlay it the first time the smart display appears. Once is enough |
+| Any cut that skips game time | `lt-sped` | Required wherever you shorten the replay |
+| Only if a request was typed | `lt-typed` | Overlay it on that request |
+| 2:15–2:40 under the hood | `diagram.mp4` (7 s build, then hold the last frame) | Freeze the last frame for the rest of the beat. Cut to the MCP calls panel at about 2:28 |
+| 2:40–2:50 close | `end.mp4` (5 s) | Hold it to the end |
+| Between beats | `wipe` (1 s, cut at 0.5 s) | Use it at 0:20, 0:45, 1:50 and 2:15. Don't use it on every cut |
+| Fast cuts inside a beat | `whip` (0.6 s, cut at 0.3 s) | Smart display → shared display, for example |
+
+**Formats.** Each overlay comes in three versions:
+- `.webm` keeps transparency. It works in OBS, DaVinci Resolve, Premiere and Shotcut.
+- `-green.mp4` is for editors that only chroma-key, like CapCut and Clipchamp. Key out the green.
+- `.png` is the still at the overlay's key moment.
+
+**Stinger in OBS.** Go to Scene Transitions → Stinger, choose `wipe.webm`, and set the transition point to 500 ms (`whip.webm`: 300 ms).
+
+**Live in OBS.** Add a Browser source at 1920×1080 pointing at `docs/video/graphics.html?scene=lt-sim&alpha=1`. Turn on "Refresh browser when scene becomes active" so the animation replays.
+
+**Re-render after edits.** Run `node tools/video/render.mjs`, or name the scenes to render, like `node tools/video/render.mjs title end`. It needs ffmpeg and the root `playwright` devDependency.
+
 ## Before you record
 
 - [ ] Fresh room for every take. Never reset a shared production room. (`npm run demo` locally, or `https://benchwarmers.fly.dev`.)
