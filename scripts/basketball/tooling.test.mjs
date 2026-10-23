@@ -3,11 +3,37 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { Blocked, Report, assertGame, exists, prepareState, sha256, writeJson } from './common.mjs';
+import { Blocked, Report, Server, assertGame, exists, prepareState, sha256, writeJson } from './common.mjs';
+import { createServer } from 'node:http';
 import { backup, restore } from './storage.mjs';
 import { candidateEvidence, requireEvidence, requireLoadEvidence } from './evidence.mjs';
 import { spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+
+test('service transport preserves UTF-8 JSON, credentials and status assertions', async t => {
+  const server = createServer(async (req, res) => {
+    let text = ''; for await (const chunk of req) text += chunk;
+    res.writeHead(req.url === '/status' ? 418 : 200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ method: req.method, authorization: req.headers.authorization, body: text ? JSON.parse(text) : null }));
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const client = new Server('', server.address().port);
+  const result = await client.request('/echo', { body: { name: 'Zoë 🏀' }, token: 'synthetic-credential' });
+  assert.deepEqual(result.body, { method: 'POST', authorization: 'Bearer synthetic-credential', body: { name: 'Zoë 🏀' } });
+  assert.equal((await client.request('/status', { expected: 418 })).status, 418);
+  await assert.rejects(client.request('/status'), /expected 200, got 418/);
+});
+
+test('service deadline covers both stalled headers and a stalled response body', async t => {
+  const server = createServer((req, res) => {
+    if (req.url === '/body') { res.writeHead(200); res.write('{'); }
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => { server.closeAllConnections(); return new Promise(resolve => server.close(resolve)); });
+  const client = new Server('', server.address().port);
+  for (const route of ['/headers', '/body']) await assert.rejects(client.request(route, { timeout: 50 }), error => error.name === 'AbortError');
+});
 
 async function directory(t) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bw-c-tooltest-'));

@@ -1,5 +1,7 @@
 # Worker C handoff
 
+> Integrated status: A, B and C are now combined on `feature/basketball-backend`. See [the current integration record](../../ABC_INTEGRATION.md) for verification and startup. The independent-delivery instructions and original reports below are historical; do not reapply those commits to the combined branch.
+
 This folder and `scripts/basketball/` are C's independent delivery. Copy or cherry-pick C's change onto A/B's candidate; there is no dependency on a Windows worktree or files outside this repository. The root manifest adds only Playwright 1.56.1 plus named integration scripts; no server/web dependencies change. Resolve a concurrent lockfile change by retaining the candidate's dependency requirements and regenerating the shared lockfile once; do not replace it wholesale.
 
 After preserving your local work, fetch C's independent branch and apply its commit(s) to your own integration candidate:

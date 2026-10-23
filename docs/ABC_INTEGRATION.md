@@ -27,6 +27,7 @@ For C's isolated rehearsal, use `npm run demo:basketball` on port 3037 and follo
 ## Integration fixes
 
 - C's browser runner now opens B's host panel, explicitly selects the requested sport and uses the combined display/receipt selectors by default. Its real API, sport identity, privacy, response-loss and final/restart assertions remain intact.
+- C's local HTTP controller uses Node's native HTTP client with the same ten-second deadline. A diagnostic run showed the server continuing to tick during fetch-controller stalls; changing only that transport produced a complete zero-error load run. This isolates an observed harness problem without claiming a proven upstream Node defect. Transport tests cover UTF-8 JSON, credential headers, status assertions and deadlines during both header and body stalls.
 - README and the demo banner now describe both sports, the combined display route and the actual 30-tool MCP surface.
 - [The selector contract](qa/worker-c/SELECTORS.md) documents the current defaults and optional legacy-form overrides. A separate selector JSON is no longer needed for the combined interface.
 
@@ -36,4 +37,4 @@ The previous host-form failure was reproduced before the fix. Afterward, the ful
 
 ## External acceptance
 
-Local application integration does not verify licensed provider access, real-game timing, physical Echo/Alexa audio, continuous tracking, production topology or deployment. These remain explicit gates in [backend status](BACKEND_COMPLETION.md) and [C's release criteria](qa/worker-c/RELEASE_GATES.md). Ordinary startup retains fictional scripted play and conservative feature defaults.
+Licensed provider access, real-game timing, continuous tracking, production topology and deployment remain outside this local integration. The current device target is the simulated smart display, as recorded in [B's device scope](qa/worker-b/DEVICE_AND_TRACKING.md); physical Echo/Alexa validation is excluded from that scope, and no real-device claim is made. See [backend status](BACKEND_COMPLETION.md) and [C's release criteria](qa/worker-c/RELEASE_GATES.md) for future service gates. Ordinary startup retains fictional scripted play and conservative feature defaults.

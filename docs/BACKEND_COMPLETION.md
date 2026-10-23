@@ -1,5 +1,7 @@
 # Backend completion and remaining evidence
 
+> Combined-app follow-up: [A/B/C integration](ABC_INTEGRATION.md) supersedes the browser-runner and combined-candidate status recorded below. This file preserves the backend checkpoint and its original evidence.
+
 October 23, 2026. Continues `1e96ec5` in the existing isolated `feature/basketball-backend` worktree. This record distinguishes tested implementation from real-provider, hardware and release acceptance. The user confirmed no licensed basketball data access and asked to finish all remaining backend work.
 
 ## Implemented in this wave
