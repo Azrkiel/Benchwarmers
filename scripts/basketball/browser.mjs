@@ -7,13 +7,14 @@ export const browserSmokeChecks = ['host-ui', 'join-lineup-ui', 'pick-ui', 'type
 export const browserChecks = [...browserSmokeChecks, 'lost-response-ui', 'final-restart-ui'];
 // CSS overrides let B adapt labels without weakening assertions or substituting fixtures.
 export const defaultSelectors = {
-  roomName: '#rm-room-name', create: 'button:text-is("Create room")',
+  hostOpen: 'button:text-is("Host a party")', gameChoice: 'input[name="rm-game"][value="{game}"]',
+  roomName: '#rm-room-name', create: 'button:text-is("Create party")',
   name: '#rm-name', join: 'button:text-is("Join room")', autoLineup: 'button:text-is("Auto-pick lineup")',
   hostPanel: '.rm-phone-host > summary', start: 'button:text-is("Start game")',
   option: '.rm-options button:not([disabled])', command: '#rm-command', send: '.rm-assistant button:text-is("Send")',
-  displayPath: '/room/{code}/tv', receipt: '.rm-question [role="status"], .rm-pick-saved, .rm-pick-status',
+  displayPath: '/room/{code}/display', receipt: '.rm-receipt',
   final: '.rm-podium, [aria-label="Final standings"]',
-  homeScore: '.rm-bug-team.is-home > b', awayScore: '.rm-bug-team.is-away > b',
+  homeScore: '.rd-team.is-home .rd-team-score', awayScore: '.rd-team.is-away .rd-team-score',
 };
 export async function browserScenario(server, game, report, options) {
   const { chromium } = await import('playwright');
@@ -51,6 +52,8 @@ export async function browserScenario(server, game, report, options) {
     const display = await pageFor({ width: 960, height: 480 });
     if (!await report.check('host-ui', async () => {
       await phone.goto(server.base);
+      if (!await phone.locator(selectors.roomName).isVisible() && selectors.hostOpen) await click(phone, 'hostOpen');
+      if (selectors.gameChoice) await phone.locator(selectors.gameChoice.replace('{game}', game)).check();
       await phone.locator(selectors.roomName).fill('C connected browser');
       const created = post(phone, '/api/rooms'); await click(phone, 'create');
       const response = await created; assert.equal(response.status(), 201);

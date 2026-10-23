@@ -37,7 +37,7 @@ console.log(`
  MCP endpoint      ${api}/mcp   (bearer authentication required)
  Health            ${api}/healthz
  Public tunnel     cloudflared tunnel --url ${api}
- Replay            Morning Wood vs Swiss Cheese · fictional script
+ Replays           Harbor vs Summit (basketball) / Morning Wood vs Swiss Cheese (football)
  Room speed        ROOM_SPEED=${env.ROOM_SPEED} (host can change1–4x)
  AI mode           ${env.AI_MODE} / ${env.ASSISTANT_MODE}
  Saved rooms       server/data/rooms.json (override ROOM_DATA_FILE)
