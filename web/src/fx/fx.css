@@ -1,6 +1,7 @@
 ﻿/* Short event banner: one horizontal focal point, with game content still visible. */
+/* Layers: content < reconnect banners (30) < dialogs (40) < toasts (58) < play banner (60, placed below the header row). */
 .fx-banner,.fx-burst-layer,.fx-toast-layer { pointer-events:none; }
-.fx-banner { --fx-accent:#f51825; position:fixed; inset:5% 5% auto; min-height:130px; z-index:60; display:grid; place-items:center; overflow:hidden; }
+.fx-banner { --fx-accent:#f51825; position:fixed; inset:16% 5% auto; min-height:130px; z-index:60; display:grid; place-items:center; overflow:hidden; }
 .fx-banner-sweep { position:absolute; inset:0; background:#1a1a1af5; border-left:8px solid var(--fx-accent); border-bottom:1px solid #4b4d52; animation:fx-sweep 1.8s ease both; }
 .fx-banner-body { position:relative; display:grid; justify-items:center; gap:8px; color:#fff; text-align:center; padding:16px 32px; animation:fx-land 1.8s ease both; }
 .fx-banner-body > strong { font:600 76px/1 Barlow Condensed,Barlow,Arial,sans-serif; text-transform:uppercase; }

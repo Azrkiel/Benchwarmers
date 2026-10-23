@@ -84,6 +84,7 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
             </article>
           );
         })}
+        {rows.length === 0 ? <p className="tv-muted">No players yet.</p> : null}
       </div>
     </section>
   );

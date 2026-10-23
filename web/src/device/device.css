@@ -79,8 +79,8 @@ body:has(.device-stage) {
 .party-chip {
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid var(--dv-accent);
-  color: var(--dv-accent);
+  border: 1px solid var(--bw-link);
+  color: var(--bw-link);
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
   font-size: 0.95rem;
   letter-spacing: 0.12em;
@@ -603,7 +603,7 @@ body:has(.device-stage) {
 .ds-tv-link { color:var(--bw-link,#ff7b86);min-height:44px;display:flex;align-items:center; }
 .ds-retry { padding:0 22px;color:var(--dv-muted);font-size:14px; }
 .ds-suggestions { display:flex; flex-wrap:wrap; gap:8px; padding:12px 22px 0; }
-.ds-suggestions button,.ds-new { background:var(--dv-panel-2); color:var(--dv-text); border:1px solid var(--dv-line); min-height:44px; border-radius:4px; padding:8px 12px; font:600 14px var(--dv-font); cursor:pointer; }
+.ds-suggestions button,.ds-new { background:var(--dv-panel-2); color:var(--dv-text); border:1px solid var(--bw-control-line); min-height:44px; border-radius:4px; padding:8px 12px; font:600 14px var(--dv-font); cursor:pointer; }
 .ds-new { position:sticky; bottom:0; align-self:center; }
 .ds-mic { width:56px; height:56px; color:#fff; }
 .ds-mic-wrap { width:72px; }
@@ -626,7 +626,7 @@ body:has(.device-stage) {
  .ds-send { height:48px; padding:0 16px; }
  .ds-mic-wrap { width:72px; }
  .ds-mic { width:44px;height:44px; }
- .ds-mic-hint { font-size:.7rem; margin-top:4px; }
+ .ds-mic-hint { font-size:.75rem; margin-top:4px; }
  .ds-input-area { flex-wrap:nowrap;gap:8px; }
  .ds-type { width:auto; }
  .ds-head {padding:12px;}

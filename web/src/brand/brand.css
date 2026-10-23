@@ -7,7 +7,7 @@
   --lg-sans:'Barlow','Segoe UI',Arial,sans-serif;
   --lg-serif:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
   --bw-action:#c8102e; --bw-action-hover:#a80e27; --bw-link:#ff7b86;
-  --bw-warning:#f5b942; --bw-radius:6px; --bw-focus:#fff;
+  --bw-warning:#f5b942; --bw-control-line:#73767d; --bw-radius:6px; --bw-focus:#fff;
 }
 .bw-brand { display:inline-flex; align-items:center; gap:.38em; color:var(--lg-text); text-decoration:none; }
 .bw-brand > svg { flex:none; width:1.05em; height:1.05em; color:var(--lg-orange); }

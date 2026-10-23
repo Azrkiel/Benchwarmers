@@ -29,7 +29,7 @@ export function GameOverview({ state, onNavigate, now = state.serverNow }: { sta
         </div> : null}
       </section>
       <section className="tv-room-overview" aria-labelledby="tv-room-title">
-        <header><h2 id="tv-room-title">Standings</h2><span>{rows.length} players · Points</span></header>
+        <header><h2 id="tv-room-title">Standings</h2><span>{rows.length} {rows.length === 1 ? 'player' : 'players'} · Points</span></header>
         <div className="tv-room-grid" tabIndex={0} role="region" aria-label="Party standings" data-tv-scroll>
           {rows.map((row) => (
             <article className={`tv-room-card${row.rank === 1 ? ' is-leader' : ''}`} key={row.memberId}>

@@ -4,6 +4,17 @@ import { ScoreTick } from '../fx/fx';
 import { useFlip } from '../tv/flip';
 import { ordinal, playLabel } from './moments';
 
+/** Black or white text, whichever reads better on a team colour. */
+export function inkOn(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return '#fff';
+  const n = parseInt(m[1]!, 16);
+  const lin = (c: number) => { const v = c / 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  const L = 0.2126 * lin(n >> 16) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  return (L + 0.05) / 0.05 > 1.05 / (L + 0.05) ? '#0b0b0d' : '#fff';
+}
+
+
 export const statLine = (text: string) => text.replace(/\s*\(proxy\)/g, '');
 export const points = (value: number) => Number(value || 0).toFixed(1);
 export const money = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
@@ -59,14 +70,14 @@ export function FootballField({ view }: { view: RoomView }) {
   const offense = game.possession === game.home.id ? game.home : game.possession === game.away.id ? game.away : undefined;
   return <section className="rm-field-wrap" role="region" aria-label="Football field">
     <div className="rm-field">
-      <span className="rm-endzone" style={{ background: game.away.color }}>{game.away.short}</span>
+      <span className="rm-endzone" style={{ background: game.away.color, color: inkOn(game.away.color) }}>{game.away.short}</span>
       <div className="rm-yardlines">
         {[10, 20, 30, 40, 50, 40, 30, 20, 10].map((yard, i) => <span key={i}>{yard}</span>)}
         {dir ? <span className="rm-los" style={{ left: `${x}%` }} aria-hidden="true" /> : null}
         {gain !== undefined ? <span className="rm-gain" style={{ left: `${gain}%` }} aria-hidden="true" /> : null}
         <span className={`rm-ball${dir < 0 ? ' is-left' : ''}`} style={{ left: `${x}%` }} aria-label="Ball" />
       </div>
-      <span className="rm-endzone" style={{ background: game.home.color }}>{game.home.short}</span>
+      <span className="rm-endzone" style={{ background: game.home.color, color: inkOn(game.home.color) }}>{game.home.short}</span>
     </div>
     <div className="rm-situation">
       <strong>{offense ? `${offense.name} ball` : view.room.phase === 'final' ? 'Game over' : 'Between drives'}</strong>
@@ -130,6 +141,7 @@ export function Question({ view, busy = false, onPick, tv = false }: { view: Roo
       const className = `${winner ? 'is-winner' : ''}${question.result && !winner ? ' is-out' : ''}${selected ? ' is-selected' : ''}`;
       return tv ? <div key={option.id} className={`rm-option-info ${className}`}>{content}</div> : <button key={option.id} className={className} disabled={!onPick || busy || currentAttempt?.status === 'saving' || !editable} aria-pressed={selected} onClick={() => { void pick(question.id, option.id); }}>{content}</button>;
     })}</div>}
+    {!tv && <span className="rm-sr-only" role="status">{currentAttempt?.status === 'saved' ? `Pick saved: ${question?.options.find(o => o.id === currentAttempt.optionId)?.label ?? ''}` : ''}</span>}
     {currentAttempt?.status === 'failed' && <div className="rm-pick-failure"><p role="alert">Pick not saved. Try again.</p>{editable && <button disabled={busy} onClick={() => { void pick(currentAttempt.questionId, currentAttempt.optionId); }}>Retry pick</button>}</div>}
     {result?.result && <details className="rm-result"><summary>Previous pick · {result.options.find((option) => option.id === result.result?.optionId)?.label ?? result.result.optionId}</summary><p>{result.text}</p><p>{result.result.explanation}</p></details>}
   </section>;
