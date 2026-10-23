@@ -80,6 +80,14 @@ export function Lineup({ view, busy, onSave, onAuto }: { view: RoomView; busy: b
     setCaptain(nextCaptain); setFlex(nextFlex); setError('');
     setNotice(moved ? `${view.players.find((p) => p.id === id)?.name} moved to ${captain ? 'Captain' : 'Flex'}. Lineup cost ${money(nextCost)}.` : '');
   }
+  const myRoster = view.standings.find((row) => row.participantId === view.me?.participantId)?.roster ?? [];
+  const contribution = (id: string) => myRoster.find((slot) => slot.playerId === id);
+  // Server breakdown (P03.5): raw stat points x position weight x captain factor = lineup points.
+  function breakdown(id: string) {
+    const slot = contribution(id);
+    if (!slot || slot.rawPoints === undefined) return null;
+    return <small className="rm-breakdown">{slot.rawPoints.toFixed(2)} raw × {slot.positionMultiplier ?? 1} position{slot.captain ? ` × ${slot.captainMultiplier ?? view.rules.captainMultiplier} captain` : ''} = {slot.points.toFixed(2)}</small>;
+  }
   const selected = new Set([captainId, ...flexIds].filter(Boolean));
   const positions = [...new Set(view.players.map((player) => player.position))];
   const teams = [...new Set(view.players.map((player) => player.teamShort))];
@@ -101,7 +109,7 @@ export function Lineup({ view, busy, onSave, onAuto }: { view: RoomView; busy: b
     {error && <p className="rm-error" role="alert">{error}</p>}{notice && <p className="rm-lineup-notice" role="status">{notice}</p>}
     {!players.length && <div className="rm-empty"><p>No players match</p><button onClick={() => { setSearch(''); setPosition('all'); setTeam('all'); }}>Clear filters</button></div>}
     <div className="rm-players">{players.map((player) => <article key={player.id} className={`rm-player${selected.has(player.id) ? ' is-selected' : ''}`}>
-      <div className="rm-player-info"><span className="rm-player-pos">{player.position} · {player.teamShort}</span><h3>{player.name}</h3>{locked ? <><strong>{points(player.points)} pts</strong><p>{statLine(player.statLine)}</p></> : <><strong>{money(player.salary)}</strong>{typeof player.projectedPoints === 'number' && <span className="rm-projection">Proj {points(player.projectedPoints)} pts</span>}<details><summary>Player details</summary><p>{player.role}</p></details></>}</div>
+      <div className="rm-player-info"><span className="rm-player-pos">{player.position} · {player.teamShort}</span><h3>{player.name}</h3>{locked ? <><strong>{points(contribution(player.id)?.points ?? player.points)} pts</strong><p>{statLine(player.statLine)}</p>{breakdown(player.id)}</> : <><strong>{money(player.salary)}</strong>{typeof player.projectedPoints === 'number' && <span className="rm-projection">Proj {points(player.projectedPoints)} pts</span>}<details><summary>Player details</summary><p>{player.role}</p></details></>}</div>
       {locked ? <span className="rm-selected-label">{captainId === player.id ? 'Captain' : 'Flex'}</span> : <div className="rm-player-actions"><button aria-label={`Captain ${player.name}`} aria-pressed={captainId === player.id} disabled={busy} onClick={() => change(player.id, true)}>{captainId === player.id ? '✓ Captain' : 'Captain'}<small>{money(player.salary * view.rules.captainMultiplier)}</small></button><button aria-label={`${flexIds.includes(player.id) ? 'Remove' : 'Add'} ${player.name}`} aria-pressed={flexIds.includes(player.id)} disabled={busy} onClick={() => change(player.id, false)}>{flexIds.includes(player.id) ? '✓ Flex' : '+ Flex'}<small>{money(player.salary)}</small></button></div>}
     </article>)}</div>
     {!locked && <div className="rm-save"><div><strong>{money(view.rules.salaryCap - salary)} left</strong><span role="status">{state}</span>{actionError && <span role="status" className="rm-error">{actionError}</span>}</div><button className="rm-primary" disabled={busy || !!pending || !complete || salary > view.rules.salaryCap} onClick={() => { void submit('save'); }}>{pending === 'save' ? 'Saving…' : 'Save lineup'}</button></div>}

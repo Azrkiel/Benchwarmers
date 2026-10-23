@@ -111,3 +111,4 @@
 .rm-receipt p { margin:0; font-weight:600; }
 .rm-receipt.is-accepted { border-left-color:var(--lg-good); }
 .rm-receipt.is-rejected, .rm-receipt.is-unknown { border-left-color:var(--lg-bad); }
+.rm-breakdown { display:block; color:var(--lg-muted); font-size:14px; margin-top:4px; }

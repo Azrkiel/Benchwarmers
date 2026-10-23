@@ -67,3 +67,12 @@ it('keeps the rejected lineup on screen when the save fails', async () => {
   expect(screen.getByRole('button', { name: 'Captain Moses Adeyemi' }).getAttribute('aria-pressed')).toBe('true');
   expect(screen.getByRole('button', { name: 'Remove Caleb Frost' })).toBeTruthy();
 });
+
+it('shows the server point breakdown on a locked lineup', () => {
+  const view = basketballFixture('open', 2);
+  const me = view.standings[0]!;
+  me.roster = [{ playerId: 'har-c-34', captain: true, points: 13.35, rawPoints: 8.9, positionMultiplier: 1, captainMultiplier: 1.5 }, ...me.roster.slice(1).map((slot) => ({ ...slot, captain: false }))];
+  const live = { ...view, me: { participantId: me.participantId, name: me.name, lineup: { captainId: 'har-c-34', flexIds: me.roster.slice(1).map((slot) => slot.playerId), salaryUsed: 40000 } } };
+  render(<Lineup view={live} busy={false} onSave={vi.fn()} onAuto={vi.fn()} />);
+  expect(screen.getByText('8.90 raw × 1 position × 1.5 captain = 13.35')).toBeTruthy();
+});

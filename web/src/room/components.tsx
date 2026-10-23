@@ -1,5 +1,6 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import type { RoomStanding, RoomView } from '@shared/room';
+import { FANTASY_SCORING } from '@shared/types';
 import { ScoreTick, useNewIds } from '../fx/fx';
 import { useFlip } from '../tv/flip';
 import { ordinal, playLabel } from './moments';
@@ -48,11 +49,12 @@ export function RoomScore({ view, large = false }: { view: RoomView; large?: boo
       <b><ScoreTick value={t.score} /></b>
     </div>;
   };
-  return <section className={`rm-score rm-bug${large ? ' is-large' : ''}`} aria-label="Football score">
+  const basketball = game.sport === 'basketball';
+  return <section className={`rm-score rm-bug${large ? ' is-large' : ''}`} aria-label={basketball ? 'Basketball score' : 'Football score'}>
     {team('away')}
     <div className="rm-bug-mid">
       <div className="rm-source-phase"><span className="rm-source">{game.isScripted ? 'Replay' : 'Live'}</span><PhasePill phase={room.phase} /></div>
-      <strong>{room.phase === 'final' ? 'Final' : room.phase === 'lobby' ? 'Kickoff soon' : <>Q{game.quarter} <span>{game.clock}</span></>}</strong>
+      <strong>{room.phase === 'final' ? 'Final' : room.phase === 'lobby' ? (basketball ? 'Tip-off soon' : 'Kickoff soon') : <>Q{game.quarter} <span>{game.clock}</span></>}</strong>
       {room.phase === 'live' || room.phase === 'paused' ? <span className="rm-bug-down">{game.situation}</span> : null}
     </div>
     {team('home')}
@@ -158,6 +160,14 @@ export function Question({ view, busy = false, onPick, tv = false, receipt, onRe
 
 export function RoomRules({ view, tv = false }: { view: RoomView; tv?: boolean }) {
   const { rules } = view;
+  if (view.game.sport === 'basketball') return <details className="rm-rules" name={tv ? 'room-tv-tools' : undefined}><summary>How scoring works</summary><div role={tv ? 'region' : undefined} aria-label={tv ? 'Game rules' : undefined} tabIndex={tv ? 0 : undefined}>
+    <p>Lineup points + pick points = your total. Lineups lock at tip-off.</p>
+    <details><summary>Lineups</summary><ul><li>{money(rules.salaryCap)} for 1 captain and {rules.flexSlots} flex players.</li><li>Captain salary and points are multiplied by {rules.captainMultiplier}.</li><li>Players can appear in more than one lineup.</li><li>Salaries come from authored pregame projections, not from tonight's results.</li></ul></details>
+    <details><summary>Stat points</summary><p>{[['Two', 'pts2'], ['Three', 'pts3'], ['Free throw', 'ft'], ['Rebound', 'reb'], ['Assist', 'ast'], ['Steal', 'stl'], ['Block', 'blk'], ['Turnover', 'tov']].map(([label, key]) => `${label} ${FANTASY_SCORING[key as keyof typeof FANTASY_SCORING]}`).join(' · ')}. Every position counts the same.</p></details>
+    <details><summary>Picks</summary><p>One featured call at a time: who scores next, two or three on the next made basket, or whether a team scores in a window. Each call stays open at least 8 seconds. A call with no qualifying play is void: no points, streak kept.</p></details>
+    <details><summary>Bonuses</summary><p>Correct picks can earn streak, early pick and against-the-room bonuses, up to {rules.pickFactorCap}×. A miss resets your streak.</p></details>
+    <p className="rm-rules-note">Fictional teams and players · Scripted replay</p>
+  </div></details>;
   return <details className="rm-rules" name={tv ? 'room-tv-tools' : undefined}><summary>How scoring works</summary><div role={tv ? 'region' : undefined} aria-label={tv ? 'Game rules' : undefined} tabIndex={tv ? 0 : undefined}>
     <p>Lineup points + pick points = your total. Lineups lock at kickoff.</p>
     <details><summary>Lineups</summary><ul><li>{money(rules.salaryCap)} for 1 captain and {rules.flexSlots} flex players.</li><li>Captain salary and points are multiplied by {rules.captainMultiplier}.</li><li>Players can appear in more than one lineup.</li></ul><dl className="rm-rule-weights">{Object.entries(rules.positionMultipliers).map(([position, weight]) => <div key={position}><dt>{position}</dt><dd>{weight}×</dd></div>)}</dl></details>
