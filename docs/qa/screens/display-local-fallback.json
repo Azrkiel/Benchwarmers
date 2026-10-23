@@ -1,0 +1,32 @@
+{
+  "base": "http://127.0.0.1:3031",
+  "route": "/display/garcias",
+  "mode": "fallback",
+  "requests": [
+    {
+      "url": "http://127.0.0.1:3031/api/mcp-widget",
+      "method": "POST",
+      "hasAuthorization": false
+    }
+  ],
+  "responses": [],
+  "layout": {
+    "widgetSlots": 1,
+    "conversation": {
+      "top": 106.93457794189453,
+      "bottom": 207.36944580078125,
+      "height": 100.43486785888672
+    },
+    "fallback": {
+      "top": 215.87411499023438,
+      "bottom": 640.3768920898438,
+      "height": 424.5027770996094
+    },
+    "screen": {
+      "top": 67.81307983398438,
+      "bottom": 748.1868591308594,
+      "height": 680.373779296875
+    }
+  },
+  "errors": []
+}

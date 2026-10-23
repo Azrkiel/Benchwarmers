@@ -120,4 +120,30 @@ describe('DisplayScreen', () => {
     expect(f.scale).toBeCloseTo(754 / 856, 5);
     expect(f.x).toBeGreaterThan(0);
   });
+
+  it('replaces a failed widget in its existing layout slot', async () => {
+    stubFetch();
+    const send = vi.fn(async () => ok({
+      reply: 'Maya leads.',
+      partyCode: 'DEMO',
+      uiResource: {
+        uri: 'ui://benchwarmers/board.html',
+        toolName: 'get_leaderboard',
+        toolInput: { code: 'DEMO' },
+        toolResult: { content: [], structuredContent: { view: 'tonight', code: 'DEMO' } },
+      },
+    }));
+    const { container } = renderAt('/display/garcias', {
+      send,
+      mcp: {
+        callTool: vi.fn(async () => ({ content: [] })),
+        readResource: vi.fn(async () => { throw new Error('MCP unavailable'); }),
+        close: vi.fn(async () => undefined),
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: "Who's winning?" }));
+    await screen.findByText(/Read-only board/);
+    expect(container.querySelectorAll('.sd-widget')).toHaveLength(1);
+    expect(container.querySelector('.sd-widget .sd-fallback')).toBeTruthy();
+  });
 });

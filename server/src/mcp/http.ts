@@ -107,4 +107,25 @@ export function mountMcp(app: express.Express, opts: MountMcpOptions): void {
   };
 
   app.all('/mcp', ...middleware, handler);
+
+  // Our public demo host forwards into the same authenticated MCP handler in-process.
+  // The browser never receives the server bearer token; room credentials still apply.
+  app.all('/api/mcp-widget', (req, res, next) => {
+    const origin = req.get('origin');
+    if (origin) {
+      let sameOrigin = false;
+      try {
+        const url = new URL(origin);
+        // Fly terminates TLS before forwarding to Express over HTTP.
+        const protocol = req.get('x-forwarded-proto') ?? req.protocol;
+        sameOrigin = (protocol === 'http' || protocol === 'https') && url.origin === `${protocol}://${req.get('host')}`;
+      } catch { /* Opaque or malformed origins cannot use the browser host. */ }
+      if (!sameOrigin) {
+        res.status(403).json({ error: 'Browser MCP host requires the same origin', code: 'FORBIDDEN' });
+        return;
+      }
+    }
+    req.headers.authorization = `Bearer ${token}`;
+    next();
+  }, ...middleware, handler);
 }

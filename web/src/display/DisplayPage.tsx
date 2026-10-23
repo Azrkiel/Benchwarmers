@@ -240,11 +240,11 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
                   onStatus={(s) => setWidgetStatus(s)}
                   onResult={(sc) => setWidgetStructured(sc)}
                 />
-              </div>
-            ) : null}
-            {widgetFailed ? (
-              <div className="sd-widget sd-fallback" onClick={(e) => e.stopPropagation()}>
-                <FallbackCard model={model} householdId={household} />
+                {widgetFailed ? (
+                  <div className="sd-fallback">
+                    <FallbackCard model={model} householdId={household} />
+                  </div>
+                ) : null}
               </div>
             ) : null}
 
