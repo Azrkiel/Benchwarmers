@@ -21,7 +21,7 @@ export function Avatar({ avatar, name, color, size = 64 }: { avatar?: string; na
   return (
     <span
       className="tv-avatar"
-      style={{ width: size, height: size, fontSize: size * 0.55, borderColor: color ?? '#8892a6' }}
+      style={{ width: size, height: size, fontSize: Math.max(24, size * 0.55), borderColor: color ?? '#8892a6' }}
       title={name}
     >
       {inner}

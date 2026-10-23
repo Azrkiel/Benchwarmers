@@ -47,10 +47,10 @@
 .lg-next { display:flex; flex-direction:column; gap:16px; min-height:0; overflow:auto; background:var(--lg-surface); padding:28px; border-radius:6px; border-top:4px solid var(--lg-orange); }
 .lg-next h2 { font:600 42px/1.1 var(--lg-serif); margin:0; }
 .lg-next p { color:var(--lg-muted); font-size:27px; margin:0; }
-.lg-primary { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; padding:14px 22px; border:1px solid #c8102e; border-radius:4px; background:#c8102e; color:white; font:600 28px/1.2 Barlow,Arial,sans-serif; text-decoration:none; cursor:pointer; }
+.lg-primary { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; padding:14px 22px; border:1px solid #d4172f; border-radius:4px; background:#c8102e; color:white; font:600 28px/1.2 Barlow,Arial,sans-serif; text-decoration:none; cursor:pointer; }
 .lg-primary > svg { width:28px; height:28px; }
 .lg-next .lg-primary { margin-top:auto; }
-.lg-primary:hover { background:#a70e26; border-color:#a70e26; }
+.lg-primary:hover { background:#a70e26; border-color:#d4172f; }
 .lg-answer-summary { display:flex; gap:16px; }
 .lg-answer-summary > span { flex:1; border:1px solid var(--lg-line); padding:10px 14px; font-size:28px; }
 .lg-answer-summary small { display:block; font-size:24px; color:var(--lg-muted); margin-top:5px; }
@@ -59,7 +59,7 @@
 .lg-seats h2 { margin:0; font:600 42px/1 var(--lg-serif); }
 .lg-seats > header > span { color:var(--lg-muted); font-size:26px; }
 .lg-seat-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:minmax(190px,auto); align-content:start; gap:16px; padding:8px; overflow:auto; min-height:0; }
-.lg-seat { display:flex; flex-direction:column; gap:24px; justify-content:space-between; min-width:0; padding:22px 18px; border:1px solid var(--lg-line); border-radius:6px; background:var(--lg-surface); color:white; text-align:left; font:inherit; cursor:pointer; }
+.lg-seat { display:flex; flex-direction:column; gap:24px; justify-content:space-between; min-width:0; padding:22px 18px; border:1px solid #73767d; border-radius:6px; background:var(--lg-surface); color:white; text-align:left; font:inherit; cursor:pointer; }
 .lg-seat:hover { background:var(--lg-raised); }
 .lg-seat-top { display:flex; align-items:center; gap:14px; min-width:0; }
 .lg-face { display:inline-grid; place-items:center; flex:none; width:52px; height:52px; background:var(--lg-raised); border-radius:50%; font-size:32px; overflow:hidden; }
@@ -77,7 +77,7 @@
 .lg-seats.is-full .lg-seat-name small { display:block; color:var(--lg-muted); font-size:25px; margin-top:8px; }
 .lg-seat-breakdown { display:flex; justify-content:space-between; gap:16px; padding-top:14px; border-top:1px solid var(--lg-line); color:var(--lg-muted); font-size:26px; }
 .lg-footer { display:flex; align-items:center; justify-content:space-between; gap:24px; padding-top:14px; border-top:1px solid var(--lg-line); font-size:24px; color:var(--lg-muted); }
-.lg-footer kbd { border:1px solid var(--lg-line); border-radius:4px; padding:2px 6px; color:white; font:inherit; font-size:22px; }
+.lg-footer kbd { border:1px solid var(--lg-line); border-radius:4px; padding:2px 6px; color:white; font:inherit; font-size:24px; }
 .lg-picks-view { overflow:auto; padding:8px; }
 .lg-picks-view h1 { font:600 54px/1.05 var(--lg-serif); margin:22px 0; }
 .lg-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(350px,1fr)); gap:24px; }
@@ -108,7 +108,7 @@
 .lg-draft-player b { font-size:29px; }
 .lg-draft-player small { display:block; color:var(--lg-muted); font-size:25px; margin-top:6px; }
 .lg-owner { margin-left:auto; font-size:26px; text-align:right; }
-.lg-owner small { display:block; color:var(--lg-muted); font-size:23px; margin-top:6px; }
+.lg-owner small { display:block; color:var(--lg-muted); font-size:24px; margin-top:6px; }
 .lg-results { display:grid; grid-template-columns:480px minmax(0,1fr); gap:40px; min-height:0; overflow:auto; padding:8px; }
 .lg-winner { display:flex; flex-direction:column; align-items:flex-start; gap:24px; padding:28px; border-top:4px solid var(--lg-orange); border-radius:6px; background:var(--lg-surface); }
 .lg-winner h1 { font:600 64px/1 var(--lg-serif); margin:0; }

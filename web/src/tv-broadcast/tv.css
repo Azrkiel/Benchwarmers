@@ -4,13 +4,13 @@
 .tv-broadcast .tv-body { position:relative; min-width:0; min-height:0; }
 .tv-broadcast .tv-body.is-clean { grid-row:1/-1; }
 .tv-broadcast .tv-party-code { display:flex; flex-direction:column; margin-left:auto; padding-left:20px; border-left:1px solid var(--border); white-space:nowrap; }
-.tv-broadcast .tv-party-code > span { color:var(--muted); font-size:23px; }
+.tv-broadcast .tv-party-code > span { color:var(--muted); font-size:24px; }
 .tv-broadcast .tv-party-code b { font:600 34px/1 var(--display); }
 .tv-broadcast .tv-footer { display:flex; align-items:center; justify-content:space-between; gap:24px; border-top:1px solid var(--border); padding-top:14px; color:var(--muted); font-size:24px; }
 .tv-broadcast .tv-footer-crew { display:flex; align-items:center; gap:16px; }
 .tv-broadcast .tv-footer-note { border-left:1px solid var(--border); padding-left:16px; }
 .tv-broadcast .tv-remote-hint { display:flex; align-items:center; gap:8px; }
-.tv-broadcast kbd { border:1px solid var(--border); border-radius:4px; padding:2px 6px; font:inherit; font-size:21px; color:white; }
+.tv-broadcast kbd { border:1px solid var(--border); border-radius:4px; padding:2px 6px; font:inherit; font-size:24px; color:white; }
 .tv-broadcast .tv-live { position:relative; }
 .tv-broadcast .tv-live-scoreboard { position:absolute; top:0; left:0; width:960px; height:110px; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:24px; align-items:center; padding:12px 24px; background:var(--panel); border-left:4px solid var(--accent); }
 .tv-broadcast .tv-live:not(.is-overview) .tv-sb-name { font-size:30px; }
@@ -39,7 +39,7 @@
 .tv-broadcast .tv-room-identity span { color:var(--muted); font-size:24px; }
 .tv-broadcast .tv-room-points { text-align:right; display:flex; flex-direction:column; gap:6px; }
 .tv-broadcast .tv-room-points b { font:600 44px/1 var(--display); }
-.tv-broadcast .tv-room-points span { color:var(--muted); font-size:23px; }
+.tv-broadcast .tv-room-points span { color:var(--muted); font-size:24px; }
 .tv-broadcast .tv-pbp { position:absolute; top:126px; left:0; width:1040px; min-height:65px; padding:8px 16px; background:var(--panel); font-size:25px; }
 .tv-broadcast .is-overview .tv-pbp { top:308px; }
 .tv-broadcast .tv-pbp-list { padding:0; margin:0; list-style:none; }
