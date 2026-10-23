@@ -1,5 +1,7 @@
 # Benchwarmers
 
+[Friction log and hackathon feedback](FRICTION_LOG.md) · [Submission draft](docs/SUBMISSION.md) · [Recording guide](docs/DEMO_SCRIPT.md)
+
 ## Combined basketball and football app
 
 The combined app includes A's game service, B's phone/shared-display interface and C's integration tools. Run `npm run demo`, open the homepage, and choose **Host a party**. Basketball is the form's default; football remains selectable. Both are fictional scripted replays. Calls, point commitments, pregame picks and live-provider features remain disabled in ordinary startup.

@@ -1,4 +1,7 @@
-# Friction log
+# Historical friction observations
+
+The current, hackathon-facing log is [FRICTION_LOG.md](../FRICTION_LOG.md) at the repository root. This archive preserves the original dated observations and version-specific reproduction details. Historical workarounds are not current setup recommendations; status and limitations are summarized in the main log.
+
 
 ### [2026-10-20 22:00] Live Gemini exposed Windows CA trust and model-specific thinking settings
 - Tool/SDK + version: Node 22.23.3 native fetch/TLS, Gemini 3.8 Flash REST generateContent.

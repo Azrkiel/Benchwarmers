@@ -1,5 +1,7 @@
 # Benchwarmers: submission draft
 
+Hackathon tool feedback and development obstacles: [friction log](../FRICTION_LOG.md).
+
 Draft for owner review. Nothing has been submitted, uploaded or deployed by C. Use the exact recorded candidate and the current [acceptance evidence](qa/worker-c/FOLLOWUP.md) when filling submission fields.
 
 ## Project name and tagline
