@@ -1,6 +1,7 @@
 import type { RoomLineup, RoomPhase, RoomPickScore, RoomQuestion, RoomRules, RoomSeasonStanding, PickReceipt } from './types.js';
 import type { PointsState } from './points/model.js';
 import type { PlayerCall } from './calls/model.js';
+import type { PregameState } from './pregame/model.js';
 
 /** Private durable state. Never serialize these objects into a public response. */
 export type Stats = Record<string, Record<string, number>>;
@@ -16,6 +17,7 @@ export type Room = {
   pickReceipts?: PickReceipt[];
   points?: PointsState;
   playerCalls?: PlayerCall[];
+  pregame?: PregameState;
 };
 export type Season = { id: string; name: string; identities: Identity[]; standings: RoomSeasonStanding[] };
 export type SavedRooms = { version: 2; rooms: Room[]; seasons: Season[] };

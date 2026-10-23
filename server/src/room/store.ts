@@ -13,6 +13,10 @@ import { callTemplates, type PlayerCallInput, canonicalTargetKey } from './calls
 import { callWindow, draftPlayerCall, checkPlayerCallLimits } from './calls/service.js';
 import type { PlayerCallDraft } from './calls/model.js';
 import type { CallCatalog, PlayerCallQuote } from '../shared/calls.js';
+import type { PregamePickInput } from '../shared/pregame.js';
+import { createPregame, PREGAME_RULE } from './pregame/model.js';
+import { unavailablePregameReference } from '../markets/policy.js';
+import { resolveGameWinner } from './predictions/game-winner.js';
 
 export type RoomProbability={gameId:string;templateId:string;optionId:string;anchorSequence?:number;horizonGameElapsedMs?:number;estimate:ProbabilityEstimate};
 
@@ -33,10 +37,12 @@ export class RoomStore {
  private readonly now:()=>number;
  private readonly defaultSpeed:number;
  private readonly enableCommitments:boolean;
+ private readonly enablePregame:boolean;
  private readonly probabilities:readonly RoomProbability[];
- constructor(options:{dataFile?:string;persist?:boolean;now?:()=>number;speed?:number;enableCommitments?:boolean;probabilities?:readonly RoomProbability[]}={}){
+ constructor(options:{dataFile?:string;persist?:boolean;now?:()=>number;speed?:number;enableCommitments?:boolean;enablePregame?:boolean;probabilities?:readonly RoomProbability[]}={}){
   this.dataFile=options.dataFile??'data/rooms.json';this.persist=options.persist??true;this.now=options.now??Date.now;this.defaultSpeed=this.validSpeed(options.speed??1);
   this.enableCommitments=options.enableCommitments??false;this.probabilities=clone(options.probabilities??[]);
+  this.enablePregame=options.enablePregame??false;
   const saved=this.persist?loadSavedRooms(this.dataFile):undefined;
   if(saved){
    this.rooms=saved.rooms;this.seasons=saved.seasons;
@@ -86,6 +92,7 @@ export class RoomStore {
   let code:string;do{code=randomBytes(4).toString('hex').slice(0,6).toUpperCase();}while(this.rooms.some(r=>r.code===code));
   const r:Room={code,name:input.name?.trim().slice(0,60)||adapter.defaultRoomName,seasonId,hostToken:secret(),createdAt:this.now(),gameId:adapter.gameId,rulesVersion:adapter.rulesVersion,version:1,phase:'lobby',speed,rules:clone(adapter.rules),participants:[],beatIndex:-1,elapsedMs:0,durationMs:0,windowElapsedMs:0,lastTickAt:this.now(),stats:{},recorded:false};
   if(this.enableCommitments&&adapter.sport==='basketball')r.points=createPointsState();
+  if(this.enablePregame&&adapter.sport==='basketball')r.pregame=createPregame();
   this.rooms.push(r);return ()=>({view:this.snapshot(r),hostToken:r.hostToken});
   });
  }
@@ -137,6 +144,22 @@ export class RoomStore {
   const r=this.room(code);const p=this.participant(r,participantToken);
   const receipt=r.pickReceipts?.find(receipt=>receipt.participantId===p.id&&receipt.requestId===requestId);
   if(!receipt)return fail(404,'RECEIPT_NOT_FOUND','No accepted pick was found for that request ID.');return clone(receipt);
+ }
+ pregameReference(code:string) {return unavailablePregameReference(this.adapter(this.room(code)).fictional===true);}
+ pickPregame(code:string,input:PregamePickInput):RoomSnapshot {
+  this.tick();return this.transact(()=>{
+   const r=this.room(code),p=this.participant(r,input.participantToken);
+   if(!/^[A-Za-z0-9_-]{1,128}$/.test(input.requestId??''))fail(400,'BAD_REQUEST','A stable request ID is required.');
+   const previous=r.pickReceipts?.find(receipt=>receipt.participantId===p.id&&receipt.requestId===input.requestId);
+   if(previous){if(previous.questionId!==r.pregame?.id||previous.optionId!==input.optionId)fail(409,'IDEMPOTENCY_CONFLICT','That request ID was already used for another pick.');return ()=>({...this.snapshot(r,p),receipt:clone(previous)});}
+   if(!this.enablePregame||!r.pregame)return fail(409,'FEATURE_DISABLED','Pregame winner picks are not enabled for this room.');
+   if(r.phase!=='lobby'||r.pregame.status!=='open')fail(409,'PICKS_LOCKED','Winner picks close when the replay starts.');
+   const game=this.adapter(r).projectGame(r.beatIndex,r.phase);
+   if(![game.home.id,game.away.id].includes(input.optionId))fail(400,'BAD_OPTION','Choose the home or away team.');
+   if(r.pregame.picks[p.id]?.optionId!==input.optionId)r.pregame.picks[p.id]={optionId:input.optionId,acceptedAt:this.now()};
+   const receipt:PickReceipt={participantId:p.id,requestId:input.requestId,questionId:r.pregame.id,optionId:input.optionId,acceptedAt:this.now(),acceptanceSequence:(r.pickReceipts?.at(-1)?.acceptanceSequence??0)+1};
+   r.pickReceipts??=[];r.pickReceipts.push(receipt);return ()=>({...this.snapshot(r,p),receipt:clone(receipt)});
+  });
  }
  pick(code:string,input:{participantToken:string;questionId:string;optionId:string;requestId?:string}):RoomSnapshot {
   this.tick();return this.transact(()=>{const r=this.room(code);const p=this.participant(r,input.participantToken);const q=r.question;
@@ -257,7 +280,7 @@ export class RoomStore {
  host(code:string,input:{hostToken:string;action:'start'|'pause'|'resume'|'set_speed';speed?:number}):RoomSnapshot {
   this.tick();return this.transact(()=>{const r=this.room(code);if(!input.hostToken||input.hostToken!==r.hostToken)fail(401,'BAD_HOST_CREDENTIAL','A valid host credential is required.');
   switch(input.action){
-   case 'start':if(r.phase!=='lobby')fail(409,'BAD_PHASE','Only a lobby can start.');for(const p of r.participants)p.lineup??=this.buildAutoLineup(r,'balanced');r.phase='live';r.lastTickAt=this.now();this.advanceBeat(r);break;
+   case 'start':if(r.phase!=='lobby')fail(409,'BAD_PHASE','Only a lobby can start.');for(const p of r.participants)p.lineup??=this.buildAutoLineup(r,'balanced');if(r.pregame){r.pregame.status='locked';r.pregame.lockedAt=this.now();}r.phase='live';r.lastTickAt=this.now();this.advanceBeat(r);break;
    case 'pause':if(r.phase!=='live')fail(409,'BAD_PHASE','Only a live game can pause.');r.phase='paused';break;
    case 'resume':if(r.phase!=='paused')fail(409,'BAD_PHASE','Only a paused game can resume.');r.phase='live';r.lastTickAt=this.now();this.refreshDeadline(r);break;
    case 'set_speed':{
@@ -313,7 +336,15 @@ export class RoomStore {
    else {call.view.status='resolved';call.view.result=outcome;}
    if(r.points)r.points=settleTarget(r.points,call.view.id,{revision:1,...outcome},this.now());
   }
-  if(beat.type==='final'){r.phase='final';this.recordSeason(r);}
+  if(beat.type==='final'){r.phase='final';this.resolvePregame(r);this.recordSeason(r);}
+ }
+ private resolvePregame(r:Room):void {
+  const pregame=r.pregame;if(!pregame||pregame.status!=='locked')return;
+  const game=this.adapter(r).projectGame(r.beatIndex,'final');
+  const result=resolveGameWinner({status:'final',home:game.home,away:game.away})!;
+  if('voidReason' in result){pregame.status='void';pregame.voidReason=result.voidReason;return;}
+  pregame.status='resolved';pregame.result=result;
+  for(const p of r.participants){if(pregame.picks[p.id]?.optionId!==result.optionId)continue;p.predictionPoints+=pregame.correctPoints;if(r.points)r.points=rewardFreePick(r.points,p.id,pregame.id,pregame.correctPoints,this.now());}
  }
  private resolveQuestion(r:Room,result:QuestionResolution):void {
   const q=r.question;if(!q)return;
@@ -353,10 +384,12 @@ export class RoomStore {
   const view:RoomSnapshot={version:r.version,serverNow:this.now(),rulesVersion:r.rulesVersion,room:this.summary(r),game:adapter.projectGame(r.beatIndex,r.phase),rules:clone(r.rules),
    players:adapter.players.map(player=>{const stats=clone(r.stats[player.id]??{});const rawPoints=adapter.rawPoints(stats,player.role);return {id:player.id,name:player.name,teamId:player.team,teamShort:player.team,position:player.pos,role:player.role,salary:player.salary,...(player.projectedPoints!==undefined?{projectedPoints:player.projectedPoints,projectionSource:player.projectionSource,salaryModelVersion:player.salaryModelVersion}:{}),multiplier:r.rules.positionMultipliers[player.pos]??1,stats,rawPoints:round(rawPoints),points:round(rawPoints*(r.rules.positionMultipliers[player.pos]??1)),statLine:statLine(stats)};}),standings:this.standings(r),season:{id:r.seasonId,name:this.season(r).name,standings:clone(this.season(r).standings).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name))}};
   if(r.question)view.question=this.questionView(r.question);if(r.lastQuestion)view.lastQuestion=this.questionView(r.lastQuestion);
+  if(r.pregame){const pregame=r.pregame,game=view.game;view.pregame={id:pregame.id,status:pregame.status,acceptingPicks:this.enablePregame&&r.phase==='lobby'&&pregame.status==='open',text:'Who wins the game?',options:[game.home,game.away].map(team=>({id:team.id,label:team.name})),pickCounts:Object.fromEntries([game.home.id,game.away.id].map(id=>[id,Object.values(pregame.picks).filter(pick=>pick.optionId===id).length])),cutoff:pregame.cutoff,correctPoints:pregame.correctPoints,resolutionRule:PREGAME_RULE,...(pregame.lockedAt!==undefined?{lockedAt:pregame.lockedAt}:{}),...(pregame.result?{result:clone(pregame.result)}:{}),...(pregame.voidReason?{voidReason:pregame.voidReason}:{})};}
   if(r.points)view.calls=(r.playerCalls??[]).map(call=>{
    const result=clone(call.view);result.pickCounts=Object.fromEntries(result.options.map(option=>[option.id,r.points!.calls.filter(accepted=>accepted.targetId===result.id&&accepted.optionId===option.id).length]));return {...result,creatorId:call.creatorId,createdAt:call.createdAt};
   });
   if(p){view.me={participantId:p.id,name:p.name,...(p.lineup?{lineup:clone(p.lineup)}:{})};const pick=r.question?.picks[p.id];if(pick)view.me.currentPick={questionId:r.question!.view.id,optionId:pick.optionId};if(r.points){view.me.bank=bankFor(r.points,p.id);view.me.commitments=r.points.calls.filter(call=>call.participantId===p.id).map(publicCommitment);}}
+  if(p&&view.me&&r.pregame?.picks[p.id])view.me.pregamePick=clone(r.pregame.picks[p.id]);
   return view;
  }
 }
