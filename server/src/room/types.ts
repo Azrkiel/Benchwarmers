@@ -19,6 +19,7 @@ export type PickReceipt = {requestId:string;participantId:string;questionId:stri
 export type QuestionResolution = {optionId:string;explanation:string}|{voidReason:string};
 export type RoomStanding = {participantId:string;name:string;rank:number;total:number;fantasyPoints:number;predictionPoints:number;settledRiskNet?:number;streak:number;roster:{playerId:string;captain:boolean;points:number;rawPoints?:number;positionMultiplier?:number;captainMultiplier?:number}[];lastPickScore?:RoomPickScore};
 export type RoomQuestion = {id:string;kind:string;text:string;opensAt:number;locksAt:number;remainingMs:number;options:{id:string;label:string;basePoints:number;probability?:number}[];pickCounts:Record<string,number>;status:'open'|'locked'|'resolved'|'void';result?:{optionId:string;explanation:string};voidReason?:string;target?:BasketballTarget};
+export type RoomPlayerCall = RoomQuestion & {creatorId:string;createdAt:number};
 export type RoomSeasonStanding = {participantId:string;name:string;points:number;fantasyPoints:number;predictionPoints:number;nightsPlayed:number;nightsWon:number};
 type RoomTeam = {id:string;short:string;name:string;color:string;score:number};
 // Optional additive fields allow older consumer fixtures during the migration.
@@ -26,7 +27,7 @@ type RoomTeam = {id:string;short:string;name:string;color:string;score:number};
 export type RoomView = Partial<RoomSnapshotMetadata> & {
  room:RoomSummary;
  game:Partial<RoomGameMetadata> & {title:string;home:RoomTeam;away:RoomTeam;quarter:number;clock:string;situation:string;ballOn:number;fieldX:number;possession:string|null;driveNumber:number;driveCount:number;recentPlays:{id:string;text:string;kind:string;quarter:number;clock:string}[];isScripted:true};
- rules:RoomRules;players:RoomPlayer[];standings:RoomStanding[];question?:RoomQuestion;lastQuestion?:RoomQuestion;
+ rules:RoomRules;players:RoomPlayer[];standings:RoomStanding[];question?:RoomQuestion;lastQuestion?:RoomQuestion;calls?:RoomPlayerCall[];
  me?:{participantId:string;name:string;lineup?:RoomLineup;currentPick?:{questionId:string;optionId:string};bank?:CallBank;commitments?:CommitmentReceipt[]};
  season:{id:string;name:string;standings:RoomSeasonStanding[]};
 };

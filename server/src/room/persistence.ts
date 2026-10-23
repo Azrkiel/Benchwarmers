@@ -7,6 +7,9 @@ import { FOOTBALL_GAME_ID, getRoomSportAdapter } from './sports/index.js';
 import { FOOTBALL_RULES_VERSION } from './sports/football.js';
 import { pointsStateSchema } from './points/model.js';
 import { pointsToUnits, validatePointsState } from './points/ledger.js';
+import { playerCallSchema } from './calls/model.js';
+import type { PlayerCallDraft } from './calls/model.js';
+import { canonicalTargetKey, canonicalTargetId } from './calls/catalog.js';
 
 const finite = z.number().finite();
 const nonnegative = finite.nonnegative();
@@ -32,7 +35,7 @@ const legacyRoom = z.object({
   participants: z.array(participant), beatIndex: finite.int().min(-1), elapsedMs: nonnegative, durationMs: nonnegative,
   windowElapsedMs: nonnegative, lastTickAt: finite, stats, question: question.optional(), lastQuestion: question.optional(), recorded: z.boolean(),
 });
-const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional(), points:pointsStateSchema.optional() });
+const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional(), points:pointsStateSchema.optional(), playerCalls:z.array(playerCallSchema).optional() });
 const season = z.object({ id, name: id, identities: z.array(identity), standings: z.array(z.object({
   participantId: id, name: id, points: finite, fantasyPoints: finite, predictionPoints: finite,
   nightsPlayed: nonnegative.int(), nightsWon: nonnegative.int(),
@@ -82,6 +85,41 @@ export function validateSavedRooms(input: unknown): SavedRooms {
         if(rewards!==BigInt(pointsToUnits(p.predictionPoints)))invalid('free reward ledger');
       }
     }
+    unique((r.playerCalls??[]).map(call=>call.key),'player call target');
+    unique((r.playerCalls??[]).map(call=>call.view.id),'player call ID');
+    const hasCallDrafts=!!r.playerCalls?.length||r.points?.quotes.some(quote=>quote.playerCall);
+    const windows=new Map((hasCallDrafts?adapter.beats:[]).flatMap(beat=>{
+      if(!adapter.isWindow(beat))return [];
+      const view=adapter.question(beat,0,adapter.duration(beat,r.speed));
+      return view?.target?[[view.id,{target:view.target,minimum:(beat.gameElapsedMs??0)+1}] as const]:[];
+    }));
+    const validateDraft=(draft:PlayerCallDraft)=>{
+      const window=windows.get(draft.windowQuestionId),target=draft.view.target;
+      if(!window||window.target.anchorSequence!==target.anchorSequence||target.horizonGameElapsedMs<window.minimum||target.horizonGameElapsedMs>window.target.horizonGameElapsedMs)invalid('player call safe window');
+      if(draft.key!==canonicalTargetKey(r.gameId,target)||draft.view.kind!==target.templateId)invalid('player call semantics');
+      const expectedId=draft.key===canonicalTargetKey(r.gameId,window!.target)?draft.windowQuestionId:canonicalTargetId(draft.key);
+      if(draft.view.id!==expectedId)invalid('player call identity');
+      const game=adapter.projectGame(-1,'lobby');
+      const options=target.templateId==='next_score_team'?[game.home.id,game.away.id]:['two','three'];
+      if(JSON.stringify(draft.view.options.map(option=>option.id))!==JSON.stringify(options))invalid('player call options');
+    };
+    for(const call of r.playerCalls??[]){
+      validateDraft(call);
+      if(!r.points||adapter.sport!=='basketball'||!r.participants.some(p=>p.id===call.creatorId))invalid('player call owner');
+      const accepted=r.points!.calls.find(accepted=>accepted.targetId===call.view.id&&accepted.participantId===call.creatorId&&accepted.acceptedAt===call.createdAt);
+      if(!accepted||r.points!.quotes.find(quote=>quote.quoteId===accepted.quoteId)?.playerCall?.key!==call.key)invalid('uncommitted player call');
+      const terminal=call.view.status==='resolved'||call.view.status==='void';
+      if((call.view.status==='resolved')!==!!call.view.result||(call.view.status==='void')!==!!call.view.voidReason)invalid('player call outcome');
+      for(const accepted of r.points!.calls.filter(accepted=>accepted.targetId===call.view.id)){
+        if(terminal!==(accepted.state!=='pending'))invalid('player call settlement');
+        if(call.view.result&&accepted.outcomeKey!==JSON.stringify(['result',call.view.result.optionId]))invalid('player call result');
+      }
+    }
+    for(const quote of r.points?.quotes??[]){
+      const draft=quote.playerCall;if(!draft)continue;
+      validateDraft(draft);
+      if(draft.key!==canonicalTargetKey(r.gameId,draft.view.target)||quote.targetId!==draft.view.id||quote.questionId!==draft.view.id||!draft.view.options.some(o=>o.id===quote.optionId)||draft.view.target.eligibleParticipantIds.some(id=>!r.participants.some(p=>p.id===id)))invalid('player call draft');
+    }
     for (const p of r.participants) {
       if (!s.identities.some(i => i.id === p.id && i.token === p.token && i.name === p.name)) invalid('participant identity');
       if (p.lineup) {
@@ -92,7 +130,7 @@ export function validateSavedRooms(input: unknown): SavedRooms {
         if (p.lineup.salaryUsed !== cost || cost > r.rules.salaryCap) invalid('lineup salary');
       }
     }
-    for (const q of [r.question, r.lastQuestion]) {
+    for (const q of [r.question, r.lastQuestion,...(r.playerCalls??[]).map(call=>({view:call.view,picks:{}}))]) {
       if (!q) continue;
       unique(q.view.options.map(o => o.id), 'question option');
       if ((q.view.status === 'resolved') !== Boolean(q.view.result)) invalid('question result status');

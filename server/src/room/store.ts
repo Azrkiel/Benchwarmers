@@ -9,8 +9,12 @@ import { createPointsState, grantBank, bankFor, rewardFreePick } from './points/
 import { quoteCommitment as quotePoints, acceptCommitment as acceptPoints, publicCommitment, type QuoteContext } from './points/quotes.js';
 import { settleTarget } from './points/settle.js';
 import { PointsError, type PointsState } from './points/model.js';
+import { callTemplates, type PlayerCallInput, canonicalTargetKey } from './calls/catalog.js';
+import { callWindow, draftPlayerCall, checkPlayerCallLimits } from './calls/service.js';
+import type { PlayerCallDraft } from './calls/model.js';
+import type { CallCatalog, PlayerCallQuote } from '../shared/calls.js';
 
-export type RoomProbability={gameId:string;templateId:string;optionId:string;estimate:ProbabilityEstimate};
+export type RoomProbability={gameId:string;templateId:string;optionId:string;anchorSequence?:number;horizonGameElapsedMs?:number;estimate:ProbabilityEstimate};
 
 export class RoomError extends Error {
  constructor(readonly status:number,readonly code:string,message:string){super(message);this.name='RoomError';}
@@ -154,13 +158,44 @@ export class RoomStore {
  private commitmentState(r:Room):PointsState {
   if(!this.enableCommitments||!r.points)return fail(409,'FEATURE_DISABLED','Point commitments are not enabled for this room.');return r.points;
  }
+ /** Public grammar and server-owned safe bounds; never prices or allocates a call. */
+ callCatalog(code:string):CallCatalog {
+  this.tick();const r=this.room(code),adapter=this.adapter(r);
+  const enabled=this.enableCommitments&&!!r.points&&adapter.sport==='basketball';
+  const game=adapter.projectGame(r.beatIndex,r.phase);
+  const templates=adapter.sport==='basketball'?callTemplates.map(template=>({...clone(template),optionIds:template.templateId==='next_score_team'?[game.home.id,game.away.id]:['two','three']})):[];
+  return {enabled,templates,window:enabled?callWindow(r,adapter,this.now())??null:null};
+ }
+ private probabilityFor(r:Room,target:NonNullable<RoomQuestion['target']>,optionId:string,requireExact=false):ProbabilityEstimate|undefined {
+  return this.probabilities.find(entry=>entry.gameId===r.gameId&&entry.templateId===target.templateId&&entry.optionId===optionId&&
+   (entry.anchorSequence===target.anchorSequence||(!requireExact&&entry.anchorSequence===undefined))&&
+   (entry.horizonGameElapsedMs===target.horizonGameElapsedMs||(!requireExact&&entry.horizonGameElapsedMs===undefined)))?.estimate;
+ }
+ private playerCallContext(r:Room,p:Participant,draft:PlayerCallDraft,optionId:string):QuoteContext {
+  const window=callWindow(r,this.adapter(r),this.now());
+  if(!window||window.questionId!==draft.windowQuestionId||window.anchorSequence!==draft.view.target.anchorSequence)fail(409,'PICKS_LOCKED','That call window is no longer open.');
+  const option=draft.view.options.find(option=>option.id===optionId);if(!option)return fail(400,'BAD_OPTION','Choose one of the supported call options.');
+  const matchesPrompted=canonicalTargetKey(r.gameId,r.question!.view.target!)===draft.key;
+  return {participantId:p.id,targetId:draft.view.id,targetVersion:matchesPrompted?`${draft.view.id}:${draft.view.target.anchorSequence}`:draft.key,optionId,optionLabel:option.label,
+   eligibleParticipantIds:draft.view.target.eligibleParticipantIds,open:draft.view.status==='open',now:this.now(),locksAt:window!.locksAt,
+   probability:this.probabilityFor(r,draft.view.target,optionId,!matchesPrompted)};
+ }
+ quotePlayerCall(code:string,input:PlayerCallInput):PlayerCallQuote {
+  this.tick();return this.transact(()=>{
+   const r=this.room(code),p=this.participant(r,input.participantToken),state=this.commitmentState(r);
+   const draft=draftPlayerCall(r,this.adapter(r),input,this.now());checkPlayerCallLimits(r,p.id,draft,this.now());
+   const result=quotePoints(state,this.playerCallContext(r,p,draft,input.optionId),input.commitPoints,randomUUID());
+   r.points=result.state;r.points.quotes.at(-1)!.playerCall=clone(draft);
+   return ()=>({quote:clone(result.quote),target:clone(draft.view)});
+  });
+ }
  private commitmentContext(r:Room,p:Participant,questionId:string,optionId:string):QuoteContext {
   const q=r.question?.view;
   if(!q||q.id!==questionId)return fail(409,'PICKS_LOCKED','That target is not open.');
   if(!q.target)return fail(409,'TARGET_UNSUPPORTED','This target does not support point commitments.');
   const option=q.options.find(option=>option.id===optionId);if(!option)return fail(400,'BAD_OPTION','Choose one of the displayed options.');
   if(this.adapter(r).projectGame(r.beatIndex,r.phase).sourceStatus!=='healthy')fail(409,'SOURCE_STALE','Fresh source data is required for a commitment.');
-  return {participantId:p.id,targetId:q.id,targetVersion:`${q.id}:${q.target.anchorSequence}`,optionId,optionLabel:option.label,eligibleParticipantIds:q.target.eligibleParticipantIds,open:r.phase==='live'&&q.status==='open',now:this.now(),locksAt:q.locksAt,probability:this.probabilities.find(entry=>entry.gameId===r.gameId&&entry.templateId===q.kind&&entry.optionId===optionId)?.estimate};
+  return {participantId:p.id,targetId:q.id,targetVersion:`${q.id}:${q.target.anchorSequence}`,optionId,optionLabel:option.label,eligibleParticipantIds:q.target.eligibleParticipantIds,open:r.phase==='live'&&q.status==='open',now:this.now(),locksAt:q.locksAt,probability:this.probabilityFor(r,q.target,optionId)};
  }
  quoteCommitment(code:string,input:{participantToken:string;questionId:string;optionId:string;commitPoints:number}) {
   this.tick();return this.transact(()=>{const r=this.room(code),p=this.participant(r,input.participantToken);
@@ -181,12 +216,29 @@ export class RoomStore {
   const state=this.commitmentState(r),quote=state.quotes.find(quote=>quote.quoteId===quoteId&&quote.participantId===p.id);
   if(!quote)return fail(409,'BAD_QUOTE','That quote does not belong to this participant.');
   if(this.now()>=quote.expiresAt)fail(409,'QUOTE_EXPIRED','This quote expired. Review a fresh quote before confirming.');
+  if(quote.playerCall){
+   const draft=quote.playerCall;checkPlayerCallLimits(r,p.id,draft,this.now());
+   const context=this.playerCallContext(r,p,draft,quote.optionId);
+   const result=acceptPoints(state,{participantId:p.id,quoteId,requestId,callId:randomUUID(),context});r.points=result.state;
+   r.playerCalls??=[];
+   if(!r.playerCalls.some(call=>call.key===draft.key))r.playerCalls.push({...clone(draft),creatorId:p.id,createdAt:this.now(),view:{...clone(draft.view),locksAt:context.locksAt,remainingMs:context.locksAt-this.now()}});
+   // A pre-existing prompted pick must agree with its newly immutable commitment.
+   const q=r.question!;if(q.view.id===draft.view.id&&q.picks[p.id]&&q.picks[p.id].optionId!==quote.optionId)q.picks[p.id]={optionId:quote.optionId,elapsedFraction:r.elapsedMs/r.durationMs};
+   return result.commitment;
+  }
   const result=acceptPoints(state,{participantId:p.id,quoteId,requestId,callId:randomUUID(),context:this.commitmentContext(r,p,quote.questionId,quote.optionId)});r.points=result.state;
   const q=r.question!;if(q.picks[p.id]?.optionId!==quote.optionId)q.picks[p.id]={optionId:quote.optionId,elapsedFraction:r.elapsedMs/r.durationMs};
   return result.commitment;
  }
  acceptCommitment(code:string,input:{participantToken:string;quoteId:string;requestId:string}) {
   this.tick();return this.transact(()=>{const r=this.room(code),p=this.participant(r,input.participantToken),commitment=this.acceptStoredCommitment(r,p,input.quoteId,input.requestId);return ()=>({commitment:clone(commitment)});});
+ }
+ acceptPlayerCall(code:string,input:{participantToken:string;quoteId:string;requestId:string}) {
+  const r=this.room(code),p=this.participant(r,input.participantToken);
+  const previous=r.points?.calls.find(call=>call.participantId===p.id&&call.requestId===input.requestId);
+  if(previous&&previous.quoteId!==input.quoteId)fail(409,'IDEMPOTENCY_CONFLICT','That request ID was already used for another commitment.');
+  if(!r.points?.quotes.some(quote=>quote.participantId===p.id&&quote.quoteId===input.quoteId&&quote.playerCall))fail(409,'BAD_QUOTE','Review a player call quote before creating a call.');
+  return this.acceptCommitment(code,input);
  }
  getCommitmentReceipt(code:string,participantToken:string,requestId:string):CommitmentReceipt {
   const r=this.room(code),p=this.participant(r,participantToken),call=r.points?.calls.find(call=>call.participantId===p.id&&call.requestId===requestId);
@@ -224,6 +276,7 @@ export class RoomStore {
  private refreshDeadline(r:Room):void {
   const q=r.question?.view;if(q?.status!=='open')return;
   const remaining=Math.max(0,r.durationMs-r.elapsedMs);q.remainingMs=remaining;q.locksAt=this.now()+remaining;q.opensAt=q.locksAt-r.durationMs;
+  for(const call of r.playerCalls??[]){if(call.windowQuestionId===q.id&&call.view.status==='open'){call.view.remainingMs=remaining;call.view.locksAt=q.locksAt;}}
  }
  tick():void {
   const now=this.now();
@@ -249,9 +302,17 @@ export class RoomStore {
   const adapter=this.adapter(r);r.beatIndex++;const beat=adapter.beats[r.beatIndex];if(!beat)return;
   r.elapsedMs=0;r.durationMs=adapter.duration(beat,r.speed);r.windowElapsedMs=0;
   if(adapter.locksQuestion(beat)&&r.question?.view.status==='open'){r.question.view.status='locked';r.question.view.remainingMs=0;}
+  if(adapter.locksQuestion(beat))for(const call of r.playerCalls??[]){if(call.view.status==='open'){call.view.status='locked';call.view.remainingMs=0;}}
   for(const [id,key,n] of beat.deltas){r.stats[id]??={};r.stats[id][key]=(r.stats[id][key]??0)+n;}
   const question=adapter.question(beat,this.now(),r.durationMs);if(question){if(question.target)question.target.eligibleParticipantIds=r.participants.map(p=>p.id);r.question={view:question,picks:{}};}
   const result=r.question?adapter.result(r.question.view,beat):undefined;if(result)this.resolveQuestion(r,result);
+  for(const call of r.playerCalls??[]){
+   const outcome=adapter.result(call.view,beat);if(!outcome)continue;
+   call.view.remainingMs=0;
+   if('voidReason' in outcome){call.view.status='void';call.view.voidReason=outcome.voidReason;}
+   else {call.view.status='resolved';call.view.result=outcome;}
+   if(r.points)r.points=settleTarget(r.points,call.view.id,{revision:1,...outcome},this.now());
+  }
   if(beat.type==='final'){r.phase='final';this.recordSeason(r);}
  }
  private resolveQuestion(r:Room,result:QuestionResolution):void {
@@ -292,6 +353,9 @@ export class RoomStore {
   const view:RoomSnapshot={version:r.version,serverNow:this.now(),rulesVersion:r.rulesVersion,room:this.summary(r),game:adapter.projectGame(r.beatIndex,r.phase),rules:clone(r.rules),
    players:adapter.players.map(player=>{const stats=clone(r.stats[player.id]??{});const rawPoints=adapter.rawPoints(stats,player.role);return {id:player.id,name:player.name,teamId:player.team,teamShort:player.team,position:player.pos,role:player.role,salary:player.salary,...(player.projectedPoints!==undefined?{projectedPoints:player.projectedPoints,projectionSource:player.projectionSource,salaryModelVersion:player.salaryModelVersion}:{}),multiplier:r.rules.positionMultipliers[player.pos]??1,stats,rawPoints:round(rawPoints),points:round(rawPoints*(r.rules.positionMultipliers[player.pos]??1)),statLine:statLine(stats)};}),standings:this.standings(r),season:{id:r.seasonId,name:this.season(r).name,standings:clone(this.season(r).standings).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name))}};
   if(r.question)view.question=this.questionView(r.question);if(r.lastQuestion)view.lastQuestion=this.questionView(r.lastQuestion);
+  if(r.points)view.calls=(r.playerCalls??[]).map(call=>{
+   const result=clone(call.view);result.pickCounts=Object.fromEntries(result.options.map(option=>[option.id,r.points!.calls.filter(accepted=>accepted.targetId===result.id&&accepted.optionId===option.id).length]));return {...result,creatorId:call.creatorId,createdAt:call.createdAt};
+  });
   if(p){view.me={participantId:p.id,name:p.name,...(p.lineup?{lineup:clone(p.lineup)}:{})};const pick=r.question?.picks[p.id];if(pick)view.me.currentPick={questionId:r.question!.view.id,optionId:pick.optionId};if(r.points){view.me.bank=bankFor(r.points,p.id);view.me.commitments=r.points.calls.filter(call=>call.participantId===p.id).map(publicCommitment);}}
   return view;
  }
