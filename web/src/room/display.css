@@ -173,3 +173,4 @@
 .rd .rd-voice button { display:inline-flex; align-items:center; gap:6px; min-height:40px; font-size:calc(var(--rd-s) * .75); }
 .rd .rd-voice button[aria-pressed=true] { border-color:var(--lg-orange); box-shadow:inset 3px 0 var(--lg-orange); }
 .rd-voice small, .rd .ac small { color:var(--lg-muted); font-size:calc(var(--rd-s) * .65); max-width:16em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rd-court-ball.is-stale { opacity:.35; }

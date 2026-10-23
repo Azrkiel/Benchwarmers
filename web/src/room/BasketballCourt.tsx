@@ -1,5 +1,18 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import { possessionTeamId, sourceStatus, type CourtPoint, type RoomGameNext, type RoomViewNext } from './sport';
+
+/** Interpolate only between genuine observations this close together; jump otherwise. */
+export const TRACK_GAP_MS = 1000;
+export const TRACK_STALE_MS = 3000;
+export const TRACK_HIDE_MS = 10000;
+
+/** How to draw a tracked ball: glide time from the previous observation, and freshness. */
+export function trackStyle(prev: { observedAt: number } | null, next: { observedAt: number }, serverNow: number) {
+  const gap = prev ? next.observedAt - prev.observedAt : Infinity;
+  const glideMs = gap > 0 && gap <= TRACK_GAP_MS ? gap : 0;
+  const age = serverNow - next.observedAt;
+  return { glideMs, freshness: age > TRACK_HIDE_MS ? 'hidden' as const : age > TRACK_STALE_MS ? 'stale' as const : 'fresh' as const };
+}
 
 /**
  * Full court, away basket left and home basket right (matching the scorebug).
@@ -15,6 +28,9 @@ export function BasketballCourt({ view, eventPoint, compact = false }: { view: R
   const ball = context?.tracking === 'ball' ? context.ball : null;
   const live = game.sourceMode === 'live';
   const stale = sourceStatus(view) === 'stale';
+  const lastBall = useRef<{ observedAt: number } | null>(null);
+  const track = ball ? trackStyle(lastBall.current, ball, view.serverNow ?? ball.observedAt) : null;
+  useEffect(() => { if (ball) lastBall.current = { observedAt: ball.observedAt }; }, [ball?.observedAt]);
   const label = team ? `${team.name} ball${player ? `, ${player.name}` : ''}` : view.room.phase === 'final' ? 'Game over' : 'Possession unknown';
   return <section className={`rd-court${compact ? ' is-compact' : ''}`} aria-label="Basketball court" style={{ '--team': team?.color ?? 'var(--lg-line)' } as CSSProperties}>
     <svg viewBox="0 0 940 500" role="img" aria-label={label}>
@@ -30,8 +46,8 @@ export function BasketballCourt({ view, eventPoint, compact = false }: { view: R
       {/* Which basket a team attacks is not in the data, so possession tints the centre circle only. */}
       {team && <circle className="rd-court-possession" cx="470" cy="250" r="60" />}
       {eventPoint && <g className="rd-court-event"><circle cx={10 + eventPoint.x * 920} cy={10 + eventPoint.y * 480} r="16" /><text x={10 + eventPoint.x * 920} y={10 + eventPoint.y * 480 - 26} textAnchor="middle">Event location</text></g>}
-      {ball && !stale && <circle className="rd-court-ball" cx={10 + ball.point.x * 920} cy={10 + ball.point.y * 480} r="12" />}
+      {ball && track && track.freshness !== 'hidden' && !stale && <circle className={`rd-court-ball is-${track.freshness}`} cx={10 + ball.point.x * 920} cy={10 + ball.point.y * 480} r="12" style={{ transition: track.glideMs ? `cx ${track.glideMs}ms linear, cy ${track.glideMs}ms linear` : 'none' }} />}
     </svg>
-    <p className="rd-court-label"><b>{label}</b>{!compact && <small>{ball ? (live ? 'Tracked ball position' : 'Scripted ball position') : team ? (live ? 'Live team possession' : 'Scripted possession') : 'No possession data'}</small>}</p>
+    <p className="rd-court-label"><b>{label}</b>{!compact && <small>{ball ? (track?.freshness === 'fresh' ? (live ? 'Tracked ball position' : 'Scripted ball position') : 'Ball position out of date') : team ? (live ? 'Live team possession' : 'Scripted possession') : 'No possession data'}</small>}</p>
   </section>;
 }
