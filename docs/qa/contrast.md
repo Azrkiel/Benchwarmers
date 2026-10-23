@@ -1,5 +1,27 @@
 # A01 Contrast audit
 
+## Re-run 2026-10-23
+
+Re-run of the same scripts against a Vite dev server on `http://127.0.0.1:5212` (worktree `Benchwarmers-contrast`, branch `fix/contrast`, based on `origin/dev`). `dev` had already fixed part of the original list (`.rm-endzone` text now uses `inkOn()`, `.party-chip` uses `--bw-link`, room/voice-lab/home control borders use `--bw-control-line`), so the baseline on this branch was lower than the 2026-10-22 snapshot.
+
+| | Baseline (dev) | After |
+| --- | --- | --- |
+| Unique failures, all | 52 (54 raw) | 16 (16 raw) |
+| Unique failures, enabled controls | 38 (4 text were disabled `ds-send`; 34 non-text) | 2 (both false positives, below) |
+| Text failures | 4 (all disabled `ds-send`) | 0 |
+
+Changes:
+- Control borders use `--bw-control-line` (`#73767d`, 3.8:1 or better on `#101113`/`#1a1a1a`/`#202124`): device `.ds-gear`, `.ds-input`, `.ds-conversation-toggle` (`device.css`), lounge `.lg-seat` (`lounge.css`), TV `.tv-action` incl. `#tv-rosters-action` (`screen.css`). Dividers keep `--lg-line`.
+- New token `--bw-action-edge: #d4172f` (`brand.css`, 3.28:1 on `#1a1a1a`, 3.57:1 on `#101113`) used as the border of red primary buttons so the button boundary passes 3:1 while the fill stays `#c8102e`: `.rm-primary` incl. hover (`room.css`), `.lg-primary` (`lounge.css`), `.tv-action-primary` (`screen.css`), `.vid-btn-primary` (`voiceid.css`). Hover border keeps the edge colour (was `#aa0d26`, 2.32:1).
+- TV nav hover: transparent 1px border by default, `#73767d` border on hover (`screen.css`, added lines only) so hover has a 3:1 cue besides the fill.
+- `.ds-send:disabled` now uses `--lg-raised` fill and `--lg-muted` label instead of 0.35 opacity on red (label readable).
+
+Still reported (not real failures):
+- Disabled controls (exempt): "Find game"/"Open room" fill 1.26:1, `.ds-send` disabled fill 1.17:1, room `Send` disabled border 2.23:1 (`room.css:17` disabled primary keeps `--lg-line`).
+- `/voice-lab` `#vid-threshold`, `#vid-margin`: false positive. The `#3b3b3b` is the computed `background-color`, which Chrome does not paint for `type=range`. An element screenshot shows a light track with a red fill and thumb (both well above 3:1).
+
+Unchanged limits: gradient/image/video backgrounds are still not measured (36 unknown), and Playwright hover timeouts (not contrast related) still occur. Total measurements 2550 (2563 baseline).
+
 Snapshot, 2026-10-22, taken against the Vite dev server at `http://127.0.0.1:5197` (worktree `Benchwarmers-espn-uiux`) while other agents were editing `web/src/device`, `web/src/tv-broadcast` and `web/src/room`. Re-run the scripts before trusting any single number. Nothing in app source was changed.
 
 Scripts (scratchpad, not committed): `contrast.cjs` (main walk), `contrast2.cjs` (focus-indicator, placeholder, hit-test pass), `analyze.cjs`, shared `common.cjs`. Raw output: `contrast-results.json`, `contrast2-results.json`.
