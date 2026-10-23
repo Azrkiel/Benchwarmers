@@ -5,6 +5,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { Blocked, Report, Server, assertGame, exists, prepareState, sha256, writeJson } from './common.mjs';
 import { createServer } from 'node:http';
+import { Worker } from 'node:worker_threads';
 import { backup, restore } from './storage.mjs';
 import { candidateEvidence, requireEvidence, requireLoadEvidence } from './evidence.mjs';
 import { spawn } from 'node:child_process';
@@ -33,6 +34,22 @@ test('service deadline covers both stalled headers and a stalled response body',
   t.after(() => { server.closeAllConnections(); return new Promise(resolve => server.close(resolve)); });
   const client = new Server('', server.address().port);
   for (const route of ['/headers', '/body']) await assert.rejects(client.request(route, { timeout: 50 }), error => error.name === 'AbortError');
+});
+
+test('a paused controller can read again after the server expires its idle connection', async t => {
+  // A separate server thread can expire a socket while the controller is paused.
+  const worker = new Worker(`
+    const {parentPort}=require('node:worker_threads');
+    const server=require('node:http').createServer((_req,res)=>{res.setHeader('Keep-Alive','timeout=5');res.end('{"ok":true}');});
+    server.keepAliveTimeout=1; server.keepAliveTimeoutBuffer=0;
+    server.listen(0,'127.0.0.1',()=>parentPort.postMessage(server.address().port));
+  `, { eval: true });
+  t.after(() => worker.terminate());
+  const port = await new Promise((resolve, reject) => { worker.once('message', resolve); worker.once('error', reject); });
+  const client = new Server('', port);
+  assert.equal((await client.request('/')).body.ok, true);
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1200);
+  assert.equal((await client.request('/')).body.ok, true);
 });
 
 async function directory(t) {

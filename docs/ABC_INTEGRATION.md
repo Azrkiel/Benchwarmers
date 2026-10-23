@@ -27,7 +27,7 @@ For C's isolated rehearsal, use `npm run demo:basketball` on port 3037 and follo
 ## Integration fixes
 
 - C's browser runner now opens B's host panel, explicitly selects the requested sport and uses the combined display/receipt selectors by default. Its real API, sport identity, privacy, response-loss and final/restart assertions remain intact.
-- C's local HTTP controller uses Node's native HTTP client with the same ten-second deadline. A diagnostic run showed the server continuing to tick during fetch-controller stalls; changing only that transport produced a complete zero-error load run. This isolates an observed harness problem without claiming a proven upstream Node defect. Transport tests cover UTF-8 JSON, credential headers, status assertions and deadlines during both header and body stalls.
+- C's local HTTP controller uses independent native HTTP sockets with the same ten-second deadline. A separate-thread regression reproduces `ECONNRESET` when a paused controller reuses a socket the server has expired. The fix avoids that reuse; it adds no retries and does not relax the zero-error or latency criteria. Transport tests also cover UTF-8 JSON, credential headers, status assertions and deadlines during both header and body stalls. Earlier controller stalls are retained as historical evidence; this does not claim a proven upstream Node defect.
 - README and the demo banner now describe both sports, the combined display route and the actual 30-tool MCP surface.
 - [The selector contract](qa/worker-c/SELECTORS.md) documents the current defaults and optional legacy-form overrides. A separate selector JSON is no longer needed for the combined interface.
 

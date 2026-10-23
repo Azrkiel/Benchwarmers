@@ -155,11 +155,11 @@ export class Server {
   }
   async request(route, { body, token, expected = 200, timeout = 10000 } = {}) {
     const payload = body === undefined ? undefined : JSON.stringify(body);
-    // Use the same bounded native HTTP transport across platforms. Some Node 22
-    // Windows fetch runs stalled the controller while the server kept ticking.
+    // Each probe owns its socket: a paused controller must not reuse an idle
+    // connection the server expired. No hidden retries or relaxed deadlines.
     const response = await new Promise((resolve, reject) => {
       const request = httpRequest(this.base + route, {
-        method: payload === undefined ? 'GET' : 'POST', signal: AbortSignal.timeout(timeout),
+        method: payload === undefined ? 'GET' : 'POST', signal: AbortSignal.timeout(timeout), agent: false,
         headers: { ...(payload === undefined ? {} : { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       }, response => {
         let text = ''; response.setEncoding('utf8');
