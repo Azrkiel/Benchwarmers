@@ -18,6 +18,8 @@ export type RoomCommand =
   /** Point commitments (Phase 10). The quote/confirmation state is Worker A's service. */
   | { kind: 'commit'; questionId?: string; optionId?: string; amount?: number }
   | { kind: 'commit_confirm' }
+  /** Upfront winner pick (Phase 13), only while the room's pregame pick is accepting. */
+  | { kind: 'pregame_pick'; optionId: string }
   | { kind: 'clarify'; reply: string };
 
 export type RoomActor = { participantToken?: string; hostToken?: string };
@@ -103,6 +105,12 @@ export function parseCommand(input: string, view: RoomView): RoomCommand {
     if (option && 'optionId' in option) return { kind: 'pick', questionId: view.question.id, optionId: option.optionId };
     if (option) return { kind: 'clarify', reply: option.reply };
   }
+  const pregame = view.pregame;
+  if (!view.question && pregame?.acceptingPicks && !QUESTION_WORD.test(text)) {
+    const said = ` ${words(text).join(' ')} `;
+    const hits = pregame.options.filter((o) => teamAliases(view, o).some((alias) => said.includes(` ${alias} `)));
+    if (hits.length === 1) return { kind: 'pregame_pick', optionId: hits[0]!.id };
+  }
   if (/\b(score|quarter|clock|what happened|what'?s happening)\b/.test(text)) return { kind: 'read', topic: 'score' };
   return { kind: 'read', topic: 'help' };
 }
@@ -178,6 +186,21 @@ export function executeCommand(store: RoomStore, code: string, command: RoomComm
   const needSeat = () => done('Choose who you are first. Nothing was changed.', { accepted: false });
   switch (command.kind) {
     case 'clarify': return done(command.reply, { accepted: false });
+    case 'pregame_pick': {
+      if (!token || !view.me) return needSeat();
+      const pregame = view.pregame;
+      const label = pregame?.options.find((o) => o.id === command.optionId)?.label ?? command.optionId;
+      if (!pregame?.acceptingPicks) return done('Winner picks are closed. Nothing was changed.', { accepted: false });
+      if (view.me.pregamePick?.optionId === command.optionId) return done(`${label} is already your winner pick.`, { accepted: true });
+      const requestId = `voice-pregame-${createHash('sha256').update(`${view.me.participantId}:${command.optionId}:${view.me.pregamePick?.optionId ?? ''}`).digest('hex').slice(0, 40)}`;
+      try { view = store.pickPregame(code, { participantToken: token, requestId, optionId: command.optionId }); }
+      catch (err) {
+        if (err instanceof RoomError && err.code === 'PICKS_LOCKED') return done('Winner picks closed when the game started. Nothing was changed.', { accepted: false });
+        if (err instanceof RoomError && err.status < 500) return done(`${label} was not accepted: ${err.message}`, { accepted: false });
+        throw err;
+      }
+      return view.me?.pregamePick?.optionId === command.optionId ? done(`${label} to win: accepted. A correct pick is worth ${pregame.correctPoints} points.`, { accepted: true }) : done(`${label} was not accepted.`, { accepted: false });
+    }
     case 'commit': {
       if (!token || !view.me) return needSeat();
       // Rooms without a bank do not offer commitments; never fall back to a free pick.

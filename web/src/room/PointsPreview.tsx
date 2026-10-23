@@ -30,7 +30,8 @@ const fakeQuote = (optionLabel: string, amount: number): CommitQuote => ({ quote
 export function PointsPreview() {
   return <main className="rm rm-phone" style={{ maxWidth: 520 }}>
     <header className="rm-header"><BrandLockup size={26} /><span className="rd-fixture" style={{ background: 'var(--bw-warning)', color: '#0b0b0d', padding: '4px 8px', borderRadius: 3, fontWeight: 600 }}>FIXTURE PREVIEW</span></header>
-    <PregamePick state={{ questionId: 'pg', closesAt: Date.now() + 90000, status: 'open', resolutionRule: 'The final score decides it, not a market settlement.', crowd: { home: 3, away: 1 } }} home={view.game.home} away={view.game.away} onPick={async () => undefined} />
+    <PregamePick pregame={{ id: 'pregame', status: 'open', acceptingPicks: true, text: 'Who wins tonight?', options: [{ id: 'summit', label: 'Summit Foxes' }, { id: 'harbor', label: 'Harbor Hawks' }], pickCounts: { harbor: 3, summit: 1 }, cutoff: 'replay_start', correctPoints: 10, resolutionRule: 'The replay final score decides the winner; a tied final voids the pick.' }}
+      teams={[view.game.away, view.game.home]} reference={{ status: 'unavailable', reason: 'fictional_game', label: 'Fictional game', reference: null, commitmentQuotingEnabled: false }} onPick={async () => undefined} />
     <CommitPoints question={view.question!} bank={bank} defaultOptionId="three" onQuote={async (_o, amount) => fakeQuote('Three', amount)} onConfirm={async () => { throw new RoomRequestError('Fixture preview: nothing is committed.', 409, 'PREVIEW'); }} />
     <CreateCall catalog={catalogTemplates(catalog, [view.game.home, view.game.away])} bank={bank} onQuote={async (draft) => fakeQuote(draft.optionId ?? '', draft.amount)} onCreate={async () => { throw new RoomRequestError('Fixture preview: no call is created.', 409, 'PREVIEW'); }} />
     <BankPanel standing={view.standings[0]!} bank={bank} />

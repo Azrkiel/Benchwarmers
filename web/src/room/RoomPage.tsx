@@ -17,7 +17,7 @@ import { CommitPoints } from './CommitPoints';
 import { CreateCall } from './CreateCall';
 import { PregamePick } from './PregamePick';
 import { pointsApi } from './points/api';
-import { catalogTemplates, type CallCatalog, type PointsMeFields, type PointsSnapshotFields } from './points/types';
+import { catalogTemplates, type CallCatalog, type PointsMeFields, type PointsSnapshotFields, type PregameReferenceResponse } from './points/types';
 import { roomSport, sourceLabel } from './sport';
 import { useRoom } from './useRoom';
 import './room.css';
@@ -44,6 +44,9 @@ export function RoomPage() {
   const [tab, setTab] = useState<RoomViewId | null>(null);
   const [catalog, setCatalog] = useState<CallCatalog | null>(null);
   const [catalogError, setCatalogError] = useState('');
+  const [pregameRef, setPregameRef] = useState<PregameReferenceResponse>();
+  const hasPregame = !!view?.pregame;
+  useEffect(() => { if (hasPregame && !pregameRef) void pointsApi(code, undefined).pregameReference().then(setPregameRef).catch(() => undefined); }, [code, hasPregame, pregameRef]);
   const phase = view?.room.phase;
   // Follow the game phase (lobby -> game -> results) until the participant picks a view.
   const [phaseSeen, setPhaseSeen] = useState(phase);
@@ -75,8 +78,8 @@ export function RoomPage() {
   const api = pointsApi(code, credentials.participantToken);
   const refreshSoon = () => { void refresh().catch(() => undefined); };
   const committedHere = !!(view.question && mine?.commitments?.some((c) => c.questionId === view.question!.id));
-  const pregame = extra.pregame && <PregamePick state={extra.pregame} home={view.game.home} away={view.game.away} serverOffsetMs={view.serverNow ? view.serverNow - Date.now() : 0}
-    onPick={joined ? async (side) => { await send('picks', { participantToken: credentials.participantToken, questionId: extra.pregame!.questionId, optionId: side, requestId: globalThis.crypto?.randomUUID?.() ?? `pregame-${Date.now()}` }); } : undefined} />;
+  const pregame = view.pregame && <PregamePick pregame={view.pregame} teams={[view.game.away, view.game.home]} myPick={view.me?.pregamePick?.optionId} reference={pregameRef}
+    onPick={joined ? async (optionId) => { await api.pickPregame(optionId, globalThis.crypto?.randomUUID?.() ?? `pregame-${Date.now()}`); refreshSoon(); } : undefined} />;
   const commit = mine?.bank && view.question && <CommitPoints key={view.question.id} question={view.question} bank={mine.bank} defaultOptionId={view.me?.currentPick?.questionId === view.question.id ? view.me.currentPick.optionId : undefined}
     receipt={mine.commitments?.find((c) => c.questionId === view.question!.id)}
     onQuote={(optionId, amount) => api.quote(view.question!.id, optionId, amount)} onConfirm={async (quote, requestId) => { const r = await api.commit(quote, requestId); refreshSoon(); return r; }} />;

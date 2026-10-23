@@ -51,7 +51,7 @@ it('keeps commitment, call and pregame screens hidden until the snapshot carries
   expect(screen.queryByRole('button', { name: 'Make a call' })).toBeNull();
   cleanup();
   const bank = { grantPoints: 100, availablePoints: 100, reservedPoints: 0, settledRiskNet: 0, correctionDebt: 0 };
-  show({ ...live, me: { ...fixture.me!, bank, commitments: [] }, calls: [], pregame: { questionId: 'pg', closesAt: 1, status: 'locked', resolutionRule: 'Final score decides.', crowd: { home: 1, away: 0 } } } as unknown as RoomView);
+  show({ ...live, me: { ...fixture.me!, bank, commitments: [] }, calls: [], pregame: { id: 'pg', status: 'locked', acceptingPicks: false, text: 'Who wins tonight?', options: [{ id: 'h', label: 'Hogs' }, { id: 'a', label: 'Owls' }], pickCounts: { h: 1 }, cutoff: 'replay_start', correctPoints: 10, resolutionRule: 'Final score decides.' } } as unknown as RoomView);
   expect(await screen.findByRole('region', { name: 'Commit points' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Make a call' })).toBeTruthy();
   expect(screen.getByRole('region', { name: 'Pick the winner' })).toBeTruthy();

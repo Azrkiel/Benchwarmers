@@ -1,53 +1,59 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import type { PregameView } from '@shared/room';
 import { RoomRequestError } from './api';
-import type { PregamePickState } from './points/types';
+import type { MarketReference, PregameReferenceResponse } from './points/types';
 
 type Team = { id: string; name: string; short: string; color: string };
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
 /**
- * Upfront winner pick (P13.4) with room support and market reference shown as two
- * different things (P13.5): the crowd is who in this room picked each side; the market
- * reference is an external, timestamped price. Neither is a probability we computed,
- * and the server clock decides when picks close.
+ * Upfront winner pick (P13.4) over Worker A's PregameView, with room support and the
+ * market reference shown as two different things (P13.5). Room picks are counts from
+ * this room; a market reference would be an outside, timestamped price. Fictional games
+ * have none and say so. The server decides when picks close (here: when the host starts).
  */
-export function PregamePick({ state, home, away, serverOffsetMs = 0, onPick }: {
-  state: PregamePickState; home: Team; away: Team; serverOffsetMs?: number;
-  onPick?: (side: 'home' | 'away') => Promise<void>;
+export function PregamePick({ pregame, teams, myPick, reference, onPick }: {
+  pregame: PregameView; teams: Team[]; myPick?: string;
+  reference?: PregameReferenceResponse | { status: 'available'; reference: MarketReference };
+  onPick?: (optionId: string) => Promise<void>;
 }) {
-  const [now, setNow] = useState(() => Date.now() + serverOffsetMs);
-  const [sending, setSending] = useState<'home' | 'away' | null>(null);
+  const [sending, setSending] = useState<string | null>(null);
   const [error, setError] = useState('');
-  useEffect(() => { if (state.status !== 'open') return; const t = setInterval(() => setNow(Date.now() + serverOffsetMs), 1000); return () => clearInterval(t); }, [state.status, serverOffsetMs]);
-  const open = state.status === 'open' && now < state.closesAt;
-  const crowdTotal = state.crowd.home + state.crowd.away;
-  const ref = state.reference;
-  async function pick(side: 'home' | 'away') {
+  const open = pregame.status === 'open' && pregame.acceptingPicks;
+  const total = Object.values(pregame.pickCounts).reduce((a, b) => a + b, 0);
+  const market = reference?.status === 'available' ? reference.reference : undefined;
+  async function pick(optionId: string) {
     if (!onPick || !open || sending) return;
-    setSending(side); setError('');
-    try { await onPick(side); }
-    catch (problem) { setError(problem instanceof RoomRequestError && problem.code === 'PICKS_LOCKED' ? 'Picks closed before tip-off. Not accepted.' : 'Not confirmed. Check your pick before trying again.'); }
+    setSending(optionId); setError('');
+    try { await onPick(optionId); }
+    catch (problem) { setError(problem instanceof RoomRequestError && problem.code === 'PICKS_LOCKED' ? 'Picks closed when the game started. Not accepted.' : 'Not confirmed. Check your pick before trying again.'); }
     finally { setSending(null); }
   }
-  const side = (key: 'home' | 'away', team: Team) => {
-    const crowd = crowdTotal ? state.crowd[key] / crowdTotal : 0;
-    const won = state.result === key;
-    return <div className={`rm-pregame-side${state.myPick === key ? ' is-mine' : ''}${won ? ' is-winner' : ''}`} style={{ borderColor: team.color }}>
-      <b>{team.name}</b>
-      <dl>
-        <div><dt>Room picks</dt><dd>{crowdTotal ? `${state.crowd[key]} (${pct(crowd)})` : '—'}</dd></div>
-        <div><dt>Market reference</dt><dd>{ref ? pct(ref[key]) : 'None'}</dd></div>
-      </dl>
-      {onPick && <button aria-pressed={state.myPick === key} disabled={!open || !!sending} onClick={() => { void pick(key); }}>{sending === key ? 'Sending…' : state.myPick === key ? `✓ ${team.short} picked` : `Pick ${team.short}`}</button>}
-      {won && <strong>✓ Won</strong>}
-    </div>;
-  };
-  const left = Math.max(0, Math.ceil((state.closesAt - now) / 1000));
+  const status = pregame.status === 'void' ? `Void${pregame.voidReason ? ` · ${pregame.voidReason}` : ''} · no points`
+    : pregame.status === 'resolved' ? 'Final'
+    : open ? 'Open until the host starts the game' : 'Closed at tip-off';
   return <section className="rm-pregame" aria-label="Pick the winner">
-    <div className="rm-section-heading"><h2>Who wins tonight?</h2><span>{state.status === 'void' ? 'Void · no points' : state.status === 'resolved' ? 'Final' : open ? `Closes in ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}` : 'Closed at tip-off'}</span></div>
-    <div className="rm-pregame-sides">{side('away', away)}{side('home', home)}</div>
-    <p className="rm-muted">{ref ? <>Market reference: {ref.sourceUrl ? <a href={ref.sourceUrl} target="_blank" rel="noreferrer">{ref.source}</a> : ref.source}, {ref.method}, as of {new Date(ref.observedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}{ref.stale ? ' (out of date)' : ''}. It is an outside price, not our prediction.</> : 'No market reference for this game (fictional teams have no real market).'} Room picks show who in this room chose each side.</p>
-    <p className="rm-muted">How it's decided: {state.resolutionRule}</p>
+    <div className="rm-section-heading"><h2>{pregame.text || 'Who wins tonight?'}</h2><span>{status}</span></div>
+    <div className="rm-pregame-sides">{pregame.options.map((option) => {
+      const team = teams.find((t) => t.id === option.id);
+      const count = pregame.pickCounts[option.id] ?? 0;
+      const won = pregame.result?.optionId === option.id;
+      const marketShare = market ? market.prices[option.id] : undefined;
+      return <div key={option.id} className={`rm-pregame-side${myPick === option.id ? ' is-mine' : ''}${won ? ' is-winner' : ''}`} style={{ borderColor: team?.color }}>
+        <b>{option.label}</b>
+        <dl>
+          <div><dt>Room picks</dt><dd>{total ? `${count} (${pct(count / total)})` : '—'}</dd></div>
+          <div><dt>Market reference</dt><dd>{marketShare !== undefined ? pct(marketShare) : 'None'}</dd></div>
+        </dl>
+        {onPick && <button aria-pressed={myPick === option.id} disabled={!open || !!sending} onClick={() => { void pick(option.id); }}>{sending === option.id ? 'Sending…' : myPick === option.id ? `✓ ${team?.short ?? option.label} picked` : `Pick ${team?.short ?? option.label}`}</button>}
+        {won && <strong>✓ Won</strong>}
+      </div>;
+    })}</div>
+    <p className="rm-muted">{market
+      ? <>Market reference: {market.sourceUrl ? <a href={market.sourceUrl} target="_blank" rel="noreferrer">{market.source}</a> : market.source}, {market.method}, as of {new Date(market.observedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}{market.stale ? ' (out of date)' : ''}. It is an outside price, not our prediction.</>
+      : reference?.status === 'unavailable' && reference.reason === 'fictional_game' ? 'No market reference: these are fictional teams.' : 'No market reference for this game.'} Room picks show who in this room chose each side.</p>
+    <p className="rm-muted">Correct pick: +{pregame.correctPoints} points. How it's decided: {pregame.resolutionRule}</p>
+    {pregame.result && <p role="status">Result: {pregame.result.explanation}</p>}
     {error && <p className="rm-error" role="alert">{error}</p>}
   </section>;
 }

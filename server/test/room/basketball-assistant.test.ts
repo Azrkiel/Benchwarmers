@@ -229,3 +229,22 @@ describe('voice commitments in a points-enabled room', () => {
     expect(answerRoom(store, code, { text: 'confirm', participantToken: token }).reply).toBe('There is no offer waiting. Ask for one first, for example “put 25 points on the Hawks”.');
   });
 });
+
+describe('voice winner pick', () => {
+  it('picks the winner by team name in the lobby and refuses after start', () => {
+    let now = 7_000_000;
+    const store = new RoomStore({ persist: false, now: () => now, speed: 4, enablePregame: true });
+    const created = store.create({ gameId: 'harbor-vs-summit' });
+    const code = created.view.room.code;
+    const seat = store.join(code, { name: 'Maya' });
+    const reply = answerRoom(store, code, { text: 'Hawks win tonight', participantToken: seat.participantToken });
+    expect(reply).toMatchObject({ accepted: true, reply: 'Harbor Hawks to win: accepted. A correct pick is worth 10 points.' });
+    expect(store.view(code, seat.participantToken).me!.pregamePick!.optionId).toBe('harbor');
+    expect(answerRoom(store, code, { text: 'Hawks win tonight', participantToken: seat.participantToken }).reply).toBe('Harbor Hawks is already your winner pick.');
+    store.autoLineup(code, { participantToken: seat.participantToken });
+    store.host(code, { hostToken: created.hostToken, action: 'start' });
+    now += 10;
+    const late = answerRoom(store, code, { text: 'Foxes win', participantToken: seat.participantToken });
+    expect(late.view.me!.pregamePick!.optionId).toBe('harbor');
+  });
+});

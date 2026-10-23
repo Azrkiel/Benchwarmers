@@ -111,12 +111,12 @@ function JoinQr({ url }: { url: string }) {
 
 function Lobby({ view, joinUrl }: { view: RoomViewNext; joinUrl: string }) {
   const ready = view.standings.filter((row) => row.roster.length === view.rules.flexSlots + 1).length;
-  const pregame = (view as RoomViewNext & PointsSnapshotFields).pregame;
+  const pregame = view.pregame;
   return <section className="rd-call rd-lobby" aria-label="Join">
     <span className="rd-eyebrow">Pregame</span>
     <h2>Join on your phone</h2>
     <div className="rd-lobby-join"><JoinQr url={joinUrl} /><div><b className="rd-code">{view.room.code}</b><small>{joinUrl.replace(/^https?:\/\//, '')}</small></div></div>
-    <p className="rd-call-status"><span>{ready} of {view.room.participantCount} lineups ready</span>{pregame && <span>Winner picks: {view.game.away.short} {pregame.crowd.away} · {view.game.home.short} {pregame.crowd.home}{pregame.reference ? ` · Market reference ${Math.round(pregame.reference.away * 100)}–${Math.round(pregame.reference.home * 100)}` : ''}</span>}</p>
+    <p className="rd-call-status"><span>{ready} of {view.room.participantCount} lineups ready</span>{pregame && <span>Winner picks: {[view.game.away, view.game.home].map((t) => `${t.short} ${pregame.pickCounts[t.id] ?? 0}`).join(' · ')}</span>}</p>
   </section>;
 }
 

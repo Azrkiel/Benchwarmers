@@ -63,20 +63,14 @@ export function catalogTemplates(catalog: CallCatalog, teams: { id: string; name
   }));
 }
 
-/** Pregame winner pick (Phase 13). `reference` is absent for fictional games or when no matching market exists. */
-export type PregameReference = { source: string; sourceUrl?: string; observedAt: number; home: number; away: number; method: string; stale: boolean };
-export type PregamePickState = {
-  questionId: string;
-  closesAt: number;
-  status: 'open' | 'locked' | 'resolved' | 'void';
-  resolutionRule: string;
-  reference?: PregameReference;
-  crowd: { home: number; away: number };
-  myPick?: 'home' | 'away';
-  result?: 'home' | 'away';
-};
+/* Phase 13: Worker A's PregameView (server/src/shared/pregame.ts, 1e96ec5) is on RoomView.
+ * A market reference is not available for any current game; this shape is the client's
+ * proposal for when A maps a real market (prices keyed by team id). */
+import type { PregameReference } from '@shared/room';
+export type PregameReferenceResponse = PregameReference;
+export type MarketReference = { source: string; sourceUrl?: string; observedAt: number; method: string; stale: boolean; prices: Record<string, number> };
 
 /** Public fields a points-enabled snapshot is proposed to add (pregame.myPick only for an authenticated reader). */
-export type PointsSnapshotFields = { calls?: RoomPlayerCall[]; pregame?: PregamePickState };
+export type PointsSnapshotFields = { calls?: RoomPlayerCall[] };
 /** Private fields proposed under `me`. */
 export type PointsMeFields = { bank?: BankSummary; commitments?: CommitmentReceipt[] };
