@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "runId": "abe4596c-1d3b-4155-8e0a-6bfdb6b01d2f",
+  "kind": "load",
+  "game": "basketball",
+  "startedAt": "2026-10-23T13:38:37.421Z",
+  "runtime": {
+    "node": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 1346,
+      "detail": {
+        "isolatedData": true,
+        "port": 55695,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "load-32-clients",
+      "status": "passed",
+      "ms": 62273,
+      "detail": {
+        "clients": 32,
+        "durationMs": 60000,
+        "reads": 1920,
+        "writes": 128,
+        "minimumReadsPerClient": 60,
+        "errors": 0,
+        "p50Ms": 105.71910000000207,
+        "p95Ms": 200.6572000000001,
+        "p99Ms": 272.22839999999997,
+        "budgetP95Ms": 500
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "25ded6a5a72c7d422543c6dbd654f694fdd6ac83",
+    "fingerprint": "20f2104507ae9700089fee23fa890879cb1cd41358f4d10a005790ddcde3e81d"
+  },
+  "stateDirectory": "C:\\Users\\jiang\\AppData\\Local\\Temp\\bw-c-vsLY4l",
+  "metrics": {
+    "clients": 32,
+    "durationMs": 60000,
+    "reads": 1920,
+    "writes": 128,
+    "minimumReadsPerClient": 60,
+    "errors": 0,
+    "p50Ms": 105.71910000000207,
+    "p95Ms": 200.6572000000001,
+    "p99Ms": 272.22839999999997,
+    "budgetP95Ms": 500
+  },
+  "completedAt": "2026-10-23T13:39:41.998Z",
+  "status": "passed"
+}

@@ -34,7 +34,28 @@ For C's isolated rehearsal, use `npm run demo:basketball` on port 3037 and follo
 
 ## Verification
 
-The previous host-form failure was reproduced before the fix. Afterward, the full connected browser workflow passed, including three independent browser contexts, three display sizes, reconnect recovery, lost-response receipt reconciliation and final-state recovery after restart. Final committed-candidate reports are recorded here after verification.
+The final tested code candidate is `25ded6a5a72c7d422543c6dbd654f694fdd6ac83`, fingerprint `20f2104507ae9700089fee23fa890879cb1cd41358f4d10a005790ddcde3e81d`. The final evidence/documentation commit adds no application or tooling changes. Both remote delivery tips were fetched and checked again during verification; there were no missing newer B/C commits. B's web/assistant/command/MCP implementation and C's dependency manifest/lockfile are preserved.
+
+| Check | Observed result |
+|---|---|
+| Server tests | 88 files / 991 passed |
+| Web tests | 79 files / 604 passed |
+| Integration tooling tests | 16 passed, including real-server configuration isolation and idle-socket regression |
+| Type checks and assets | Server, widget and web checks passed; production assets built |
+| Basketball service | Full authorization, lineup, MCP, receipt/retry, cutoff, final/season/restart acceptance passed |
+| Basketball browser | Full host/join/pick/assistant, reconnect, three displays, lost-response receipt and final/restart checks passed |
+| Football browser | The same complete connected workflow passed with explicit football selection |
+| Backup/restore | JSON roundtrip, corruption rejection and overwrite refusal passed |
+| Final load | 32 clients, 60 seconds, 1,920 reads, 128 real pick writes, zero errors; p95 200.66 ms against 500 ms |
+| Repeated load | Two earlier consecutive runs after socket isolation also passed, p95 201.12 / 202.24 ms, zero errors |
+| Legacy compatibility | Both scripted household game play-throughs passed |
+| C's full local release gate | Passed all required checks, including exact-source candidate and rollback evidence |
+
+Reports and selected screenshots are in [the evidence directory](qa/abc-integration-2026-10-23/). The final gate is [release.json](qa/abc-integration-2026-10-23/release.json); [basketball](qa/abc-integration-2026-10-23/browser.json) and [football](qa/abc-integration-2026-10-23/football-browser.json) browser reports record the same tested commit and fingerprint. The two repeated-load reports identify their earlier `6cc46b5` candidate separately. Failed pre-fix reports remain under `regressions/`; they are not current acceptance.
+
+The host-form, idle-socket and inherited-configuration failures were observed before their fixes. No test was weakened, no request was silently retried, and no deadline or load budget was increased. Captured phone and shared-display layouts were inspected for both sports; automated checks cover overflow and API/display score agreement at 960×480, 1280×800 and 1920×1080. See the [phone](qa/abc-integration-2026-10-23/phone-pick.png), [compact display](qa/abc-integration-2026-10-23/shared-display-960.png) and [TV display](qa/abc-integration-2026-10-23/shared-display-1920.png).
+
+Scoped correctness/security review checked sport identity, private credentials, unchanged service assertions, bounded deadlines through response bodies, socket ownership and rehearsal storage isolation. Cleanup reused the existing C server/report lifecycle and B selectors; no dependency was added. No unresolved integration finding remains in this local scripted candidate. Existing SQLite experimental and Vite chunk-size warnings remain. This local gate does not certify production capacity or deployment.
 
 ## External acceptance
 
