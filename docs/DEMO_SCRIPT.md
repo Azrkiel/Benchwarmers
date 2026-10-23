@@ -1,5 +1,25 @@
 # Demo script (<= 2:50)
 
+## Worker C: basketball recording candidate
+
+Use [basketball demo operations](BASKETBALL_DEMO.md) and [C's observed results](qa/worker-c/RESULTS.md) first. The older household script below remains a separate legacy scenario. Do not combine its evidence with basketball room claims. The current main baseline does not yet supply the additive basketball room contract; rehearse and pass the full connected candidate before recording it.
+
+| Time | Connected basketball take | Evidence to show |
+| --- | --- | --- |
+| 0:00–0:20 | Explain the shared game night; create basketball from the real homepage | Actual room code and game identity, no fixture flag |
+| 0:20–0:50 | Join from two separate phone profiles; choose captain/flex and save | Service-confirmed lineup, salary cap, two distinct seats |
+| 0:50–1:15 | Open the compact shared display and start from the host phone | Same room and score across the three connected screens |
+| 1:15–1:45 | Make a call inside a real question window; ask the room score | Accepted server receipt and actual tool/assistant reply; describe typed input as typed |
+| 1:45–2:10 | Show score/standings and one accessible celebration | Score remains readable; use sound only if actually enabled and observed |
+| 2:10–2:35 | Show the same room's final and season result after a rehearsed restart | Same standings/season from the authoritative service, no double accounting |
+| 2:35–2:50 | Show actual MCP tools/list and state the limits | Count tools from this candidate; simulation, provider and hardware limits stated plainly |
+
+These times are a shot budget, not a promise that the server replay ends within 2:50. Rehearse its real duration. Keep the full original capture and disclose any time compression; do not splice a fixture or a different room's final into a purported continuous live take. If the final arrives later, shorten narration or extend the recording rather than altering the authoritative clock.
+
+Before recording: use a new isolated season, warm widget/web builds, verify `qa:basketball` and full `qa:browser`, grant actual browser microphone permission only if testing speech, and run the exact spoken phrases yourself. Headless or typed checks do not prove microphone accuracy. Keep credentials, private backups, browser storage and notifications out of the shot. Uploading, publishing and submission remain owner actions. Use a fresh room for another take; never reset a shared production party.
+
+## Legacy household recording script
+
 Benchwarmers: a voice-driven fantasy pick'em for a game-night watch party. Two households (Austin, Seattle) play one party on a shared TV view, talking to a simulated Alexa+ device. The assistant is a rule router in front of our own MCP server.
 
 Every utterance below is traced to a router test or rule in the appendix. Tested phrasing is quoted exactly. Anything marked **untested phrase** runs the same code path as a tested one but was not run as that exact string. Rehearse it once before a take.
