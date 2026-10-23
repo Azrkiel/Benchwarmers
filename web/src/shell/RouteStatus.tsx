@@ -4,7 +4,7 @@ import { BrandLockup } from '../brand/Brand';
 
 function destination(path: string): string {
   if (/^\/room\/[^/]+\/tv\/?$/.test(path) || /^\/tv2?\//.test(path)) return 'TV view';
-  const pages: Record<string, string> = { room: 'Football room', welcome: 'How to play', lounge: 'Lounge preview', watch: 'Watch preview', control: 'Overlay controls', device: 'Device', 'voice-lab': 'Voice setup lab' };
+  const pages: Record<string, string> = { room: 'Football room', welcome: 'How to play', lounge: 'Lounge preview', watch: 'Watch preview', control: 'Overlay controls', device: 'Device', display: 'Smart display (simulated)', 'voice-lab': 'Voice setup lab' };
   return pages[path.split('/')[1]] ?? 'Game night';
 }
 

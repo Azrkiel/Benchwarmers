@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ReactNode } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { DevicePage } from './device/DevicePage';
+import { DisplayPage } from './display/DisplayPage';
 import { VoiceLabPage } from './voiceid/VoiceLabPage';
 import { useScorebookTheme } from './lib/theme';
 import { HomePage } from './home/HomePage';
@@ -35,6 +36,7 @@ export function App() {
         <Route path="/watch/:code" element={<Scorebook><WatchPage /></Scorebook>} />
         <Route path="/control/:code" element={<Scorebook><ControlPage /></Scorebook>} />
         <Route path="/device/:household" element={<DevicePage />} />
+        <Route path="/display/:household" element={<DisplayPage />} />
         <Route path="/voice-lab" element={<VoiceLabPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
