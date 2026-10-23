@@ -15,6 +15,31 @@ This script follows the **current room flow** on `main`: homepage, two phones, s
 | Voice-first, household-aware | "Speaking as Maya": the pick lands on Maya's seat and nobody else's |
 | Fast (Alexa+ wants MCP under 500 ms) | `room_ask ✓ 16 ms` in the panel; AI content runs in a background worker |
 
+## Feature coverage (every claim gets a shot)
+
+Each feature the README, homepage and submission claim, and the beat that shows it. All of these were rehearsed end to end on 2026-10-23 with `node tools/video/rehearse.mjs` (see "Rehearse the take" below).
+
+| Feature | Beat | What must be visible or audible |
+|---|---|---|
+| Host a party from the homepage | 0:20 | **Host a party** → basketball → "Friday Basketball" → room code |
+| **Scan the QR code to join** | 0:20 | Shared display lobby: **"Scan to join"** QR + big room code. Leo points his phone camera at it |
+| Group join, two cities | 0:20 | Lobby **Room leaders** shows Maya and Leo; "N of N lineups ready" |
+| Lineup under a salary cap, by voice | 0:45 | "Your balanced lineup is saved at $50,000 of $50,000." |
+| Captain by nickname, by voice | 0:45 | "Moses Adeyemi is your captain. Lineup cost $49,750." |
+| Same lineup on the phone | 0:45 | **My lineup** → "Lineup saved" |
+| Host controls by voice | 1:05 | `Start the game` → clock runs |
+| **The display calls out the plays (spoken + captioned)** | 1:05–1:50 | "Foxes ball. Which team scores next?" · "Two for the Hawks. Maya takes the lead." · "Final. Maya wins the night." Needs **Enable sound** on the shared display |
+| Live call on the server's clock | 1:15 | **Featured call · Which team scores next?** with "Closes in 0:0x" and a timer bar |
+| Pick by voice, bound to Maya's seat | 1:15 | Reply "Harbor Hawks accepted."; phone shows **✓ Your pick** |
+| Pick by phone | 1:15 | Leo taps Summit Foxes; display "1 pick" each, "2 of 2 answered" |
+| Celebrations + live standings | 1:15–1:50 | BUCKET/THREE fires, Room leaders reorder |
+| Personal question | 1:50 | `What's my rank?` → "Maya, you are number 1 of 2 with … points." |
+| Final winner + season table | 1:50 | Winner card, **Season standings**; phone Results shows the season |
+| Season memory | 1:50 | `Who's leading the season?` → "Maya leads the season with … points." |
+| Self-hosted MCP, 30 tools, fast | 2:15 | MCP calls panel: `tools/list ✓ 30 tools`, `room_ask ✓ … ms` |
+| MCP App board in a host | 2:15 | `docs/img/basic-host-tonight-1280.png` or a live host |
+| Offline, no cloud keys | 2:15 | Diagram "Works offline with no cloud keys" |
+
 ## Screen setup (OBS)
 
 - **Scene A, "Living room":** shared display `/room/<CODE>/display` full screen (F11) at 1920x1080.
@@ -40,10 +65,12 @@ This script follows the **current room flow** on `main`: homepage, two phones, s
 > "This is Benchwarmers, an Alexa+ add-on that turns watching a game with friends into one shared game night."
 
 ### 0:20–0:45 · Host and join (Scene C)
-**On screen:** Maya's phone: homepage, **Host a party**, basketball, room name "Friday Basketball", and the room code appears. Leo's phone: types the code and joins. Both seats show on the shared display lobby.
+**On screen:** Maya's phone: homepage, **Host a party**, basketball, room name "Friday Basketball", and the room code appears. Cut to the shared display lobby: **"Scan to join"** with the QR code and the big room code. Leo points his phone camera at the QR, lands on the join page, types "Leo" and taps **Join room**. Back on the shared display, **Room leaders** now lists Maya and Leo.
+
+The QR encodes the address the shared display was opened on. Open the display on `https://benchwarmers.fly.dev` or the LAN address `npm run demo` prints, **not** `localhost`, or Leo's phone can't open it. Typing the code on the homepage (**Join a party**) works too; use it as the fallback.
 
 **VO:**
-> "Maya hosts a room. Leo joins with the code from across the country. Everyone builds a five-player lineup, a captain plus four flex players, under a salary cap."
+> "Maya hosts a room. Leo scans the code on the TV from across the country, and anyone else on either couch can do the same. Everyone builds a five-player lineup, a captain plus four flex players, under a salary cap."
 
 ### 0:45–1:05 · Agentic lineup by voice (Scene B)
 **On screen:** Smart display, speaking as Maya.
@@ -52,7 +79,7 @@ This script follows the **current room flow** on `main`: homepage, two phones, s
 1. `Build a balanced lineup for me`
 2. `Make Big Mo my captain`
 
-**Expected:** the reply confirms the lineup and the captain. Two `room_ask ✓` rows appear in the MCP calls panel. Cut to Maya's phone: **My lineup** shows the same five players and "Lineup saved".
+**Expected:** the replies read "Your balanced lineup is saved at $50,000 of $50,000." and "Moses Adeyemi is your captain. Lineup cost $49,750." Big Mo is Moses Adeyemi's nickname; the nickname needs the fix on this branch (before it, the live room answered "I couldn't find a player called big mo"). Two `room_ask ✓` rows appear in the MCP calls panel. Cut to Maya's phone: **My lineup** shows the same five players and "Lineup saved".
 
 **VO:**
 > "Or Maya just asks. One sentence and the add-on picks five players that fit the cap. 'Make Big Mo my captain.' Every request is a real MCP tool call to our own server, checked by the same rules as the phone."
@@ -60,17 +87,19 @@ This script follows the **current room flow** on `main`: homepage, two phones, s
 ### 1:05–1:15 · Tip-off (Scene B → Scene A)
 **Say:** `Start the game`
 
-**On screen:** Shared display: the clock starts and the court graphic is live.
+**On screen:** Shared display: the clock starts and the court graphic is live. The first call, **"Which team scores next?"**, opens **at tip-off**, and the display says it out loud: *"Foxes ball. Which team scores next?"* Have `Harbor Hawks` ready to say straight away.
 
 **VO:**
-> "Maya's the host, so she can start the game by voice."
+> "Maya's the host, so she can start the game by voice. The TV calls the action as it happens."
 
 ### 1:15–1:50 · The live call (Scene A + B, the key shot)
 **On screen:** Featured call **"Which team scores next?"** with its countdown ("Closes in 0:08").
 
 **Say, inside the window, speaking as Maya:** `Harbor Hawks`
 
-**Expected:** the reply accepts the pick. The shared display shows "Harbor Hawks · 1 pick". Leo picks Summit Foxes on his phone. The call closes, the Hawks score, **BUCKET** fires and Maya moves to #1.
+**Expected:** the reply is "Harbor Hawks accepted." Maya's phone shows **✓ Your pick** on Harbor Hawks. Leo taps Summit Foxes on his phone. The shared display shows 1 pick on each side and "2 of 2 answered", then "Locked · Waiting for the play". The Hawks score, **BUCKET** fires, and the display announces *"Two for the Hawks. Maya takes the lead."* The scripted game plays the same way every take, so this result is repeatable.
+
+**Call-outs need sound on.** The shared display only speaks after someone clicks **Enable sound** on it (bottom right). Only one screen per room speaks; if another tab holds the sound, click **Play here**. Without it you get the caption line only. Capture desktop audio in OBS. The voice is the browser's text-to-speech, not an Alexa device, so don't call it Alexa in captions.
 
 **Then say:** `What's my rank?` → *"Maya, you are number 1 of 2 with … points."*
 
@@ -134,11 +163,17 @@ Everything is in `docs/video/`. Open `graphics.html` in a browser to preview eac
 ## Before you record
 
 - [ ] Fresh room for every take. Never reset a shared production room. (`npm run demo` locally, or `https://benchwarmers.fly.dev`.)
-- [ ] Set the replay speed to 3–4x from the host phone so a question window and the final both fit. Keep the full raw capture, and caption any cut "Replay sped up".
+- [ ] Set the replay speed from the host phone (**Host controls** → Replay speed). Measured on 2026-10-23: at **4x the whole game runs about 60 s** from tip-off to "Final", and each call stays open only the 8-second minimum. **2x** (about 2 minutes) gives you a calmer call window; 4x fits the beat without cuts. Keep the full raw capture, and caption any cut "Replay sped up".
+- [ ] Click **Enable sound** on the shared display before the take so it calls out the plays, and check OBS is capturing desktop audio.
+- [ ] Open the shared display on the production or LAN address so the lobby QR works from a real phone. Scan it once with the phone you'll use on camera.
 - [ ] Read the **live** tool count from `tools/list` in your take. Say that number. `docs/img/inspector-tools.png` is an older 22-tool build, so don't show it as current.
-- [ ] Rehearse each phrase once. `Build a balanced lineup for me` and `Make Big Mo my captain` are covered by `server/test/room/basketball-assistant.test.ts`. Say a pick only while the call is open; otherwise you'll hear "That call closed".
+- [ ] Rehearse each phrase once. `Build a balanced lineup for me` and `Make Big Mo my captain` are covered on the real basketball catalog by `server/test/room/basketball-assistant.test.ts`. Say a pick only while the call is open; otherwise you'll hear "That call closed".
 - [ ] If speech fails, type the phrase and caption it **"typed"**. Don't imply the voice was recognized when it wasn't.
-- [ ] **Known open issue:** the last-score animation can cover the winner card on the first final (`docs/qa/worker-c/INTEGRATION_FINDINGS.md`). Wait for the animation to clear before you cut to the final card, or check the fix first.
+- [ ] **Known open issue:** the last-score animation can cover the winner card on the first final (`docs/qa/worker-c/INTEGRATION_FINDINGS.md`). Wait for the animation to clear before you cut to the final card, or check the fix first. In both automated rehearsals on 2026-10-23 the winner card was clear at the moment "Final" appeared and 6 s later, but check your own take.
+
+## Rehearse the take
+
+`node tools/video/rehearse.mjs [baseUrl] [outDir]` drives three browsers (Maya's phone, Leo's phone, the 1920×1080 shared display) plus the simulated smart display through this whole script against a running server, and saves a still per beat plus `captions.json` (every call-out the display made) and `meta.json` (room code, QR URL, page errors). Run it against a fresh `npm run demo` before you record. It types the phrases; it doesn't test your microphone. Defaults: `http://localhost:3001`, output in `tools/video/rehearsal/` (gitignored).
 - [ ] Keep these out of the shot: room/host credentials, bookmarks, notifications, the browser profile name.
 - [ ] Wording: say "points", "calls", "picks". Never say "bet", "odds", "wager" or "payout". Use no real team names and no Alexa or Amazon logos.
 
