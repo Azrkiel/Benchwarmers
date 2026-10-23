@@ -29,6 +29,9 @@
     "qa:hardware": "node scripts/basketball.mjs inventory",
     "qa:tracking": "node scripts/basketball.mjs tracking",
     "qa:release": "node scripts/basketball.mjs release",
+    "qa:service": "node scripts/basketball.mjs service --storage sqlite",
+    "qa:features": "node scripts/basketball.mjs features --storage sqlite",
+    "qa:release:service": "node scripts/basketball.mjs release --service-gates",
     "test:integration-tools": "node --test scripts/basketball/*.test.mjs",
     "build:extension": "node extension/build.mjs",
     "typecheck:extension": "tsc --noEmit -p extension/tsconfig.json"

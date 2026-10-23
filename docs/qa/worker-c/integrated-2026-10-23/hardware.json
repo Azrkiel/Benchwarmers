@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "runId": "3a83c2db-ae80-4d74-9fad-3bafc5ca6b0e",
+  "kind": "inventory",
+  "game": "basketball",
+  "startedAt": "2026-10-23T14:44:15.429Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "hardware-inventory",
+      "status": "passed",
+      "ms": 3,
+      "detail": {
+        "platform": "linux",
+        "arch": "x64",
+        "logicalCpus": 4,
+        "memoryBytes": 35743760384,
+        "devices": [
+          {
+            "path": "/dev/snd",
+            "exposed": false
+          },
+          {
+            "path": "/dev/video0",
+            "exposed": false
+          },
+          {
+            "path": "/dev/nvidia0",
+            "exposed": false
+          }
+        ],
+        "bindings": [
+          {
+            "name": "GEMINI_API_KEY",
+            "present": false
+          },
+          {
+            "name": "GEMINI_API_KEYS",
+            "present": false
+          },
+          {
+            "name": "AWS_REGION",
+            "present": false
+          },
+          {
+            "name": "AWS_ACCESS_KEY_ID",
+            "present": false
+          },
+          {
+            "name": "AWS_SESSION_TOKEN",
+            "present": false
+          },
+          {
+            "name": "BEDROCK_MODEL_ID",
+            "present": false
+          },
+          {
+            "name": "CHROMIUM_PATH",
+            "present": false
+          }
+        ],
+        "microphone": "not verified",
+        "echo": "not accessible",
+        "alexaConsole": "not verified",
+        "speech": "browser simulation only; no hardware claim"
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "14d82295c864af5682c403e3bbad6e458549484d",
+    "fingerprint": "dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96"
+  },
+  "storage": "json",
+  "features": false,
+  "completedAt": "2026-10-23T14:44:16.493Z",
+  "status": "passed"
+}

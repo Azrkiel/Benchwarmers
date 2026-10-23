@@ -106,7 +106,7 @@ export async function acceptance(server, game, report, timeout) {
     const rejected = await server.request(`${roomPath(room)}/picks`, { body: { ...payload, requestId: randomUUID() }, expected: 409 });
     assert.equal(rejected.body.code, 'PICKS_LOCKED');
   });
-  await report.check('final-season-restart', async () => {
+  const finalPassed = await report.check('final-season-restart', async () => {
     const final = await until(async () => {
       const v = (await server.request(roomPath(room), { token: seat.participantToken })).body;
       return v.room.phase === 'final' && v;
@@ -123,6 +123,7 @@ export async function acceptance(server, game, report, timeout) {
     assert.deepEqual((await server.request(roomPath(room))).body.season, final.season, 'Read must not duplicate season accounting');
     return { score: [final.game.home.score, final.game.away.score], standings: final.standings.length };
   });
+  if (finalPassed && receiptReady) return { ...context, requestId, receipt };
 }
 export const backupChecks = ['backup-roundtrip', 'backup-corruption-rejected', 'restore-overwrite-rejected'];
 export async function backupScenario(server, game, report) {

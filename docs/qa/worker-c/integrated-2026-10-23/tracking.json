@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "runId": "05b45dca-5616-46e2-9496-55d51b0f5a20",
+  "kind": "tracking",
+  "game": "basketball",
+  "startedAt": "2026-10-23T14:44:17.048Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "tracking-decision",
+      "status": "passed",
+      "ms": 0,
+      "detail": {
+        "decision": "NO-GO",
+        "capability": "continuous ball tracking",
+        "evidence": [
+          "docs/BACKEND_COMPLETION.md",
+          "docs/qa/worker-b/DEVICE_AND_TRACKING.md"
+        ],
+        "permittedDemo": "scripted score and team possession",
+        "reopenWhen": "licensed timestamped observations, measured gaps/latency and demonstrated fair prediction windows"
+      }
+    }
+  ],
+  "limitations": [
+    "No licensed time-series feed or measured real-game freshness/interaction data is available. A provides normalization tests and B synthetic rendering tests; these do not establish continuous tracking."
+  ],
+  "source": {
+    "head": "14d82295c864af5682c403e3bbad6e458549484d",
+    "fingerprint": "dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96"
+  },
+  "storage": "json",
+  "features": false,
+  "decision": "NO-GO",
+  "completedAt": "2026-10-23T14:44:17.610Z",
+  "status": "passed"
+}

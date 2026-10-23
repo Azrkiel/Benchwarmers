@@ -215,3 +215,25 @@ it('rolls back voluntary settlement on disk failure and applies season risk once
     expect(season.find(row=>row.participantId===s.seats[0].participantId)!.points).toBe(view.standings.find(row=>row.participantId===s.seats[0].participantId)!.total);
   } finally {vi.restoreAllMocks();fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+it('uses the accepted commitment timestamp when the clock advances between internal reads',()=>{
+  let clock=100000;
+  const store=new RoomStore({persist:false,now:()=>++clock,enableCommitments:true,
+    probabilities:['harbor','summit'].map(optionId=>({gameId:'harbor-vs-summit',templateId:'next_score_team',optionId,
+      estimate:{p:.5,version:'clock-regression',label:'Authored regression probability',source:'demo_projection',observedAt:1000,validUntil:1000000}}))});
+  const room=store.create({gameId:'harbor-vs-summit',speed:4}),code=room.view.room.code;
+  const seat=store.join(code,{name:'Advancing clock'});
+  store.host(code,{hostToken:room.hostToken,action:'start'});
+  for(let i=0;i<50&&!store.callCatalog(code).window;i++){clock+=500;store.tick();}
+  const question=store.view(code).question!,window=store.callCatalog(code).window!;
+  expect(window).toBeTruthy();
+  expect(question.target!.templateId).toBe('next_score_team');
+  const {quote}=store.quotePlayerCall(code,{participantToken:seat.participantToken,
+    templateId:'next_score_team',anchorSequence:window.anchorSequence,
+    horizonGameElapsedMs:window.maximumHorizonGameElapsedMs,optionId:question.options[0].id,commitPoints:10});
+  const input={participantToken:seat.participantToken,quoteId:quote.quoteId,requestId:'advancing-clock'};
+  const accepted=store.acceptPlayerCall(code,input);
+  expect(store.acceptPlayerCall(code,input).commitment).toEqual(accepted.commitment);
+  expect(store.view(code,seat.participantToken).me!.bank!.reservedPoints).toBe(10);
+  expect(store.view(code).calls).toHaveLength(1);
+});

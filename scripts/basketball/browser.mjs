@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Blocked, assertGame, exists, host, roomPath, until } from './common.mjs';
+import { simulatorScenario } from './simulator.mjs';
 
-export const browserSmokeChecks = ['host-ui', 'join-lineup-ui', 'pick-ui', 'typed-assistant-ui', 'disconnect-recovery-ui', 'multi-display-ui', 'page-errors'];
+export const browserSmokeChecks = ['host-ui', 'join-lineup-ui', 'pick-ui', 'typed-assistant-ui', 'disconnect-recovery-ui', 'multi-display-ui', 'simulator-mcp-ui', 'page-errors'];
 export const browserChecks = [...browserSmokeChecks, 'lost-response-ui', 'final-restart-ui'];
 // CSS overrides let B adapt labels without weakening assertions or substituting fixtures.
 export const defaultSelectors = {
@@ -14,6 +15,7 @@ export const defaultSelectors = {
   option: '.rm-options button:not([disabled])', command: '#rm-command', send: '.rm-assistant button:text-is("Send")',
   displayPath: '/room/{code}/display', receipt: '.rm-receipt',
   final: '.rm-podium, [aria-label="Final standings"]',
+  displayFinal: '.rd-final-score',
   homeScore: '.rd-team.is-home .rd-team-score', awayScore: '.rd-team.is-away .rd-team-score',
 };
 export async function browserScenario(server, game, report, options) {
@@ -103,6 +105,7 @@ export async function browserScenario(server, game, report, options) {
       await phone.getByText(result.reply, { exact: true }).waitFor(); await snap(phone, '05-assistant');
       return { input: 'typed', realMicrophone: 'unrun', mcp: 'covered separately by service smoke; not claimed for this UI turn' };
     });
+    await report.check('simulator-mcp-ui', () => simulatorScenario(phone, display, server, room, seat, directory));
     await report.check('disconnect-recovery-ui', async () => {
       const context = second.context(); await context.setOffline(true);
       // Enough time for the application's poll timeout and stale notice.
@@ -160,9 +163,13 @@ export async function browserScenario(server, game, report, options) {
           const view = (await server.request(roomPath(room), { token: seat.participantToken })).body;
           return view.room.phase === 'final' && view;
         }, options.timeout, 'Connected final');
-        await phone.locator(selectors.final).first().waitFor(); await snap(display, '08-final-display');
+        await phone.locator(selectors.final).first().waitFor();
+        await display.locator(selectors.displayFinal).first().waitFor();
+        for (const side of ['home', 'away']) assert.equal(Number(await display.locator(selectors[`${side}Score`]).first().innerText()), final.game[side].score);
+        await snap(display, '08-final-display');
         await server.stop(); await server.start(); await phone.reload(); await display.reload();
         await phone.locator(selectors.final).first().waitFor();
+        await display.locator(selectors.displayFinal).first().waitFor();
         const restored = (await server.request(roomPath(room), { token: seat.participantToken })).body;
         assert.deepEqual(restored.season, final.season); assert.deepEqual(restored.standings, final.standings);
         await snap(phone, '09-final-restored');

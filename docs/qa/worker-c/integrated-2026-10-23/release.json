@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "runId": "b47d69e1-0982-4323-811e-1308f79d9fe9",
+  "kind": "release",
+  "game": "basketball",
+  "startedAt": "2026-10-23T14:47:50.030Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "typecheck",
+      "status": "passed",
+      "ms": 4272
+    },
+    {
+      "name": "tests",
+      "status": "passed",
+      "ms": 53563
+    },
+    {
+      "name": "tooling-tests",
+      "status": "passed",
+      "ms": 3090
+    },
+    {
+      "name": "assets",
+      "status": "passed",
+      "ms": 2353
+    },
+    {
+      "name": "compatibility-basketball",
+      "status": "passed",
+      "ms": 570
+    },
+    {
+      "name": "compatibility-football",
+      "status": "passed",
+      "ms": 585
+    },
+    {
+      "name": "candidate-evidence",
+      "status": "passed",
+      "ms": 5,
+      "detail": {
+        "fingerprint": "dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96",
+        "deployment": "not performed",
+        "scope": "local demo candidate only; wider service gates remain manual"
+      }
+    },
+    {
+      "name": "rollback-evidence",
+      "status": "passed",
+      "ms": 4,
+      "detail": {
+        "scope": "isolated JSON-file restore; production rollback and database migrations unverified"
+      }
+    },
+    {
+      "name": "sqlite-evidence",
+      "status": "passed",
+      "ms": 3,
+      "detail": {
+        "scope": "single-node rehearsal, legacy bearer policy; strict-session HTTPS and production topology unverified",
+        "loads": [
+          {
+            "runId": "c0e7f746-165a-4886-a5f1-19d313054b87",
+            "p95Ms": 188.44202999999834
+          },
+          {
+            "runId": "dabf25bf-7e46-42a7-976a-ae5111342e9a",
+            "p95Ms": 203.60029499999655
+          }
+        ]
+      }
+    },
+    {
+      "name": "tracking-decision",
+      "status": "passed",
+      "ms": 3,
+      "detail": {
+        "decision": "NO-GO",
+        "capability": "continuous ball tracking",
+        "demo": "scripted score and possession only"
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "14d82295c864af5682c403e3bbad6e458549484d",
+    "fingerprint": "dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96"
+  },
+  "storage": "json",
+  "features": false,
+  "completedAt": "2026-10-23T14:48:54.774Z",
+  "status": "passed"
+}

@@ -1,6 +1,12 @@
 # Worker C handoff
 
-> Integrated status: A, B and C are now combined on `feature/basketball-backend`. See [the current integration record](../../ABC_INTEGRATION.md) for verification and startup. The independent-delivery instructions and original reports below are historical; do not reapply those commits to the combined branch.
+**Integrated follow-up:** A/B/C are now on main. [Current acceptance](FOLLOWUP.md) supersedes the original missing-backend findings below. The supported release profiles are the ordinary scripted JSON demo and an explicitly isolated single-node SQLite rehearsal. `qa:features` tests opt-in points/calls/pregame without changing production flags.
+
+Use the current `main` delivery in your own preserved checkout; do not cherry-pick the original pre-integration range onto an already integrated branch. Install the shared lockfile with `npm ci`, then follow [current commands and task closure](FOLLOWUP.md). This continuation adds scripts without changing dependencies or regenerating the lockfile. The owner-authorized domain timestamp fix and the open B final-transition case are documented in [findings](INTEGRATION_FINDINGS.md).
+
+## Historical independent-delivery instructions
+
+The following instructions and adapter notes describe C's first, pre-integration handoff. They remain provenance, not a request to reapply that range to current main.
 
 This folder and `scripts/basketball/` are C's independent delivery. Copy or cherry-pick C's change onto A/B's candidate; there is no dependency on a Windows worktree or files outside this repository. The root manifest adds only Playwright 1.56.1 plus named integration scripts; no server/web dependencies change. Resolve a concurrent lockfile change by retaining the candidate's dependency requirements and regenerating the shared lockfile once; do not replace it wholesale.
 

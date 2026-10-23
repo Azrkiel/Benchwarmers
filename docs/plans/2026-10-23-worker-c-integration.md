@@ -1,5 +1,9 @@
 # Worker C: independent integration and verification
 
+**Current integrated status:** [C follow-up and task closures](../qa/worker-c/FOLLOWUP.md) supersedes the original checkpoint below. A/B/C are integrated on main; C now validates the real basketball, simulator and SQLite boundaries.
+
+## Original checkpoint
+
 User instruction for this cloud task: execute C now, without requiring A/B's local files, and make C's delivery accessible to them. This supersedes the planning-only boundary in the pasted assignment. Gameplay remains A-owned; product/voice remains B-owned. No additional workers are needed or started.
 
 ## Baseline and preservation

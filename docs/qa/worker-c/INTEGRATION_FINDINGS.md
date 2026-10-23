@@ -1,5 +1,23 @@
 # Findings for A/B
 
+**Superseded baseline findings:** the integrated main candidate has the additive basketball contract, durable receipts and stable UI request IDs. C's current follow-up reruns those boundaries. The old overlay capture concerns legacy football `/tv`; it is distinct from B's new shared `/display` route. See [current acceptance](FOLLOWUP.md).
+
+## Resolved integrated defect: player-call timestamp
+
+C's real HTTP feature run twice observed `POST /calls` returning HTTP 500. The transaction validator rejected an “uncommitted player call”: its `createdAt` used a second wall-clock read, while the linked commitment's `acceptedAt` used the first. Crossing a millisecond made valid input fail the durable invariant. Frozen-clock tests had hidden this boundary.
+
+The owner explicitly authorized C to apply the domain fix and regression test. The player call now uses the commitment's accepted timestamp. `server/test/room/player-calls.test.ts` advances time on every clock read and verifies acceptance, same-ID recovery, one call and one reserved hold. A standalone [reproducer](repro-player-call.mjs) failed before the fix and passed after it. Run `node --import tsx docs/qa/worker-c/repro-player-call.mjs` from the repository root. Failed pre-fix feature reports are retained separately from the corrected candidate's passing evidence.
+
+## Open for B: final scoring animation obscures winner card
+
+Candidate `14d8229` plus C follow-up fingerprint `dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96`; JSON browser run `7968fe24-2443-4568-a814-4dc7a39f0880`, 2026-10-23. Run `npm run qa:browser -- --no-build` after building the candidate. Observe `/room/:code/display` at 1920×1080 when the genuine final arrives, before reloading. [First final screenshot](integrated-2026-10-23/screens/08-final-display.png).
+
+Expected: the native final winner card remains readable during the final transition. Observed: the top Final / SUM 56 / HAR 57 strip is readable, but the last “2 POINTS” hoop animation and dimming layer obscure the winner card. This is the new native basketball route, distinct from the old football finding below. The actual final/standings API comparisons, restored phone result and browser assertions pass; those assertions do not measure pixel occlusion. B's prior final-confetti-only change does not prevent this last-score animation in the captured frame.
+
+Ownership: B (`RoomDisplayPage`/celebration presentation). C leaves UI source unchanged and records a manual recording-review hold. Recheck the first final frame after B's fix; do not count a later clear frame as first-frame evidence. The current simulator screenshot and the phone's restored final remain useful acceptance artifacts, but do not close this issue.
+
+## Historical findings before A/B integration
+
 These observations are against C's main baseline plus C-only tooling. A/B's local implementations were not merged or evaluated. An unmerged capability is a prerequisite gap here, not a claim that A/B's implementation is defective.
 
 ## A: basketball contract and durable receipts

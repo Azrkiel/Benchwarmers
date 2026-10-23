@@ -2,7 +2,7 @@
 
 ## Worker C: basketball recording candidate
 
-Use [basketball demo operations](BASKETBALL_DEMO.md) and [C's observed results](qa/worker-c/RESULTS.md) first. The older household script below remains a separate legacy scenario. Do not combine its evidence with basketball room claims. The current main baseline does not yet supply the additive basketball room contract; rehearse and pass the full connected candidate before recording it.
+Use [basketball demo operations](BASKETBALL_DEMO.md) and [C's observed results](qa/worker-c/RESULTS.md) first. The older household script below remains a separate legacy scenario. Do not combine its evidence with basketball room claims. The integrated main now supplies the basketball contract and receipts. Follow C's current integrated gate and rehearse the exact candidate before recording. The default take remains free scripted play; points/calls/pregame are separate gated rehearsals. **Recording-review hold:** C’s latest first-final screenshot shows the last-score animation obscuring the winner card. B must fix and recheck that frame before treating this take as approved; see [the reproducible case](qa/worker-c/INTEGRATION_FINDINGS.md).
 
 | Time | Connected basketball take | Evidence to show |
 | --- | --- | --- |
@@ -31,7 +31,7 @@ Every utterance below is traced to a router test or rule in the appendix. Tested
 - Use `https://benchwarmers.fly.dev` for the take. `/display/garcias` and `/device/garcias` load the real MCP widget through the same-origin host; no browser token setup is needed. Type `Who's winning?` before recording to check the Tonight tab.
 - The laptop is the TV: use F11 at the normal browser zoom (1920x1080 panel, 125% Windows scaling -> 1536x864 CSS pixels). Use `/room/<CODE>/tv` for football rooms or `/tv/<CODE>` for household parties.
 - Show `/display/garcias` and call it a **simulated smart display**. Small is 1280x800; `?size=large` selects 1920x1080; `?clean=1` hides the outer controls after setup. Keep the controls visible for typed input.
-- Keep the MCP Inspector proof segment around 15 seconds and say **22 tools**. For Inspector use your local server and its configured bearer; the production `/mcp` remains protected.
+- Keep the MCP Inspector proof segment around 15 seconds and say **30 tools**. For Inspector use your local server and its configured bearer; the production `/mcp` remains protected.
 - Draft Big Mo only once per take. A fresh party or reset is needed before another take; avoid resetting a shared production party during another person's demo.
 - Recording, the public video upload, and the Devpost form remain owner steps. Keep the UNVERIFIED wording in `SUBMISSION.md`: no real Alexa+ device/host, no real-microphone voice-ID proof, and no live Bedrock proof.
 
@@ -93,7 +93,7 @@ Run `npm run demo:reset` before the take. Timestamps follow plan §10. Utterance
 | 1:10–1:50 | Austin device | **Voice or typed**: `Who's winning in our house?` | Leaderboard widget | `get_leaderboard` `{code}` |
 | 1:50–2:15 | TV | none, let the game reach its end (about 2:00 after start at SPEED=4) | Final view with podium. `Benchwarmer of the night` from state (`store.ts` ~616). AI recap from fallback content | none |
 | 1:50–2:15 | Austin device | **Voice or typed**: `How am I doing this season?` with Maya as speaker, or type `I'm Maya, how am I doing this season?` | Season standings widget with Maya's row | `get_season_standings` `{memberName:'Maya'}` |
-| 2:15–2:30 | Browser: MCP Inspector, bearer header set | none (narration) | 22 tools listed. Protocol 2025-11-25 over Streamable HTTP. Widget renders from `_meta.ui` | none (not a router call) |
+| 2:15–2:30 | Browser: MCP Inspector, bearer header set | none (narration) | 30 tools listed. Protocol 2025-11-25 over Streamable HTTP. Widget renders from `_meta.ui` | none (not a router call) |
 | 2:30–2:50 | Architecture slide | none (narration) | Architecture: MCP server + MCP App widget + Bedrock (not run in this demo). Vision line | none |
 
 Optional inserts (only if time):
@@ -114,7 +114,7 @@ Bonus chips: Sam's pick at about 0.5 s lands in the first 25% of the fb-1 window
 
 **1:50–2:15 Final.** "The final whistle gives a podium and a recap. And here's the season question: 'how am I doing this season?' That answer persists across server restarts." Verified: season persistence across restart (HANDOFF §4 / Checkpoint 4 note).
 
-**2:15–2:30 Protocol.** "Same server, plain MCP. This is the MCP Inspector: 22 tools, Streamable HTTP, protocol 2025-11-25. The widget is an MCP App."
+**2:15–2:30 Protocol.** "Same server, plain MCP. This is the MCP Inspector: 30 tools, Streamable HTTP, protocol 2025-11-25. The widget is an MCP App."
 
 **2:30–2:50 Architecture.** "MCP server, MCP Apps widget, and Bedrock for the assistant loop and recap. This demo runs offline, with no AWS account, so Bedrock is wired but not exercised here." Then the vision line: "official broadcast sync": "the same party state could drive an official broadcast overlay." Mark it as a vision line, not a built feature.
 

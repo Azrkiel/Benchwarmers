@@ -1,15 +1,9 @@
 # P15.5: continuous-tracking decision
 
-**Current decision: NO-GO for continuous ball tracking as a product capability.** This is a prerequisite hold, not evidence that a provider was evaluated and failed.
+**Final decision for this candidate: NO-GO for continuous ball tracking.** The scripted demo continues with score and team possession. This is a completed scope decision, not a claim that a real provider was evaluated and failed.
 
-A's measured provider evidence and B's measured interaction evidence are local to their work and unavailable here. No licensed continuous feed, timestamped observation series, provider entitlement, end-to-end freshness measurements, or demonstrated fair prediction window has been verified in C's checkout. Scripted event locations and synthetic animation tests do not supply that evidence.
+C reviewed the integrated [backend evidence](../../BACKEND_COMPLETION.md), A's `normalizeTrackingPoint` boundary, and [B's device/tracking assessment](../worker-b/DEVICE_AND_TRACKING.md). A validates genuine observation geometry, timing and staleness with synthetic data. B renders bounded observations and explicitly distinguishes event locations. B finds no demonstrated fair-decision benefit from the currently available data. The user has no licensed continuous feed, so no measured delivery/broadcast lag, time-series coverage or real-game safe window is available. Synthetic observations and scripted event locations cannot establish those properties.
 
-`npm run qa:tracking` produces a blocked report (exit 2) with this hold decision. Keeping the gate blocked avoids promoting a plausible animation to a claim about real tracking data. Score/possession presentation may remain in the demo according to the accepted game contract; this report does not change A/B's implementation.
+`npm run qa:tracking` now exits 0 with decision `NO-GO` and the supporting scope/limits. Passing that decision check does not enable tracking or certify the unavailable capability. The extended local release gate requires this recorded decision alongside the actual game/storage evidence. Physical Alexa remains excluded by the accepted simulator-only scope.
 
-Before a GO review, supply:
-
-1. A: provider identity, licensing/redistribution scope, actual observation schema, source/event/receive timestamps, sequence/gap behavior, sample duration, dropped/out-of-order rate, p50/p95/p99 end-to-end age and reproducible measurement method. Include outages and recovery; exclude keys and raw private feed content.
-2. B: connected screen/command scenario using those observations, stale-data labels/hide behavior, reduced motion and keyboard behavior, actual interaction benefit, and a fair server-enforced close boundary. Synthetic observations remain labeled synthetic.
-3. C: independently rerun the agreed measurements, compare with master-plan thresholds, record explicit GO/NO-GO and the exact candidate. No thresholds are invented in this report because the authoritative plan is unavailable.
-
-Until all prerequisites are measured, the decision remains NO-GO. This is safe to hand off without seeing A/B's local files and cannot be represented as a completed provider integration.
+Reopen only after A supplies the licensed provider/schema, entity mapping, timestamps, gaps and p50/p95/p99 freshness measurements, and B demonstrates connected interaction benefit, stale-state treatment and a server-enforced fair cutoff. C must independently reproduce those measurements against agreed thresholds before changing the decision to GO. No credentials, private feed samples or invented performance numbers belong in this report.

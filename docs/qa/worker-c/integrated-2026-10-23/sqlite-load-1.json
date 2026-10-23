@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "runId": "c0e7f746-165a-4886-a5f1-19d313054b87",
+  "kind": "load",
+  "game": "basketball",
+  "startedAt": "2026-10-23T14:45:46.279Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 836,
+      "detail": {
+        "isolatedData": true,
+        "storage": "sqlite",
+        "port": 41117,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "load-32-clients",
+      "status": "passed",
+      "ms": 60375,
+      "detail": {
+        "clients": 32,
+        "durationMs": 60000,
+        "reads": 1920,
+        "writes": 128,
+        "minimumReadsPerClient": 60,
+        "errors": 0,
+        "p50Ms": 93.84929099999863,
+        "p95Ms": 188.44202999999834,
+        "p99Ms": 217.00397800000064,
+        "budgetP95Ms": 500
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "14d82295c864af5682c403e3bbad6e458549484d",
+    "fingerprint": "dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96"
+  },
+  "storage": "sqlite",
+  "features": false,
+  "stateDirectory": "/tmp/bw-c-t985Rq",
+  "metrics": {
+    "clients": 32,
+    "durationMs": 60000,
+    "reads": 1920,
+    "writes": 128,
+    "minimumReadsPerClient": 60,
+    "errors": 0,
+    "p50Ms": 93.84929099999863,
+    "p95Ms": 188.44202999999834,
+    "p99Ms": 217.00397800000064,
+    "budgetP95Ms": 500
+  },
+  "completedAt": "2026-10-23T14:46:47.834Z",
+  "status": "passed"
+}

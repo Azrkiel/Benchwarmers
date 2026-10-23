@@ -1,5 +1,22 @@
 # Storage, load, release and rollback acceptance
 
+**Integrated continuation:** [C follow-up](FOLLOWUP.md) and `qa:release:service` now exercise A's implemented SQLite repository and the opt-in feature fixture. The original future-work table below describes the earlier baseline; current pass/fail evidence is in the follow-up reports. Selected single-node backup/load/compatible rollback can close locally. Production topology, strict-session HTTPS clients, licensed feeds and recovery/retention objectives are separate future profiles.
+
+## Current local rollback runbook
+
+C owns the local gate and evidence. A failed receipt, settlement, restore or compatibility check stops candidate promotion; retain the last passing commit and report the failing case. The previous passing compatible candidate is `25ded6a5a72c7d422543c6dbd654f694fdd6ac83`, schema 1. Rehearse recovery from the corrected candidate with:
+
+```sh
+npm run qa:service -- --rollback-ref 25ded6a5a72c7d422543c6dbd654f694fdd6ac83
+npm run qa:features -- --rollback-ref 25ded6a5a72c7d422543c6dbd654f694fdd6ac83
+```
+
+Both commands create private isolated databases, back up the completed game through `VACUUM INTO`, verify a checksum/header/integrity/schema, restore into absent destinations and start the archived previous server there. The feature run additionally compares each private bank and commitment receipt. Reports include the previous full commit and dependency-lock hash. The source database stays available and is never replaced. A failure retains the source, private backup and report for inspection; do not delete a database or break a lock to force recovery.
+
+For an operator-owned incident, stop new writes, preserve the current database and its sidecars, and recover into a different secured directory using a verified backup and a separately installed compatible build. Compare receipts, final/season totals and private accounting before deciding which instance to expose. Never reopen a live database with an older incompatible build or return to stale JSON after SQLite writes. This rehearsal does not switch traffic. Production rollback trigger/owner, recovery objective and any traffic change require the deployment owner's separate runbook.
+
+## Historical baseline gates
+
 These gates do not authorize deployment, provider purchase, video publication or submission. C's scripts exercise isolated local processes and preserve other work.
 
 | Gate | Available C tooling | Required evidence still outside this baseline |

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "runId": "4f31360e-640a-4ff7-bdd7-4343c8bca998",
+  "kind": "features",
+  "game": "basketball",
+  "startedAt": "2026-10-23T14:30:31.871Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 838,
+      "detail": {
+        "isolatedData": true,
+        "storage": "sqlite",
+        "port": 45659,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "pregame-receipt",
+      "status": "passed",
+      "ms": 17
+    },
+    {
+      "name": "http-commitment",
+      "status": "passed",
+      "ms": 60
+    },
+    {
+      "name": "mcp-commitment",
+      "status": "passed",
+      "ms": 61
+    },
+    {
+      "name": "voice-confirmation",
+      "status": "passed",
+      "ms": 89
+    },
+    {
+      "name": "player-call",
+      "status": "failed",
+      "ms": 48,
+      "message": "/api/rooms/7DF52F/calls: expected 200, got 500 (INTERNAL)\n\n500 !== 200\n"
+    },
+    {
+      "name": "feature-settlement-restart",
+      "status": "failed",
+      "ms": 59499,
+      "message": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "sqlite-snapshot",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "sqlite-restore",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "sqlite-corruption-rejected",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "sqlite-overwrite-rejected",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "compatible-rollback",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "14d82295c864af5682c403e3bbad6e458549484d",
+    "fingerprint": "16bbab52f2296b1bb7c6fd8e8d5d779bb0704f889461c75308ffa4d972b29ddb"
+  },
+  "storage": "sqlite",
+  "features": true,
+  "stateDirectory": "/tmp/bw-c-q1g3ya",
+  "completedAt": "2026-10-23T14:31:33.672Z",
+  "status": "failed"
+}

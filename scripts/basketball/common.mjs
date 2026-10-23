@@ -94,6 +94,7 @@ export async function prepareState(directory, metadata = {}) {
     const previous = await json(marker);
     assert.equal(previous.tool, 'benchwarmers-worker-c');
     assert.equal(previous.root, await fs.realpath(root), 'State belongs to a different checkout');
+    if (metadata.storage) assert.equal(previous.storage ?? 'json', metadata.storage, 'Use a fresh state directory when changing storage');
   } else {
     assert.equal((await fs.readdir(directory)).length, 0, 'Refusing to adopt a nonempty state directory');
     await writeJson(marker, { tool: 'benchwarmers-worker-c', root: await fs.realpath(root), ...metadata });
@@ -109,7 +110,10 @@ export async function buildAssets() {
   await invoke(['run', 'build', '-w', 'web']);
 }
 export class Server {
-  constructor(directory, port, report) { this.directory = directory; this.port = port; this.report = report; this.base = `http://127.0.0.1:${port}`; }
+  constructor(directory, port, report, { storage = 'json', checkoutRoot = root, features = false } = {}) {
+    assert.ok(['json', 'sqlite'].includes(storage));
+    this.directory = directory; this.port = port; this.report = report; this.storage = storage; this.checkoutRoot = checkoutRoot; this.features = features; this.base = `http://127.0.0.1:${port}`;
+  }
   async start() {
     assert.ok(!this.child, 'Server already running');
     // Never attach to or terminate an existing listener on the requested port.
@@ -117,14 +121,15 @@ export class Server {
     await new Promise((resolve, reject) => { listener.once('error', reject); listener.listen(this.port, '0.0.0.0', resolve); });
     await new Promise(resolve => listener.close(resolve));
     this.lock = await fs.open(path.join(this.directory, 'server.lock'), 'wx', 0o600);
-    await this.lock.writeFile(JSON.stringify({ pid: process.pid, port: this.port }));
+    await this.lock.writeFile(JSON.stringify({ pid: process.pid, port: this.port, storage: this.storage }));
     const log = await fs.open(path.join(this.directory, 'server.log'), 'a', 0o600);
     this.token = this.report?.secret(randomUUID()) ?? randomUUID();
-    const child = spawn(process.execPath, ['--import', 'tsx', '--import', pathToFileURL(path.join(root, 'scripts/basketball/parent-guard.mjs')).href, path.join(root, 'server/src/index.ts')], {
-      cwd: path.join(root, 'server'), stdio: ['ignore', log.fd, log.fd, 'ipc'],
+    const entry = this.features ? path.join(root, 'scripts/basketball/features-server.mjs') : path.join(this.checkoutRoot, 'server/src/index.ts');
+    const child = spawn(process.execPath, ['--import', 'tsx', '--import', pathToFileURL(path.join(root, 'scripts/basketball/parent-guard.mjs')).href, entry], {
+      cwd: path.join(this.checkoutRoot, 'server'), stdio: ['ignore', log.fd, log.fd, 'ipc'],
       // These workflows validate isolated JSON rehearsals, never an inherited
       // SQLite file or production cookie/session policy from the calling shell.
-      env: { ...process.env, PORT: String(this.port), DATA_FILE: path.join(this.directory, 'data/store.json'), ROOM_DATA_FILE: path.join(this.directory, 'data/rooms.json'), ROOM_STORAGE: 'json', ROOM_SESSIONS: 'off', AI_MODE: 'fallback', ASSISTANT_MODE: 'offline', MCP_TOKEN: this.token, ALLOWED_HOSTS: 'localhost,127.0.0.1', SPEED: '4', ROOM_SPEED: '4' },
+      env: { ...process.env, PORT: String(this.port), DATA_FILE: path.join(this.directory, 'data/store.json'), ROOM_DATA_FILE: path.join(this.directory, 'data/rooms.json'), ROOM_SQLITE_FILE: path.join(this.directory, 'data/rooms.sqlite'), ROOM_STORAGE: this.storage, ROOM_SESSIONS: 'off', AI_MODE: 'fallback', ASSISTANT_MODE: 'offline', MCP_TOKEN: this.token, ALLOWED_HOSTS: 'localhost,127.0.0.1', SPEED: '4', ROOM_SPEED: '4' },
     });
     this.child = child;
     let launchError;
@@ -205,4 +210,4 @@ export async function join(server, room, name, report) {
 }
 export const roomPath = room => `/api/rooms/${room.code}`;
 export const host = (server, room, action) => server.request(`${roomPath(room)}/host`, { body: { hostToken: room.hostToken, action } });
-export async function tempState() { return prepareState(await fs.mkdtemp(path.join(os.tmpdir(), 'bw-c-'))); }
+export async function tempState(storage = 'json') { return prepareState(await fs.mkdtemp(path.join(os.tmpdir(), 'bw-c-')), { storage }); }

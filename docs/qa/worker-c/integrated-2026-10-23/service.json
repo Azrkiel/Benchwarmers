@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "runId": "e02c9fca-e502-4448-8d96-1de15713e367",
+  "kind": "service",
+  "game": "basketball",
+  "startedAt": "2026-10-23T14:43:02.995Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 1035,
+      "detail": {
+        "isolatedData": true,
+        "storage": "sqlite",
+        "port": 45949,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "room-contract",
+      "status": "passed",
+      "ms": 35,
+      "detail": {
+        "code": "C2582B",
+        "game": "basketball"
+      }
+    },
+    {
+      "name": "join-lineup",
+      "status": "passed",
+      "ms": 41
+    },
+    {
+      "name": "authorization",
+      "status": "passed",
+      "ms": 10
+    },
+    {
+      "name": "voice-service",
+      "status": "passed",
+      "ms": 286,
+      "detail": {
+        "toolCount": 30,
+        "realMicrophone": "unrun",
+        "transport": "Streamable HTTP"
+      }
+    },
+    {
+      "name": "pause-restart",
+      "status": "passed",
+      "ms": 1307
+    },
+    {
+      "name": "durable-receipts",
+      "status": "passed",
+      "ms": 1063
+    },
+    {
+      "name": "lost-response-retry",
+      "status": "passed",
+      "ms": 30
+    },
+    {
+      "name": "request-id-conflict",
+      "status": "passed",
+      "ms": 13
+    },
+    {
+      "name": "lock-boundary",
+      "status": "passed",
+      "ms": 7917
+    },
+    {
+      "name": "final-season-restart",
+      "status": "passed",
+      "ms": 54212,
+      "detail": {
+        "score": [
+          57,
+          56
+        ],
+        "standings": 1
+      }
+    },
+    {
+      "name": "sqlite-snapshot",
+      "status": "passed",
+      "ms": 765,
+      "detail": {
+        "schemaVersion": 1,
+        "adapter": "sqlite",
+        "createdAt": "2026-10-23T14:44:10.465Z",
+        "bytes": 94208,
+        "sha256": "f9f7b9d2790e413915334b53f7bfdcf409fe0687b2939888f37c1f595bc5a866",
+        "method": "VACUUM INTO through SqliteRoomRepository.backup",
+        "sourceProcess": "running",
+        "scope": "completed fixture; no concurrent-write timing claim"
+      }
+    },
+    {
+      "name": "sqlite-restore",
+      "status": "passed",
+      "ms": 1805,
+      "detail": {
+        "preserved": [
+          "final score",
+          "seat credential",
+          "lineup",
+          "receipt",
+          "standings",
+          "season"
+        ]
+      }
+    },
+    {
+      "name": "sqlite-overwrite-rejected",
+      "status": "passed",
+      "ms": 26
+    },
+    {
+      "name": "sqlite-corruption-rejected",
+      "status": "passed",
+      "ms": 32
+    },
+    {
+      "name": "compatible-rollback",
+      "status": "passed",
+      "ms": 3335,
+      "detail": {
+        "commit": "25ded6a5a72c7d422543c6dbd654f694fdd6ac83",
+        "lockfileSha256": "96a9e771475f87740d2a8de97b1070be2a17f8c723ebebfbbdccfaa334d6e5ff",
+        "deployment": "not performed",
+        "migration": "schema 1 -> compatible schema 1",
+        "scope": "previous scripted server, same locked dependencies, separate restored database"
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "14d82295c864af5682c403e3bbad6e458549484d",
+    "fingerprint": "dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96"
+  },
+  "storage": "sqlite",
+  "features": false,
+  "stateDirectory": "/tmp/bw-c-EK5GAO",
+  "completedAt": "2026-10-23T14:44:16.383Z",
+  "status": "passed"
+}

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "runId": "087eddd4-6576-47c9-8971-01e726b6d952",
+  "kind": "accept",
+  "game": "basketball",
+  "startedAt": "2026-10-23T14:43:01.753Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 828,
+      "detail": {
+        "isolatedData": true,
+        "storage": "json",
+        "port": 38031,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "room-contract",
+      "status": "passed",
+      "ms": 31,
+      "detail": {
+        "code": "322C0A",
+        "game": "basketball"
+      }
+    },
+    {
+      "name": "join-lineup",
+      "status": "passed",
+      "ms": 36
+    },
+    {
+      "name": "authorization",
+      "status": "passed",
+      "ms": 7
+    },
+    {
+      "name": "voice-service",
+      "status": "passed",
+      "ms": 259,
+      "detail": {
+        "toolCount": 30,
+        "realMicrophone": "unrun",
+        "transport": "Streamable HTTP"
+      }
+    },
+    {
+      "name": "pause-restart",
+      "status": "passed",
+      "ms": 1094
+    },
+    {
+      "name": "durable-receipts",
+      "status": "passed",
+      "ms": 1078
+    },
+    {
+      "name": "lost-response-retry",
+      "status": "passed",
+      "ms": 29
+    },
+    {
+      "name": "request-id-conflict",
+      "status": "passed",
+      "ms": 7
+    },
+    {
+      "name": "lock-boundary",
+      "status": "passed",
+      "ms": 8045
+    },
+    {
+      "name": "final-season-restart",
+      "status": "passed",
+      "ms": 53018,
+      "detail": {
+        "score": [
+          57,
+          56
+        ],
+        "standings": 1
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "14d82295c864af5682c403e3bbad6e458549484d",
+    "fingerprint": "dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96"
+  },
+  "storage": "json",
+  "features": false,
+  "stateDirectory": "/tmp/bw-c-B3ESCk",
+  "completedAt": "2026-10-23T14:44:07.587Z",
+  "status": "passed"
+}

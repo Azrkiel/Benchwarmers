@@ -1,0 +1,23 @@
+Corrected candidate verification, 2026-10-23 UTC
+HEAD before delivery commit: 14d82295c864af5682c403e3bbad6e458549484d
+Implementation SHA-256: dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96
+
+node --import tsx docs/qa/worker-c/repro-player-call.mjs
+  PASS: advancing-clock player-call acceptance and same-ID retry
+npm run test -w server -- --maxWorkers=1 test/room/player-calls.test.ts test/room/player-calls-routes.test.ts
+  2 files, 15 tests passed (before the final type-narrowing assertion; full suite below includes final source)
+npm run qa:release:service -- --evidence-dir server/data/c-evidence/c-verified-final --out server/data/c-evidence/c-verified-final/release.json
+  typecheck: passed (server, widget, web)
+  server: 88 files passed; 991 tests passed, 1 existing skipped
+  web: 79 files passed; 604 tests passed
+  tooling: 22 tests passed, 0 failed
+  widget/web production builds: passed
+  legacy basketball/football play-party self-checks: passed
+  JSON candidate and rollback evidence: passed
+  SQLite service/features/browser and two sustained load reports: passed
+  tracking decision NO-GO recorded: passed
+  release report: 10/10 passed, local automated scope only
+
+Manual recording review: HOLD for B, first-final winner-card occlusion.
+No deployment, production capacity, microphone, physical Alexa, live provider,
+video publication or submission evidence is claimed.

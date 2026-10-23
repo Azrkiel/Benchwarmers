@@ -280,7 +280,7 @@ export class RoomStore {
    const context=this.playerCallContext(r,p,draft,quote.optionId);
    const result=acceptPoints(state,{participantId:p.id,quoteId,requestId,callId:randomUUID(),context});r.points=result.state;
    r.playerCalls??=[];
-   if(!r.playerCalls.some(call=>call.key===draft.key))r.playerCalls.push({...clone(draft),creatorId:p.id,createdAt:this.now(),view:{...clone(draft.view),locksAt:context.locksAt,remainingMs:context.locksAt-this.now()}});
+   if(!r.playerCalls.some(call=>call.key===draft.key))r.playerCalls.push({...clone(draft),creatorId:p.id,createdAt:result.commitment.acceptedAt,view:{...clone(draft.view),locksAt:context.locksAt,remainingMs:context.locksAt-this.now()}});
    // A pre-existing prompted pick must agree with its newly immutable commitment.
    const q=r.question!;if(q.view.id===draft.view.id&&q.picks[p.id]&&q.picks[p.id].optionId!==quote.optionId)q.picks[p.id]={optionId:quote.optionId,elapsedFraction:r.elapsedMs/r.durationMs};
    return result.commitment;

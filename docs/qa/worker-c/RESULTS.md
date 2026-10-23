@@ -1,5 +1,46 @@
 # C's observed results
 
+## Integrated follow-up
+
+The integrated main baseline is `14d8229`. See [the current C follow-up](FOLLOWUP.md) for selected scope, task closure and commands. The original pre-integration results below remain historical.
+
+The new evidence covers JSON basketball/football compatibility, the saved-seat simulator MCP path, real SQLite final/receipt recovery, the opt-in points/calls/pregame fixture, and backup/restore plus previous compatible build `25ded6a5a72c7d422543c6dbd654f694fdd6ac83`. Ordinary startup remains free scripted play; feature pricing uses explicitly authored test inputs in a separate C entry point. Physical Alexa is excluded, and the continuous-tracking decision is NO-GO.
+
+Final per-command outcomes, source identity and metrics are in `integrated-2026-10-23/`. Reports identify their tested source before the final documentation commit; a later candidate must be rerun. Neither Git publication nor passing this local gate deploys a service.
+
+### Corrected-candidate observations
+
+Source HEAD `14d82295c864af5682c403e3bbad6e458549484d`, implementation fingerprint `dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96`. C's authorized timestamp correction and advancing-clock test are included. No dependency/lockfile or deployment configuration changes occurred.
+
+| Check | Observed result |
+| --- | --- |
+| Full app suites | Server: 88 files, 991 passed and 1 existing skipped; web: 79 files, 604 passed |
+| Type checks / assets | Server, widget and web types; widget and web production builds passed |
+| C safety suite | 22 passed, including SQLite corruption/schema/overwrite, storage ownership and exact-source/storage evidence checks |
+| Automated extended release | 10/10 passed, including both legacy game play-throughs and every required current JSON/SQLite artifact; deployment not performed; manual visual hold remains |
+| Focused player-call tests | 2 files, 15 passed; deterministic advancing-clock reproducer passes after failing before the fix |
+| Default JSON basketball | 11/11 service checks and 11/11 connected browser checks passed |
+| SQLite service and browser | 16/16 service checks and 11/11 connected browser checks passed |
+| Optional points/calls/pregame | 12/12 checks passed, including actual HTTP/MCP/typed confirmation, 25 -> 55 authored arithmetic, four settlements, private bank/receipt restart/restore |
+| Compatible API rollback | Previous commit `25ded6a5a72c7d422543c6dbd654f694fdd6ac83` booted against separate restored schema-1 databases and preserved normal/feature state and accepted-input retries |
+| Football connected browser | 11/11 passed with explicit sport selection and final/restart |
+| JSON backup compatibility | 4/4 passed; corruption and overwrite refused |
+| Hardware and tracking | Inventory recorded; simulation-only scope accepted; continuous-tracking NO-GO completed, without provider measurements |
+| Manual visual review | Open B defect: last scoring animation obscures the native final winner card; recording review held. Top score strip remains readable. Screenshots and reproduction attached |
+
+Each load run used 32 distinct seats for 60 seconds, with 1,920 private reads, 128 pick writes, at least 60 reads per client and **zero errors**. Default budget: p95 <=500 ms. These are single-node local rehearsals; they do not measure production capacity, write/settlement percentiles, MCP concurrency or a multi-process deployment. Load collection overlapped the separate football browser acceptance in the same cloud instance (see report timestamps), so these observations include other local activity.
+
+| Storage / run | p50 ms | p95 ms | p99 ms |
+| --- | ---: | ---: | ---: |
+| JSON | 36.8 | 69.1 | 84.5 |
+| SQLite 1 | 93.8 | 188.4 | 217.0 |
+| SQLite 2 | 95.7 | 203.6 | 231.0 |
+
+The pre-fix HTTP 500 and dependent settlement failures are retained under `integrated-2026-10-23/regressions/`. They are not counted as passing evidence for the corrected candidate.
+
+## Original pre-integration record
+
+
 Executed in the isolated Linux cloud checkout on 2026-10-23, using Node 24.19.0, npm 11.9.0 and system Chromium 154.0.8037.57. Base commit: `bc00daa710df77d88c50f986d2661fbec78748ed`. The code fingerprint and timestamps in each report identify the exact tested revision, including C's then-uncommitted tooling. These are current-instance results; no new-task restoration, deployment or environment publication is claimed. Publishing the C Git branch does not publish a running service.
 
 | Check | Observed result |

@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "runId": "c7995c49-01c5-4834-ba05-01bd9b48424e",
+  "kind": "browser",
+  "game": "basketball",
+  "startedAt": "2026-10-23T14:43:06.768Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 1136,
+      "detail": {
+        "isolatedData": true,
+        "storage": "sqlite",
+        "port": 32993,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "host-ui",
+      "status": "passed",
+      "ms": 1358
+    },
+    {
+      "name": "join-lineup-ui",
+      "status": "passed",
+      "ms": 1536
+    },
+    {
+      "name": "pick-ui",
+      "status": "passed",
+      "ms": 1393
+    },
+    {
+      "name": "typed-assistant-ui",
+      "status": "passed",
+      "ms": 209,
+      "detail": {
+        "input": "typed",
+        "realMicrophone": "unrun",
+        "mcp": "covered separately by service smoke; not claimed for this UI turn"
+      }
+    },
+    {
+      "name": "simulator-mcp-ui",
+      "status": "passed",
+      "ms": 3282,
+      "detail": {
+        "transport": "actual same-origin Streamable HTTP",
+        "input": "typed",
+        "roles": [
+          "guest",
+          "saved seat"
+        ],
+        "calls": [
+          {
+            "method": "initialize",
+            "actor": "guest"
+          },
+          {
+            "method": "notifications/initialized",
+            "actor": "guest"
+          },
+          {
+            "method": "tools/list",
+            "actor": "guest"
+          },
+          {
+            "method": "initialize",
+            "actor": "seat"
+          },
+          {
+            "method": "notifications/initialized",
+            "actor": "seat"
+          },
+          {
+            "method": "tools/list",
+            "actor": "seat"
+          },
+          {
+            "method": "tools/call",
+            "name": "room_ask",
+            "actor": "guest"
+          },
+          {
+            "method": "tools/call",
+            "name": "room_ask",
+            "actor": "seat"
+          }
+        ],
+        "realMicrophone": "unrun",
+        "physicalAlexa": "out of scope"
+      }
+    },
+    {
+      "name": "disconnect-recovery-ui",
+      "status": "passed",
+      "ms": 1323
+    },
+    {
+      "name": "multi-display-ui",
+      "status": "passed",
+      "ms": 1684
+    },
+    {
+      "name": "lost-response-ui",
+      "status": "passed",
+      "ms": 11619
+    },
+    {
+      "name": "final-restart-ui",
+      "status": "passed",
+      "ms": 45741
+    },
+    {
+      "name": "page-errors",
+      "status": "passed",
+      "ms": 0,
+      "detail": {
+        "pages": 3,
+        "screenshots": "/workspace/Benchwarmers/server/data/c-evidence/c-verified-final/c7995c49-01c5-4834-ba05-01bd9b48424e-screens"
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "14d82295c864af5682c403e3bbad6e458549484d",
+    "fingerprint": "dc2faf5e00ad083c302a1b5ab05945f7118cd566f135bf9cfcae173fd9d72a96"
+  },
+  "storage": "sqlite",
+  "features": false,
+  "stateDirectory": "/tmp/bw-c-wUvGNU",
+  "completedAt": "2026-10-23T14:44:18.558Z",
+  "status": "passed"
+}

@@ -12,7 +12,7 @@ npx @modelcontextprotocol/inspector
 Add server -> Streamable HTTP -> `http://localhost:3001/mcp`; add the bearer header under Server Settings > Custom Headers
 (not in the Add dialog). Tools load automatically on connect (no "List Tools" button in 2.x).
 
-![Inspector tool list, 22 tools](img/inspector-tools.png)
+![Historical Inspector capture (22 tools); current integrated candidate has 30](img/inspector-tools.png)
 
 CLI mode (used for the Checkpoint 2 flow; full output in [img/inspector-flow.txt](img/inspector-flow.txt)):
 ```

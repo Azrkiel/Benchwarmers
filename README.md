@@ -4,7 +4,7 @@
 
 The combined app includes A's game service, B's phone/shared-display interface and C's integration tools. Run `npm run demo`, open the homepage, and choose **Host a party**. Basketball is the form's default; football remains selectable. Both are fictional scripted replays. Calls, point commitments, pregame picks and live-provider features remain disabled in ordinary startup.
 
-For an isolated basketball rehearsal with private data and explicit room controls, run `npm run demo:basketball` on port 3037. See [basketball operations](docs/BASKETBALL_DEMO.md), [backend status](docs/BACKEND_COMPLETION.md), and [combined integration verification](docs/ABC_INTEGRATION.md). Historical A/B/C handoffs retain their original milestone context.
+For an isolated basketball rehearsal with private data and explicit room controls, run `npm run demo:basketball` on port 3037. See [basketball operations](docs/BASKETBALL_DEMO.md), [backend status](docs/BACKEND_COMPLETION.md), and [combined integration verification](docs/ABC_INTEGRATION.md), and [C’s storage/load/rollback follow-up](docs/qa/worker-c/FOLLOWUP.md). Historical A/B/C handoffs retain their original milestone context.
 
 ## Room play
 
