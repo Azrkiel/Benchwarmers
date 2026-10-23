@@ -4,7 +4,7 @@ import { RoomError, type RoomStore } from './store.js';
 import { answerRoom } from './assistant.js';
 
 const token=z.string().min(1).max(200);
-export const createRoomSchema=z.object({name:z.string().trim().min(1).max(80).optional(),seasonId:z.string().trim().regex(/^[a-zA-Z0-9-]{1,64}$/).optional(),speed:z.number().int().min(1).max(4).optional()});
+export const createRoomSchema=z.object({name:z.string().trim().min(1).max(80).optional(),seasonId:z.string().trim().regex(/^[a-zA-Z0-9-]{1,64}$/).optional(),speed:z.number().int().min(1).max(4).optional(),gameId:z.string().min(1).max(100).optional()});
 export const joinRoomSchema=z.object({name:z.string().trim().min(1).max(24),participantToken:token.optional()});
 export const lineupSchema=z.object({participantToken:token,captainId:z.string().min(1).max(100),flexIds:z.array(z.string().min(1).max(100)).length(4)});
 export const autoLineupSchema=z.object({participantToken:token,style:z.enum(['balanced','stars','value']).optional()});
