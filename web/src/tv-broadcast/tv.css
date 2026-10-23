@@ -67,3 +67,6 @@ html.tv-overlay,html.tv-overlay body,html.tv-overlay #root { background:transpar
 .tv-broadcast.is-overlay .tv-screen-meta { display:none; }
 .tv-broadcast.is-overlay .tv-optional-panel,.tv-broadcast.is-overlay .tv-live-right { inset:0 0 215px; }
 .tv-broadcast.is-overlay .tv-pickbar { inset:auto auto 215px 0; width:1200px; max-height:600px; }
+
+/* The live scoreboard strip already shows the score; keep only the Final label. */
+.tv-broadcast .tv-final-head .tv-final-score { display:none; }

@@ -382,6 +382,24 @@ describe('DeviceScreen', () => {
     await waitFor(() => expect(screen.queryByRole('region', { name: 'Party board' })).toBeNull());
   });
 
+  it('board comes first and conversation is a collapsed-until-messages toggle', async () => {
+    stubFetch();
+    const send = vi.fn(async (_req: AssistantRequest) => response({ reply: 'Hi there.' }));
+    render(<DeviceScreen household="garcias" deps={{ send, synth: fakeSynth(), recognizerFactory: null }} />);
+    await waitForParty('DEMO');
+    const sections = screen.getAllByRole('region').map(r => r.getAttribute('aria-label'));
+    expect(sections.indexOf('Board')).toBeGreaterThanOrEqual(0);
+    const toggle = screen.getByRole('button', { name: /Conversation/ });
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(document.getElementById('device-conversation')!.getAttribute('data-open')).toBe('false');
+    typeAndSubmit('hello');
+    await screen.findByText('Hi there.');
+    expect(screen.getByRole('button', { name: /Conversation/ }).getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: /Conversation/ }));
+    expect(screen.getByRole('button', { name: /Conversation/ }).getAttribute('aria-expanded')).toBe('false');
+    expect(screen.getByTestId('chat-input')).toBeTruthy();
+  });
+
   it('disables the mic and keeps typing when speech is unsupported', async () => {
     stubFetch();
     const send = vi.fn(async (_req: AssistantRequest) => response({ reply: 'Typed works.' }));

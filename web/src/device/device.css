@@ -630,3 +630,17 @@ body:has(.device-stage) {
  .ds-head {padding:12px;}
  .ds-household {font-size:1.2rem;}
 }
+
+/* D06: board is the primary, stable task area (left on desktop, first on phone); conversation is secondary. */
+.ds-body { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+.ds-right { order: -1; border-right: 1px solid var(--dv-line); }
+.ds-left { border-right: 0; }
+.ds-conversation-toggle { display: none; }
+.ds-transcript-wrap[hidden] { display: flex; }
+@media (max-width: 759px) {
+  .ds-conversation-toggle { display: block; }
+  .ds-transcript-wrap[data-open='false'] { display: none; }
+}
+@media (max-width: 960px) {
+  .ds-right { border-right: 0; }
+}
