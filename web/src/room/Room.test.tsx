@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { RoomLanding } from './RoomLanding';
+import { HostRoomForm } from './RoomLanding';
 import { RoomPage } from './RoomPage';
 import { RoomTvPage } from './RoomTvPage';
 import { FinalPodium, Leaderboard, Question, RoomScore } from './components';
-import { Lineup } from './Lineup';
+import { clearLineupDrafts, Lineup } from './Lineup';
 import { useRoom } from './useRoom';
 import type { RoomView } from '@shared/room';
 
@@ -13,7 +13,7 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 import { fixture } from './roomFixture';
 
 beforeEach(() => localStorage.clear());
-afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); clearLineupDrafts(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 function showRoom(tv = false) {
   return render(<MemoryRouter initialEntries={[`/room/ABCD${tv ? '/tv' : ''}`]}><Routes><Route path="/room/:code" element={<RoomPage />} /><Route path="/room/:code/tv" element={<RoomTvPage />} /></Routes></MemoryRouter>);
@@ -25,7 +25,7 @@ describe('football rooms', () => {
     vi.stubGlobal('fetch', vi.fn(async () => failed ? json({ error: 'Room temporarily unavailable' }, 503) : json(fixture)));
     showRoom(true);
     const retry = await screen.findByRole('button', { name: 'Retry' });
-    expect(screen.getByRole('link', { name: 'Edit room code' }).getAttribute('href')).toBe('/');
+    expect(screen.getByRole('link', { name: 'Edit party code' }).getAttribute('href')).toBe('/?join=ABCD');
     failed = false;
     fireEvent.click(retry);
     await screen.findByRole('link', { name: /Join on your phone/ });
@@ -132,11 +132,40 @@ describe('football rooms', () => {
 
   it('creates a room, keeps the host secret out of the URL and stores it privately', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => json({ view: fixture, hostToken: 'host-private' })));
-    render(<MemoryRouter><Routes><Route path="/" element={<RoomLanding />} /><Route path="/room/:code" element={<p>Room opened</p>} /></Routes></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+    render(<MemoryRouter><Routes><Route path="/" element={<HostRoomForm />} /><Route path="/room/:code" element={<p>Room opened</p>} /></Routes></MemoryRouter>);
+    fireEvent.click(screen.getByRole('radio', { name: /Football/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create party' }));
     await screen.findByText('Room opened');
     expect(localStorage.getItem('bw.room.ABCD')).toContain('host-private');
     expect(fetch).toHaveBeenCalledWith('/api/rooms', expect.objectContaining({ method: 'POST' }));
+    expect(String(vi.mocked(fetch).mock.calls[0][1]?.body)).not.toContain('gameId');
+  });
+
+  it('sends the basketball game id and opens the basketball room', async () => {
+    const basketball = { ...fixture, game: { ...fixture.game, sport: 'basketball' } };
+    vi.stubGlobal('fetch', vi.fn(async () => json({ view: basketball, hostToken: 'host-private' })));
+    render(<MemoryRouter><Routes><Route path="/" element={<HostRoomForm />} /><Route path="/room/:code" element={<p>Room opened</p>} /></Routes></MemoryRouter>);
+    expect((screen.getByRole('radio', { name: /Basketball/ }) as HTMLInputElement).checked).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Create party' }));
+    await screen.findByText('Room opened');
+    expect(String(vi.mocked(fetch).mock.calls[0][1]?.body)).toContain('"gameId":"harbor-vs-summit"');
+  });
+
+  it('explains GAME_NOT_SUPPORTED without creating anything', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json({ error: 'Game is not supported', code: 'GAME_NOT_SUPPORTED' }, 400)));
+    render(<MemoryRouter><Routes><Route path="/" element={<HostRoomForm />} /><Route path="/room/:code" element={<p>Room opened</p>} /></Routes></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Create party' }));
+    expect((await screen.findByRole('alert')).textContent).toBe("Basketball isn't available on this server yet. Choose another game.");
+    expect(localStorage.getItem('bw.room.ABCD')).toBeNull();
+  });
+
+  it('says so when an older server ignores the basketball choice', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json({ view: fixture, hostToken: 'host-private' })));
+    render(<MemoryRouter><Routes><Route path="/" element={<HostRoomForm />} /><Route path="/room/:code" element={<p>Room opened</p>} /></Routes></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Create party' }));
+    expect((await screen.findByRole('alert')).textContent).toContain("can't host basketball yet");
+    expect(screen.getByRole('link', { name: 'Open ABCD' })).toBeTruthy();
+    expect(screen.queryByText('Room opened')).toBeNull();
   });
 
   it('joins with a season identity and remembers the returned player credential', async () => {

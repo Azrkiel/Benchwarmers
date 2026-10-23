@@ -1,0 +1,2560 @@
+{
+  "catalog": {
+    "gameId": "harbor-vs-summit",
+    "teamIds": [
+      "harbor",
+      "summit"
+    ],
+    "playerTeams": {
+      "har-pg-1": "harbor",
+      "har-sg-7": "harbor",
+      "har-sf-11": "harbor",
+      "har-pf-21": "harbor",
+      "har-c-34": "harbor",
+      "har-pg-5": "harbor",
+      "har-sf-23": "harbor",
+      "har-c-44": "harbor",
+      "sum-pg-2": "summit",
+      "sum-sg-10": "summit",
+      "sum-sf-14": "summit",
+      "sum-pf-32": "summit",
+      "sum-c-50": "summit",
+      "sum-sg-4": "summit",
+      "sum-pf-15": "summit",
+      "sum-sf-8": "summit"
+    }
+  },
+  "finalScore": {
+    "harbor": 57,
+    "summit": 56
+  },
+  "beats": [
+    {
+      "id": "legacy-001",
+      "sequence": 1,
+      "gameElapsedMs": 24000,
+      "presentationMs": 1000,
+      "text": "Tip-off won by the Hawks. Here we go.",
+      "event": {
+        "id": "legacy-001",
+        "revision": 1,
+        "sequence": 1,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 24000,
+        "occurredAt": 1792756824000,
+        "receivedAt": 1792756824000,
+        "kind": "possession",
+        "teamId": "harbor"
+      }
+    },
+    {
+      "id": "possession-1",
+      "sequence": 2,
+      "gameElapsedMs": 30000,
+      "presentationMs": 1000,
+      "text": "Scripted possession: summit.",
+      "event": {
+        "id": "possession-1",
+        "revision": 1,
+        "sequence": 2,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 30000,
+        "occurredAt": 1792756830000,
+        "receivedAt": 1792756830000,
+        "kind": "possession",
+        "teamId": "summit"
+      }
+    },
+    {
+      "id": "opportunity-1",
+      "sequence": 3,
+      "gameElapsedMs": 30000,
+      "presentationMs": 8000,
+      "text": "Prediction opportunity before the next action.",
+      "question": {
+        "id": "basketball-q1",
+        "templateId": "next_score_team",
+        "anchorSequence": 2,
+        "horizonGameElapsedMs": 360000,
+        "allowVoid": false
+      }
+    },
+    {
+      "id": "authored-missed-two",
+      "sequence": 4,
+      "gameElapsedMs": 54000,
+      "presentationMs": 1000,
+      "text": "Quick Kai misses a two-point jumper.",
+      "event": {
+        "id": "authored-missed-two",
+        "revision": 1,
+        "sequence": 4,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 54000,
+        "occurredAt": 1792756854000,
+        "receivedAt": 1792756854000,
+        "kind": "shot_attempt",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "shotType": "jump_shot"
+      }
+    },
+    {
+      "id": "authored-rebound",
+      "sequence": 5,
+      "gameElapsedMs": 60000,
+      "presentationMs": 1000,
+      "text": "Jet Reyes secures the rebound.",
+      "event": {
+        "id": "authored-rebound",
+        "revision": 1,
+        "sequence": 5,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 60000,
+        "occurredAt": 1792756860000,
+        "receivedAt": 1792756860000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "reb": 1
+        }
+      }
+    },
+    {
+      "id": "authored-missed-three",
+      "sequence": 6,
+      "gameElapsedMs": 66000,
+      "presentationMs": 1000,
+      "text": "Jet Reyes attempts a three; Tower blocks it.",
+      "event": {
+        "id": "authored-missed-three",
+        "revision": 1,
+        "sequence": 6,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 66000,
+        "occurredAt": 1792756866000,
+        "receivedAt": 1792756866000,
+        "kind": "shot_attempt",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "authored-block",
+      "sequence": 7,
+      "gameElapsedMs": 72000,
+      "presentationMs": 1000,
+      "text": "Tower receives the block credit.",
+      "event": {
+        "id": "authored-block",
+        "revision": 1,
+        "sequence": 7,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 72000,
+        "occurredAt": 1792756872000,
+        "receivedAt": 1792756872000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-c-50",
+        "statDeltas": {
+          "blk": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-002",
+      "sequence": 8,
+      "gameElapsedMs": 102000,
+      "presentationMs": 1000,
+      "text": "Doorbell Bell grabs the rebound.",
+      "event": {
+        "id": "legacy-002",
+        "revision": 1,
+        "sequence": 8,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 102000,
+        "occurredAt": 1792756902000,
+        "receivedAt": 1792756902000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pf-21",
+        "statDeltas": {
+          "reb": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-003",
+      "sequence": 9,
+      "gameElapsedMs": 150000,
+      "presentationMs": 1000,
+      "text": "Quick Kai picks the pocket. Steal!",
+      "event": {
+        "id": "legacy-003",
+        "revision": 1,
+        "sequence": 9,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 150000,
+        "occurredAt": 1792756950000,
+        "receivedAt": 1792756950000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "stl": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-004",
+      "sequence": 10,
+      "gameElapsedMs": 198000,
+      "presentationMs": 1000,
+      "text": "Dime Cho throws it away. Turnover.",
+      "event": {
+        "id": "legacy-004",
+        "revision": 1,
+        "sequence": 10,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 198000,
+        "occurredAt": 1792756998000,
+        "receivedAt": 1792756998000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "tov": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-005",
+      "sequence": 11,
+      "gameElapsedMs": 282000,
+      "presentationMs": 1000,
+      "text": "Jet Reyes floats in a layup off a Dime Cho pass. First points of the night.",
+      "event": {
+        "id": "legacy-005",
+        "revision": 1,
+        "sequence": 11,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 282000,
+        "occurredAt": 1792757082000,
+        "receivedAt": 1792757082000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-005-assist",
+      "sequence": 12,
+      "gameElapsedMs": 282000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-005-assist",
+        "revision": 1,
+        "sequence": 12,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 282000,
+        "occurredAt": 1792757082000,
+        "receivedAt": 1792757082000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-006",
+      "sequence": 13,
+      "gameElapsedMs": 318000,
+      "presentationMs": 1000,
+      "text": "Quick Kai answers with a three from the wing. Foxes are on the board.",
+      "event": {
+        "id": "legacy-006",
+        "revision": 1,
+        "sequence": 13,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 318000,
+        "occurredAt": 1792757118000,
+        "receivedAt": 1792757118000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-006-assist",
+      "sequence": 14,
+      "gameElapsedMs": 318000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-006-assist",
+        "revision": 1,
+        "sequence": 14,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 318000,
+        "occurredAt": 1792757118000,
+        "receivedAt": 1792757118000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-sg-10",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-007",
+      "sequence": 15,
+      "gameElapsedMs": 348000,
+      "presentationMs": 1000,
+      "text": "Splash Okafor drains his first three of the night!",
+      "event": {
+        "id": "legacy-007",
+        "revision": 1,
+        "sequence": 15,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 348000,
+        "occurredAt": 1792757148000,
+        "receivedAt": 1792757148000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-007-assist",
+      "sequence": 16,
+      "gameElapsedMs": 348000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-007-assist",
+        "revision": 1,
+        "sequence": 16,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 348000,
+        "occurredAt": 1792757148000,
+        "receivedAt": 1792757148000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-008",
+      "sequence": 17,
+      "gameElapsedMs": 396000,
+      "presentationMs": 1000,
+      "text": "Pike dunks it off a Quick Kai lob.",
+      "event": {
+        "id": "legacy-008",
+        "revision": 1,
+        "sequence": 17,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 396000,
+        "occurredAt": 1792757196000,
+        "receivedAt": 1792757196000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pf-32",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "dunk"
+      }
+    },
+    {
+      "id": "legacy-008-assist",
+      "sequence": 18,
+      "gameElapsedMs": 396000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-008-assist",
+        "revision": 1,
+        "sequence": 18,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 396000,
+        "occurredAt": 1792757196000,
+        "receivedAt": 1792757196000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-009",
+      "sequence": 19,
+      "gameElapsedMs": 444000,
+      "presentationMs": 1000,
+      "text": "The Viking cuts to the rim for two.",
+      "event": {
+        "id": "legacy-009",
+        "revision": 1,
+        "sequence": 19,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 444000,
+        "occurredAt": 1792757244000,
+        "receivedAt": 1792757244000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sf-11",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-009-assist",
+      "sequence": 20,
+      "gameElapsedMs": 444000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-009-assist",
+        "revision": 1,
+        "sequence": 20,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 444000,
+        "occurredAt": 1792757244000,
+        "receivedAt": 1792757244000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-010",
+      "sequence": 21,
+      "gameElapsedMs": 486000,
+      "presentationMs": 1000,
+      "text": "Rafa curls off a screen and hits a jumper.",
+      "event": {
+        "id": "legacy-010",
+        "revision": 1,
+        "sequence": 21,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 486000,
+        "occurredAt": 1792757286000,
+        "receivedAt": 1792757286000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sg-10",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "jump_shot"
+      }
+    },
+    {
+      "id": "legacy-010-assist",
+      "sequence": 22,
+      "gameElapsedMs": 486000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-010-assist",
+        "revision": 1,
+        "sequence": 22,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 486000,
+        "occurredAt": 1792757286000,
+        "receivedAt": 1792757286000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-011",
+      "sequence": 23,
+      "gameElapsedMs": 528000,
+      "presentationMs": 1000,
+      "text": "Splash Okafor hits another three. He is heating up.",
+      "event": {
+        "id": "legacy-011",
+        "revision": 1,
+        "sequence": 23,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 528000,
+        "occurredAt": 1792757328000,
+        "receivedAt": 1792757328000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-011-assist",
+      "sequence": 24,
+      "gameElapsedMs": 528000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-011-assist",
+        "revision": 1,
+        "sequence": 24,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 528000,
+        "occurredAt": 1792757328000,
+        "receivedAt": 1792757328000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-012",
+      "sequence": 25,
+      "gameElapsedMs": 570000,
+      "presentationMs": 1000,
+      "text": "Quick Kai finishes the fast break himself.",
+      "event": {
+        "id": "legacy-012",
+        "revision": 1,
+        "sequence": 25,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 570000,
+        "occurredAt": 1792757370000,
+        "receivedAt": 1792757370000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-013",
+      "sequence": 26,
+      "gameElapsedMs": 618000,
+      "presentationMs": 1000,
+      "text": "Splash Okafor drains another three!",
+      "event": {
+        "id": "legacy-013",
+        "revision": 1,
+        "sequence": 26,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 618000,
+        "occurredAt": 1792757418000,
+        "receivedAt": 1792757418000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-013-assist",
+      "sequence": 27,
+      "gameElapsedMs": 618000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-013-assist",
+        "revision": 1,
+        "sequence": 27,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 618000,
+        "occurredAt": 1792757418000,
+        "receivedAt": 1792757418000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-014",
+      "sequence": 28,
+      "gameElapsedMs": 678000,
+      "presentationMs": 1000,
+      "text": "Tower muscles in a putback off a Quick Kai feed.",
+      "event": {
+        "id": "legacy-014",
+        "revision": 1,
+        "sequence": 28,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 678000,
+        "occurredAt": 1792757478000,
+        "receivedAt": 1792757478000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-c-50",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-014-assist",
+      "sequence": 29,
+      "gameElapsedMs": 678000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-014-assist",
+        "revision": 1,
+        "sequence": 29,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 678000,
+        "occurredAt": 1792757478000,
+        "receivedAt": 1792757478000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-015",
+      "sequence": 30,
+      "gameElapsedMs": 696000,
+      "presentationMs": 1000,
+      "text": "Foxes take a timeout."
+    },
+    {
+      "id": "legacy-016",
+      "sequence": 31,
+      "gameElapsedMs": 708000,
+      "presentationMs": 1000,
+      "text": "Ice Mercer hits a mid-range jumper just before the buzzer.",
+      "event": {
+        "id": "legacy-016",
+        "revision": 1,
+        "sequence": 31,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 708000,
+        "occurredAt": 1792757508000,
+        "receivedAt": 1792757508000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sf-14",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "jump_shot"
+      }
+    },
+    {
+      "id": "legacy-016-assist",
+      "sequence": 32,
+      "gameElapsedMs": 708000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-016-assist",
+        "revision": 1,
+        "sequence": 32,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 708000,
+        "occurredAt": 1792757508000,
+        "receivedAt": 1792757508000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-017",
+      "sequence": 33,
+      "gameElapsedMs": 720000,
+      "presentationMs": 1000,
+      "text": "End of Q1",
+      "event": {
+        "id": "legacy-017",
+        "revision": 1,
+        "sequence": 33,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 720000,
+        "occurredAt": 1792757520000,
+        "receivedAt": 1792757520000,
+        "kind": "period"
+      }
+    },
+    {
+      "id": "legacy-018",
+      "sequence": 34,
+      "gameElapsedMs": 762000,
+      "presentationMs": 1000,
+      "text": "Doorbell Bell throws down a dunk.",
+      "event": {
+        "id": "legacy-018",
+        "revision": 1,
+        "sequence": 34,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 762000,
+        "occurredAt": 1792757562000,
+        "receivedAt": 1792757562000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-pf-21",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "dunk"
+      }
+    },
+    {
+      "id": "legacy-018-assist",
+      "sequence": 35,
+      "gameElapsedMs": 762000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-018-assist",
+        "revision": 1,
+        "sequence": 35,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 762000,
+        "occurredAt": 1792757562000,
+        "receivedAt": 1792757562000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "possession-2",
+      "sequence": 36,
+      "gameElapsedMs": 780000,
+      "presentationMs": 1000,
+      "text": "Scripted possession: harbor.",
+      "event": {
+        "id": "possession-2",
+        "revision": 1,
+        "sequence": 36,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 780000,
+        "occurredAt": 1792757580000,
+        "receivedAt": 1792757580000,
+        "kind": "possession",
+        "teamId": "harbor"
+      }
+    },
+    {
+      "id": "opportunity-2",
+      "sequence": 37,
+      "gameElapsedMs": 780000,
+      "presentationMs": 8000,
+      "text": "Prediction opportunity before the next action.",
+      "question": {
+        "id": "basketball-q2",
+        "templateId": "next_made_field_goal_value",
+        "anchorSequence": 36,
+        "horizonGameElapsedMs": 990000,
+        "allowVoid": false
+      }
+    },
+    {
+      "id": "legacy-019",
+      "sequence": 38,
+      "gameElapsedMs": 804000,
+      "presentationMs": 1000,
+      "text": "Big Mo Adeyemi pulls down a rebound. Quiet night so far.",
+      "event": {
+        "id": "legacy-019",
+        "revision": 1,
+        "sequence": 38,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 804000,
+        "occurredAt": 1792757604000,
+        "receivedAt": 1792757604000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-c-34",
+        "statDeltas": {
+          "reb": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-020",
+      "sequence": 39,
+      "gameElapsedMs": 846000,
+      "presentationMs": 1000,
+      "text": "Splash Okafor from deep again. That is four threes!",
+      "event": {
+        "id": "legacy-020",
+        "revision": 1,
+        "sequence": 39,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 846000,
+        "occurredAt": 1792757646000,
+        "receivedAt": 1792757646000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-020-assist",
+      "sequence": 40,
+      "gameElapsedMs": 846000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-020-assist",
+        "revision": 1,
+        "sequence": 40,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 846000,
+        "occurredAt": 1792757646000,
+        "receivedAt": 1792757646000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-021",
+      "sequence": 41,
+      "gameElapsedMs": 888000,
+      "presentationMs": 1000,
+      "text": "Quick Kai hits a step-back three.",
+      "event": {
+        "id": "legacy-021",
+        "revision": 1,
+        "sequence": 41,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 888000,
+        "occurredAt": 1792757688000,
+        "receivedAt": 1792757688000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-021-assist",
+      "sequence": 42,
+      "gameElapsedMs": 888000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-021-assist",
+        "revision": 1,
+        "sequence": 42,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 888000,
+        "occurredAt": 1792757688000,
+        "receivedAt": 1792757688000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-sg-10",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-022",
+      "sequence": 43,
+      "gameElapsedMs": 930000,
+      "presentationMs": 1000,
+      "text": "Foul on the Hawks. Foxes get a free throw."
+    },
+    {
+      "id": "legacy-023",
+      "sequence": 44,
+      "gameElapsedMs": 936000,
+      "presentationMs": 1000,
+      "text": "Pike sinks the free throw.",
+      "event": {
+        "id": "legacy-023",
+        "revision": 1,
+        "sequence": 44,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 936000,
+        "occurredAt": 1792757736000,
+        "receivedAt": 1792757736000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pf-32",
+        "scoreValue": 1,
+        "statDeltas": {
+          "ft": 1
+        },
+        "shotType": "free_throw"
+      }
+    },
+    {
+      "id": "legacy-024",
+      "sequence": 45,
+      "gameElapsedMs": 978000,
+      "presentationMs": 1000,
+      "text": "Lefty Navarro drives left for a layup.",
+      "event": {
+        "id": "legacy-024",
+        "revision": 1,
+        "sequence": 45,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 978000,
+        "occurredAt": 1792757778000,
+        "receivedAt": 1792757778000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sf-23",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-024-assist",
+      "sequence": 46,
+      "gameElapsedMs": 978000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-024-assist",
+        "revision": 1,
+        "sequence": 46,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 978000,
+        "occurredAt": 1792757778000,
+        "receivedAt": 1792757778000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-025",
+      "sequence": 47,
+      "gameElapsedMs": 1026000,
+      "presentationMs": 1000,
+      "text": "Frosty Frost finishes a pretty pass from Quick Kai.",
+      "event": {
+        "id": "legacy-025",
+        "revision": 1,
+        "sequence": 47,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1026000,
+        "occurredAt": 1792757826000,
+        "receivedAt": 1792757826000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sf-8",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-025-assist",
+      "sequence": 48,
+      "gameElapsedMs": 1026000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-025-assist",
+        "revision": 1,
+        "sequence": 48,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1026000,
+        "occurredAt": 1792757826000,
+        "receivedAt": 1792757826000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-026",
+      "sequence": 49,
+      "gameElapsedMs": 1056000,
+      "presentationMs": 1000,
+      "text": "Hawks take a timeout."
+    },
+    {
+      "id": "legacy-027",
+      "sequence": 50,
+      "gameElapsedMs": 1116000,
+      "presentationMs": 1000,
+      "text": "The Wall tips in a putback.",
+      "event": {
+        "id": "legacy-027",
+        "revision": 1,
+        "sequence": 50,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1116000,
+        "occurredAt": 1792757916000,
+        "receivedAt": 1792757916000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-c-44",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-028",
+      "sequence": 51,
+      "gameElapsedMs": 1182000,
+      "presentationMs": 1000,
+      "text": "Bucket Brooks pulls up for three off the bench.",
+      "event": {
+        "id": "legacy-028",
+        "revision": 1,
+        "sequence": 51,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1182000,
+        "occurredAt": 1792757982000,
+        "receivedAt": 1792757982000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sg-4",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-028-assist",
+      "sequence": 52,
+      "gameElapsedMs": 1182000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-028-assist",
+        "revision": 1,
+        "sequence": 52,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1182000,
+        "occurredAt": 1792757982000,
+        "receivedAt": 1792757982000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-029",
+      "sequence": 53,
+      "gameElapsedMs": 1254000,
+      "presentationMs": 1000,
+      "text": "Jet Reyes weaves through traffic for a layup.",
+      "event": {
+        "id": "legacy-029",
+        "revision": 1,
+        "sequence": 53,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1254000,
+        "occurredAt": 1792758054000,
+        "receivedAt": 1792758054000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-029-assist",
+      "sequence": 54,
+      "gameElapsedMs": 1254000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-029-assist",
+        "revision": 1,
+        "sequence": 54,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1254000,
+        "occurredAt": 1792758054000,
+        "receivedAt": 1792758054000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-sf-11",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-030",
+      "sequence": 55,
+      "gameElapsedMs": 1362000,
+      "presentationMs": 1000,
+      "text": "Ice Mercer is cold-blooded from the corner. Three!",
+      "event": {
+        "id": "legacy-030",
+        "revision": 1,
+        "sequence": 55,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1362000,
+        "occurredAt": 1792758162000,
+        "receivedAt": 1792758162000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sf-14",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-030-assist",
+      "sequence": 56,
+      "gameElapsedMs": 1362000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-030-assist",
+        "revision": 1,
+        "sequence": 56,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1362000,
+        "occurredAt": 1792758162000,
+        "receivedAt": 1792758162000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-031",
+      "sequence": 57,
+      "gameElapsedMs": 1404000,
+      "presentationMs": 1000,
+      "text": "Splash Okafor makes it five threes. Unreal!",
+      "event": {
+        "id": "legacy-031",
+        "revision": 1,
+        "sequence": 57,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1404000,
+        "occurredAt": 1792758204000,
+        "receivedAt": 1792758204000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-031-assist",
+      "sequence": 58,
+      "gameElapsedMs": 1404000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-031-assist",
+        "revision": 1,
+        "sequence": 58,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1404000,
+        "occurredAt": 1792758204000,
+        "receivedAt": 1792758204000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-032",
+      "sequence": 59,
+      "gameElapsedMs": 1440000,
+      "presentationMs": 1000,
+      "text": "Halftime: end of Q2",
+      "event": {
+        "id": "legacy-032",
+        "revision": 1,
+        "sequence": 59,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1440000,
+        "occurredAt": 1792758240000,
+        "receivedAt": 1792758240000,
+        "kind": "period"
+      }
+    },
+    {
+      "id": "legacy-033",
+      "sequence": 60,
+      "gameElapsedMs": 1476000,
+      "presentationMs": 1000,
+      "text": "Tower scores inside again, thanks to Quick Kai.",
+      "event": {
+        "id": "legacy-033",
+        "revision": 1,
+        "sequence": 60,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1476000,
+        "occurredAt": 1792758276000,
+        "receivedAt": 1792758276000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-c-50",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-033-assist",
+      "sequence": 61,
+      "gameElapsedMs": 1476000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-033-assist",
+        "revision": 1,
+        "sequence": 61,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1476000,
+        "occurredAt": 1792758276000,
+        "receivedAt": 1792758276000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "possession-3",
+      "sequence": 62,
+      "gameElapsedMs": 1500000,
+      "presentationMs": 1000,
+      "text": "Scripted possession: harbor.",
+      "event": {
+        "id": "possession-3",
+        "revision": 1,
+        "sequence": 62,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1500000,
+        "occurredAt": 1792758300000,
+        "receivedAt": 1792758300000,
+        "kind": "possession",
+        "teamId": "harbor"
+      }
+    },
+    {
+      "id": "opportunity-3",
+      "sequence": 63,
+      "gameElapsedMs": 1500000,
+      "presentationMs": 8000,
+      "text": "Prediction opportunity before the next action.",
+      "question": {
+        "id": "basketball-q3",
+        "templateId": "team_scores_in_window",
+        "anchorSequence": 62,
+        "horizonGameElapsedMs": 1800000,
+        "teamId": "harbor",
+        "allowVoid": false
+      }
+    },
+    {
+      "id": "legacy-034",
+      "sequence": 64,
+      "gameElapsedMs": 1572000,
+      "presentationMs": 1000,
+      "text": "Splash Okafor hits his sixth three of the night.",
+      "event": {
+        "id": "legacy-034",
+        "revision": 1,
+        "sequence": 64,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1572000,
+        "occurredAt": 1792758372000,
+        "receivedAt": 1792758372000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-034-assist",
+      "sequence": 65,
+      "gameElapsedMs": 1572000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-034-assist",
+        "revision": 1,
+        "sequence": 65,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1572000,
+        "occurredAt": 1792758372000,
+        "receivedAt": 1792758372000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-035",
+      "sequence": 66,
+      "gameElapsedMs": 1620000,
+      "presentationMs": 1000,
+      "text": "Hustle Kimura scores on a quick cut.",
+      "event": {
+        "id": "legacy-035",
+        "revision": 1,
+        "sequence": 66,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1620000,
+        "occurredAt": 1792758420000,
+        "receivedAt": 1792758420000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pf-15",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-035-assist",
+      "sequence": 67,
+      "gameElapsedMs": 1620000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-035-assist",
+        "revision": 1,
+        "sequence": 67,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1620000,
+        "occurredAt": 1792758420000,
+        "receivedAt": 1792758420000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-036",
+      "sequence": 68,
+      "gameElapsedMs": 1674000,
+      "presentationMs": 1000,
+      "text": "Foul on the Foxes. Viking heads to the line."
+    },
+    {
+      "id": "legacy-037",
+      "sequence": 69,
+      "gameElapsedMs": 1692000,
+      "presentationMs": 1000,
+      "text": "The Viking hits the free throw.",
+      "event": {
+        "id": "legacy-037",
+        "revision": 1,
+        "sequence": 69,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1692000,
+        "occurredAt": 1792758492000,
+        "receivedAt": 1792758492000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sf-11",
+        "scoreValue": 1,
+        "statDeltas": {
+          "ft": 1
+        },
+        "shotType": "free_throw"
+      }
+    },
+    {
+      "id": "legacy-038",
+      "sequence": 70,
+      "gameElapsedMs": 1728000,
+      "presentationMs": 1000,
+      "text": "Quick Kai dribbles through three defenders for a layup.",
+      "event": {
+        "id": "legacy-038",
+        "revision": 1,
+        "sequence": 70,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1728000,
+        "occurredAt": 1792758528000,
+        "receivedAt": 1792758528000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-039",
+      "sequence": 71,
+      "gameElapsedMs": 1770000,
+      "presentationMs": 1000,
+      "text": "Splash Okafor hits his seventh three. The crowd is on its feet.",
+      "event": {
+        "id": "legacy-039",
+        "revision": 1,
+        "sequence": 71,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1770000,
+        "occurredAt": 1792758570000,
+        "receivedAt": 1792758570000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-039-assist",
+      "sequence": 72,
+      "gameElapsedMs": 1770000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-039-assist",
+        "revision": 1,
+        "sequence": 72,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1770000,
+        "occurredAt": 1792758570000,
+        "receivedAt": 1792758570000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-040",
+      "sequence": 73,
+      "gameElapsedMs": 1818000,
+      "presentationMs": 1000,
+      "text": "Quick Kai strips the ball. Another steal!",
+      "event": {
+        "id": "legacy-040",
+        "revision": 1,
+        "sequence": 73,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1818000,
+        "occurredAt": 1792758618000,
+        "receivedAt": 1792758618000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "stl": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-041",
+      "sequence": 74,
+      "gameElapsedMs": 1830000,
+      "presentationMs": 1000,
+      "text": "Quick Kai goes the other way for two.",
+      "event": {
+        "id": "legacy-041",
+        "revision": 1,
+        "sequence": 74,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1830000,
+        "occurredAt": 1792758630000,
+        "receivedAt": 1792758630000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-042",
+      "sequence": 75,
+      "gameElapsedMs": 1866000,
+      "presentationMs": 1000,
+      "text": "Doorbell Bell finishes at the rim.",
+      "event": {
+        "id": "legacy-042",
+        "revision": 1,
+        "sequence": 75,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1866000,
+        "occurredAt": 1792758666000,
+        "receivedAt": 1792758666000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-pf-21",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "dunk"
+      }
+    },
+    {
+      "id": "legacy-042-assist",
+      "sequence": 76,
+      "gameElapsedMs": 1866000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-042-assist",
+        "revision": 1,
+        "sequence": 76,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1866000,
+        "occurredAt": 1792758666000,
+        "receivedAt": 1792758666000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-043",
+      "sequence": 77,
+      "gameElapsedMs": 1908000,
+      "presentationMs": 1000,
+      "text": "Big Mo Adeyemi finally scores, a short hook.",
+      "event": {
+        "id": "legacy-043",
+        "revision": 1,
+        "sequence": 77,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1908000,
+        "occurredAt": 1792758708000,
+        "receivedAt": 1792758708000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-c-34",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-043-assist",
+      "sequence": 78,
+      "gameElapsedMs": 1908000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-043-assist",
+        "revision": 1,
+        "sequence": 78,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1908000,
+        "occurredAt": 1792758708000,
+        "receivedAt": 1792758708000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-044",
+      "sequence": 79,
+      "gameElapsedMs": 1956000,
+      "presentationMs": 1000,
+      "text": "Rafa hits a smooth pull-up jumper.",
+      "event": {
+        "id": "legacy-044",
+        "revision": 1,
+        "sequence": 79,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1956000,
+        "occurredAt": 1792758756000,
+        "receivedAt": 1792758756000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sg-10",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "jump_shot"
+      }
+    },
+    {
+      "id": "legacy-044-assist",
+      "sequence": 80,
+      "gameElapsedMs": 1956000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-044-assist",
+        "revision": 1,
+        "sequence": 80,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 1956000,
+        "occurredAt": 1792758756000,
+        "receivedAt": 1792758756000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-045",
+      "sequence": 81,
+      "gameElapsedMs": 2034000,
+      "presentationMs": 1000,
+      "text": "Pike scores in the paint.",
+      "event": {
+        "id": "legacy-045",
+        "revision": 1,
+        "sequence": 81,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2034000,
+        "occurredAt": 1792758834000,
+        "receivedAt": 1792758834000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pf-32",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-045-assist",
+      "sequence": 82,
+      "gameElapsedMs": 2034000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-045-assist",
+        "revision": 1,
+        "sequence": 82,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2034000,
+        "occurredAt": 1792758834000,
+        "receivedAt": 1792758834000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-046",
+      "sequence": 83,
+      "gameElapsedMs": 2082000,
+      "presentationMs": 1000,
+      "text": "Dime Cho knocks down a three.",
+      "event": {
+        "id": "legacy-046",
+        "revision": 1,
+        "sequence": 83,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2082000,
+        "occurredAt": 1792758882000,
+        "receivedAt": 1792758882000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-046-assist",
+      "sequence": 84,
+      "gameElapsedMs": 2082000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-046-assist",
+        "revision": 1,
+        "sequence": 84,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2082000,
+        "occurredAt": 1792758882000,
+        "receivedAt": 1792758882000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-047",
+      "sequence": 85,
+      "gameElapsedMs": 2118000,
+      "presentationMs": 1000,
+      "text": "Ice Mercer answers with a three.",
+      "event": {
+        "id": "legacy-047",
+        "revision": 1,
+        "sequence": 85,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2118000,
+        "occurredAt": 1792758918000,
+        "receivedAt": 1792758918000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sf-14",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-047-assist",
+      "sequence": 86,
+      "gameElapsedMs": 2118000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-047-assist",
+        "revision": 1,
+        "sequence": 86,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2118000,
+        "occurredAt": 1792758918000,
+        "receivedAt": 1792758918000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-048",
+      "sequence": 87,
+      "gameElapsedMs": 2160000,
+      "presentationMs": 1000,
+      "text": "End of Q3",
+      "event": {
+        "id": "legacy-048",
+        "revision": 1,
+        "sequence": 87,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2160000,
+        "occurredAt": 1792758960000,
+        "receivedAt": 1792758960000,
+        "kind": "period"
+      }
+    },
+    {
+      "id": "possession-4",
+      "sequence": 88,
+      "gameElapsedMs": 2190000,
+      "presentationMs": 1000,
+      "text": "Scripted possession: harbor.",
+      "event": {
+        "id": "possession-4",
+        "revision": 1,
+        "sequence": 88,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2190000,
+        "occurredAt": 1792758990000,
+        "receivedAt": 1792758990000,
+        "kind": "possession",
+        "teamId": "harbor"
+      }
+    },
+    {
+      "id": "opportunity-4",
+      "sequence": 89,
+      "gameElapsedMs": 2190000,
+      "presentationMs": 8000,
+      "text": "Prediction opportunity before the next action.",
+      "question": {
+        "id": "basketball-q4",
+        "templateId": "next_made_field_goal_value",
+        "anchorSequence": 88,
+        "horizonGameElapsedMs": 2520000,
+        "allowVoid": false
+      }
+    },
+    {
+      "id": "legacy-049",
+      "sequence": 90,
+      "gameElapsedMs": 2202000,
+      "presentationMs": 1000,
+      "text": "Jet Reyes scores to start the fourth.",
+      "event": {
+        "id": "legacy-049",
+        "revision": 1,
+        "sequence": 90,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2202000,
+        "occurredAt": 1792759002000,
+        "receivedAt": 1792759002000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-049-assist",
+      "sequence": 91,
+      "gameElapsedMs": 2202000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-049-assist",
+        "revision": 1,
+        "sequence": 91,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2202000,
+        "occurredAt": 1792759002000,
+        "receivedAt": 1792759002000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-sf-11",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-050",
+      "sequence": 92,
+      "gameElapsedMs": 2244000,
+      "presentationMs": 1000,
+      "text": "Pike dunks again off a Quick Kai assist.",
+      "event": {
+        "id": "legacy-050",
+        "revision": 1,
+        "sequence": 92,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2244000,
+        "occurredAt": 1792759044000,
+        "receivedAt": 1792759044000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pf-32",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "dunk"
+      }
+    },
+    {
+      "id": "legacy-050-assist",
+      "sequence": 93,
+      "gameElapsedMs": 2244000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-050-assist",
+        "revision": 1,
+        "sequence": 93,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2244000,
+        "occurredAt": 1792759044000,
+        "receivedAt": 1792759044000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-051",
+      "sequence": 94,
+      "gameElapsedMs": 2286000,
+      "presentationMs": 1000,
+      "text": "Big Mo Adeyemi loses the ball. Turnover.",
+      "event": {
+        "id": "legacy-051",
+        "revision": 1,
+        "sequence": 94,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2286000,
+        "occurredAt": 1792759086000,
+        "receivedAt": 1792759086000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-c-34",
+        "statDeltas": {
+          "tov": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-052",
+      "sequence": 95,
+      "gameElapsedMs": 2328000,
+      "presentationMs": 1000,
+      "text": "The Wall scores on a putback.",
+      "event": {
+        "id": "legacy-052",
+        "revision": 1,
+        "sequence": 95,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2328000,
+        "occurredAt": 1792759128000,
+        "receivedAt": 1792759128000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-c-44",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-053",
+      "sequence": 96,
+      "gameElapsedMs": 2376000,
+      "presentationMs": 1000,
+      "text": "Quick Kai drives for two.",
+      "event": {
+        "id": "legacy-053",
+        "revision": 1,
+        "sequence": 96,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2376000,
+        "occurredAt": 1792759176000,
+        "receivedAt": 1792759176000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-054",
+      "sequence": 97,
+      "gameElapsedMs": 2424000,
+      "presentationMs": 1000,
+      "text": "Bucket Brooks hits a big three for the Foxes!",
+      "event": {
+        "id": "legacy-054",
+        "revision": 1,
+        "sequence": 97,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2424000,
+        "occurredAt": 1792759224000,
+        "receivedAt": 1792759224000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sg-4",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-054-assist",
+      "sequence": 98,
+      "gameElapsedMs": 2424000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-054-assist",
+        "revision": 1,
+        "sequence": 98,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2424000,
+        "occurredAt": 1792759224000,
+        "receivedAt": 1792759224000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-055",
+      "sequence": 99,
+      "gameElapsedMs": 2472000,
+      "presentationMs": 1000,
+      "text": "Jet Reyes answers with a three.",
+      "event": {
+        "id": "legacy-055",
+        "revision": 1,
+        "sequence": 99,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2472000,
+        "occurredAt": 1792759272000,
+        "receivedAt": 1792759272000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-055-assist",
+      "sequence": 100,
+      "gameElapsedMs": 2472000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-055-assist",
+        "revision": 1,
+        "sequence": 100,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2472000,
+        "occurredAt": 1792759272000,
+        "receivedAt": 1792759272000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-056",
+      "sequence": 101,
+      "gameElapsedMs": 2514000,
+      "presentationMs": 1000,
+      "text": "Rafa scores on a jumper.",
+      "event": {
+        "id": "legacy-056",
+        "revision": 1,
+        "sequence": 101,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2514000,
+        "occurredAt": 1792759314000,
+        "receivedAt": 1792759314000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sg-10",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "jump_shot"
+      }
+    },
+    {
+      "id": "legacy-056-assist",
+      "sequence": 102,
+      "gameElapsedMs": 2514000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-056-assist",
+        "revision": 1,
+        "sequence": 102,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2514000,
+        "occurredAt": 1792759314000,
+        "receivedAt": 1792759314000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-057",
+      "sequence": 103,
+      "gameElapsedMs": 2568000,
+      "presentationMs": 1000,
+      "text": "Splash Okafor drains a three. Eight on the night!",
+      "event": {
+        "id": "legacy-057",
+        "revision": 1,
+        "sequence": 103,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2568000,
+        "occurredAt": 1792759368000,
+        "receivedAt": 1792759368000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sg-7",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-057-assist",
+      "sequence": 104,
+      "gameElapsedMs": 2568000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-057-assist",
+        "revision": 1,
+        "sequence": 104,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2568000,
+        "occurredAt": 1792759368000,
+        "receivedAt": 1792759368000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-058",
+      "sequence": 105,
+      "gameElapsedMs": 2616000,
+      "presentationMs": 1000,
+      "text": "Frosty Frost scores with a layup.",
+      "event": {
+        "id": "legacy-058",
+        "revision": 1,
+        "sequence": 105,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2616000,
+        "occurredAt": 1792759416000,
+        "receivedAt": 1792759416000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sf-8",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-058-assist",
+      "sequence": 106,
+      "gameElapsedMs": 2616000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-058-assist",
+        "revision": 1,
+        "sequence": 106,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2616000,
+        "occurredAt": 1792759416000,
+        "receivedAt": 1792759416000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-059",
+      "sequence": 107,
+      "gameElapsedMs": 2658000,
+      "presentationMs": 1000,
+      "text": "Lefty Navarro cuts for a layup.",
+      "event": {
+        "id": "legacy-059",
+        "revision": 1,
+        "sequence": 107,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2658000,
+        "occurredAt": 1792759458000,
+        "receivedAt": 1792759458000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sf-23",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "layup"
+      }
+    },
+    {
+      "id": "legacy-059-assist",
+      "sequence": 108,
+      "gameElapsedMs": 2658000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-059-assist",
+        "revision": 1,
+        "sequence": 108,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2658000,
+        "occurredAt": 1792759458000,
+        "receivedAt": 1792759458000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-5",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-060",
+      "sequence": 109,
+      "gameElapsedMs": 2706000,
+      "presentationMs": 1000,
+      "text": "Quick Kai nails a three to put the Foxes ahead, 54-53.",
+      "event": {
+        "id": "legacy-060",
+        "revision": 1,
+        "sequence": 109,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2706000,
+        "occurredAt": 1792759506000,
+        "receivedAt": 1792759506000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "scoreValue": 3,
+        "statDeltas": {
+          "pts3": 1
+        },
+        "shotType": "three_pointer"
+      }
+    },
+    {
+      "id": "legacy-060-assist",
+      "sequence": 110,
+      "gameElapsedMs": 2706000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-060-assist",
+        "revision": 1,
+        "sequence": 110,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2706000,
+        "occurredAt": 1792759506000,
+        "receivedAt": 1792759506000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-sg-10",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-061",
+      "sequence": 111,
+      "gameElapsedMs": 2748000,
+      "presentationMs": 1000,
+      "text": "The Viking puts the Hawks back in front.",
+      "event": {
+        "id": "legacy-061",
+        "revision": 1,
+        "sequence": 111,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2748000,
+        "occurredAt": 1792759548000,
+        "receivedAt": 1792759548000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-sf-11",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-061-assist",
+      "sequence": 112,
+      "gameElapsedMs": 2748000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-061-assist",
+        "revision": 1,
+        "sequence": 112,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2748000,
+        "occurredAt": 1792759548000,
+        "receivedAt": 1792759548000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-062",
+      "sequence": 113,
+      "gameElapsedMs": 2796000,
+      "presentationMs": 1000,
+      "text": "Ice Mercer puts the Foxes ahead again, 56-55.",
+      "event": {
+        "id": "legacy-062",
+        "revision": 1,
+        "sequence": 113,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2796000,
+        "occurredAt": 1792759596000,
+        "receivedAt": 1792759596000,
+        "kind": "score",
+        "teamId": "summit",
+        "playerId": "sum-sf-14",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-062-assist",
+      "sequence": 114,
+      "gameElapsedMs": 2796000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-062-assist",
+        "revision": 1,
+        "sequence": 114,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2796000,
+        "occurredAt": 1792759596000,
+        "receivedAt": 1792759596000,
+        "kind": "stat",
+        "teamId": "summit",
+        "playerId": "sum-pg-2",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-063",
+      "sequence": 115,
+      "gameElapsedMs": 2838000,
+      "presentationMs": 1000,
+      "text": "Doorbell Bell dunks to put the Hawks ahead!",
+      "event": {
+        "id": "legacy-063",
+        "revision": 1,
+        "sequence": 115,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2838000,
+        "occurredAt": 1792759638000,
+        "receivedAt": 1792759638000,
+        "kind": "score",
+        "teamId": "harbor",
+        "playerId": "har-pf-21",
+        "scoreValue": 2,
+        "statDeltas": {
+          "pts2": 1
+        },
+        "shotType": "dunk"
+      }
+    },
+    {
+      "id": "legacy-063-assist",
+      "sequence": 116,
+      "gameElapsedMs": 2838000,
+      "presentationMs": 1000,
+      "text": "Assist credit.",
+      "event": {
+        "id": "legacy-063-assist",
+        "revision": 1,
+        "sequence": 116,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2838000,
+        "occurredAt": 1792759638000,
+        "receivedAt": 1792759638000,
+        "kind": "stat",
+        "teamId": "harbor",
+        "playerId": "har-pg-1",
+        "statDeltas": {
+          "ast": 1
+        }
+      }
+    },
+    {
+      "id": "legacy-064",
+      "sequence": 117,
+      "gameElapsedMs": 2880000,
+      "presentationMs": 1000,
+      "text": "Final: Hawks 57, Foxes 56",
+      "event": {
+        "id": "legacy-064",
+        "revision": 1,
+        "sequence": 117,
+        "gameId": "harbor-vs-summit",
+        "gameElapsedMs": 2880000,
+        "occurredAt": 1792759680000,
+        "receivedAt": 1792759680000,
+        "kind": "final"
+      }
+    }
+  ]
+}

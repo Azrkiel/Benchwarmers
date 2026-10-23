@@ -1,5 +1,6 @@
 import { useMemo, useRef } from 'react';
 import type { Household, StandingRow } from '@shared/types';
+import { ScoreTick } from '../fx/fx';
 import { Avatar, householdColor } from './avatar';
 import { rankMovement, useFlip, type Movement } from './flip';
 
@@ -37,7 +38,7 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
                 </span>
                 <span className="tv-split-text">Draft {r.draftPoints.toFixed(1)} · Picks {r.pickPoints.toFixed(1)}</span>
               </span>
-              <span className="tv-stand-total">{r.total.toFixed(1)}</span>
+              <ScoreTick className="tv-stand-total" value={r.total.toFixed(1)} />
               <span className="tv-streak">{r.streak >= 2 ? `${r.streak} streak` : ''}</span>
             </li>
           );

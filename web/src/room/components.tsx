@@ -1,8 +1,10 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import type { RoomStanding, RoomView } from '@shared/room';
-import { ScoreTick } from '../fx/fx';
+import { FANTASY_SCORING } from '@shared/types';
+import { ScoreTick, useNewIds } from '../fx/fx';
 import { useFlip } from '../tv/flip';
 import { ordinal, playLabel } from './moments';
+import { PredictionReceipt, type PickReceipt } from './PredictionReceipt';
 
 /** Black or white text, whichever reads better on a team colour. */
 export function inkOn(hex: string): string {
@@ -47,11 +49,12 @@ export function RoomScore({ view, large = false }: { view: RoomView; large?: boo
       <b><ScoreTick value={t.score} /></b>
     </div>;
   };
-  return <section className={`rm-score rm-bug${large ? ' is-large' : ''}`} aria-label="Football score">
+  const basketball = game.sport === 'basketball';
+  return <section className={`rm-score rm-bug${large ? ' is-large' : ''}`} aria-label={basketball ? 'Basketball score' : 'Football score'}>
     {team('away')}
     <div className="rm-bug-mid">
       <div className="rm-source-phase"><span className="rm-source">{game.isScripted ? 'Replay' : 'Live'}</span><PhasePill phase={room.phase} /></div>
-      <strong>{room.phase === 'final' ? 'Final' : room.phase === 'lobby' ? 'Kickoff soon' : <>Q{game.quarter} <span>{game.clock}</span></>}</strong>
+      <strong>{room.phase === 'final' ? 'Final' : room.phase === 'lobby' ? (basketball ? 'Tip-off soon' : 'Kickoff soon') : <>Q{game.quarter} <span>{game.clock}</span></>}</strong>
       {room.phase === 'live' || room.phase === 'paused' ? <span className="rm-bug-down">{game.situation}</span> : null}
     </div>
     {team('home')}
@@ -88,10 +91,11 @@ export function FootballField({ view }: { view: RoomView }) {
 
 export function PlayFeed({ view, tv = false }: { view: RoomView; tv?: boolean }) {
   const plays = view.game.recentPlays.slice(tv ? -1 : -3).reverse();
+  const fresh = useNewIds(view.game.recentPlays.map(play => play.id));
   const [latest, ...rest] = plays;
   return <section className="rm-play-feed" role="region" aria-label={tv ? 'Latest football play' : 'Recent football plays'} tabIndex={tv ? 0 : undefined}>
     {latest ? <>
-      <div className={`rm-play-latest is-${latest.kind}`} key={latest.id}>
+      <div className={`rm-play-latest is-${latest.kind}${fresh.includes(latest.id) ? ' is-new' : ''}`} key={latest.id}>
         <span className="rm-play-tag">{playLabel(latest.kind) ?? 'Last play'}</span>
         <p>{latest.text}</p>
         <small>Q{latest.quarter} · {latest.clock}</small>
@@ -107,9 +111,11 @@ export function HostControls({ view, busy, onAction }: { view: RoomView; busy: b
   return <section className="rm-host" aria-label="Host controls"><h2>Host controls</h2><div className="rm-host-row">{phase === 'lobby' && <button className="rm-primary" disabled={busy} onClick={() => onAction('start')}>Start game</button>}{phase === 'live' && <button disabled={busy} onClick={() => onAction('pause')}>Pause game</button>}{phase === 'paused' && <button className="rm-primary" disabled={busy} onClick={() => onAction('resume')}>Resume game</button>}{phase === 'final' && <span>Final · Season saved</span>}<div><span className="rm-muted">Replay speed</span><div className="rm-speeds" role="group" aria-label="Replay speed">{[1, 2, 3, 4].map((speed) => <button key={speed} aria-pressed={view.room.speed === speed} aria-label={`Replay ${speed} times speed`} disabled={busy || phase === 'final'} onClick={() => onAction('set_speed', speed)}>{speed}×</button>)}</div></div></div>{phase === 'lobby' && <p>{incomplete} {incomplete === 1 ? 'player needs a lineup' : 'players need lineups'}. Starting locks saved lineups and auto-fills missing lineups.</p>}</section>;
 }
 
-export function Question({ view, busy = false, onPick, tv = false }: { view: RoomView; busy?: boolean; tv?: boolean; onPick?: (questionId: string, optionId: string) => Promise<boolean | undefined> | void }) {
+export function Question({ view, busy = false, onPick, tv = false, receipt, onRetry }: { view: RoomView; busy?: boolean; tv?: boolean; onPick?: (questionId: string, optionId: string) => Promise<boolean | undefined> | void; receipt?: PickReceipt; onRetry?: (receipt: PickReceipt) => void }) {
   const question = view.question;
-  const [attempt, setAttempt] = useState<{ questionId: string; optionId: string; status: 'saving' | 'failed' | 'saved' }>();
+  const [localAttempt, setAttempt] = useState<{ questionId: string; optionId: string; status: 'saving' | 'failed' | 'saved' }>();
+  // With a server receipt, only an accepted receipt counts as saved; otherwise fall back to the local attempt.
+  const attempt = receipt ? { questionId: receipt.questionId, optionId: receipt.optionId, status: receipt.status === 'accepted' ? 'saved' as const : receipt.status === 'sending' || receipt.status === 'checking' ? 'saving' as const : 'failed' as const } : localAttempt;
   const result = view.lastQuestion?.result ? view.lastQuestion : question?.result ? question : undefined;
   const total = question ? Object.values(question.pickCounts).reduce((a, b) => a + b, 0) : 0;
   const span = question ? Math.max(1, question.locksAt - question.opensAt) : 1;
@@ -119,6 +125,7 @@ export function Question({ view, busy = false, onPick, tv = false }: { view: Roo
   const editable = view.room.phase === 'live' && question?.status === 'open' && question.remainingMs > 0;
   const currentAttempt = attempt?.questionId === question?.id ? attempt : undefined;
   async function pick(questionId: string, optionId: string) {
+    if (receipt !== undefined || onRetry) { await onPick?.(questionId, optionId); return; }
     setAttempt({ questionId, optionId, status: 'saving' });
     try {
       const saved = await onPick?.(questionId, optionId);
@@ -126,29 +133,41 @@ export function Question({ view, busy = false, onPick, tv = false }: { view: Roo
     } catch { setAttempt({ questionId, optionId, status: 'failed' }); }
   }
   return <section className={`rm-question${editable ? ' is-open' : ''}${editable && secs <= 5 ? ' is-urgent' : ''}`} aria-labelledby={tv ? undefined : 'rm-question-title'} role={tv ? 'region' : undefined} aria-label={tv ? 'Prediction details' : undefined} tabIndex={tv ? 0 : undefined}>
-    <div className="rm-section-heading"><span className="rm-eyebrow">{tv ? 'Make picks on your phone' : 'Make a pick'}</span>{question && <span className="rm-countdown">{paused ? 'Picks paused' : question.status === 'open' ? `Closes in ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}` : question.status === 'locked' ? 'Locked · Awaiting result' : 'Resolved'}</span>}</div>
+    <div className="rm-section-heading"><span className="rm-eyebrow">{tv ? 'Make picks on your phone' : 'Make a pick'}</span>{question && <span className="rm-countdown">{paused ? 'Picks paused' : question.status === 'open' ? `Closes in ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}` : question.status === 'locked' ? 'Locked · Awaiting result' : (question.status as string) === 'void' ? 'No result' : 'Resolved'}</span>}</div>
     {!tv && <span className="rm-sr" role="status" aria-label="Pick window status">{paused ? 'Picks paused' : question?.status === 'locked' ? 'Picks locked. Awaiting result.' : editable && secs <= 5 ? 'Picks close in under five seconds' : ''}</span>}
     {paused && <p className="rm-pick-state" role="status">Game paused · Picks paused</p>}
     {question?.status === 'open' && <div className="rm-timer" aria-hidden="true"><i style={{ width: `${left * 100}%` }} /></div>}
     <h2 id="rm-question-title">{question?.text ?? (view.room.phase === 'lobby' ? 'Picks open at kickoff' : view.room.phase === 'final' ? 'Game complete' : 'Waiting for the next pick')}</h2>
+    {(question?.status as string) === 'void' && <p className="rm-pick-state" role="status">No result{(question as { voidReason?: string }).voidReason ? ` · ${(question as { voidReason?: string }).voidReason}` : ''}. No points, streak kept.</p>}
     {question && <div className="rm-options">{question.options.map((option) => {
       const confirmed = view.me?.currentPick?.questionId === question.id && view.me.currentPick.optionId === option.id;
-      const selected = currentAttempt ? currentAttempt.optionId === option.id : confirmed;
+      const attempted = currentAttempt?.optionId === option.id;
+      // A previously accepted pick stays marked even while a different answer is in flight or failed.
+      const selected = attempted || (confirmed && currentAttempt?.status !== 'saved');
       const winner = question.result?.optionId === option.id;
       const count = question.pickCounts[option.id] ?? 0;
       const share = total ? count / total : 0;
-      const content = <><span className="rm-option-top"><span className="rm-clamp" title={option.label}>{option.label}</span><b>{winner ? '✓ Correct' : `${option.basePoints} pts`}</b></span><span className="rm-split" aria-hidden="true"><i style={{ width: `${share * 100}%` }} /></span><small>Room: {count} {count === 1 ? 'pick' : 'picks'} ({Math.round(share * 100)}%){option.probability !== undefined && <span className="rm-history-rate">Historical rate: {Math.round(option.probability * 100)}%</span>}</small>{selected && <strong className="rm-your-pick">{currentAttempt?.status === 'saving' ? 'Saving…' : currentAttempt?.status === 'failed' ? 'Your choice · Not saved' : '✓ Your pick'}</strong>}</>;
+      const content = <><span className="rm-option-top"><span className="rm-clamp" title={option.label}>{option.label}</span><b>{winner ? '✓ Correct' : `${option.basePoints} pts`}</b></span><span className="rm-split" aria-hidden="true"><i style={{ width: `${share * 100}%` }} /></span><small>Room: {count} {count === 1 ? 'pick' : 'picks'} ({Math.round(share * 100)}%){option.probability !== undefined && <span className="rm-history-rate">Historical rate: {Math.round(option.probability * 100)}%</span>}</small>{selected && <strong className="rm-your-pick">{attempted && currentAttempt?.status === 'saving' ? 'Saving…' : attempted && currentAttempt?.status === 'failed' ? 'Your choice · Not saved' : '✓ Your pick'}</strong>}</>;
       const className = `${winner ? 'is-winner' : ''}${question.result && !winner ? ' is-out' : ''}${selected ? ' is-selected' : ''}`;
       return tv ? <div key={option.id} className={`rm-option-info ${className}`}>{content}</div> : <button key={option.id} className={className} disabled={!onPick || busy || currentAttempt?.status === 'saving' || !editable} aria-pressed={selected} onClick={() => { void pick(question.id, option.id); }}>{content}</button>;
     })}</div>}
     {!tv && <span className="rm-sr-only" role="status">{currentAttempt?.status === 'saved' ? `Pick saved: ${question?.options.find(o => o.id === currentAttempt.optionId)?.label ?? ''}` : ''}</span>}
-    {currentAttempt?.status === 'failed' && <div className="rm-pick-failure"><p role="alert">Pick not saved. Try again.</p>{editable && <button disabled={busy} onClick={() => { void pick(currentAttempt.questionId, currentAttempt.optionId); }}>Retry pick</button>}</div>}
+    {onRetry && receipt?.questionId === question?.id && <PredictionReceipt receipt={receipt} canRetry={!!editable && !busy} onRetry={() => receipt && onRetry(receipt)} />}
+    {!onRetry && currentAttempt?.status === 'failed' && <div className="rm-pick-failure"><p role="alert">Pick not saved. Try again.</p>{editable && <button disabled={busy} onClick={() => { void pick(currentAttempt.questionId, currentAttempt.optionId); }}>Retry pick</button>}</div>}
     {result?.result && <details className="rm-result"><summary>Previous pick · {result.options.find((option) => option.id === result.result?.optionId)?.label ?? result.result.optionId}</summary><p>{result.text}</p><p>{result.result.explanation}</p></details>}
   </section>;
 }
 
 export function RoomRules({ view, tv = false }: { view: RoomView; tv?: boolean }) {
   const { rules } = view;
+  if (view.game.sport === 'basketball') return <details className="rm-rules" name={tv ? 'room-tv-tools' : undefined}><summary>How scoring works</summary><div role={tv ? 'region' : undefined} aria-label={tv ? 'Game rules' : undefined} tabIndex={tv ? 0 : undefined}>
+    <p>Lineup points + pick points = your total. Lineups lock at tip-off.</p>
+    <details><summary>Lineups</summary><ul><li>{money(rules.salaryCap)} for 1 captain and {rules.flexSlots} flex players.</li><li>Captain salary and points are multiplied by {rules.captainMultiplier}.</li><li>Players can appear in more than one lineup.</li><li>Salaries come from authored pregame projections, not from tonight's results.</li></ul></details>
+    <details><summary>Stat points</summary><p>{[['Two', 'pts2'], ['Three', 'pts3'], ['Free throw', 'ft'], ['Rebound', 'reb'], ['Assist', 'ast'], ['Steal', 'stl'], ['Block', 'blk'], ['Turnover', 'tov']].map(([label, key]) => `${label} ${FANTASY_SCORING[key as keyof typeof FANTASY_SCORING]}`).join(' · ')}. Every position counts the same.</p></details>
+    <details><summary>Picks</summary><p>One featured call at a time: who scores next, two or three on the next made basket, or whether a team scores in a window. Each call stays open at least 8 seconds. A call with no qualifying play is void: no points, streak kept.</p></details>
+    <details><summary>Bonuses</summary><p>Correct picks can earn streak, early pick and against-the-room bonuses, up to {rules.pickFactorCap}×. A miss resets your streak.</p></details>
+    <p className="rm-rules-note">Fictional teams and players · Scripted replay</p>
+  </div></details>;
   return <details className="rm-rules" name={tv ? 'room-tv-tools' : undefined}><summary>How scoring works</summary><div role={tv ? 'region' : undefined} aria-label={tv ? 'Game rules' : undefined} tabIndex={tv ? 0 : undefined}>
     <p>Lineup points + pick points = your total. Lineups lock at kickoff.</p>
     <details><summary>Lineups</summary><ul><li>{money(rules.salaryCap)} for 1 captain and {rules.flexSlots} flex players.</li><li>Captain salary and points are multiplied by {rules.captainMultiplier}.</li><li>Players can appear in more than one lineup.</li></ul><dl className="rm-rule-weights">{Object.entries(rules.positionMultipliers).map(([position, weight]) => <div key={position}><dt>{position}</dt><dd>{weight}×</dd></div>)}</dl></details>

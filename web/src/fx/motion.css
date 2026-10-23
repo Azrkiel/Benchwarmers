@@ -1,0 +1,60 @@
+/* Motion directs attention to a changed play, score or choice. No looping decoration. */
+@keyframes bw-slide-in {
+  from { opacity:0; translate:-24px 0; }
+  to { opacity:1; translate:0 0; }
+}
+@keyframes bw-rise-in {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes bw-pop-in {
+  0% { opacity:0; transform:scale(.92); }
+  65% { opacity:1; transform:scale(1.025); }
+  100% { opacity:1; transform:scale(1); }
+}
+
+/* One short entrance per mounted view, without changing its focus or geometry. */
+.hm-header,.home-hero { animation:bw-rise-in 500ms var(--bw-ease-out) both; }
+.hm #room-start,.home-scorebook { animation:bw-rise-in 550ms 80ms var(--bw-ease-out) both; }
+.tv-body>.tv-view,.tv-optional-panel,.rm-podium { animation:bw-rise-in var(--bw-motion-enter) var(--bw-ease-out) both; }
+.rm-winner,.tv-podium-block { animation:bw-rise-in 650ms var(--bw-ease-out) both; }
+.tv-podium-block:nth-child(2) { animation-delay:80ms; }
+.tv-podium-block:nth-child(3) { animation-delay:140ms; }
+
+/* Existing content stays put on polls. Only unseen, keyed plays slide in. */
+.rm-play-latest.is-new,.tv-pbp-row.is-new { animation:bw-slide-in var(--bw-motion-enter) var(--bw-ease-out) both; }
+.rm-play-latest.is-new .rm-play-tag,.tv-pbp-row.is-new .tv-chip { animation:bw-pop-in 360ms 90ms var(--bw-ease-out) both; }
+.tv-pbp-list,.rm-board ol,.tv-standings-list { position:relative; }
+.tv-pbp-row { transform-origin:left center; }
+
+/* Give a selection weight without moving its hit target. */
+.rm-options>button,.rm-player,.hm-more-link,.home-actions>a {
+  transition:background var(--bw-motion-fast) ease,border-color var(--bw-motion-fast) ease,box-shadow var(--bw-motion-fast) ease;
+}
+.rm-options>.is-selected { animation:bw-pop-in 280ms var(--bw-ease-out); }
+.rm-options>.is-winner,.tv-pick-opt.is-correct { animation:bw-pop-in 360ms var(--bw-ease-out); }
+.rm-split>i,.tv-pick-bar>span,.tv-split>span { transition:width 500ms var(--bw-ease-out); }
+.rm button:not(:disabled):active,.rm-landing button:not(:disabled):active,.tv-nav button:active { box-shadow:inset 0 0 0 2px currentColor; }
+
+/* Play is the signature focal point; secondary panels stay quiet. */
+.rm-play-latest { position:relative; isolation:isolate; border-left-width:4px; }
+.rm-play-latest:is(.is-td,.is-fg) { border-left-color:var(--lg-good); }
+.rm-play-latest.is-int { border-left-color:var(--bw-warning); }
+.rm-play-latest:is(.is-td,.is-fg) .rm-play-tag { color:var(--lg-good); }
+.rm-play-latest.is-int .rm-play-tag { color:var(--bw-warning); }
+.rm-play-tag { text-transform:uppercase; letter-spacing:.06em; }
+.rm-row.is-leader { background:var(--lg-raised); border-left:3px solid var(--lg-orange); }
+.tv-stand-row:first-child { background:var(--panel); border-left:3px solid var(--accent); padding-inline:12px; }
+.tv-move-up { color:var(--good); }
+.tv-move-down { color:var(--muted); }
+.tv-original .tv-pbp-row:first-child { padding-left:14px; border-left:3px solid var(--team); background:var(--panel); }
+.tv-original .tv-sb-team { padding-block:12px; }
+.tv-original .tv-sb-short::before { width:32px; height:4px; }
+
+@media(hover:hover) {
+  .hm-more-link:hover,.home-secondary:hover { box-shadow:inset 3px 0 var(--lg-orange); }
+  .rm-player:hover { border-color:var(--bw-control-line); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .hm *,.home-welcome *,.rm *,.rm-landing *,.tv-viewport * { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+}

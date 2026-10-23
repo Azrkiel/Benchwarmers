@@ -8,6 +8,8 @@
   --lg-serif:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
   --bw-action:#c8102e; --bw-action-edge:#d4172f; --bw-action-hover:#a80e27; --bw-link:#ff7b86;
   --bw-warning:#f5b942; --bw-control-line:#73767d; --bw-radius:6px; --bw-focus:#fff;
+  --bw-ease-out:cubic-bezier(.16,1,.3,1); --bw-ease-pop:cubic-bezier(.22,1.35,.36,1);
+  --bw-motion-fast:160ms; --bw-motion-enter:420ms; --bw-motion-move:600ms;
 }
 .bw-brand { display:inline-flex; align-items:center; gap:.38em; color:var(--lg-text); text-decoration:none; }
 .bw-brand > svg { flex:none; width:1.05em; height:1.05em; color:var(--lg-orange); }

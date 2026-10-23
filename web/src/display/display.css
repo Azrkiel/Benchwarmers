@@ -64,3 +64,35 @@
 .is-large .sd-note { font-size:30px; margin:20px 56px 32px; }
 @media (prefers-reduced-motion:reduce) { .sd-lightbar[data-active="true"] { animation:none; } }
 .sd-root * { font-variant-numeric:tabular-nums; }
+/* Compact 960x480 preset (Show 5 target, simulated): its own spacing and type, not a scaled-down canvas. */
+.is-compact .sd-status { padding:14px 24px 0; font-size:20px; }
+.is-compact .sd-idle { padding-bottom:24px; }
+.is-compact .sd-clock { font-size:112px; }
+.is-compact .sd-hint { font-size:30px; margin-top:10px; }
+.is-compact .sd-hint2 { font-size:20px; }
+.is-compact .sd-convo { padding:14px 28px 4px; gap:6px; }
+.is-compact .sd-caption { font-size:22px; }
+.is-compact .sd-reply { font-size:32px; max-width:900px; }
+.is-compact .sd-reply.is-long, .is-compact.has-widget .sd-reply { font-size:24px; -webkit-line-clamp:2; }
+.is-compact .sd-widget { margin:6px 20px 0; }
+.is-compact .sd-widget .widget-frame { zoom:1; }
+/* Room simulator (/display/room/:code) */
+.sim-tools { display:flex; align-items:center; gap:10px; }
+.sim-speaker { display:flex; align-items:center; gap:8px; font:600 13px/1 var(--lg-sans); color:var(--lg-muted); }
+.sim-speaker select { background:#111214; color:#fff; border:1px solid var(--bw-control-line); border-radius:4px; padding:7px 10px; font:400 13px var(--lg-sans); }
+.sim-trace-toggle { font:600 13px/1 var(--lg-sans); color:var(--lg-muted); background:transparent; border:1px solid var(--bw-control-line); border-radius:4px; padding:8px 14px; cursor:pointer; }
+.sim-trace-toggle[aria-pressed=true] { color:#fff; border-color:#fff; }
+.sim-trace { position:absolute; right:0; bottom:0; overflow:auto; padding:12px 16px; border-left:1px solid var(--lg-line); background:#0d0e10; }
+.sim-trace h2 { margin:0 0 4px; font:600 16px/1.2 var(--lg-serif); text-transform:uppercase; letter-spacing:.06em; }
+.sim-note { margin:0 0 10px; color:var(--lg-faint); font-size:12px; }
+.sim-listen { position:absolute; left:50%; bottom:18%; translate:-50% 0; z-index:30; padding:10px 22px; border-radius:999px; background:#000c; border:2px solid var(--lg-orange); font:600 28px/1.2 var(--lg-sans); color:#fff; max-width:80%; text-align:center; }
+.sim-bottom { flex-direction:column; flex-wrap:nowrap; gap:8px; }
+.sim-mic { background:transparent!important; border-color:var(--bw-control-line)!important; color:var(--lg-text)!important; }
+.sim-mic[aria-pressed=true] { border-color:var(--lg-orange)!important; box-shadow:inset 3px 0 var(--lg-orange); }
+.sim-status { margin:0; color:var(--lg-faint); font-size:12px; }
+.sim-trace, .sim-trace * { box-sizing:border-box; }
+.sim-trace .trace-list { padding:0; margin:0; }
+.sim-trace .trace-item { max-width:100%; overflow:hidden; }
+.sim-trace .trace-args { white-space:pre-wrap; word-break:break-all; max-width:100%; }
+.sim-bottom { align-items:center; }
+.sim-bottom .sd-type { width:min(720px,100%); }

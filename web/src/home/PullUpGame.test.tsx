@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { HomePage } from './HomePage';
+import { ReplaysPage } from './SecondaryPages';
 import { PullUpGame } from './PullUpGame';
 
 afterEach(() => {
@@ -63,10 +63,10 @@ describe('Pull up a game', () => {
     expect((screen.getByRole('button', { name: 'Find game' }) as HTMLButtonElement).disabled).toBe(false);
   });
 
-  it('is part of the home page, near the top', () => {
+  it('lives on its own replays page, off the homepage', () => {
     render(
       <MemoryRouter>
-        <HomePage />
+        <ReplaysPage />
       </MemoryRouter>,
     );
     expect(screen.getByRole('heading', { name: 'Replay a game' })).toBeTruthy();
