@@ -55,3 +55,11 @@ export async function roomRequest<T>(path: string, options: { body?: unknown; to
   } finally { clearTimeout(timeout); options.signal?.removeEventListener('abort', abort); }
 }
 export function errorMessage(error: unknown) { return error instanceof Error ? error.message : 'Unable to reach the room. Try again.'; }
+/** Room codes this browser holds a seat or host credential for, newest storage order. */
+export function savedRooms(): { code: string; seated: boolean; host: boolean }[] {
+  const codes = new Set<string>();
+  try { for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key?.startsWith('bw.room.')) codes.add(key.slice(8)); } }
+  catch { storageUnavailable = true; }
+  for (const key of memory.keys()) if (key.startsWith('bw.room.')) codes.add(key.slice(8));
+  return [...codes].map((code) => { const value = roomCredentials(code); return { code, seated: !!value.participantToken, host: !!value.hostToken }; }).filter((room) => room.seated || room.host);
+}

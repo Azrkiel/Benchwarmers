@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { BrandLockup } from '../brand/Brand';
 import { storageWarning } from './api';
 import { ScoreTick, ToastLayer } from '../fx/fx';
@@ -16,8 +16,9 @@ export function RoomPage() {
   const code = (useParams().code ?? '').toUpperCase();
   const { view, credentials, error, stale, busy, mutate, acceptJoin, retry, updatedAt } = useRoom(code);
   const [copyStatus, setCopyStatus] = useState('');
+  const joinName = (useLocation().state as { joinName?: string } | null)?.joinName ?? '';
   const moments = useRoomMoments(view, { personal: true });
-  if (!view) return <main className="rm rm-loading"><BrandLockup size={32} /><h1>{error ? 'Room unavailable' : 'Opening room…'}</h1>{error ? <><p role="alert">Could not open room {code}. Check the code or try again.</p><button onClick={retry}>Retry</button><Link to="/">Edit room code</Link></> : <p role="status">Connecting to {code}</p>}<Link to="/">Home</Link></main>;
+  if (!view) return <main className="rm rm-loading"><BrandLockup size={32} /><h1>{error ? 'Room unavailable' : 'Opening room…'}</h1>{error ? <><p role="alert">Could not open room {code}. Check the code or try again.</p><button onClick={retry}>Retry</button><Link to={`/?join=${encodeURIComponent(code)}`}>Edit party code</Link></> : <p role="status">Connecting to {code}</p>}<Link to="/">Home</Link></main>;
   const joined = !!credentials.participantToken && !!view.me;
   const me = joined ? view.standings.find((row) => row.participantId === view.me?.participantId) : undefined;
   const phase = view.room.phase;
@@ -31,7 +32,7 @@ export function RoomPage() {
     {storageWarning() && <p className="rm-banner">{storageWarning()}</p>}
     <RoomScore view={view} />
     {phase === 'final' && <FinalPodium view={view} />}
-    {!joined ? <JoinRoom code={code} seasonId={view.season.id} phase={phase} onJoin={acceptJoin} /> : <>
+    {!joined ? <JoinRoom code={code} seasonId={view.season.id} phase={phase} initialName={joinName} onJoin={acceptJoin} /> : <>
       <section className="rm-personal-score" aria-label="Your score">
         <div><span>You · {view.me?.name}{me ? ` · ${ordinal(me.rank)}` : ''}</span><strong><ScoreTick value={points(me?.total ?? 0)} /></strong><span>Total pts</span></div>
         <div><span>Lineup pts</span><b>{points(me?.fantasyPoints ?? 0)}</b></div><div><span>Pick pts</span><b>{points(me?.predictionPoints ?? 0)}</b></div><div><span>Streak</span><b>{me?.streak ?? 0}</b></div>

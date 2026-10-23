@@ -90,7 +90,7 @@ export function RoomTvPage() {
     ranked[0]?.element.focus();
   }
 
-  if (!view) return <main className="rm rm-loading"><BrandLockup size={44} /><h1>{error ? 'Room unavailable' : 'Opening TV view…'}</h1>{error ? <><p role="alert">Could not open room {code}. Check the code or try again.</p><button onClick={retry}>Retry</button><Link to="/">Edit room code</Link></> : <p role="status">Connecting to room {code}</p>}<Link to="/">Home</Link></main>;
+  if (!view) return <main className="rm rm-loading"><BrandLockup size={44} /><h1>{error ? 'Room unavailable' : 'Opening TV view…'}</h1>{error ? <><p role="alert">Could not open room {code}. Check the code or try again.</p><button onClick={retry}>Retry</button><Link to={`/?join=${encodeURIComponent(code)}`}>Edit party code</Link></> : <p role="status">Connecting to room {code}</p>}<Link to="/">Home</Link></main>;
   const joinPath = `/room/${encodeURIComponent(code)}`;
   const joinUrl = `${window.location.host}${joinPath}`;
   const phase = view.room.phase;

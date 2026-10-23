@@ -6,6 +6,7 @@ import { VoiceLabPage } from './voiceid/VoiceLabPage';
 import { useScorebookTheme } from './lib/theme';
 import { HomePage } from './home/HomePage';
 import { WelcomePage } from './home/WelcomePage';
+import { ReplaysPage, SeasonPage, ToolsPage } from './home/SecondaryPages';
 import { NotFound, PageTitle, RouteBoundary, RouteLoading } from './shell/RouteStatus';
 
 // TV layouts keep their CSS in independent route chunks.
@@ -30,6 +31,9 @@ export function App() {
         <Route path="/room/:code" element={<RoomPage />} />
         <Route path="/room/:code/tv" element={<RoomTvPage />} />
         <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/season" element={<SeasonPage />} />
+        <Route path="/replays" element={<ReplaysPage />} />
+        <Route path="/tools" element={<ToolsPage />} />
         <Route path="/tv/:code" element={<TvPage />} />
         <Route path="/tv2/:code" element={<Scorebook><BroadcastTvPage /></Scorebook>} />
         <Route path="/lounge/:code" element={<Scorebook><LoungePage /></Scorebook>} />

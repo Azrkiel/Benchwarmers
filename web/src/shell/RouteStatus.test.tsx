@@ -11,7 +11,7 @@ it('provides a recoverable unknown route with code entry instead of a blank scre
     <Route path="*" element={<NotFound />} />
   </Routes></MemoryRouter>);
   expect(screen.getByRole('link', { name: 'Game night' }).getAttribute('href')).toBe('/');
-  fireEvent.change(screen.getByLabelText('Room code'), { target: { value: 'abcd' } });
+  fireEvent.change(screen.getByLabelText('Party code'), { target: { value: 'abcd' } });
   fireEvent.click(screen.getByRole('button', { name: 'Open room' }));
   expect(screen.getByRole('heading', { name: 'Room opened' })).toBeTruthy();
 });
