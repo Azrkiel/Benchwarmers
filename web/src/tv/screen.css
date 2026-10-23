@@ -126,11 +126,11 @@
 .tv-podium { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; align-items:start; }
 .tv-podium-block { display:flex; align-items:flex-start; flex-direction:column; gap:12px; padding:24px 16px; background:var(--panel); border-top:3px solid var(--border); border-radius:6px; min-width:0; }
 .tv-podium-1 { border-top-color:var(--accent); background:var(--panel-2); }
-.tv-podium-label,.tv-podium-hh,.tv-podium-step { color:var(--muted); font-size:24px; }
+.tv-podium-label,.tv-podium-hh { color:var(--muted); font-size:24px; }
 .tv-podium-name { font:600 38px/1.05 var(--display); overflow-wrap:anywhere; }
 .tv-podium-total { font:600 60px/1 var(--display); }
-.tv-podium-step { border-top:1px solid var(--border); width:100%; padding-top:12px; }
-.tv-podium-step::before { content:'Rank '; }
+/* The label above already names the place. */
+.tv-podium-step { display:none; }
 .tv-final-rest { list-style:none; padding:0; margin:0; }
 .tv-final-rest li { display:flex; gap:20px; align-items:center; padding:16px 0; border-top:1px solid var(--border); }
 .tv-final-rest-pts { margin-left:auto; font-weight:600; }

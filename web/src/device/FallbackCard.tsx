@@ -206,7 +206,7 @@ export function FallbackCard({ model, householdId }: { model: FallbackModel | un
     );
   }
   return (
-    <section className="fb-card" data-view={model.view} aria-label="Party board"><p className="fb-readonly">Read-only board ? Use the message box to draft or make a pick.</p>
+    <section className="fb-card" data-view={model.view} aria-label="Party board"><p className="fb-readonly">Read-only board. Use the message box to draft or make a pick.</p>
       {model.view === 'draft' && model.state ? <Draft state={model.state} code={model.code} /> : null}
       {model.view === 'tonight' && model.state ? <Tonight state={model.state} householdId={householdId} /> : null}
       {model.view === 'season' && model.season ? <Season season={model.season} householdId={householdId} /> : null}
