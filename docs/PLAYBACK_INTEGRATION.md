@@ -39,7 +39,7 @@ Observed claim responses were `[200, 409, 200, 200, 409]`; the original screen s
 
 Prepared fix: remove the release request from the claim/retry effect cleanup and put it in a separate cleanup tied only to room code and sound-enabled state. Retrying/taking over must not release the same device's newly acquired lease. Unmount, room change and disabling sound must still release it. Add hook tests for delayed release vs claim, takeover, renewal and unmount.
 
-The Worker A brief excludes `web/`; approval to apply this narrow B-owned fix was requested while backend verification continued. Pending that choice, no B-owned implementation has been changed by A. A reviewable proposed diff and reproduction scripts/screenshots are saved in the local chat workspace at `C:/Users/jiang/Documents/ChatGPT/benchwarmer 2/playback-checkpoint/`. No credentials were printed or included in screenshots/reports.
+The Worker A brief excludes `web/`; the user chose to keep this chat backend-only and leave the fix to Worker B. No B-owned implementation has been changed by A. A reviewable proposed diff and reproduction scripts/screenshots are saved in the local chat workspace at `C:/Users/jiang/Documents/ChatGPT/benchwarmer 2/playback-checkpoint/`. No credentials were printed or included in screenshots/reports.
 
 ## Verification and limits
 

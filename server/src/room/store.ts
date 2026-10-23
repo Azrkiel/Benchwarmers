@@ -4,6 +4,13 @@ import type { RoomLineup, RoomQuestion, RoomStanding, RoomSummary, RoomSnapshot,
 import type { Room, Season, Participant, QuestionState } from './domain.js';
 import { getRoomSportAdapter } from './sports/index.js';
 import { loadSavedRooms, validateSavedRooms, writeSavedRooms } from './persistence.js';
+import type { ProbabilityEstimate, CommitmentReceipt } from '../shared/points.js';
+import { createPointsState, grantBank, bankFor, rewardFreePick } from './points/ledger.js';
+import { quoteCommitment as quotePoints, acceptCommitment as acceptPoints, publicCommitment, type QuoteContext } from './points/quotes.js';
+import { settleTarget } from './points/settle.js';
+import { PointsError, type PointsState } from './points/model.js';
+
+export type RoomProbability={gameId:string;templateId:string;optionId:string;estimate:ProbabilityEstimate};
 
 export class RoomError extends Error {
  constructor(readonly status:number,readonly code:string,message:string){super(message);this.name='RoomError';}
@@ -21,8 +28,11 @@ export class RoomStore {
  private readonly persist:boolean;
  private readonly now:()=>number;
  private readonly defaultSpeed:number;
- constructor(options:{dataFile?:string;persist?:boolean;now?:()=>number;speed?:number}={}){
+ private readonly enableCommitments:boolean;
+ private readonly probabilities:readonly RoomProbability[];
+ constructor(options:{dataFile?:string;persist?:boolean;now?:()=>number;speed?:number;enableCommitments?:boolean;probabilities?:readonly RoomProbability[]}={}){
   this.dataFile=options.dataFile??'data/rooms.json';this.persist=options.persist??true;this.now=options.now??Date.now;this.defaultSpeed=this.validSpeed(options.speed??1);
+  this.enableCommitments=options.enableCommitments??false;this.probabilities=clone(options.probabilities??[]);
   const saved=this.persist?loadSavedRooms(this.dataFile):undefined;
   if(saved){
    this.rooms=saved.rooms;this.seasons=saved.seasons;
@@ -51,7 +61,7 @@ export class RoomStore {
     const saved=validateSavedRooms({version:2,rooms:this.rooms,seasons:this.seasons});
     if(this.persist){try{writeSavedRooms(this.dataFile,saved);}catch{fail(503,'ROOM_SAVE_FAILED','Could not save the room. No changes were accepted; retry the request.');}}
    }
-  } catch(error){this.rooms=previousRooms;this.seasons=previousSeasons;throw error;}
+  } catch(error){this.rooms=previousRooms;this.seasons=previousSeasons;if(error instanceof PointsError)throw new RoomError(error.status,error.code,error.message);throw error;}
   return result();
  }
  private adapter(r:Room){return getRoomSportAdapter(r.gameId)!;}
@@ -71,6 +81,7 @@ export class RoomStore {
   if(!this.seasons.some(s=>s.id===seasonId))this.seasons.push({id:seasonId,name:seasonId==='demo-season'?'Demo season':seasonId,identities:[],standings:[]});
   let code:string;do{code=randomBytes(4).toString('hex').slice(0,6).toUpperCase();}while(this.rooms.some(r=>r.code===code));
   const r:Room={code,name:input.name?.trim().slice(0,60)||adapter.defaultRoomName,seasonId,hostToken:secret(),createdAt:this.now(),gameId:adapter.gameId,rulesVersion:adapter.rulesVersion,version:1,phase:'lobby',speed,rules:clone(adapter.rules),participants:[],beatIndex:-1,elapsedMs:0,durationMs:0,windowElapsedMs:0,lastTickAt:this.now(),stats:{},recorded:false};
+  if(this.enableCommitments&&adapter.sport==='basketball')r.points=createPointsState();
   this.rooms.push(r);return ()=>({view:this.snapshot(r),hostToken:r.hostToken});
   });
  }
@@ -87,6 +98,7 @@ export class RoomStore {
    if(!identity){identity={id:randomUUID(),name,token:secret()};season.identities.push(identity);}
    p={id:identity.id,name:identity.name,token:identity.token,baseline:clone(r.stats),predictionPoints:0,streak:0};
    if(r.phase!=='lobby')p.lineup=this.buildAutoLineup(r,'balanced');r.participants.push(p);
+   if(r.points)r.points=grantBank(r.points,p.id,this.now());
   }
   const participant=p;return ()=>({view:this.snapshot(r,participant),participantId:participant.id,participantToken:participant.token});
   });
@@ -130,12 +142,64 @@ export class RoomStore {
   if(previous){if(previous.questionId!==input.questionId||previous.optionId!==input.optionId)fail(409,'IDEMPOTENCY_CONFLICT','That request ID was already used for another pick.');return ()=>({...this.snapshot(r,p),receipt:clone(previous)});}
   if(r.phase!=='live'||!q||q.view.id!==input.questionId||q.view.status!=='open'||this.now()>=q.view.locksAt)return fail(409,'PICKS_LOCKED','That question is not open.');
   if(q.view.target&&!q.view.target.eligibleParticipantIds.includes(p.id))fail(409,'NOT_ELIGIBLE','Join the next question; this question opened before you joined.');
+  if(r.points?.calls.some(call=>call.participantId===p.id&&call.targetId===q.view.id&&call.optionId!==input.optionId))fail(409,'CALL_ALREADY_COMMITTED','A committed prediction cannot be changed.');
   if(!q.view.options.some(o=>o.id===input.optionId))fail(400,'BAD_OPTION','Choose one of the displayed prediction options.');
   // Duplicate transmissions retain early-call timing. A changed mind gets the new time.
   if(q.picks[p.id]?.optionId!==input.optionId)q.picks[p.id]={optionId:input.optionId,elapsedFraction:r.elapsedMs/r.durationMs};
   let receipt:PickReceipt|undefined;
   if(input.requestId){r.pickReceipts??=[];receipt={requestId:input.requestId,participantId:p.id,questionId:input.questionId,optionId:input.optionId,acceptedAt:this.now(),acceptanceSequence:(r.pickReceipts.at(-1)?.acceptanceSequence??0)+1};r.pickReceipts.push(receipt);}
   return ()=>({...this.snapshot(r,p),...(receipt?{receipt:clone(receipt)}:{})});
+  });
+ }
+ private commitmentState(r:Room):PointsState {
+  if(!this.enableCommitments||!r.points)return fail(409,'FEATURE_DISABLED','Point commitments are not enabled for this room.');return r.points;
+ }
+ private commitmentContext(r:Room,p:Participant,questionId:string,optionId:string):QuoteContext {
+  const q=r.question?.view;
+  if(!q||q.id!==questionId)return fail(409,'PICKS_LOCKED','That target is not open.');
+  if(!q.target)return fail(409,'TARGET_UNSUPPORTED','This target does not support point commitments.');
+  const option=q.options.find(option=>option.id===optionId);if(!option)return fail(400,'BAD_OPTION','Choose one of the displayed options.');
+  if(this.adapter(r).projectGame(r.beatIndex,r.phase).sourceStatus!=='healthy')fail(409,'SOURCE_STALE','Fresh source data is required for a commitment.');
+  return {participantId:p.id,targetId:q.id,targetVersion:`${q.id}:${q.target.anchorSequence}`,optionId,optionLabel:option.label,eligibleParticipantIds:q.target.eligibleParticipantIds,open:r.phase==='live'&&q.status==='open',now:this.now(),locksAt:q.locksAt,probability:this.probabilities.find(entry=>entry.gameId===r.gameId&&entry.templateId===q.kind&&entry.optionId===optionId)?.estimate};
+ }
+ quoteCommitment(code:string,input:{participantToken:string;questionId:string;optionId:string;commitPoints:number}) {
+  this.tick();return this.transact(()=>{const r=this.room(code),p=this.participant(r,input.participantToken);
+   const result=quotePoints(this.commitmentState(r),this.commitmentContext(r,p,input.questionId,input.optionId),input.commitPoints,randomUUID());r.points=result.state;
+   return ()=>({quote:clone(result.quote)});
+  });
+ }
+ quoteCommitmentForVoice(code:string,input:{participantToken:string;questionId:string;optionId:string;commitPoints:number}) {
+  this.tick();return this.transact(()=>{const r=this.room(code),p=this.participant(r,input.participantToken);
+   const result=quotePoints(this.commitmentState(r),this.commitmentContext(r,p,input.questionId,input.optionId),input.commitPoints,randomUUID());
+   r.points=result.state;r.points.pending=r.points.pending.filter(pending=>pending.participantId!==p.id);r.points.pending.push({participantId:p.id,quoteId:result.quote.quoteId,expiresAt:result.quote.expiresAt});
+   return ()=>({quote:clone(result.quote)});
+  });
+ }
+ private acceptStoredCommitment(r:Room,p:Participant,quoteId:string,requestId:string):CommitmentReceipt {
+  const previous=r.points?.calls.find(call=>call.participantId===p.id&&call.requestId===requestId);
+  if(previous){if(previous.quoteId!==quoteId)fail(409,'IDEMPOTENCY_CONFLICT','That request ID was already used for another commitment.');return publicCommitment(previous);}
+  const state=this.commitmentState(r),quote=state.quotes.find(quote=>quote.quoteId===quoteId&&quote.participantId===p.id);
+  if(!quote)return fail(409,'BAD_QUOTE','That quote does not belong to this participant.');
+  if(this.now()>=quote.expiresAt)fail(409,'QUOTE_EXPIRED','This quote expired. Review a fresh quote before confirming.');
+  const result=acceptPoints(state,{participantId:p.id,quoteId,requestId,callId:randomUUID(),context:this.commitmentContext(r,p,quote.questionId,quote.optionId)});r.points=result.state;
+  const q=r.question!;if(q.picks[p.id]?.optionId!==quote.optionId)q.picks[p.id]={optionId:quote.optionId,elapsedFraction:r.elapsedMs/r.durationMs};
+  return result.commitment;
+ }
+ acceptCommitment(code:string,input:{participantToken:string;quoteId:string;requestId:string}) {
+  this.tick();return this.transact(()=>{const r=this.room(code),p=this.participant(r,input.participantToken),commitment=this.acceptStoredCommitment(r,p,input.quoteId,input.requestId);return ()=>({commitment:clone(commitment)});});
+ }
+ getCommitmentReceipt(code:string,participantToken:string,requestId:string):CommitmentReceipt {
+  const r=this.room(code),p=this.participant(r,participantToken),call=r.points?.calls.find(call=>call.participantId===p.id&&call.requestId===requestId);
+  if(!call)return fail(404,'RECEIPT_NOT_FOUND','No accepted commitment was found for that request ID.');return publicCommitment(call);
+ }
+ confirmPendingCommitment(code:string,input:{participantToken:string;requestId:string}) {
+  this.tick();return this.transact(()=>{const r=this.room(code),p=this.participant(r,input.participantToken);
+   const accepted=r.points?.calls.find(call=>call.participantId===p.id&&call.requestId===input.requestId);
+   if(accepted)return ()=>({commitment:publicCommitment(accepted)});
+   const pending=this.commitmentState(r).pending.find(pending=>pending.participantId===p.id);
+   if(!pending)return fail(409,'NO_PENDING_CONFIRMATION','Request a point commitment quote before saying confirm.');
+   if(this.now()>=pending.expiresAt)fail(409,'QUOTE_EXPIRED','This pending offer expired. Request a new quote.');
+   const commitment=this.acceptStoredCommitment(r,p,pending.quoteId,input.requestId);return ()=>({commitment:clone(commitment)});
   });
  }
  host(code:string,input:{hostToken:string;action:'start'|'pause'|'resume'|'set_speed';speed?:number}):RoomSnapshot {
@@ -192,13 +256,15 @@ export class RoomStore {
  }
  private resolveQuestion(r:Room,result:QuestionResolution):void {
   const q=r.question;if(!q)return;
-  if('voidReason' in result){q.view.status='void';q.view.remainingMs=0;q.view.voidReason=result.voidReason;r.lastQuestion=clone(q);return;}
+  if('voidReason' in result){q.view.status='void';q.view.remainingMs=0;q.view.voidReason=result.voidReason;if(r.points)r.points=settleTarget(r.points,q.view.id,{revision:1,voidReason:result.voidReason},this.now());r.lastQuestion=clone(q);return;}
   const {optionId}=result;
   const picks=Object.values(q.picks);
   for(const p of r.participants){if(q.view.target&&!q.view.target.eligibleParticipantIds.includes(p.id))continue;const pick=q.picks[p.id];if(!pick){p.streak=0;continue;}const option=q.view.options.find(o=>o.id===pick.optionId)!;
    const score=scorePrediction({optionId:pick.optionId,result:optionId,base:option.basePoints,probability:option.probability,optionCount:q.view.options.length,streak:p.streak,elapsedFraction:pick.elapsedFraction,same:picks.filter(v=>v.optionId===pick.optionId).length,pickers:picks.length,factorCap:r.rules.pickFactorCap});
    p.predictionPoints+=score.points;p.lastPickScore=score;p.streak=score.correct?p.streak+1:0;
+   if(r.points)r.points=rewardFreePick(r.points,p.id,q.view.id,score.points,this.now());
   }
+  if(r.points)r.points=settleTarget(r.points,q.view.id,{revision:1,optionId:result.optionId},this.now());
   q.view.status='resolved';q.view.remainingMs=0;q.view.result=result;r.lastQuestion=clone(q);
  }
  private standings(r:Room):RoomStanding[]{
@@ -208,7 +274,7 @@ export class RoomStore {
    const roster=ids.map((id,index)=>{const player=adapter.playerById[id];const delta=Object.fromEntries(Object.entries(r.stats[id]??{}).map(([key,n])=>[key,n-(p.baseline[id]?.[key]??0)]));
     const rawPoints=adapter.rawPoints(delta,player.role),positionMultiplier=r.rules.positionMultipliers[player.pos]??1,captainMultiplier=index===0?r.rules.captainMultiplier:1;
     return {playerId:id,captain:index===0,rawPoints:round(rawPoints),positionMultiplier,captainMultiplier,points:round(rawPoints*positionMultiplier*captainMultiplier)};});
-   const fantasyPoints=round(roster.reduce((sum,p)=>sum+p.points,0));return {participantId:p.id,name:p.name,rank:0,total:round(fantasyPoints+p.predictionPoints),fantasyPoints,predictionPoints:p.predictionPoints,streak:p.streak,roster,...(p.lastPickScore?{lastPickScore:clone(p.lastPickScore)}:{})};
+   const fantasyPoints=round(roster.reduce((sum,p)=>sum+p.points,0)),settledRiskNet=r.points?bankFor(r.points,p.id).settledRiskNet:0;return {participantId:p.id,name:p.name,rank:0,total:round(fantasyPoints+p.predictionPoints+settledRiskNet),fantasyPoints,predictionPoints:p.predictionPoints,...(r.points?{settledRiskNet}:{}),streak:p.streak,roster,...(p.lastPickScore?{lastPickScore:clone(p.lastPickScore)}:{})};
   }).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name));
   rows.forEach((row,i)=>row.rank=i>0&&row.total===rows[i-1].total?rows[i-1].rank:i+1);return rows;
  }
@@ -226,7 +292,7 @@ export class RoomStore {
   const view:RoomSnapshot={version:r.version,serverNow:this.now(),rulesVersion:r.rulesVersion,room:this.summary(r),game:adapter.projectGame(r.beatIndex,r.phase),rules:clone(r.rules),
    players:adapter.players.map(player=>{const stats=clone(r.stats[player.id]??{});const rawPoints=adapter.rawPoints(stats,player.role);return {id:player.id,name:player.name,teamId:player.team,teamShort:player.team,position:player.pos,role:player.role,salary:player.salary,...(player.projectedPoints!==undefined?{projectedPoints:player.projectedPoints,projectionSource:player.projectionSource,salaryModelVersion:player.salaryModelVersion}:{}),multiplier:r.rules.positionMultipliers[player.pos]??1,stats,rawPoints:round(rawPoints),points:round(rawPoints*(r.rules.positionMultipliers[player.pos]??1)),statLine:statLine(stats)};}),standings:this.standings(r),season:{id:r.seasonId,name:this.season(r).name,standings:clone(this.season(r).standings).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name))}};
   if(r.question)view.question=this.questionView(r.question);if(r.lastQuestion)view.lastQuestion=this.questionView(r.lastQuestion);
-  if(p){view.me={participantId:p.id,name:p.name,...(p.lineup?{lineup:clone(p.lineup)}:{})};const pick=r.question?.picks[p.id];if(pick)view.me.currentPick={questionId:r.question!.view.id,optionId:pick.optionId};}
+  if(p){view.me={participantId:p.id,name:p.name,...(p.lineup?{lineup:clone(p.lineup)}:{})};const pick=r.question?.picks[p.id];if(pick)view.me.currentPick={questionId:r.question!.view.id,optionId:pick.optionId};if(r.points){view.me.bank=bankFor(r.points,p.id);view.me.commitments=r.points.calls.filter(call=>call.participantId===p.id).map(publicCommitment);}}
   return view;
  }
 }

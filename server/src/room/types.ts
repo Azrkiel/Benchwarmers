@@ -1,4 +1,5 @@
 /** Browser-safe room snapshots. Credentials exist only in create/join results. */
+import type { CallBank, CommitmentReceipt } from '../shared/points.js';
 export type SourceMode = 'scripted' | 'live';
 export type SourceStatus = 'healthy' | 'delayed' | 'stale' | 'unavailable';
 export type CourtPoint = { x: number; y: number };
@@ -16,7 +17,7 @@ export type RoomPickScore = {points:number;base:number;factor:number;bonuses:str
 export type BasketballTarget = {templateId:'next_score_team'|'next_made_field_goal_value'|'team_scores_in_window';anchorSequence:number;horizonGameElapsedMs:number;teamId?:string;eligibleParticipantIds:string[]};
 export type PickReceipt = {requestId:string;participantId:string;questionId:string;optionId:string;acceptedAt:number;acceptanceSequence:number};
 export type QuestionResolution = {optionId:string;explanation:string}|{voidReason:string};
-export type RoomStanding = {participantId:string;name:string;rank:number;total:number;fantasyPoints:number;predictionPoints:number;streak:number;roster:{playerId:string;captain:boolean;points:number;rawPoints?:number;positionMultiplier?:number;captainMultiplier?:number}[];lastPickScore?:RoomPickScore};
+export type RoomStanding = {participantId:string;name:string;rank:number;total:number;fantasyPoints:number;predictionPoints:number;settledRiskNet?:number;streak:number;roster:{playerId:string;captain:boolean;points:number;rawPoints?:number;positionMultiplier?:number;captainMultiplier?:number}[];lastPickScore?:RoomPickScore};
 export type RoomQuestion = {id:string;kind:string;text:string;opensAt:number;locksAt:number;remainingMs:number;options:{id:string;label:string;basePoints:number;probability?:number}[];pickCounts:Record<string,number>;status:'open'|'locked'|'resolved'|'void';result?:{optionId:string;explanation:string};voidReason?:string;target?:BasketballTarget};
 export type RoomSeasonStanding = {participantId:string;name:string;points:number;fantasyPoints:number;predictionPoints:number;nightsPlayed:number;nightsWon:number};
 type RoomTeam = {id:string;short:string;name:string;color:string;score:number};
@@ -26,7 +27,7 @@ export type RoomView = Partial<RoomSnapshotMetadata> & {
  room:RoomSummary;
  game:Partial<RoomGameMetadata> & {title:string;home:RoomTeam;away:RoomTeam;quarter:number;clock:string;situation:string;ballOn:number;fieldX:number;possession:string|null;driveNumber:number;driveCount:number;recentPlays:{id:string;text:string;kind:string;quarter:number;clock:string}[];isScripted:true};
  rules:RoomRules;players:RoomPlayer[];standings:RoomStanding[];question?:RoomQuestion;lastQuestion?:RoomQuestion;
- me?:{participantId:string;name:string;lineup?:RoomLineup;currentPick?:{questionId:string;optionId:string}};
+ me?:{participantId:string;name:string;lineup?:RoomLineup;currentPick?:{questionId:string;optionId:string};bank?:CallBank;commitments?:CommitmentReceipt[]};
  season:{id:string;name:string;standings:RoomSeasonStanding[]};
 };
 export type RoomSnapshot = RoomView & RoomSnapshotMetadata & { game: RoomView['game'] & RoomGameMetadata; receipt?: PickReceipt };

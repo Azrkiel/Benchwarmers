@@ -2,6 +2,8 @@
 
 > Follow-up: [playback route integration and connected checks](PLAYBACK_INTEGRATION.md) records the merged product delivery, host-checked playback API, 32-participant checks, and a product-owned takeover race found during browser verification.
 
+> Next backend wave: [points service checkpoint](POINTS_BACKEND.md) documents the implemented ledger, quotes, atomic commitments, settlement and voice-confirmation service. Commitments remain disabled by default pending the demo gate and B/C integration.
+
 October 23, 2026. Branch: `feature/basketball-backend`. Continues `d6a1098` and the original `BACKEND_CONTRACT.md` delivery. Implementation remains in `C:/Users/jiang/Benchwarmers-basketball-backend` on the approved provisional upstream base. The original dirty checkout is preserved.
 
 This delivery supplies the scripted backend for the demo integration gate. It does not complete the 61-task backend assignment or claim connected UI, voice, hardware, live-provider, or deployment acceptance. Worker C retains master-plan/integration acceptance ownership. B-owned implementation, web/extension code, dependency manifests and C-owned QA tooling were not edited.
