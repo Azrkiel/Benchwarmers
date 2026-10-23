@@ -160,7 +160,7 @@ function pickCard(prop: PropView, state: PartyStateResponse, lockLeftMs: number 
   const opts = prop.options
     .map((o) => {
       const n = prop.pickCounts?.[o.id] ?? 0;
-      return `<button class="big option${chosen?.optionId === o.id ? ' selected' : ''}" aria-pressed="${chosen?.optionId === o.id}" data-action="pick" data-prop="${e(prop.id)}" data-option="${e(o.id)}"${locked || !member ? ' disabled' : ''}>${e(o.label)}${chosen?.optionId === o.id ? '<span class="your-pick" >✓ Your pick</span>' : ''}<span class="n">${n} picks</span></button>`;
+      return `<button class="big option${chosen?.optionId === o.id ? ' selected' : ''}" aria-pressed="${chosen?.optionId === o.id}" data-action="pick" data-prop="${e(prop.id)}" data-option="${e(o.id)}"${locked || !member ? ' disabled' : ''}>${e(o.label)}${chosen?.optionId === o.id ? '<span class="your-pick" >✓ Your pick</span>' : ''}<span class="n">${n} ${n === 1 ? "pick" : "picks"}</span></button>`;
     })
     .join('');
   const who = state.picks
