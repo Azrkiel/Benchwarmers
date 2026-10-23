@@ -15,6 +15,9 @@ export type RoomCommand =
   | { kind: 'pick'; questionId: string; optionId: string }
   | { kind: 'host'; action: 'start' | 'pause' | 'resume' | 'set_speed'; speed?: number }
   | { kind: 'navigate'; view: 'standings' | 'season' | 'game' | 'lineups' }
+  /** Point commitments (Phase 10). The quote/confirmation state is Worker A's service. */
+  | { kind: 'commit'; questionId?: string; optionId?: string; amount?: number }
+  | { kind: 'commit_confirm' }
   | { kind: 'clarify'; reply: string };
 
 export type RoomActor = { participantToken?: string; hostToken?: string };
@@ -74,6 +77,13 @@ export function parseCommand(input: string, view: RoomView): RoomCommand {
   if (/\bpause\b/.test(text)) return { kind: 'host', action: 'pause' };
   const speed = text.match(/\b(?:speed|replay)\b.*?\b([1-4])\s*x?\b/);
   if (speed) return { kind: 'host', action: 'set_speed', speed: Number(speed[1]) };
+  // Commitment phrases must never fall through to a free pick of the same answer.
+  const commit = text.match(/\b(?:put|commit|bet|stake|risk|wager)\b.*?\b(\d+)\s*(?:points?|pts)\b/) ?? text.match(/\b(\d+)\s*(?:points?|pts)\s+on\b/);
+  if (commit) {
+    const option = view.question ? resolveOption(view, text.replace(commit[0], ' ')) : null;
+    return { kind: 'commit', questionId: view.question?.id, optionId: option && 'optionId' in option ? option.optionId : undefined, amount: Number(commit[1]) };
+  }
+  if (/^(confirm|yes,? confirm|confirm (it|that|commitment))\b/.test(text)) return { kind: 'commit_confirm' };
   if (/\b(show|open|go to)\b.*\bseason\b/.test(text)) return { kind: 'navigate', view: 'season' };
   if (/\b(show|open|go to)\b.*\b(standings|leaderboard)\b/.test(text)) return { kind: 'navigate', view: 'standings' };
   if (/\b(sleepers?|auto ?lineup|make my lineup|build (me )?(a |my )?\w* ?lineup|pick my (lineup|team)|choose.*for me|lineup for me)\b/.test(text)) {
@@ -153,6 +163,10 @@ export function executeCommand(store: RoomStore, code: string, command: RoomComm
   const needSeat = () => done('Choose who you are first. Nothing was changed.', { accepted: false });
   switch (command.kind) {
     case 'clarify': return done(command.reply, { accepted: false });
+    case 'commit':
+    case 'commit_confirm':
+      // Until the room offers quoted commitments, say so and change nothing (no free pick either).
+      return done('Committing points is not available in this room yet. Nothing was changed.', { accepted: false });
     case 'read': return done(read(view, command.topic));
     case 'navigate':
       if (command.view === 'season' && view.room.phase !== 'final') return done('Season standings open after the final.');

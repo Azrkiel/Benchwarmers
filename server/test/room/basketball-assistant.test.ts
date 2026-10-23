@@ -164,3 +164,23 @@ describe('voice on a real basketball room', () => {
     expect(reply).toBe(team ? `${team.name} have the ball.` : 'Possession is unknown right now.');
   });
 });
+
+describe('commitment phrases', () => {
+  it('never turns "put 25 points on the Hawks" into a free pick', () => {
+    const { store, code } = room();
+    const view = basketballView(store.view(code), [{ id: 'harbor', label: 'Harbor Hawks' }, { id: 'summit', label: 'Summit Foxes' }]);
+    expect(parseCommand('Put 25 points on the Hawks scoring next', view)).toEqual({ kind: 'commit', questionId: 'bball-q-004', optionId: 'harbor', amount: 25 });
+    expect(parseCommand('confirm', view)).toEqual({ kind: 'commit_confirm' });
+  });
+
+  it('refuses commitments without changing anything until the room supports them', () => {
+    const r = room();
+    r.store.host(r.code, { hostToken: r.host, action: 'start' });
+    r.advanceUntil((v) => v.question?.status === 'open');
+    const before = r.store.view(r.code).version;
+    const label = r.store.view(r.code).question!.options[0]!.label;
+    const result = answerRoom(r.store, r.code, { text: `put 25 points on ${label}`, participantToken: r.token });
+    expect(result).toMatchObject({ accepted: false, reply: 'Committing points is not available in this room yet. Nothing was changed.' });
+    expect(r.store.view(r.code).version).toBe(before);
+  });
+});
