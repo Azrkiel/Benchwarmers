@@ -1,6 +1,6 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import type { RoomStanding, RoomView } from '@shared/room';
-import { ScoreTick } from '../fx/fx';
+import { ScoreTick, useNewIds } from '../fx/fx';
 import { useFlip } from '../tv/flip';
 import { ordinal, playLabel } from './moments';
 
@@ -88,10 +88,11 @@ export function FootballField({ view }: { view: RoomView }) {
 
 export function PlayFeed({ view, tv = false }: { view: RoomView; tv?: boolean }) {
   const plays = view.game.recentPlays.slice(tv ? -1 : -3).reverse();
+  const fresh = useNewIds(view.game.recentPlays.map(play => play.id));
   const [latest, ...rest] = plays;
   return <section className="rm-play-feed" role="region" aria-label={tv ? 'Latest football play' : 'Recent football plays'} tabIndex={tv ? 0 : undefined}>
     {latest ? <>
-      <div className={`rm-play-latest is-${latest.kind}`} key={latest.id}>
+      <div className={`rm-play-latest is-${latest.kind}${fresh.includes(latest.id) ? ' is-new' : ''}`} key={latest.id}>
         <span className="rm-play-tag">{playLabel(latest.kind) ?? 'Last play'}</span>
         <p>{latest.text}</p>
         <small>Q{latest.quarter} · {latest.clock}</small>

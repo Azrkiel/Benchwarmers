@@ -6,11 +6,19 @@
 .hm-help { display:flex; gap:16px; align-items:center; font-size:16px; color:var(--lg-text); text-decoration:none; min-height:44px; }
 .hm-help:hover { color:var(--bw-link); }
 .hm-main { width:100%; flex:1; padding:48px 0; }
-.hm-header { margin-bottom:32px; }
+.hm-header { margin-bottom:32px; display:grid; grid-template-columns:1.3fr 1fr; align-items:center; gap:40px; padding:12px 0 24px; }
 .hm-eyebrow { font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--lg-muted); }
-.hm-header h1 { margin:8px 0 10px; font:600 clamp(48px,6vw,80px)/1 var(--lg-serif); letter-spacing:-.015em; text-transform:uppercase; }
+.hm-header h1 { margin:8px 0 12px; font:600 clamp(56px,7.5vw,104px)/.98 var(--lg-serif); letter-spacing:-.015em; text-transform:uppercase; }
 .hm-header h1::before { content:''; display:block; width:48px; height:5px; background:var(--lg-orange); margin-bottom:16px; }
 .hm-header p { margin:0; color:var(--lg-muted); font-size:18px; line-height:1.5; }
+.hm-play-diagram { border:1px solid var(--lg-line); border-radius:6px; padding:14px; background:var(--lg-deep); transform:rotate(-3deg); }
+.hm-play-diagram svg { width:100%; display:block; }
+.hm-diagram-grid { stroke:var(--lg-line); stroke-width:1; }
+.hm-diagram-route,.hm-diagram-arrow { stroke:var(--lg-orange); stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
+.hm-diagram-route { stroke-dasharray:1; animation:hm-draw-play 900ms 180ms var(--bw-ease-out) both; }
+.hm-diagram-start { fill:var(--lg-text); }
+.hm-diagram-defense { stroke:var(--lg-muted); stroke-width:3; stroke-linecap:round; }
+@keyframes hm-draw-play { from { stroke-dashoffset:1; } to { stroke-dashoffset:0; } }
 .hm-demos { margin-top:36px; padding-top:24px; border-top:1px solid var(--lg-line); }
 .hm-demos summary { cursor:pointer; font-size:20px; font-weight:600; min-height:44px; align-content:center; }
 .hm-demos[open] summary { margin-bottom:12px; }
@@ -40,5 +48,6 @@
 .hm-pull-retry { margin-left:8px; min-height:36px; padding:0 12px; font:inherit; font-weight:600; }
 .hm-footer { display:flex; justify-content:space-between; gap:20px; padding:20px 0 28px; border-top:1px solid var(--lg-line); color:var(--lg-muted); font-size:14px; }
 .hm :is(a,button,input,summary):focus-visible { outline:3px solid #fff; outline-offset:4px; }
-@media(max-width:800px) { .hm { padding:0 20px; }.hm-main { padding:32px 0; }.hm-pull { grid-template-columns:1fr; gap:20px; }.hm-more { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:800px) { .hm { padding:0 20px; }.hm-main { padding:32px 0; }.hm-header { grid-template-columns:1fr; padding:0; gap:0; }.hm-play-diagram { display:none; }.hm-pull { grid-template-columns:1fr; gap:20px; }.hm-more { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(prefers-reduced-motion:reduce) { .hm-diagram-route { animation:none; stroke-dashoffset:0; } }
 @media(max-width:480px) { .hm { padding:0 16px; }.hm-topbar { min-height:76px; }.hm-topbar .bw-brand { font-size:25px!important; }.hm-help { font-size:14px; gap:6px; }.hm-more { grid-template-columns:1fr; }.hm-pull-row { flex-direction:column; }.hm-footer { flex-direction:column; gap:8px; } }

@@ -17,6 +17,18 @@ const DEMOS = [
   { to: '/welcome', title: 'Welcome preview', sub: 'How to play' },
 ];
 
+function PlayDiagram() {
+  return <div className="hm-play-diagram" aria-hidden="true">
+    <svg viewBox="0 0 440 180" fill="none">
+      <path className="hm-diagram-grid" d="M20 20H420V160H20ZM100 20V160M180 20V160M260 20V160M340 20V160M20 90H420" />
+      <path className="hm-diagram-route" pathLength="1" d="M65 132H150Q180 132 198 112L270 48H365" />
+      <path className="hm-diagram-arrow" d="M351 36L366 48L351 60" />
+      <circle className="hm-diagram-start" cx="65" cy="132" r="8" />
+      <path className="hm-diagram-defense" d="M105 48L121 64M121 48L105 64M257 125L273 141M273 125L257 141M339 102L355 118M355 102L339 118" />
+    </svg>
+  </div>;
+}
+
 export function HomePage() {
   return <main className="hm">
     <header className="hm-topbar">
@@ -24,7 +36,7 @@ export function HomePage() {
       <Link className="hm-help" to="/welcome">How to play <span aria-hidden="true">→</span></Link>
     </header>
     <section className="hm-main">
-      <header className="hm-header"><span className="hm-eyebrow">Fantasy + picks</span><h1>Game night</h1><p>Create a football room or join your friends.</p></header>
+      <header className="hm-header"><div><span className="hm-eyebrow">Fantasy + picks</span><h1>Game night</h1><p>Create a football room or join your friends.</p></div><PlayDiagram /></header>
       <div id="room-start"><RoomLanding /></div>
       <PullUpGame />
       <details className="hm-demos">

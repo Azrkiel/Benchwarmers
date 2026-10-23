@@ -45,6 +45,16 @@ describe('useBanners', () => {
 });
 
 describe('ScoreTick', () => {
+  it('does not celebrate the initial score under StrictMode', () => {
+    const { container, rerender } = render(<StrictMode><ScoreTick value={7} /></StrictMode>);
+    expect(container.querySelector('.is-bumped')).toBeNull();
+    const initial = screen.getByText('7');
+    rerender(<StrictMode><ScoreTick value={7} /></StrictMode>);
+    expect(screen.getByText('7')).toBe(initial);
+    rerender(<StrictMode><ScoreTick value={14} /></StrictMode>);
+    expect(container.querySelector('.is-bumped')?.textContent).toBe('14');
+  });
+
   it('bumps only when the value changes', () => {
     const { container, rerender } = render(<ScoreTick value={7} />);
     expect(container.querySelector('.is-bumped')).toBeNull();

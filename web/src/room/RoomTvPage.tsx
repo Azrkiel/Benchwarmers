@@ -2,7 +2,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { renderSVG } from 'uqr';
 import { BrandLockup } from '../brand/Brand';
-import { PlayBanner } from '../fx/fx';
+import { PlayBanner, ToastLayer } from '../fx/fx';
 import { Face, FinalPodium, FootballField, HostControls, Leaderboard, PlayFeed, Question, RoomRules, RoomScore } from './components';
 import { useRoomMoments } from './moments';
 import { useRoom } from './useRoom';
@@ -100,5 +100,6 @@ export function RoomTvPage() {
     <div className="rm-tv-layout"><div className="rm-tv-game"><RoomScore view={view} large />{phase === 'final' ? <FinalPodium view={view} /> : phase === 'lobby' ? <section className="rm-lobby" role="region" aria-label="Prediction details" tabIndex={0}><span className="rm-eyebrow">Pregame</span><h2>Join on your phone</h2><p>{ready} of {view.room.participantCount} lineups ready</p><div className="rm-lobby-crowd">{view.standings.map((row) => <span key={row.participantId} className="rm-lobby-seat"><Face name={row.name} size={44} />{row.name}<small>{row.roster.length === view.rules.flexSlots + 1 ? 'Ready' : 'Choosing lineup'}</small></span>)}</div>{!view.standings.length && <p>No players yet</p>}</section> : <Question view={view} tv />}<PlayFeed view={view} tv /></div><aside className="rm-tv-standings"><Leaderboard view={view} tv />{phase === 'final' && <Leaderboard view={view} season tv />}</aside></div>
     <footer className="rm-tv-footer"><div className="rm-tv-tools"><details name="room-tv-tools" className="rm-tv-game-tools"><summary>Game details</summary><div className="rm-tv-tool-panel" role="region" aria-label="Expanded game details" tabIndex={0}><FootballField view={view} /><PlayFeed view={view} /></div></details><RoomRules view={view} tv />{credentials.hostToken && <details className="rm-tv-host" name="room-tv-tools"><summary>Host controls</summary><div className="rm-tv-host-panel"><HostControls view={view} busy={busy} onAction={(action, speed) => { void mutate('host', { hostToken: credentials.hostToken, action, speed }); }} /></div></details>}<Link to={joinPath}>Open phone view</Link><Link to="/">Home</Link></div><span className="rm-remote-hint" role="status">{remoteHint}</span></footer>
     <PlayBanner banner={moments.banner} />
+    <ToastLayer toasts={moments.banner ? [] : moments.toasts} placement="bottom" />
   </main>;
 }
