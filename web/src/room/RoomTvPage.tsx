@@ -53,7 +53,7 @@ export function RoomTvPage() {
   function navigateRemote(event: KeyboardEvent<HTMLElement>) {
     const target = event.target as HTMLElement;
     const openTools = root.current?.querySelector<HTMLDetailsElement>('.rm-tv-tools > details[open]');
-    if (event.key === 'Escape' || event.key === 'BrowserBack') {
+    if (event.key === 'Escape' || event.key === 'Backspace' || event.key === 'BrowserBack') {
       event.preventDefault();
       if (openTools) { openTools.open = false; openTools.querySelector('summary')?.focus(); }
       else { root.current?.querySelector<HTMLElement>('[data-tv-first]')?.focus(); setRemoteHint('Shared screen. Use Open phone view to leave.'); }
