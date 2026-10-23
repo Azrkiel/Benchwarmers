@@ -86,7 +86,7 @@ export function PlayFeed({ view, tv = false }: { view: RoomView; tv?: boolean })
         <small>Q{latest.quarter} · {latest.clock}</small>
       </div>
       {rest.length ? <ol>{rest.map((play) => <li key={play.id}><span>Q{play.quarter} {play.clock}</span><p>{play.text}</p></li>)}</ol> : null}
-    </> : <p className="rm-play-empty">{view.room.phase === 'lobby' ? 'Kickoff when the host is ready.' : 'Waiting on the next snap.'}</p>}
+    </> : <p className="rm-play-empty">{view.room.phase === 'lobby' ? 'Waiting for host' : 'Waiting for next play'}</p>}
   </section>;
 }
 

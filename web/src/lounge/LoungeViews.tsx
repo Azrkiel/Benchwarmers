@@ -60,7 +60,8 @@ function Option({ prop, state, option }: { prop: PropView; state: PartyStateResp
 export function Picks({ state, now }: { state: PartyStateResponse; now: number }) {
   const prop = currentQuestion(state);
   return <section className="lg-picks-view"><span className="lg-eyebrow">{questionStatus(state, now)}</span><h1>{prop?.question ?? 'No open pick'}</h1>
-    {prop ? <><div className="lg-options">{prop.options.map((option) => <Option key={option.id} state={state} prop={prop} option={option} />)}</div><p className="lg-picks-explanation">{prop.status === 'resolved' ? prop.explanation ?? 'The correct answer is marked above.' : 'Make a pick on your device.'}</p></> : <div className="lg-empty"><p>The next question will appear here.</p></div>}
+    {prop && prop.status !== 'resolved' ? <p className="lg-picks-explanation">Picks on your device</p> : null}
+    {prop ? <><div className="lg-options">{prop.options.map((option) => <Option key={option.id} state={state} prop={prop} option={option} />)}</div>{prop.status === 'resolved' ? <p className="lg-picks-explanation">{prop.explanation ?? 'The correct answer is marked above.'}</p> : null}</> : <div className="lg-empty"><p>The next question will appear here.</p></div>}
   </section>;
 }
 
@@ -88,7 +89,7 @@ export function RosterDialog({ memberId, state, onClose }: { memberId: string; s
   return <div className="lg-modal-backdrop"><section className="lg-roster-dialog" role="dialog" aria-modal="true" aria-labelledby="lg-roster-title">
     <button className="lg-close lg-focus" id="lg-close-roster" type="button" onClick={onClose} aria-label="Close roster"><LoungeIcon name="close" /></button>
     <header><MemberFace row={row} /><div><span className="lg-eyebrow">{row.household}</span><h2 id="lg-roster-title">{row.name}’s roster</h2></div><div className="lg-roster-total"><b>{row.total.toFixed(1)}</b><span>Total points</span></div></header>
-    <div className="lg-roster-players lg-focus" tabIndex={0} role="region" aria-label="Roster players" data-lg-scroll>{row.roster.length ? row.roster.map((player) => { const info = playerInfo(state, player.playerId); return <article key={player.playerId}><span className="lg-player-number">{info?.player.number ?? '—'}</span><div><h3>{info?.player.nickname ?? info?.player.name ?? player.playerId}</h3><span>{info ? `${info.player.name} · ${info.teamShort}` : ''}</span><p>{player.statLine}</p></div><b>{player.points.toFixed(1)}<small>points</small></b></article>; }) : <div className="lg-empty"><h3>No drafted players</h3><p>Your drafted players will appear here.</p></div>}</div>
+    <div className="lg-roster-players lg-focus" tabIndex={0} role="region" aria-label="Roster players" data-lg-scroll>{row.roster.length ? row.roster.map((player) => { const info = playerInfo(state, player.playerId); return <article key={player.playerId}><span className="lg-player-number">{info?.player.number ?? '—'}</span><div><h3>{info?.player.nickname ?? info?.player.name ?? player.playerId}</h3><span>{info ? `${info.player.name} · ${info.teamShort}` : ''}</span><p>{player.statLine}</p></div><b>{player.points.toFixed(1)}<small>points</small></b></article>; }) : <div className="lg-empty"><h3>No players drafted</h3></div>}</div>
     <footer><span>Draft <b>{row.draftPoints.toFixed(1)}</b></span><span>Picks <b>{row.pickPoints.toFixed(1)}</b></span><span>Rank <b>#{row.rank}</b></span></footer>
   </section></div>;
 }

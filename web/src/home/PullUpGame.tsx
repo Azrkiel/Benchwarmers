@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent } from 'react';
+import { useId, useState } from 'react';
 import { api } from '../lib/api';
 
 type Imported = { game: { id: string; title: string }; cached: boolean };
@@ -22,7 +22,7 @@ export function PullUpGame({ navigate = hardNavigate }: { navigate?: Navigate })
   const [error, setError] = useState('');
   const [code, setCode] = useState('');
 
-  async function submit(e: FormEvent) {
+  async function submit(e: { preventDefault(): void }) {
     e.preventDefault();
     const q = query.trim();
     if (!q || busy) return;
@@ -71,7 +71,7 @@ export function PullUpGame({ navigate = hardNavigate }: { navigate?: Navigate })
           </button>
         </div>
         <p id={`${inputId}-hint`} className="hm-pull-hint">Enter teams and year.</p>
-        {error && <p id={`${inputId}-error`} className="hm-pull-error" role="alert">{error} Try again with another matchup or year.</p>}
+        {error && <p id={`${inputId}-error`} className="hm-pull-error" role="alert">{error} <button type="button" className="hm-pull-retry" disabled={busy} onClick={e => submit(e)}>Try again</button></p>}
         <div id={`${inputId}-status`} className="hm-pull-status" role="status" aria-live="polite">
           {status}
           {code && (

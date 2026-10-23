@@ -231,7 +231,7 @@ describe('football rooms', () => {
     const request = vi.fn(async (url: string) => json(url.endsWith('/assistant') ? { reply: 'Your lineup is ready.', view: fixture } : fixture));
     vi.stubGlobal('fetch', request);
     showRoom();
-    fireEvent.change(await screen.findByLabelText('Ask the room assistant'), { target: { value: 'auto lineup' } });
+    fireEvent.change(await screen.findByLabelText('Ask assistant'), { target: { value: 'auto lineup' } });
     fireEvent.click(screen.getByRole('button', { name: 'Send' }));
     expect(await screen.findByText('Your lineup is ready.')).toBeTruthy();
     expect(request.mock.calls.some(([url]) => url.endsWith('/assistant'))).toBe(true);

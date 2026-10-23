@@ -37,6 +37,7 @@
 .hm-pull-status { min-height:22px; font-size:15px; color:var(--lg-muted); }
 .hm-pull-status a { color:var(--bw-link); display:inline-flex; align-items:center; min-height:44px; margin-left:8px; }
 .hm-pull-error { color:var(--lg-bad); margin:0; font-size:15px; line-height:1.5; }
+.hm-pull-retry { margin-left:8px; min-height:36px; padding:0 12px; font:inherit; font-weight:600; }
 .hm-footer { display:flex; justify-content:space-between; gap:20px; padding:20px 0 28px; border-top:1px solid var(--lg-line); color:var(--lg-muted); font-size:14px; }
 .hm :is(a,button,input,summary):focus-visible { outline:3px solid #fff; outline-offset:4px; }
 @media(max-width:800px) { .hm { padding:0 20px; }.hm-main { padding:32px 0; }.hm-pull { grid-template-columns:1fr; gap:20px; }.hm-more { grid-template-columns:repeat(2,minmax(0,1fr)); } }

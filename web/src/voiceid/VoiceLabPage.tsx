@@ -48,8 +48,8 @@ export function verdictFor(ranked: Ranked[], opts: MatchOptions): Verdict {
 type Last = { kind: 'too-short' } | { kind: 'scored'; ranked: Ranked[] };
 
 const REASON_TEXT: Record<NotSureReason, string> = {
-  'below-threshold': 'The best match is below the threshold.',
-  'small-margin': 'Too close to the runner-up to tell apart.',
+  'below-threshold': "We couldn't tell who was speaking. Try again or choose your name.",
+  'small-margin': "We couldn't tell who was speaking. Try again or choose your name.",
   'too-short': 'The clip was too short. Speak for 2–3 seconds.',
   'nobody-enrolled': 'Nobody is enrolled in this household yet.',
 };
