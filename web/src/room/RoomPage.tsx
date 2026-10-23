@@ -64,7 +64,8 @@ export function RoomPage() {
   const livePhase = view.room.phase;
   const final = livePhase === 'final';
   const lineup = joined && <Lineup view={view} busy={busy} onSave={async (selection) => (await mutate('lineup', { ...selection, participantToken: credentials.participantToken }))?.view} onAuto={async (style) => (await mutate('auto-lineup', { participantToken: credentials.participantToken, style }))?.view} />;
-  const host = credentials.hostToken && <details className="rm-phone-host"><summary>Host controls</summary><HostControls view={view} busy={busy} onAction={(action, speed) => { void mutate('host', { hostToken: credentials.hostToken, action, speed }); }} /></details>;
+  const host = credentials.hostToken && <details className="rm-phone-host"><summary>Host controls</summary><HostControls view={view} busy={busy} onAction={(action, speed) => { void mutate('host', { hostToken: credentials.hostToken, action, speed }); }} />
+    <p className="rm-host-links"><a href={`/room/${encodeURIComponent(code)}/display`}>Open shared screen</a> · <a href={`/display/room/${encodeURIComponent(code)}`}>Open simulated smart display</a></p></details>;
   const last = me?.lastPickScore;
   const label = (questionId: string, optionId: string) => view.question?.id === questionId ? view.question.options.find((option) => option.id === optionId)?.label ?? optionId : optionId;
   const court = roomSport(view) === 'basketball' ? <BasketballCourt view={view} /> : <FootballField view={view} />;

@@ -32,7 +32,8 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    proxy: { '/api': API, '/mcp': API, '/healthz': API },
+    // The browser MCP host checks Origin against Host, so keep the page's Host on that path.
+    proxy: { '/api/mcp-widget': { target: API, changeOrigin: false }, '/api': API, '/mcp': API, '/healthz': API },
   },
   preview: {
     proxy: { '/api': API, '/mcp': API, '/healthz': API },

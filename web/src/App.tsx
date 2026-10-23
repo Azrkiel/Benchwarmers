@@ -17,6 +17,7 @@ const WatchPage = lazy(() => import('./watch/WatchPage').then((m) => ({ default:
 const ControlPage = lazy(() => import('./control/ControlPage').then((m) => ({ default: m.ControlPage })));
 const RoomPage = lazy(() => import('./room/RoomPage').then((m) => ({ default: m.RoomPage })));
 const RoomTvPage = lazy(() => import('./room/RoomTvPage').then((m) => ({ default: m.RoomTvPage })));
+const RoomSimulatorPage = lazy(() => import('./room/RoomSimulatorPage').then((m) => ({ default: m.RoomSimulatorPage })));
 const PointsPreview = lazy(() => import('./room/PointsPreview').then((m) => ({ default: m.PointsPreview })));
 const RoomDisplayPage = lazy(() => import('./room/RoomDisplayPage').then((m) => ({ default: m.RoomDisplayPage })));
 
@@ -43,6 +44,7 @@ export function App() {
         <Route path="/watch/:code" element={<Scorebook><WatchPage /></Scorebook>} />
         <Route path="/control/:code" element={<Scorebook><ControlPage /></Scorebook>} />
         <Route path="/device/:household" element={<DevicePage />} />
+        <Route path="/display/room/:code" element={<RoomSimulatorPage />} />
         <Route path="/display/:household" element={<DisplayPage />} />
         <Route path="/voice-lab" element={<VoiceLabPage />} />
         {import.meta.env.DEV && <Route path="/preview/points" element={<PointsPreview />} />}
