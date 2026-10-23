@@ -1,0 +1,2896 @@
+{
+  "lobby": {
+    "version": 1,
+    "serverNow": 100000,
+    "rulesVersion": "football-v1",
+    "room": {
+      "code": "D86615",
+      "name": "Football Watch Party",
+      "seasonId": "demo-season",
+      "phase": "lobby",
+      "speed": 4,
+      "participantCount": 0,
+      "createdAt": 100000
+    },
+    "game": {
+      "gameId": "morning-wood-vs-swiss-cheese",
+      "sport": "football",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "football",
+        "possessionTeamId": null,
+        "ballOn": 25,
+        "down": null,
+        "toGo": null
+      },
+      "title": "South Dakota Swiss Cheese at Vermont's Morning Wood",
+      "home": {
+        "id": "VT",
+        "short": "VT",
+        "name": "Morning Wood",
+        "color": "#c8641e",
+        "score": 0
+      },
+      "away": {
+        "id": "SD",
+        "short": "SD",
+        "name": "Swiss Cheese",
+        "color": "#e8b931",
+        "score": 0
+      },
+      "quarter": 1,
+      "clock": "15:00",
+      "situation": "Waiting for kickoff",
+      "ballOn": 25,
+      "fieldX": 25,
+      "possession": null,
+      "driveNumber": 0,
+      "driveCount": 16,
+      "recentPlays": [],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "pickFactorCap": 5,
+      "positionMultipliers": {
+        "QB": 1.1,
+        "RB": 1,
+        "FB": 1,
+        "WR": 0.85,
+        "TE": 1,
+        "K": 1.15,
+        "K/P": 1.4,
+        "OL": 2.5,
+        "LT": 2.5,
+        "RT": 2.5,
+        "DL": 1.2,
+        "LB": 0.85,
+        "CB": 1,
+        "FS": 1,
+        "SS": 1,
+        "S": 1,
+        "P": 1.3,
+        "LS": 1.6
+      }
+    },
+    "players": [
+      {
+        "id": "will-power",
+        "name": "Will Power",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "QB",
+        "role": "QB",
+        "salary": 11000,
+        "multiplier": 1.1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "max-yardage",
+        "name": "Max Yardage",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 9200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "robin-banks",
+        "name": "Robin Banks",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8400,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "lance-downfield",
+        "name": "Lance Downfield",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 7000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "major-package",
+        "name": "Major Package",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 6200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "justin-time",
+        "name": "Justin Time",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "K",
+        "role": "K",
+        "salary": 4600,
+        "multiplier": 1.15,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "barb-dwyer",
+        "name": "Barb Dwyer",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 4000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "pick-sixx",
+        "name": "Pick Sixx",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "justin-case",
+        "name": "Justin Case",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "FS",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "seymour-butts",
+        "name": "Seymour Butts",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "SS",
+        "role": "DEF",
+        "salary": 3200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hugh-jass",
+        "name": "Hugh Jass",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "OL",
+        "role": "OL",
+        "salary": 3000,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "phil-mccracken",
+        "name": "Phil McCracken",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "P",
+        "role": "P",
+        "salary": 2000,
+        "multiplier": 1.3,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ben-dover",
+        "name": "Ben Dover",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LS",
+        "role": "LS",
+        "salary": 1500,
+        "multiplier": 1.6,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "al-beback",
+        "name": "Al Beback",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "QB",
+        "role": "QB",
+        "salary": 10600,
+        "multiplier": 1.1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hank-off",
+        "name": "Hank Off",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 8800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "rick-oshea",
+        "name": "Rick O'Shea",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "mike-rotch",
+        "name": "Mike Rotch",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 6800,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ford-progress",
+        "name": "Ford Progress",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 5800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "chip-shot",
+        "name": "Chip Shot",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "K/P",
+        "role": "K",
+        "salary": 4400,
+        "multiplier": 1.4,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hugh-janus",
+        "name": "Hugh Janus",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "DL",
+        "role": "DEF",
+        "salary": 4200,
+        "multiplier": 1.2,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "doug-graves",
+        "name": "Doug Graves",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "oliver-klozoff",
+        "name": "Oliver Klozoff",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3600,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ip-freely",
+        "name": "I.P. Freely",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "S",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "holden-penalty",
+        "name": "Holden Penalty",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LT",
+        "role": "OL",
+        "salary": 2800,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "harry-butz",
+        "name": "Harry Butz",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RT",
+        "role": "OL",
+        "salary": 2600,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      }
+    ],
+    "standings": [],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": []
+    }
+  },
+  "open": {
+    "version": 4,
+    "serverNow": 100000,
+    "rulesVersion": "football-v1",
+    "room": {
+      "code": "D86615",
+      "name": "Football Watch Party",
+      "seasonId": "demo-season",
+      "phase": "live",
+      "speed": 4,
+      "participantCount": 1,
+      "createdAt": 100000
+    },
+    "game": {
+      "gameId": "morning-wood-vs-swiss-cheese",
+      "sport": "football",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "football",
+        "possessionTeamId": "VT",
+        "ballOn": 25,
+        "down": 1,
+        "toGo": 10
+      },
+      "title": "South Dakota Swiss Cheese at Vermont's Morning Wood",
+      "home": {
+        "id": "VT",
+        "short": "VT",
+        "name": "Morning Wood",
+        "color": "#c8641e",
+        "score": 0
+      },
+      "away": {
+        "id": "SD",
+        "short": "SD",
+        "name": "Swiss Cheese",
+        "color": "#e8b931",
+        "score": 0
+      },
+      "quarter": 1,
+      "clock": "15:00",
+      "situation": "1 & 10",
+      "ballOn": 25,
+      "fieldX": 25,
+      "possession": "VT",
+      "driveNumber": 1,
+      "driveCount": 16,
+      "recentPlays": [
+        {
+          "id": "beat-0",
+          "text": "Morning Wood ball at the VT 25. Call the drive before the snap!",
+          "kind": "drive",
+          "quarter": 1,
+          "clock": "15:00"
+        }
+      ],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "pickFactorCap": 5,
+      "positionMultipliers": {
+        "QB": 1.1,
+        "RB": 1,
+        "FB": 1,
+        "WR": 0.85,
+        "TE": 1,
+        "K": 1.15,
+        "K/P": 1.4,
+        "OL": 2.5,
+        "LT": 2.5,
+        "RT": 2.5,
+        "DL": 1.2,
+        "LB": 0.85,
+        "CB": 1,
+        "FS": 1,
+        "SS": 1,
+        "S": 1,
+        "P": 1.3,
+        "LS": 1.6
+      }
+    },
+    "players": [
+      {
+        "id": "will-power",
+        "name": "Will Power",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "QB",
+        "role": "QB",
+        "salary": 11000,
+        "multiplier": 1.1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "max-yardage",
+        "name": "Max Yardage",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 9200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "robin-banks",
+        "name": "Robin Banks",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8400,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "lance-downfield",
+        "name": "Lance Downfield",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 7000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "major-package",
+        "name": "Major Package",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 6200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "justin-time",
+        "name": "Justin Time",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "K",
+        "role": "K",
+        "salary": 4600,
+        "multiplier": 1.15,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "barb-dwyer",
+        "name": "Barb Dwyer",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 4000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "pick-sixx",
+        "name": "Pick Sixx",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "justin-case",
+        "name": "Justin Case",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "FS",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "seymour-butts",
+        "name": "Seymour Butts",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "SS",
+        "role": "DEF",
+        "salary": 3200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hugh-jass",
+        "name": "Hugh Jass",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "OL",
+        "role": "OL",
+        "salary": 3000,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "phil-mccracken",
+        "name": "Phil McCracken",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "P",
+        "role": "P",
+        "salary": 2000,
+        "multiplier": 1.3,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ben-dover",
+        "name": "Ben Dover",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LS",
+        "role": "LS",
+        "salary": 1500,
+        "multiplier": 1.6,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "al-beback",
+        "name": "Al Beback",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "QB",
+        "role": "QB",
+        "salary": 10600,
+        "multiplier": 1.1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hank-off",
+        "name": "Hank Off",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 8800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "rick-oshea",
+        "name": "Rick O'Shea",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "mike-rotch",
+        "name": "Mike Rotch",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 6800,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ford-progress",
+        "name": "Ford Progress",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 5800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "chip-shot",
+        "name": "Chip Shot",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "K/P",
+        "role": "K",
+        "salary": 4400,
+        "multiplier": 1.4,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hugh-janus",
+        "name": "Hugh Janus",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "DL",
+        "role": "DEF",
+        "salary": 4200,
+        "multiplier": 1.2,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "doug-graves",
+        "name": "Doug Graves",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "oliver-klozoff",
+        "name": "Oliver Klozoff",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3600,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ip-freely",
+        "name": "I.P. Freely",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "S",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "holden-penalty",
+        "name": "Holden Penalty",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LT",
+        "role": "OL",
+        "salary": 2800,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "harry-butz",
+        "name": "Harry Butz",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RT",
+        "role": "OL",
+        "salary": 2600,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      }
+    ],
+    "standings": [
+      {
+        "participantId": "1a134978-b556-4772-af66-aab6f15f650d",
+        "name": "Smoke Fan",
+        "rank": 1,
+        "total": 0,
+        "fantasyPoints": 0,
+        "predictionPoints": 0,
+        "streak": 0,
+        "roster": [
+          {
+            "playerId": "max-yardage",
+            "captain": true,
+            "points": 0
+          },
+          {
+            "playerId": "robin-banks",
+            "captain": false,
+            "points": 0
+          },
+          {
+            "playerId": "hugh-jass",
+            "captain": false,
+            "points": 0
+          },
+          {
+            "playerId": "barb-dwyer",
+            "captain": false,
+            "points": 0
+          },
+          {
+            "playerId": "chip-shot",
+            "captain": false,
+            "points": 0
+          }
+        ]
+      }
+    ],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": []
+    },
+    "question": {
+      "id": "drive-1",
+      "kind": "drive_outcome",
+      "text": "How will Morning Wood's drive end?",
+      "opensAt": 100000,
+      "locksAt": 105000,
+      "remainingMs": 5000,
+      "options": [
+        {
+          "id": "TD",
+          "label": "Touchdown",
+          "basePoints": 10,
+          "probability": 0.24309784312754756
+        },
+        {
+          "id": "FG",
+          "label": "Field goal",
+          "basePoints": 12,
+          "probability": 0.16439757743782696
+        },
+        {
+          "id": "PUNT",
+          "label": "Punt",
+          "basePoints": 6,
+          "probability": 0.4112084756671122
+        },
+        {
+          "id": "TURNOVER",
+          "label": "Turnover",
+          "basePoints": 15,
+          "probability": 0.18129610376751323
+        }
+      ],
+      "pickCounts": {
+        "TD": 0,
+        "FG": 0,
+        "PUNT": 0,
+        "TURNOVER": 0
+      },
+      "status": "open"
+    }
+  },
+  "locked": {
+    "version": 11,
+    "serverNow": 165000,
+    "rulesVersion": "football-v1",
+    "room": {
+      "code": "D86615",
+      "name": "Football Watch Party",
+      "seasonId": "demo-season",
+      "phase": "live",
+      "speed": 4,
+      "participantCount": 1,
+      "createdAt": 100000
+    },
+    "game": {
+      "gameId": "morning-wood-vs-swiss-cheese",
+      "sport": "football",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "football",
+        "possessionTeamId": "VT",
+        "ballOn": 31,
+        "down": 2,
+        "toGo": 4
+      },
+      "title": "South Dakota Swiss Cheese at Vermont's Morning Wood",
+      "home": {
+        "id": "VT",
+        "short": "VT",
+        "name": "Morning Wood",
+        "color": "#c8641e",
+        "score": 0
+      },
+      "away": {
+        "id": "SD",
+        "short": "SD",
+        "name": "Swiss Cheese",
+        "color": "#e8b931",
+        "score": 0
+      },
+      "quarter": 1,
+      "clock": "14:34",
+      "situation": "1st & 10 at VT 25",
+      "ballOn": 31,
+      "fieldX": 31,
+      "possession": "VT",
+      "driveNumber": 1,
+      "driveCount": 16,
+      "recentPlays": [
+        {
+          "id": "beat-0",
+          "text": "Morning Wood ball at the VT 25. Call the drive before the snap!",
+          "kind": "drive",
+          "quarter": 1,
+          "clock": "15:00"
+        },
+        {
+          "id": "beat-1",
+          "text": "Max Yardage bursts off left tackle behind Hugh Jass. 6 yards.",
+          "kind": "normal",
+          "quarter": 1,
+          "clock": "14:34"
+        }
+      ],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "positionMultipliers": {
+        "QB": 1.1,
+        "RB": 1,
+        "FB": 1,
+        "WR": 0.85,
+        "TE": 1,
+        "K": 1.15,
+        "K/P": 1.4,
+        "OL": 2.5,
+        "LT": 2.5,
+        "RT": 2.5,
+        "DL": 1.2,
+        "LB": 0.85,
+        "CB": 1,
+        "FS": 1,
+        "SS": 1,
+        "S": 1,
+        "P": 1.3,
+        "LS": 1.6
+      },
+      "pickFactorCap": 5
+    },
+    "players": [
+      {
+        "id": "will-power",
+        "name": "Will Power",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "QB",
+        "role": "QB",
+        "salary": 11000,
+        "multiplier": 1.1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "max-yardage",
+        "name": "Max Yardage",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 9200,
+        "multiplier": 1,
+        "stats": {
+          "rushYds": 6
+        },
+        "rawPoints": 0.6,
+        "points": 0.6,
+        "statLine": "6 rush yd"
+      },
+      {
+        "id": "robin-banks",
+        "name": "Robin Banks",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8400,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "lance-downfield",
+        "name": "Lance Downfield",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 7000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "major-package",
+        "name": "Major Package",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 6200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "justin-time",
+        "name": "Justin Time",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "K",
+        "role": "K",
+        "salary": 4600,
+        "multiplier": 1.15,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "barb-dwyer",
+        "name": "Barb Dwyer",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 4000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "pick-sixx",
+        "name": "Pick Sixx",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "justin-case",
+        "name": "Justin Case",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "FS",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "seymour-butts",
+        "name": "Seymour Butts",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "SS",
+        "role": "DEF",
+        "salary": 3200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hugh-jass",
+        "name": "Hugh Jass",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "OL",
+        "role": "OL",
+        "salary": 3000,
+        "multiplier": 2.5,
+        "stats": {
+          "teamRushYds": 6
+        },
+        "rawPoints": 0.6,
+        "points": 1.5,
+        "statLine": "6 team rush yd (proxy)"
+      },
+      {
+        "id": "phil-mccracken",
+        "name": "Phil McCracken",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "P",
+        "role": "P",
+        "salary": 2000,
+        "multiplier": 1.3,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ben-dover",
+        "name": "Ben Dover",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LS",
+        "role": "LS",
+        "salary": 1500,
+        "multiplier": 1.6,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "al-beback",
+        "name": "Al Beback",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "QB",
+        "role": "QB",
+        "salary": 10600,
+        "multiplier": 1.1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hank-off",
+        "name": "Hank Off",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 8800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "rick-oshea",
+        "name": "Rick O'Shea",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "mike-rotch",
+        "name": "Mike Rotch",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 6800,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ford-progress",
+        "name": "Ford Progress",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 5800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "chip-shot",
+        "name": "Chip Shot",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "K/P",
+        "role": "K",
+        "salary": 4400,
+        "multiplier": 1.4,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hugh-janus",
+        "name": "Hugh Janus",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "DL",
+        "role": "DEF",
+        "salary": 4200,
+        "multiplier": 1.2,
+        "stats": {
+          "tackles": 1
+        },
+        "rawPoints": 1,
+        "points": 1.2,
+        "statLine": "1 tackles"
+      },
+      {
+        "id": "doug-graves",
+        "name": "Doug Graves",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "oliver-klozoff",
+        "name": "Oliver Klozoff",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3600,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ip-freely",
+        "name": "I.P. Freely",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "S",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "holden-penalty",
+        "name": "Holden Penalty",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LT",
+        "role": "OL",
+        "salary": 2800,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "harry-butz",
+        "name": "Harry Butz",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RT",
+        "role": "OL",
+        "salary": 2600,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      }
+    ],
+    "standings": [
+      {
+        "participantId": "1a134978-b556-4772-af66-aab6f15f650d",
+        "name": "Smoke Fan",
+        "rank": 1,
+        "total": 2.4,
+        "fantasyPoints": 2.4,
+        "predictionPoints": 0,
+        "streak": 0,
+        "roster": [
+          {
+            "playerId": "max-yardage",
+            "captain": true,
+            "points": 0.9
+          },
+          {
+            "playerId": "robin-banks",
+            "captain": false,
+            "points": 0
+          },
+          {
+            "playerId": "hugh-jass",
+            "captain": false,
+            "points": 1.5
+          },
+          {
+            "playerId": "barb-dwyer",
+            "captain": false,
+            "points": 0
+          },
+          {
+            "playerId": "chip-shot",
+            "captain": false,
+            "points": 0
+          }
+        ]
+      }
+    ],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": []
+    },
+    "question": {
+      "id": "drive-1",
+      "kind": "drive_outcome",
+      "text": "How will Morning Wood's drive end?",
+      "opensAt": 160000,
+      "locksAt": 165000,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "TD",
+          "label": "Touchdown",
+          "basePoints": 10,
+          "probability": 0.24309784312754756
+        },
+        {
+          "id": "FG",
+          "label": "Field goal",
+          "basePoints": 12,
+          "probability": 0.16439757743782696
+        },
+        {
+          "id": "PUNT",
+          "label": "Punt",
+          "basePoints": 6,
+          "probability": 0.4112084756671122
+        },
+        {
+          "id": "TURNOVER",
+          "label": "Turnover",
+          "basePoints": 15,
+          "probability": 0.18129610376751323
+        }
+      ],
+      "pickCounts": {
+        "TD": 1,
+        "FG": 0,
+        "PUNT": 0,
+        "TURNOVER": 0
+      },
+      "status": "locked"
+    }
+  },
+  "resolved": {
+    "version": 20,
+    "serverNow": 174000,
+    "rulesVersion": "football-v1",
+    "room": {
+      "code": "D86615",
+      "name": "Football Watch Party",
+      "seasonId": "demo-season",
+      "phase": "live",
+      "speed": 4,
+      "participantCount": 1,
+      "createdAt": 100000
+    },
+    "game": {
+      "gameId": "morning-wood-vs-swiss-cheese",
+      "sport": "football",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "football",
+        "possessionTeamId": "SD",
+        "ballOn": 25,
+        "down": 1,
+        "toGo": 10
+      },
+      "title": "South Dakota Swiss Cheese at Vermont's Morning Wood",
+      "home": {
+        "id": "VT",
+        "short": "VT",
+        "name": "Morning Wood",
+        "color": "#c8641e",
+        "score": 7
+      },
+      "away": {
+        "id": "SD",
+        "short": "SD",
+        "name": "Swiss Cheese",
+        "color": "#e8b931",
+        "score": 0
+      },
+      "quarter": 1,
+      "clock": "10:38",
+      "situation": "1 & 10",
+      "ballOn": 25,
+      "fieldX": 75,
+      "possession": "SD",
+      "driveNumber": 2,
+      "driveCount": 16,
+      "recentPlays": [
+        {
+          "id": "beat-2",
+          "text": "Will Power hits Robin Banks for 12 yards. Oliver Klozoff makes the stop.",
+          "kind": "normal",
+          "quarter": 1,
+          "clock": "14:08"
+        },
+        {
+          "id": "beat-3",
+          "text": "Max Yardage runs for 4 yards. Brought down by Doug Graves.",
+          "kind": "normal",
+          "quarter": 1,
+          "clock": "13:43"
+        },
+        {
+          "id": "beat-4",
+          "text": "Lance Downfield gets behind Oliver Klozoff for 18. The Swiss Cheese secondary is living up to the name.",
+          "kind": "big",
+          "quarter": 1,
+          "clock": "13:17"
+        },
+        {
+          "id": "beat-5",
+          "text": "FLAG. False start, Hugh Jass. Hal Jablowski says the big man moved early. 5-yard penalty.",
+          "kind": "pen",
+          "quarter": 1,
+          "clock": "12:51"
+        },
+        {
+          "id": "beat-6",
+          "text": "Will Power hits Major Package for 14 yards. I.P. Freely makes the stop.",
+          "kind": "normal",
+          "quarter": 1,
+          "clock": "12:25"
+        },
+        {
+          "id": "beat-7",
+          "text": "Max Yardage runs for 3 yards. Brought down by Doug Graves.",
+          "kind": "normal",
+          "quarter": 1,
+          "clock": "11:59"
+        },
+        {
+          "id": "beat-8",
+          "text": "Robin Banks steals one over the middle. 11 yards.",
+          "kind": "normal",
+          "quarter": 1,
+          "clock": "11:34"
+        },
+        {
+          "id": "beat-9",
+          "text": "Max Yardage runs for 2 yards. Brought down by Hugh Janus.",
+          "kind": "normal",
+          "quarter": 1,
+          "clock": "11:08"
+        },
+        {
+          "id": "beat-10",
+          "text": "TOUCHDOWN! Will Power finds Major Package all alone in the back of the end zone.",
+          "kind": "td",
+          "quarter": 1,
+          "clock": "10:42"
+        },
+        {
+          "id": "beat-11",
+          "text": "Justin Time adds the extra point.",
+          "kind": "pat",
+          "quarter": 1,
+          "clock": "10:42"
+        },
+        {
+          "id": "beat-12",
+          "text": "Drive result: Touchdown. Morning Wood 7, Swiss Cheese 0.",
+          "kind": "drive_end",
+          "quarter": 1,
+          "clock": "10:42"
+        },
+        {
+          "id": "beat-13",
+          "text": "Swiss Cheese ball at the SD 25. Call the drive before the snap!",
+          "kind": "drive",
+          "quarter": 1,
+          "clock": "10:38"
+        }
+      ],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "positionMultipliers": {
+        "QB": 1.1,
+        "RB": 1,
+        "FB": 1,
+        "WR": 0.85,
+        "TE": 1,
+        "K": 1.15,
+        "K/P": 1.4,
+        "OL": 2.5,
+        "LT": 2.5,
+        "RT": 2.5,
+        "DL": 1.2,
+        "LB": 0.85,
+        "CB": 1,
+        "FS": 1,
+        "SS": 1,
+        "S": 1,
+        "P": 1.3,
+        "LS": 1.6
+      },
+      "pickFactorCap": 5
+    },
+    "players": [
+      {
+        "id": "will-power",
+        "name": "Will Power",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "QB",
+        "role": "QB",
+        "salary": 11000,
+        "multiplier": 1.1,
+        "stats": {
+          "passYds": 65,
+          "passTD": 1
+        },
+        "rawPoints": 6.6,
+        "points": 7.26,
+        "statLine": "65 pass yd / 1 pass TD"
+      },
+      {
+        "id": "max-yardage",
+        "name": "Max Yardage",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 9200,
+        "multiplier": 1,
+        "stats": {
+          "rushYds": 15
+        },
+        "rawPoints": 1.5,
+        "points": 1.5,
+        "statLine": "15 rush yd"
+      },
+      {
+        "id": "robin-banks",
+        "name": "Robin Banks",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8400,
+        "multiplier": 0.85,
+        "stats": {
+          "rec": 2,
+          "recYds": 23
+        },
+        "rawPoints": 4.3,
+        "points": 3.66,
+        "statLine": "2 catches / 23 rec yd"
+      },
+      {
+        "id": "lance-downfield",
+        "name": "Lance Downfield",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 7000,
+        "multiplier": 0.85,
+        "stats": {
+          "rec": 1,
+          "recYds": 18
+        },
+        "rawPoints": 2.8,
+        "points": 2.38,
+        "statLine": "1 catches / 18 rec yd"
+      },
+      {
+        "id": "major-package",
+        "name": "Major Package",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 6200,
+        "multiplier": 1,
+        "stats": {
+          "rec": 2,
+          "recYds": 24,
+          "recTD": 1
+        },
+        "rawPoints": 10.4,
+        "points": 10.4,
+        "statLine": "2 catches / 24 rec yd / 1 rec TD"
+      },
+      {
+        "id": "justin-time",
+        "name": "Justin Time",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "K",
+        "role": "K",
+        "salary": 4600,
+        "multiplier": 1.15,
+        "stats": {
+          "xp": 1
+        },
+        "rawPoints": 1,
+        "points": 1.15,
+        "statLine": "1 XP"
+      },
+      {
+        "id": "barb-dwyer",
+        "name": "Barb Dwyer",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 4000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "pick-sixx",
+        "name": "Pick Sixx",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "justin-case",
+        "name": "Justin Case",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "FS",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "seymour-butts",
+        "name": "Seymour Butts",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "SS",
+        "role": "DEF",
+        "salary": 3200,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hugh-jass",
+        "name": "Hugh Jass",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "OL",
+        "role": "OL",
+        "salary": 3000,
+        "multiplier": 2.5,
+        "stats": {
+          "teamRushYds": 15,
+          "penalties": 1
+        },
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "15 team rush yd (proxy) / 1 penalties"
+      },
+      {
+        "id": "phil-mccracken",
+        "name": "Phil McCracken",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "P",
+        "role": "P",
+        "salary": 2000,
+        "multiplier": 1.3,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ben-dover",
+        "name": "Ben Dover",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LS",
+        "role": "LS",
+        "salary": 1500,
+        "multiplier": 1.6,
+        "stats": {
+          "cleanSnaps": 1
+        },
+        "rawPoints": 1,
+        "points": 1.6,
+        "statLine": "1 clean snaps (scripted)"
+      },
+      {
+        "id": "al-beback",
+        "name": "Al Beback",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "QB",
+        "role": "QB",
+        "salary": 10600,
+        "multiplier": 1.1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hank-off",
+        "name": "Hank Off",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 8800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "rick-oshea",
+        "name": "Rick O'Shea",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8000,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "mike-rotch",
+        "name": "Mike Rotch",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 6800,
+        "multiplier": 0.85,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "ford-progress",
+        "name": "Ford Progress",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 5800,
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "chip-shot",
+        "name": "Chip Shot",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "K/P",
+        "role": "K",
+        "salary": 4400,
+        "multiplier": 1.4,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "hugh-janus",
+        "name": "Hugh Janus",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "DL",
+        "role": "DEF",
+        "salary": 4200,
+        "multiplier": 1.2,
+        "stats": {
+          "tackles": 2
+        },
+        "rawPoints": 2,
+        "points": 2.4,
+        "statLine": "2 tackles"
+      },
+      {
+        "id": "doug-graves",
+        "name": "Doug Graves",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 0.85,
+        "stats": {
+          "tackles": 2
+        },
+        "rawPoints": 2,
+        "points": 1.7,
+        "statLine": "2 tackles"
+      },
+      {
+        "id": "oliver-klozoff",
+        "name": "Oliver Klozoff",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3600,
+        "multiplier": 1,
+        "stats": {
+          "tackles": 2
+        },
+        "rawPoints": 2,
+        "points": 2,
+        "statLine": "2 tackles"
+      },
+      {
+        "id": "ip-freely",
+        "name": "I.P. Freely",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "S",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {
+          "tackles": 2
+        },
+        "rawPoints": 2,
+        "points": 2,
+        "statLine": "2 tackles"
+      },
+      {
+        "id": "holden-penalty",
+        "name": "Holden Penalty",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LT",
+        "role": "OL",
+        "salary": 2800,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "harry-butz",
+        "name": "Harry Butz",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RT",
+        "role": "OL",
+        "salary": 2600,
+        "multiplier": 2.5,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      }
+    ],
+    "standings": [
+      {
+        "participantId": "1a134978-b556-4772-af66-aab6f15f650d",
+        "name": "Smoke Fan",
+        "rank": 1,
+        "total": 18.91,
+        "fantasyPoints": 5.91,
+        "predictionPoints": 13,
+        "streak": 1,
+        "roster": [
+          {
+            "playerId": "max-yardage",
+            "captain": true,
+            "points": 2.25
+          },
+          {
+            "playerId": "robin-banks",
+            "captain": false,
+            "points": 3.66
+          },
+          {
+            "playerId": "hugh-jass",
+            "captain": false,
+            "points": 0
+          },
+          {
+            "playerId": "barb-dwyer",
+            "captain": false,
+            "points": 0
+          },
+          {
+            "playerId": "chip-shot",
+            "captain": false,
+            "points": 0
+          }
+        ],
+        "lastPickScore": {
+          "correct": true,
+          "base": 10,
+          "factor": 1.285490632000543,
+          "points": 13,
+          "bonuses": [
+            "early_call",
+            "bold_call"
+          ]
+        }
+      }
+    ],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": []
+    },
+    "question": {
+      "id": "drive-2",
+      "kind": "drive_score",
+      "text": "Will Swiss Cheese score on this drive?",
+      "opensAt": 174000,
+      "locksAt": 179000,
+      "remainingMs": 5000,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "basePoints": 10,
+          "probability": 0.355
+        },
+        {
+          "id": "no",
+          "label": "No",
+          "basePoints": 10,
+          "probability": 0.645
+        }
+      ],
+      "pickCounts": {
+        "yes": 0,
+        "no": 0
+      },
+      "status": "open"
+    },
+    "lastQuestion": {
+      "id": "drive-1",
+      "kind": "drive_outcome",
+      "text": "How will Morning Wood's drive end?",
+      "opensAt": 160000,
+      "locksAt": 165000,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "TD",
+          "label": "Touchdown",
+          "basePoints": 10,
+          "probability": 0.24309784312754756
+        },
+        {
+          "id": "FG",
+          "label": "Field goal",
+          "basePoints": 12,
+          "probability": 0.16439757743782696
+        },
+        {
+          "id": "PUNT",
+          "label": "Punt",
+          "basePoints": 6,
+          "probability": 0.4112084756671122
+        },
+        {
+          "id": "TURNOVER",
+          "label": "Turnover",
+          "basePoints": 15,
+          "probability": 0.18129610376751323
+        }
+      ],
+      "pickCounts": {
+        "TD": 1,
+        "FG": 0,
+        "PUNT": 0,
+        "TURNOVER": 0
+      },
+      "status": "resolved",
+      "result": {
+        "optionId": "TD",
+        "explanation": "Drive result: Touchdown. Morning Wood 7, Swiss Cheese 0."
+      }
+    }
+  },
+  "final": {
+    "version": 192,
+    "serverNow": 346000,
+    "rulesVersion": "football-v1",
+    "room": {
+      "code": "D86615",
+      "name": "Football Watch Party",
+      "seasonId": "demo-season",
+      "phase": "final",
+      "speed": 4,
+      "participantCount": 1,
+      "createdAt": 100000
+    },
+    "game": {
+      "gameId": "morning-wood-vs-swiss-cheese",
+      "sport": "football",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "football",
+        "possessionTeamId": null,
+        "ballOn": 50,
+        "down": null,
+        "toGo": null
+      },
+      "title": "South Dakota Swiss Cheese at Vermont's Morning Wood",
+      "home": {
+        "id": "VT",
+        "short": "VT",
+        "name": "Morning Wood",
+        "color": "#c8641e",
+        "score": 27
+      },
+      "away": {
+        "id": "SD",
+        "short": "SD",
+        "name": "Swiss Cheese",
+        "color": "#e8b931",
+        "score": 24
+      },
+      "quarter": 4,
+      "clock": "0:00",
+      "situation": "1 & 10",
+      "ballOn": 50,
+      "fieldX": 50,
+      "possession": null,
+      "driveNumber": 16,
+      "driveCount": 16,
+      "recentPlays": [
+        {
+          "id": "beat-141",
+          "text": "Chip Shot adds the extra point.",
+          "kind": "pat",
+          "quarter": 4,
+          "clock": "1:10"
+        },
+        {
+          "id": "beat-142",
+          "text": "Drive result: Touchdown. Morning Wood 24, Swiss Cheese 24.",
+          "kind": "drive_end",
+          "quarter": 4,
+          "clock": "1:10"
+        },
+        {
+          "id": "beat-143",
+          "text": "Morning Wood ball at the VT 25. Call the drive before the snap!",
+          "kind": "drive",
+          "quarter": 4,
+          "clock": "1:05"
+        },
+        {
+          "id": "beat-144",
+          "text": "Robin Banks, 14 yards. Two-minute drill is on.",
+          "kind": "normal",
+          "quarter": 4,
+          "clock": "0:56"
+        },
+        {
+          "id": "beat-145",
+          "text": "Lance Downfield, 11 yards and out of bounds.",
+          "kind": "normal",
+          "quarter": 4,
+          "clock": "0:46"
+        },
+        {
+          "id": "beat-146",
+          "text": "Incomplete, intended for Major Package. Broken up by Doug Graves.",
+          "kind": "normal",
+          "quarter": 4,
+          "clock": "0:37"
+        },
+        {
+          "id": "beat-147",
+          "text": "Major Package with a big grab across midfield!",
+          "kind": "normal",
+          "quarter": 4,
+          "clock": "0:28"
+        },
+        {
+          "id": "beat-148",
+          "text": "Will Power spikes it to stop the clock.",
+          "kind": "normal",
+          "quarter": 4,
+          "clock": "0:19"
+        },
+        {
+          "id": "beat-149",
+          "text": "Will Power hits Robin Banks for 7 yards. Oliver Klozoff makes the stop.",
+          "kind": "normal",
+          "quarter": 4,
+          "clock": "0:09"
+        },
+        {
+          "id": "beat-150",
+          "text": "Justin Time... from 47... as time expires... IT'S GOOD! MORNING WOOD WINS IT, RIGHT ON TIME!",
+          "kind": "fg",
+          "quarter": 4,
+          "clock": "0:00"
+        },
+        {
+          "id": "beat-151",
+          "text": "Drive result: Field goal. Morning Wood 27, Swiss Cheese 24.",
+          "kind": "drive_end",
+          "quarter": 4,
+          "clock": "0:00"
+        },
+        {
+          "id": "beat-152",
+          "text": "FINAL: Morning Wood 27, Swiss Cheese 24. Justin Time is carried off the field. Head ref Hal Jablowski reviews nothing and goes home.",
+          "kind": "final",
+          "quarter": 4,
+          "clock": "0:00"
+        }
+      ],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "positionMultipliers": {
+        "QB": 1.1,
+        "RB": 1,
+        "FB": 1,
+        "WR": 0.85,
+        "TE": 1,
+        "K": 1.15,
+        "K/P": 1.4,
+        "OL": 2.5,
+        "LT": 2.5,
+        "RT": 2.5,
+        "DL": 1.2,
+        "LB": 0.85,
+        "CB": 1,
+        "FS": 1,
+        "SS": 1,
+        "S": 1,
+        "P": 1.3,
+        "LS": 1.6
+      },
+      "pickFactorCap": 5
+    },
+    "players": [
+      {
+        "id": "will-power",
+        "name": "Will Power",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "QB",
+        "role": "QB",
+        "salary": 11000,
+        "multiplier": 1.1,
+        "stats": {
+          "passYds": 220,
+          "passTD": 1,
+          "intThrown": 1
+        },
+        "rawPoints": 11.8,
+        "points": 12.98,
+        "statLine": "220 pass yd / 1 pass TD / 1 INT thrown"
+      },
+      {
+        "id": "max-yardage",
+        "name": "Max Yardage",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 9200,
+        "multiplier": 1,
+        "stats": {
+          "rushYds": 86,
+          "rushTD": 1
+        },
+        "rawPoints": 14.6,
+        "points": 14.6,
+        "statLine": "86 rush yd / 1 rush TD"
+      },
+      {
+        "id": "robin-banks",
+        "name": "Robin Banks",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8400,
+        "multiplier": 0.85,
+        "stats": {
+          "rec": 9,
+          "recYds": 79
+        },
+        "rawPoints": 16.9,
+        "points": 14.36,
+        "statLine": "9 catches / 79 rec yd"
+      },
+      {
+        "id": "lance-downfield",
+        "name": "Lance Downfield",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 7000,
+        "multiplier": 0.85,
+        "stats": {
+          "rec": 6,
+          "recYds": 79
+        },
+        "rawPoints": 13.9,
+        "points": 11.82,
+        "statLine": "6 catches / 79 rec yd"
+      },
+      {
+        "id": "major-package",
+        "name": "Major Package",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 6200,
+        "multiplier": 1,
+        "stats": {
+          "rec": 6,
+          "recYds": 62,
+          "recTD": 1
+        },
+        "rawPoints": 18.2,
+        "points": 18.2,
+        "statLine": "6 catches / 62 rec yd / 1 rec TD"
+      },
+      {
+        "id": "justin-time",
+        "name": "Justin Time",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "K",
+        "role": "K",
+        "salary": 4600,
+        "multiplier": 1.15,
+        "stats": {
+          "xp": 3,
+          "fg40": 2
+        },
+        "rawPoints": 11,
+        "points": 12.65,
+        "statLine": "3 XP / 2 FG 40+"
+      },
+      {
+        "id": "barb-dwyer",
+        "name": "Barb Dwyer",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 4000,
+        "multiplier": 0.85,
+        "stats": {
+          "tackles": 13,
+          "passDefended": 1,
+          "sacks": 2,
+          "fumRec": 1
+        },
+        "rawPoints": 23.5,
+        "points": 19.97,
+        "statLine": "13 tackles / 1 passes defended / 2 sacks / 1 fumble recoveries"
+      },
+      {
+        "id": "pick-sixx",
+        "name": "Pick Sixx",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 1,
+        "stats": {
+          "tackles": 7,
+          "defInt": 1,
+          "defTD": 1
+        },
+        "rawPoints": 17,
+        "points": 17,
+        "statLine": "7 tackles / 1 INT / 1 def TD"
+      },
+      {
+        "id": "justin-case",
+        "name": "Justin Case",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "FS",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {
+          "passDefended": 2,
+          "tackles": 8
+        },
+        "rawPoints": 11,
+        "points": 11,
+        "statLine": "2 passes defended / 8 tackles"
+      },
+      {
+        "id": "seymour-butts",
+        "name": "Seymour Butts",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "SS",
+        "role": "DEF",
+        "salary": 3200,
+        "multiplier": 1,
+        "stats": {
+          "tackles": 11,
+          "sacks": 1
+        },
+        "rawPoints": 14,
+        "points": 14,
+        "statLine": "11 tackles / 1 sacks"
+      },
+      {
+        "id": "hugh-jass",
+        "name": "Hugh Jass",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "OL",
+        "role": "OL",
+        "salary": 3000,
+        "multiplier": 2.5,
+        "stats": {
+          "teamRushYds": 86,
+          "penalties": 2,
+          "sacksAllowed": 2,
+          "teamRushTD": 1
+        },
+        "rawPoints": 3.6,
+        "points": 9,
+        "statLine": "86 team rush yd (proxy) / 2 penalties / 2 sacks allowed / 1 team rush TD (proxy)"
+      },
+      {
+        "id": "phil-mccracken",
+        "name": "Phil McCracken",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "P",
+        "role": "P",
+        "salary": 2000,
+        "multiplier": 1.3,
+        "stats": {
+          "puntYds": 148,
+          "puntIn20": 3
+        },
+        "rawPoints": 10.42,
+        "points": 13.55,
+        "statLine": "148 punt yd / 3 punts inside 20"
+      },
+      {
+        "id": "ben-dover",
+        "name": "Ben Dover",
+        "teamId": "VT",
+        "teamShort": "VT",
+        "position": "LS",
+        "role": "LS",
+        "salary": 1500,
+        "multiplier": 1.6,
+        "stats": {
+          "cleanSnaps": 8
+        },
+        "rawPoints": 8,
+        "points": 12.8,
+        "statLine": "8 clean snaps (scripted)"
+      },
+      {
+        "id": "al-beback",
+        "name": "Al Beback",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "QB",
+        "role": "QB",
+        "salary": 10600,
+        "multiplier": 1.1,
+        "stats": {
+          "passYds": 290,
+          "intThrown": 1,
+          "passTD": 2,
+          "fumLost": 1
+        },
+        "rawPoints": 16.6,
+        "points": 18.26,
+        "statLine": "290 pass yd / 1 INT thrown / 2 pass TD / 1 fumbles lost"
+      },
+      {
+        "id": "hank-off",
+        "name": "Hank Off",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RB",
+        "role": "SKILL",
+        "salary": 8800,
+        "multiplier": 1,
+        "stats": {
+          "rushYds": 86,
+          "rushTD": 1
+        },
+        "rawPoints": 14.6,
+        "points": 14.6,
+        "statLine": "86 rush yd / 1 rush TD"
+      },
+      {
+        "id": "rick-oshea",
+        "name": "Rick O'Shea",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 8000,
+        "multiplier": 0.85,
+        "stats": {
+          "rec": 7,
+          "recYds": 91,
+          "recTD": 1
+        },
+        "rawPoints": 22.1,
+        "points": 18.79,
+        "statLine": "7 catches / 91 rec yd / 1 rec TD"
+      },
+      {
+        "id": "mike-rotch",
+        "name": "Mike Rotch",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "WR",
+        "role": "SKILL",
+        "salary": 6800,
+        "multiplier": 0.85,
+        "stats": {
+          "rec": 10,
+          "recYds": 119,
+          "recTD": 1
+        },
+        "rawPoints": 27.9,
+        "points": 23.72,
+        "statLine": "10 catches / 119 rec yd / 1 rec TD"
+      },
+      {
+        "id": "ford-progress",
+        "name": "Ford Progress",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "TE",
+        "role": "SKILL",
+        "salary": 5800,
+        "multiplier": 1,
+        "stats": {
+          "rec": 7,
+          "recYds": 80
+        },
+        "rawPoints": 15,
+        "points": 15,
+        "statLine": "7 catches / 80 rec yd"
+      },
+      {
+        "id": "chip-shot",
+        "name": "Chip Shot",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "K/P",
+        "role": "K",
+        "salary": 4400,
+        "multiplier": 1.4,
+        "stats": {
+          "puntYds": 85,
+          "fg": 1,
+          "xp": 3
+        },
+        "rawPoints": 9.4,
+        "points": 13.16,
+        "statLine": "85 punt yd / 1 FG / 3 XP"
+      },
+      {
+        "id": "hugh-janus",
+        "name": "Hugh Janus",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "DL",
+        "role": "DEF",
+        "salary": 4200,
+        "multiplier": 1.2,
+        "stats": {
+          "tackles": 9,
+          "sacks": 1
+        },
+        "rawPoints": 12,
+        "points": 14.4,
+        "statLine": "9 tackles / 1 sacks"
+      },
+      {
+        "id": "doug-graves",
+        "name": "Doug Graves",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LB",
+        "role": "DEF",
+        "salary": 3800,
+        "multiplier": 0.85,
+        "stats": {
+          "tackles": 10,
+          "sacks": 1,
+          "passDefended": 2
+        },
+        "rawPoints": 16,
+        "points": 13.6,
+        "statLine": "10 tackles / 1 sacks / 2 passes defended"
+      },
+      {
+        "id": "oliver-klozoff",
+        "name": "Oliver Klozoff",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "CB",
+        "role": "DEF",
+        "salary": 3600,
+        "multiplier": 1,
+        "stats": {
+          "tackles": 12,
+          "passDefended": 1,
+          "defInt": 1
+        },
+        "rawPoints": 17.5,
+        "points": 17.5,
+        "statLine": "12 tackles / 1 passes defended / 1 INT"
+      },
+      {
+        "id": "ip-freely",
+        "name": "I.P. Freely",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "S",
+        "role": "DEF",
+        "salary": 3400,
+        "multiplier": 1,
+        "stats": {
+          "tackles": 8,
+          "passDefended": 2
+        },
+        "rawPoints": 11,
+        "points": 11,
+        "statLine": "8 tackles / 2 passes defended"
+      },
+      {
+        "id": "holden-penalty",
+        "name": "Holden Penalty",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "LT",
+        "role": "OL",
+        "salary": 2800,
+        "multiplier": 2.5,
+        "stats": {
+          "teamRushYds": 86,
+          "penalties": 3,
+          "sacksAllowed": 1,
+          "teamRushTD": 1
+        },
+        "rawPoints": 4.1,
+        "points": 10.25,
+        "statLine": "86 team rush yd (proxy) / 3 penalties / 1 sacks allowed / 1 team rush TD (proxy)"
+      },
+      {
+        "id": "harry-butz",
+        "name": "Harry Butz",
+        "teamId": "SD",
+        "teamShort": "SD",
+        "position": "RT",
+        "role": "OL",
+        "salary": 2600,
+        "multiplier": 2.5,
+        "stats": {
+          "teamRushYds": 86,
+          "sacksAllowed": 2,
+          "teamRushTD": 1
+        },
+        "rawPoints": 6.6,
+        "points": 16.5,
+        "statLine": "86 team rush yd (proxy) / 2 sacks allowed / 1 team rush TD (proxy)"
+      }
+    ],
+    "standings": [
+      {
+        "participantId": "1a134978-b556-4772-af66-aab6f15f650d",
+        "name": "Smoke Fan",
+        "rank": 1,
+        "total": 91.39,
+        "fantasyPoints": 78.39,
+        "predictionPoints": 13,
+        "streak": 0,
+        "roster": [
+          {
+            "playerId": "max-yardage",
+            "captain": true,
+            "points": 21.9
+          },
+          {
+            "playerId": "robin-banks",
+            "captain": false,
+            "points": 14.36
+          },
+          {
+            "playerId": "hugh-jass",
+            "captain": false,
+            "points": 9
+          },
+          {
+            "playerId": "barb-dwyer",
+            "captain": false,
+            "points": 19.97
+          },
+          {
+            "playerId": "chip-shot",
+            "captain": false,
+            "points": 13.16
+          }
+        ],
+        "lastPickScore": {
+          "correct": true,
+          "base": 10,
+          "factor": 1.285490632000543,
+          "points": 13,
+          "bonuses": [
+            "early_call",
+            "bold_call"
+          ]
+        }
+      }
+    ],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": [
+        {
+          "participantId": "1a134978-b556-4772-af66-aab6f15f650d",
+          "name": "Smoke Fan",
+          "points": 91.39,
+          "fantasyPoints": 78.39,
+          "predictionPoints": 13,
+          "nightsPlayed": 1,
+          "nightsWon": 1
+        }
+      ]
+    },
+    "question": {
+      "id": "drive-16",
+      "kind": "drive_td",
+      "text": "Will Morning Wood score a touchdown on this drive?",
+      "opensAt": 335000,
+      "locksAt": 340000,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "basePoints": 10,
+          "probability": 0.083
+        },
+        {
+          "id": "no",
+          "label": "No",
+          "basePoints": 10,
+          "probability": 0.917
+        }
+      ],
+      "pickCounts": {
+        "yes": 0,
+        "no": 0
+      },
+      "status": "resolved",
+      "result": {
+        "optionId": "no",
+        "explanation": "Drive result: Field goal. Morning Wood 27, Swiss Cheese 24."
+      }
+    },
+    "lastQuestion": {
+      "id": "drive-16",
+      "kind": "drive_td",
+      "text": "Will Morning Wood score a touchdown on this drive?",
+      "opensAt": 335000,
+      "locksAt": 340000,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "basePoints": 10,
+          "probability": 0.083
+        },
+        {
+          "id": "no",
+          "label": "No",
+          "basePoints": 10,
+          "probability": 0.917
+        }
+      ],
+      "pickCounts": {
+        "yes": 0,
+        "no": 0
+      },
+      "status": "resolved",
+      "result": {
+        "optionId": "no",
+        "explanation": "Drive result: Field goal. Morning Wood 27, Swiss Cheese 24."
+      }
+    }
+  }
+}
