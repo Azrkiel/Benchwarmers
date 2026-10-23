@@ -174,3 +174,14 @@
 .rd .rd-voice button[aria-pressed=true] { border-color:var(--lg-orange); box-shadow:inset 3px 0 var(--lg-orange); }
 .rd-voice small, .rd .ac small { color:var(--lg-muted); font-size:calc(var(--rd-s) * .65); max-width:16em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .rd-court-ball.is-stale { opacity:.35; }
+/* Accessibility stress (200% zoom of a compact screen, tiny windows): scroll instead of clipping. */
+@media (max-width:700px), (max-height:420px) {
+  .rd { height:auto; min-height:100dvh; overflow:visible; grid-template-rows:auto auto auto auto; }
+  .rd-top { flex-wrap:wrap; padding:6px 0; }
+  .rd-nav { order:3; flex-basis:100%; justify-content:flex-start; overflow-x:auto; }
+  .rd-view { overflow:visible; }
+  .rd-game { grid-template-columns:1fr; grid-template-areas:'call' 'leaders' 'court'; height:auto; }
+  .rd-score { grid-template-columns:1fr auto 1fr; }
+  .rd-ball { grid-column:1 / -1; justify-self:center; border:0; padding:0 0 6px; }
+  .rd-foot { flex-wrap:wrap; padding:8px 0; }
+}
