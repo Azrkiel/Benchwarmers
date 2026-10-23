@@ -109,6 +109,9 @@
 /* Standings, lineups and pagers */
 .rd-standings, .rd-lineups { height:100%; display:flex; flex-direction:column; gap:8px; min-height:0; }
 .rd-standings header { display:flex; justify-content:space-between; align-items:baseline; color:var(--lg-muted); }
+.rd-scroll { flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; border-radius:4px; }
+.rd-scroll::-webkit-scrollbar { display:none; }
+.rd-scroll:focus-visible { outline:2px solid var(--bw-action-edge, #d4172f); outline-offset:2px; }
 .rd-pager { margin-top:auto; display:flex; align-items:center; justify-content:center; gap:var(--rd-gap); color:var(--lg-muted); font-size:calc(var(--rd-s) * .85); }
 .rd-lineups ul { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--rd-gap); }
 .rd.is-medium .rd-lineups ul { grid-template-columns:repeat(3,minmax(0,1fr)); }
@@ -139,7 +142,6 @@
 .rd .rd-primary:disabled { background:var(--lg-raised); border-color:var(--lg-line); color:var(--lg-muted); }
 .rd-results.is-season { justify-content:flex-start; align-items:stretch; text-align:left; }
 .rd-results.is-season .rd-secondary { align-self:center; margin-top:auto; }
-.rd-more { color:var(--lg-muted); font-size:calc(var(--rd-s) * .8); text-align:center; }
 @keyframes rd-rise { from { opacity:0; translate:0 12px; } to { opacity:1; translate:0 0; } }
 
 /* Footer */

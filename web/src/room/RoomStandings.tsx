@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
 import type { RoomStanding } from '@shared/room';
 import { ScoreTick } from '../fx/fx';
 import { Face, points } from './components';
@@ -27,19 +27,52 @@ export function StandingRow({ row, highlight = false }: { row: RoomStanding; hig
   </li>;
 }
 
-export function RoomStandings({ rows, perPage, highlightId, title = 'Standings' }: { rows: RoomStanding[]; perPage: number; highlightId?: string; title?: string }) {
-  const pages = paginate(rows, perPage);
-  const [page, setPage] = useState(0);
-  useEffect(() => { if (page > pages.length - 1) setPage(pages.length - 1); }, [page, pages.length]);
-  const current = Math.min(page, pages.length - 1);
-  const first = current * Math.max(1, Math.floor(perPage)) + 1;
+export const AUTO_SCROLL_MS = 2500;
+const HOLD_AFTER_TOUCH_MS = 8000;
+
+/**
+ * Slowly steps a list down one row at a time when it is taller than its box, holds at the
+ * bottom, then returns to the top. Stops while someone scrolls by hand and under reduced motion.
+ */
+export function useAutoScroll(ref: RefObject<HTMLElement | null>, rowCount: number) {
+  const holdUntil = useRef(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let reduced = false;
+    try { reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false; } catch { /* no matchMedia */ }
+    if (reduced) return;
+    let atBottomTicks = 0;
+    const id = window.setInterval(() => {
+      if (Date.now() < holdUntil.current || el.scrollHeight <= el.clientHeight + 1) return;
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 2) {
+        if (++atBottomTicks < 2) return;
+        atBottomTicks = 0;
+        el.scrollTo?.({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      const row = el.querySelector('li')?.getBoundingClientRect().height || 40;
+      el.scrollBy?.({ top: row + 4, behavior: 'smooth' });
+    }, AUTO_SCROLL_MS);
+    return () => window.clearInterval(id);
+  }, [ref, rowCount]);
+  return () => { holdUntil.current = Date.now() + HOLD_AFTER_TOUCH_MS; };
+}
+
+/** A row list that shows as many rows as fit and auto-scrolls through the rest. */
+export function ScrollRows({ label, count, children }: { label: string; count: number; children: ReactNode }) {
+  const list = useRef<HTMLOListElement>(null);
+  const hold = useAutoScroll(list, count);
+  return <ol ref={list} className="rd-rows rd-scroll" tabIndex={0} aria-label={label}
+    onPointerDown={hold} onWheel={hold} onTouchStart={hold} onKeyDown={hold}>{children}</ol>;
+}
+
+/** Every participant in one list: as many rows as fit are shown, and the list auto-scrolls when there are more. */
+export function RoomStandings({ rows, highlightId, title = 'Standings' }: { rows: RoomStanding[]; highlightId?: string; title?: string }) {
   return <section className="rd-standings" aria-labelledby="rd-standings-title">
-    <header><h2 id="rd-standings-title">{title}</h2>{rows.length > 0 && <span aria-live="polite">{first}–{first + pages[current]!.length - 1} of {rows.length}</span>}</header>
-    {rows.length ? <ol className="rd-rows">{pages[current]!.map((row) => <StandingRow key={row.participantId} row={row} highlight={row.participantId === highlightId} />)}</ol> : <p className="rd-empty">No players yet. Join on your phone.</p>}
-    {pages.length > 1 && <nav className="rd-pager" aria-label="Standings pages">
-      <button disabled={current === 0} onClick={() => setPage(current - 1)}>Previous</button>
-      <span>Page {current + 1} of {pages.length}</span>
-      <button disabled={current === pages.length - 1} onClick={() => setPage(current + 1)}>Next</button>
-    </nav>}
+    <header><h2 id="rd-standings-title">{title}</h2>{rows.length > 0 && <span>{rows.length} {rows.length === 1 ? 'player' : 'players'}</span>}</header>
+    {rows.length ? <ScrollRows label={`${title}, ${rows.length} players`} count={rows.length}>
+      {rows.map((row) => <StandingRow key={row.participantId} row={row} highlight={row.participantId === highlightId} />)}
+    </ScrollRows> : <p className="rd-empty">No players yet. Scan the code to join.</p>}
   </section>;
 }

@@ -16,9 +16,9 @@ import { possessionTeamId, roomSport, sourceStatus, type RoomViewNext } from './
 export type DisplayLayout = 'compact' | 'medium' | 'tv';
 /** How much each layout shows. Type scale lives in CSS; these are content amounts, not a shrunken canvas. */
 export const LAYOUT = {
-  compact: { leaders: 3, standingsPage: 6, lineupsPage: 4, court: false, plays: 1 },
-  medium: { leaders: 5, standingsPage: 8, lineupsPage: 6, court: true, plays: 1 },
-  tv: { leaders: 6, standingsPage: 10, lineupsPage: 8, court: true, plays: 3 },
+  compact: { leaders: 3, lineupsPage: 4, court: false, plays: 1 },
+  medium: { leaders: 5, lineupsPage: 6, court: true, plays: 1 },
+  tv: { leaders: 6, lineupsPage: 8, court: true, plays: 3 },
 } as const;
 
 /** Picks the layout for a viewport when no explicit ?layout= override is given. */
@@ -78,7 +78,7 @@ function FeaturedCall({ view, remaining }: { view: RoomViewNext; remaining: numb
   const last = !question && view.lastQuestion?.result ? view.lastQuestion : undefined;
   const shown = question ?? last;
   const paused = view.room.phase === 'paused';
-  if (!shown) return <section className="rd-call is-empty" aria-label="Featured call"><span className="rd-eyebrow">Featured call</span><h2>Next call coming up</h2><p className="rd-muted">Answer on your phone or by voice.</p></section>;
+  if (!shown) return <section className="rd-call is-empty" aria-label="Featured call"><span className="rd-eyebrow">Featured call</span><h2>Next call coming up</h2><p className="rd-muted">Say your pick when it opens.</p></section>;
   const total = Object.values(shown.pickCounts).reduce((a, b) => a + b, 0);
   const status = shown.status as string;
   const secs = Math.ceil(remaining / 1000);
@@ -114,7 +114,7 @@ function Lobby({ view, joinUrl }: { view: RoomViewNext; joinUrl: string }) {
   const pregame = view.pregame;
   return <section className="rd-call rd-lobby" aria-label="Join">
     <span className="rd-eyebrow">Pregame</span>
-    <h2>Join on your phone</h2>
+    <h2>Scan to join</h2>
     <div className="rd-lobby-join"><JoinQr url={joinUrl} /><div><b className="rd-code">{view.room.code}</b><small>{joinUrl.replace(/^https?:\/\//, '')}</small></div></div>
     <p className="rd-call-status"><span>{ready} of {view.room.participantCount} lineups ready</span>{pregame && <span>Winner picks: {[view.game.away, view.game.home].map((t) => `${t.short} ${pregame.pickCounts[t.id] ?? 0}`).join(' · ')}</span>}</p>
   </section>;
@@ -161,7 +161,7 @@ export function RoomDisplay({ view: input, layout, current, onView, joinUrl, sta
     <ScoreStrip view={view} />
     {sourceStale && <p className="rd-stale" role="status">Showing last update · Reconnecting</p>}
     <div id="rd-view" className={`rd-view is-${current}`} role="tabpanel" aria-labelledby={`rd-tab-${current}`}>
-      {current === 'game' && (final ? <RoomResults view={view as RoomView} host={host} seasonRows={config.standingsPage} /> : <div className="rd-game">
+      {current === 'game' && (final ? <RoomResults view={view as RoomView} host={host} /> : <div className="rd-game">
         {phase === 'lobby' ? <Lobby view={view} joinUrl={joinUrl} /> : <FeaturedCall view={view} remaining={remaining} />}
         <aside className="rd-leaders" aria-label="Room leaders">
           <h2>Room leaders</h2>
@@ -170,10 +170,10 @@ export function RoomDisplay({ view: input, layout, current, onView, joinUrl, sta
         </aside>
         {config.court && <div className="rd-court-slot">{court}</div>}
       </div>)}
-      {current === 'standings' && <RoomStandings rows={view.standings} perPage={config.standingsPage} highlightId={highlightId} title={final ? 'Tonight' : 'Standings'} />}
+      {current === 'standings' && <RoomStandings rows={view.standings} highlightId={highlightId} title={final ? 'Tonight' : 'Standings'} />}
       {current === 'lineups' && <Lineups view={view} perPage={config.lineupsPage} />}
       {current === 'calls' && <CallsList calls={calls ?? []} standings={view.standings} />}
-      {current === 'results' && (final ? <RoomResults view={view as RoomView} host={host} seasonRows={config.standingsPage} /> : <p className="rd-empty">Results open at the final buzzer.</p>)}
+      {current === 'results' && (final ? <RoomResults view={view as RoomView} host={host} /> : <p className="rd-empty">Results open at the final buzzer.</p>)}
     </div>
     <footer className="rd-foot">
       {!config.court && basketball && phase !== 'lobby' && <span className="rd-foot-ball">{court}</span>}

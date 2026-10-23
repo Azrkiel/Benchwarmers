@@ -71,7 +71,7 @@ describe('room display', () => {
 
   it('shows the join code in the lobby and the winner at final', () => {
     display(basketballFixture('lobby'));
-    expect(screen.getByRole('heading', { name: 'Join on your phone' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Scan to join' })).toBeTruthy();
     cleanup();
     display(basketballFixture('final'));
     expect(screen.getByRole('heading', { name: 'Winner' })).toBeTruthy();

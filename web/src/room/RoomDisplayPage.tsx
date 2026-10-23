@@ -34,7 +34,7 @@ function useViewport() {
 
 function questionStatus(view: RoomViewNext): string {
   const q = view.question!;
-  return q.status === 'open' ? 'Call open · answer on your phone' : q.status === 'locked' ? 'Call locked' : 'Call resolved';
+  return q.status === 'open' ? 'Call open · say your pick' : q.status === 'locked' ? 'Call locked' : 'Call resolved';
 }
 
 /** Shared room display. `?layout=compact|medium|tv` overrides the responsive default for QA. */
