@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { BrandLockup } from '../brand/Brand';
+import { sharedAudio } from '../fx/audio';
+import { AudioControls } from '../fx/AudioControls';
+import { BasketballCelebration } from '../fx/BasketballCelebration';
+import { prefersReducedMotion, useCelebrations } from '../fx/celebrations';
 import { basketballFixture, FIXTURE_STATES, type FixtureState } from './fixtures/basketball';
 import { layoutFor, RoomDisplay, type DisplayLayout } from './RoomDisplay';
 import { ROOM_VIEWS, type RoomViewId } from './RoomNav';
-import type { RoomViewNext } from './sport';
+import { roomSport, type RoomViewNext } from './sport';
 import { useRoom } from './useRoom';
 import './room.css';
 import './broadcast.css';
@@ -22,6 +26,11 @@ function useViewport() {
   return size;
 }
 
+function questionStatus(view: RoomViewNext): string {
+  const q = view.question!;
+  return q.status === 'open' ? 'Call open · answer on your phone' : q.status === 'locked' ? 'Call locked' : 'Call resolved';
+}
+
 /** Shared room display. `?layout=compact|medium|tv` overrides the responsive default for QA. */
 export function RoomDisplayPage() {
   const code = (useParams().code ?? '').toUpperCase();
@@ -30,7 +39,14 @@ export function RoomDisplayPage() {
   const fixtureParam = import.meta.env.DEV ? params.get('fixture') : null;
   const fixtureState = FIXTURE_STATES.includes(fixtureParam as FixtureState) ? fixtureParam as FixtureState : null;
   const room = useRoom(code, true, !fixtureState);
-  const [fixture] = useState(() => fixtureState ? basketballFixture(fixtureState, Number(params.get('players')) || 4) : null);
+  const [fixture, setFixture] = useState(() => fixtureState ? basketballFixture(fixtureState, Number(params.get('players')) || 4) : null);
+  // QA aid: ?fixture=open&basket=1 resolves the fixture call with a Harbor three after 1.5 s.
+  useEffect(() => {
+    if (!fixtureState || params.get('basket') !== '1') return;
+    const timer = setTimeout(() => setFixture(basketballFixture('resolved', Number(params.get('players')) || 4)), 1500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const view: RoomViewNext | undefined = fixture ?? room.view;
   const { w, h } = useViewport();
   const override = params.get('layout') as DisplayLayout | null;
@@ -39,6 +55,12 @@ export function RoomDisplayPage() {
   const [current, setCurrent] = useState<RoomViewId>(requested && ROOM_VIEWS.includes(requested) ? requested : 'game');
   const root = useRef<HTMLDivElement>(null);
   const final = view?.room.phase === 'final';
+  const [reducedMotion] = useState(prefersReducedMotion);
+  const audio = sharedAudio();
+  const { celebration, coalesced, corrected } = useCelebrations(view && { sport: roomSport(view), home: view.game.home, away: view.game.away, plays: view.game.recentPlays }, { reducedMotion });
+  const [correction, setCorrection] = useState(false);
+  useEffect(() => { if (!corrected) return; setCorrection(true); const timer = setTimeout(() => setCorrection(false), 4000); return () => clearTimeout(timer); }, [corrected]);
+  useEffect(() => () => audio.stop(), [audio]);
   useEffect(() => { if (current === 'results' && view && !final) setCurrent('game'); }, [current, final, view]);
 
   function change(next: RoomViewId) {
@@ -57,6 +79,8 @@ export function RoomDisplayPage() {
   if (!view) return <main className="rd rd-loading"><BrandLockup size={36} /><h1>{room.error ? 'Room unavailable' : 'Opening display…'}</h1>{room.error ? <><p role="alert">Could not open room {code}.</p><button onClick={room.retry}>Retry</button><Link to={`/?join=${encodeURIComponent(code)}`}>Edit party code</Link></> : <p role="status">Connecting to {code}</p>}</main>;
   const joinUrl = `${window.location.origin}/room/${encodeURIComponent(view.room.code)}`;
   return <div ref={root} onKeyDown={onKeyDown} className="rd-root">
-    <RoomDisplay view={view} layout={layout} current={current} onView={change} joinUrl={joinUrl} stale={!fixture && room.stale} host={!!room.credentials.hostToken} fixture={!!fixture} />
+    <RoomDisplay view={view} layout={layout} current={current} onView={change} joinUrl={joinUrl} stale={!fixture && room.stale} host={!!room.credentials.hostToken} fixture={!!fixture}
+      voice={<>{correction && <span className="rd-correction" role="status">Score corrected</span>}<AudioControls audio={audio} /></>}
+      overlay={<BasketballCelebration celebration={celebration} coalesced={coalesced} reducedMotion={reducedMotion} audio={audio} status={view.question ? questionStatus(view) : undefined} />} />
   </div>;
 }

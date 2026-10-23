@@ -157,3 +157,14 @@
 @media (prefers-reduced-motion:reduce) { .rd-results { animation:none; } .rd-option .rd-share, .rd-timer i { transition:none; } }
 
 .rd .rm-field-wrap { width:100%; align-self:end; }
+
+.rd .bc { --bc-top:calc(var(--rd-top) + var(--rd-score)); }
+.rd-foot-voice { display:flex; align-items:center; justify-content:flex-end; gap:10px; }
+.rd .ac { display:inline-flex; align-items:center; gap:10px; }
+.rd .ac button { min-height:40px; font-size:calc(var(--rd-s) * .75); }
+.rd .ac-volume { display:inline-flex; align-items:center; gap:6px; font-size:calc(var(--rd-s) * .7); color:var(--lg-muted); }
+.rd .ac-volume input { width:90px; accent-color:var(--lg-orange); }
+.rd.is-compact .ac-volume { display:none; }
+.rd-correction { color:var(--bw-warning); font-weight:600; font-size:calc(var(--rd-s) * .8); }
+.rd.is-compact .rd-source-label { display:none; }
+.rd.is-compact .rd-foot-voice:not(:has(.ac)) .rd-source-label { display:inline; }

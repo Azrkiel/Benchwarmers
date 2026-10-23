@@ -73,7 +73,8 @@ export function basketballFixture(state: FixtureState, participants = 4, now = D
       possession: live ? 'harbor' : null, driveNumber: 0, driveCount: 0, isScripted: true,
       recentPlays: live ? [
         { id: 'bb-e-118', text: 'Kai Thompson layup. Summit 39.', kind: 'score', quarter: 3, clock: '4:41' },
-        { id: 'bb-e-121', text: state === 'resolved' ? 'Tommy Okafor three from the wing.' : 'Defensive rebound, Grant Whitfield.', kind: state === 'resolved' ? 'score' : 'stat', quarter: 3, clock: '4:18' },
+        { id: 'bb-e-121', text: 'Defensive rebound, Grant Whitfield.', kind: 'stat', quarter: 3, clock: '4:18' },
+        ...(state === 'resolved' ? [{ id: 'bb-e-124', text: 'Tommy Okafor three from the wing.', kind: 'score', quarter: 3, clock: '4:02' }] : []),
       ] : [],
       gameId: 'harbor-vs-summit', sport: 'basketball', sourceMode: 'scripted', sourceStatus: state === 'stale' ? 'stale' : 'healthy',
       context: { sport: 'basketball', possessionTeamId: live ? 'harbor' : null, possessionPlayerId: null, ball: null, tracking: live ? 'team_possession' : 'score_only' },
