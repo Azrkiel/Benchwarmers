@@ -1,5 +1,7 @@
 # Player-created calls backend checkpoint
 
+> Follow-up: [pregame winner backend](PREGAME_BACKEND.md) adds the gated free winner target and fictional-source fallback. [Live basketball access](LIVE_BASKETBALL.md) records the synthetic provider boundary and remaining access gates.
+
 October 23, 2026. Continues `77d16d0` on `feature/basketball-backend`. Implements Worker A's P11.1–P11.4 and P11.6 for the two initial templates. Worker B's composer, parser/MCP binding and shared-display notices remain pending. The ordinary application entry point still disables commitments. This is an isolated backend delivery, not the Phase 09 demo gate or end-to-end Phase 11 acceptance.
 
 ## Available behavior

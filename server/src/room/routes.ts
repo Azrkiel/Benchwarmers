@@ -17,6 +17,7 @@ export const commitmentQuoteSchema=z.object({participantToken:token,questionId:z
 export const commitmentAcceptSchema=z.object({participantToken:token,quoteId:z.string().min(1).max(100),requestId:z.string().regex(/^[A-Za-z0-9_-]{1,128}$/)});
 export const commitmentConfirmSchema=commitmentAcceptSchema.omit({quoteId:true});
 export const playerCallQuoteSchema=z.object({participantToken:token,templateId:z.enum(['next_score_team','next_made_field_goal_value']),anchorSequence:z.number().int().nonnegative().safe(),horizonGameElapsedMs:z.number().int().nonnegative().safe(),optionId:z.string().min(1).max(50),commitPoints:z.union([z.literal(10),z.literal(25),z.literal(50)])}).strict();
+export const pregamePickSchema=z.object({participantToken:token,requestId:z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),optionId:z.string().min(1).max(50)}).strict();
 
 export function createRoomRouter(store:RoomStore):express.Router {
   const router=express.Router();
@@ -42,6 +43,8 @@ export function createRoomRouter(store:RoomStore):express.Router {
   router.post('/:code/lineup',(req,res)=>res.json(store.setLineup(req.params.code,lineupSchema.parse(req.body))));
   router.post('/:code/auto-lineup',(req,res)=>res.json(store.autoLineup(req.params.code,autoLineupSchema.parse(req.body))));
   router.post('/:code/picks',(req,res)=>res.json(store.pick(req.params.code,pickSchema.parse(req.body))));
+  router.get('/:code/pregame-reference',(req,res)=>res.json(store.pregameReference(req.params.code)));
+  router.post('/:code/pregame-picks',(req,res)=>res.json(store.pickPregame(req.params.code,pregamePickSchema.parse(req.body))));
   router.get('/:code/call-catalog',(req,res)=>res.json(store.callCatalog(req.params.code)));
   router.post('/:code/call-quotes',(req,res)=>res.json(store.quotePlayerCall(req.params.code,playerCallQuoteSchema.parse(req.body))));
   router.post('/:code/calls',(req,res)=>res.json(store.acceptPlayerCall(req.params.code,commitmentAcceptSchema.strict().parse(req.body))));

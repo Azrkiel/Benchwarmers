@@ -6,6 +6,7 @@ export type RoomReplayBeat = { type: string; deltas: [string, string, number][];
 /** Pure sport behavior only: no credentials, disk, HTTP, or rendering. */
 export interface RoomSportAdapter<Beat extends RoomReplayBeat = RoomReplayBeat> {
   readonly gameId: string;
+  readonly fictional?: boolean;
   readonly sport: RoomGameMetadata['sport'];
   readonly rulesVersion: string;
   readonly defaultRoomName: string;

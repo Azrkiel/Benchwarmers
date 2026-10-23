@@ -10,6 +10,7 @@ import { pointsToUnits, validatePointsState } from './points/ledger.js';
 import { playerCallSchema } from './calls/model.js';
 import type { PlayerCallDraft } from './calls/model.js';
 import { canonicalTargetKey, canonicalTargetId } from './calls/catalog.js';
+import { pregameSchema } from './pregame/model.js';
 
 const finite = z.number().finite();
 const nonnegative = finite.nonnegative();
@@ -35,7 +36,7 @@ const legacyRoom = z.object({
   participants: z.array(participant), beatIndex: finite.int().min(-1), elapsedMs: nonnegative, durationMs: nonnegative,
   windowElapsedMs: nonnegative, lastTickAt: finite, stats, question: question.optional(), lastQuestion: question.optional(), recorded: z.boolean(),
 });
-const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional(), points:pointsStateSchema.optional(), playerCalls:z.array(playerCallSchema).optional() });
+const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional(), points:pointsStateSchema.optional(), playerCalls:z.array(playerCallSchema).optional(), pregame:pregameSchema.optional() });
 const season = z.object({ id, name: id, identities: z.array(identity), standings: z.array(z.object({
   participantId: id, name: id, points: finite, fantasyPoints: finite, predictionPoints: finite,
   nightsPlayed: nonnegative.int(), nightsWon: nonnegative.int(),
@@ -76,6 +77,26 @@ export function validateSavedRooms(input: unknown): SavedRooms {
     unique((r.pickReceipts??[]).map(receipt=>JSON.stringify([receipt.participantId,receipt.requestId])), 'pick receipt request');
     let previousAcceptance=0;
     for(const receipt of r.pickReceipts??[]){if(!r.participants.some(p=>p.id===receipt.participantId)||receipt.acceptanceSequence<=previousAcceptance)invalid('pick receipt references or ordering');previousAcceptance=receipt.acceptanceSequence;}
+    if(r.pregame){
+      const pregame=r.pregame,game=adapter.projectGame(r.beatIndex,r.phase),teamIds=[game.home.id,game.away.id];
+      if(adapter.sport!=='basketball'||(r.phase==='lobby')!==(pregame.status==='open')||(r.phase==='final')!==(pregame.status==='resolved'||pregame.status==='void'))invalid('pregame phase');
+      if((pregame.status==='open')!==(pregame.lockedAt===undefined))invalid('pregame cutoff');
+      if((pregame.status==='resolved')!==!!pregame.result||(pregame.status==='void')!==!!pregame.voidReason)invalid('pregame outcome');
+      if(pregame.result&&(game.home.score===game.away.score||pregame.result.optionId!==(game.home.score>game.away.score?game.home.id:game.away.id)))invalid('pregame winner');
+      if(pregame.status==='void'&&game.home.score!==game.away.score)invalid('pregame void');
+      for(const [participantId,pick] of Object.entries(pregame.picks)){
+        if(!r.participants.some(p=>p.id===participantId)||!teamIds.includes(pick.optionId)||(pregame.lockedAt!==undefined&&pick.acceptedAt>pregame.lockedAt))invalid('pregame pick');
+        if(!(r.pickReceipts??[]).some(receipt=>receipt.participantId===participantId&&receipt.questionId===pregame.id&&receipt.optionId===pick.optionId&&receipt.acceptedAt===pick.acceptedAt))invalid('pregame pick receipt');
+      }
+      for(const p of r.participants){
+        const correct=pregame.status==='resolved'&&pregame.picks[p.id]?.optionId===pregame.result!.optionId;
+        if(correct&&p.predictionPoints<pregame.correctPoints)invalid('pregame reward');
+        if(r.points){
+          const reward=r.points.entries.find(entry=>entry.id===`reward:${JSON.stringify([p.id,pregame.id])}`);
+          if(correct?(!reward||reward.units!==pregame.correctPoints*2||reward.reason!=='free_pick_reward'||reward.participantId!==p.id):!!reward)invalid('pregame reward ledger');
+        }
+      }
+    }
     if(r.points){
       validatePointsState(r.points);
       for(const record of [...r.points.entries,...r.points.calls,...r.points.quotes,...r.points.pending])if(!r.participants.some(p=>p.id===record.participantId))invalid('points participant reference');

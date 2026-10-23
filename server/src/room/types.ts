@@ -1,5 +1,6 @@
 /** Browser-safe room snapshots. Credentials exist only in create/join results. */
 import type { CallBank, CommitmentReceipt } from '../shared/points.js';
+import type { PregameView } from '../shared/pregame.js';
 export type SourceMode = 'scripted' | 'live';
 export type SourceStatus = 'healthy' | 'delayed' | 'stale' | 'unavailable';
 export type CourtPoint = { x: number; y: number };
@@ -27,8 +28,8 @@ type RoomTeam = {id:string;short:string;name:string;color:string;score:number};
 export type RoomView = Partial<RoomSnapshotMetadata> & {
  room:RoomSummary;
  game:Partial<RoomGameMetadata> & {title:string;home:RoomTeam;away:RoomTeam;quarter:number;clock:string;situation:string;ballOn:number;fieldX:number;possession:string|null;driveNumber:number;driveCount:number;recentPlays:{id:string;text:string;kind:string;quarter:number;clock:string}[];isScripted:true};
- rules:RoomRules;players:RoomPlayer[];standings:RoomStanding[];question?:RoomQuestion;lastQuestion?:RoomQuestion;calls?:RoomPlayerCall[];
- me?:{participantId:string;name:string;lineup?:RoomLineup;currentPick?:{questionId:string;optionId:string};bank?:CallBank;commitments?:CommitmentReceipt[]};
+ rules:RoomRules;players:RoomPlayer[];standings:RoomStanding[];question?:RoomQuestion;lastQuestion?:RoomQuestion;calls?:RoomPlayerCall[];pregame?:PregameView;
+ me?:{participantId:string;name:string;lineup?:RoomLineup;currentPick?:{questionId:string;optionId:string};bank?:CallBank;commitments?:CommitmentReceipt[];pregamePick?:{optionId:string;acceptedAt:number}};
  season:{id:string;name:string;standings:RoomSeasonStanding[]};
 };
 export type RoomSnapshot = RoomView & RoomSnapshotMetadata & { game: RoomView['game'] & RoomGameMetadata; receipt?: PickReceipt };

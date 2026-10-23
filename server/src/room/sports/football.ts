@@ -10,7 +10,7 @@ export const FOOTBALL_GAME_ID = 'morning-wood-vs-swiss-cheese';
 export const FOOTBALL_RULES_VERSION = 'football-v1';
 
 export const football: RoomSportAdapter<Beat> = {
-  gameId: FOOTBALL_GAME_ID, sport: 'football', rulesVersion: FOOTBALL_RULES_VERSION,
+  gameId: FOOTBALL_GAME_ID, fictional: true, sport: 'football', rulesVersion: FOOTBALL_RULES_VERSION,
   defaultRoomName: 'Football Watch Party', rules: DEFAULT_RULES,
   players: PLAYERS, playerById: PLAYER_BY_ID, beats: timeline.beats, minimumResponseMs: 5000,
   duration(beat, speed) {

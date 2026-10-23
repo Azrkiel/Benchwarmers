@@ -22,7 +22,7 @@ function clockAt(gameElapsedMs: number) {
   return { quarter, clock: `${Math.floor(remaining / 60)}:${String(Math.floor(remaining % 60)).padStart(2, '0')}` };
 }
 export const basketball: RoomSportAdapter<Beat> = {
-  gameId: BASKETBALL_GAME_ID, sport: 'basketball', rulesVersion: BASKETBALL_RULES_VERSION,
+  gameId: BASKETBALL_GAME_ID, fictional: true, sport: 'basketball', rulesVersion: BASKETBALL_RULES_VERSION,
   defaultRoomName: 'Basketball Watch Party', rules: basketballRules,
   players: basketballPlayers, playerById: Object.fromEntries(basketballPlayers.map(p => [p.id, p])), beats,
   minimumResponseMs: 8000,
