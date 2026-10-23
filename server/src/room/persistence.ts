@@ -5,6 +5,8 @@ import { z } from 'zod';
 import type { SavedRooms } from './domain.js';
 import { FOOTBALL_GAME_ID, getRoomSportAdapter } from './sports/index.js';
 import { FOOTBALL_RULES_VERSION } from './sports/football.js';
+import { pointsStateSchema } from './points/model.js';
+import { pointsToUnits, validatePointsState } from './points/ledger.js';
 
 const finite = z.number().finite();
 const nonnegative = finite.nonnegative();
@@ -30,7 +32,7 @@ const legacyRoom = z.object({
   participants: z.array(participant), beatIndex: finite.int().min(-1), elapsedMs: nonnegative, durationMs: nonnegative,
   windowElapsedMs: nonnegative, lastTickAt: finite, stats, question: question.optional(), lastQuestion: question.optional(), recorded: z.boolean(),
 });
-const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional() });
+const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional(), points:pointsStateSchema.optional() });
 const season = z.object({ id, name: id, identities: z.array(identity), standings: z.array(z.object({
   participantId: id, name: id, points: finite, fantasyPoints: finite, predictionPoints: finite,
   nightsPlayed: nonnegative.int(), nightsWon: nonnegative.int(),
@@ -71,6 +73,15 @@ export function validateSavedRooms(input: unknown): SavedRooms {
     unique((r.pickReceipts??[]).map(receipt=>JSON.stringify([receipt.participantId,receipt.requestId])), 'pick receipt request');
     let previousAcceptance=0;
     for(const receipt of r.pickReceipts??[]){if(!r.participants.some(p=>p.id===receipt.participantId)||receipt.acceptanceSequence<=previousAcceptance)invalid('pick receipt references or ordering');previousAcceptance=receipt.acceptanceSequence;}
+    if(r.points){
+      validatePointsState(r.points);
+      for(const record of [...r.points.entries,...r.points.calls,...r.points.quotes,...r.points.pending])if(!r.participants.some(p=>p.id===record.participantId))invalid('points participant reference');
+      for(const p of r.participants){
+        if(!r.points.entries.some(entry=>entry.participantId===p.id&&entry.reason==='grant'))invalid('missing participant bank');
+        const rewards=r.points.entries.filter(entry=>entry.participantId===p.id&&entry.reason==='free_pick_reward').reduce((sum,entry)=>sum+BigInt(entry.units),0n);
+        if(rewards!==BigInt(pointsToUnits(p.predictionPoints)))invalid('free reward ledger');
+      }
+    }
     for (const p of r.participants) {
       if (!s.identities.some(i => i.id === p.id && i.token === p.token && i.name === p.name)) invalid('participant identity');
       if (p.lineup) {
