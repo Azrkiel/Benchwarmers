@@ -41,7 +41,8 @@ Not covered by this run: a spoken command through a real microphone, restart mid
 | P08.1 | Done | Via P00.3. |
 | P08.2-P08.6 | Done | SVG ball/hoop/confetti, unseen-score-event trigger, bounded queue, synthesized sound with explicit enable/mute/volume, reduced-motion banner. |
 | P08.7 | Done | Winner/tied winners first; Season after 6 s (host earlier); reload quiet. |
-| P10.6, P10.8, P11.5, P11.7, P13.4, P13.5 | Built, dormant | Screens and tests done against the plan's contracts (`CommitPoints`, `BankPanel`, `CreateCall`, `Calls`, `PregamePick`); hidden until the snapshot carries the fields. Exact field/route requests: `CONTRACT_REQUESTS.md`. Dev preview `/preview/points`. Voice commitment phrases parse to commit commands that refuse without mutating until A's P10.7 service exists. Not connected: A's services do not exist yet. |
+| P10.6, P10.8 | Connected (points rooms) | Merged A's `77d16d0`; UI/voice/MCP use A's service. Browser run on a points-enabled rehearsal server (authored test probabilities, outside the repo): phone commit 25 on Harbor Hawks -> won (+30); simulator voice 'put 10 points on Two' -> offer read with stake/return/max loss, plain 'yes' ignored, 'confirm' committed -> lost (-10); settled net +20, bank 132.5, public snapshot has no bank. Script/captures `docs/qa/worker-b/points/`. Points stay off by default (A's gate). |
+| P11.5, P11.7, P13.4, P13.5 | Built, dormant | Screens and tests done against the plan's contracts (`CommitPoints`, `BankPanel`, `CreateCall`, `Calls`, `PregamePick`); hidden until the snapshot carries the fields. Exact field/route requests: `CONTRACT_REQUESTS.md`. Dev preview `/preview/points`. Voice commitment phrases parse to commit commands that refuse without mutating until A's P10.7 service exists. Not connected: A's services do not exist yet. |
 | P14.2-P14.6 | Dropped (owner decision) | No Alexa and no physical device: the simulated experience is the device story. Replaced by the room smart-display simulator `/display/room/:code` (real MCP `tools/list` + `room_ask`, presets incl. 960x480, explicit Speaking-as). See `DEVICE_AND_TRACKING.md`. |
 | P15.3-P15.4 | Done (prototype + assessment) | Bounded ball tracking in `BasketballCourt`; benefit assessment in `DEVICE_AND_TRACKING.md`. |
 
@@ -59,11 +60,12 @@ No root scripts, manifests, lockfile, deployment config, or A-owned files were e
 3. Basketball `recentPlays` kinds `score` / `final` drive celebrations and announcements; please keep those names.
 4. `projectedPoints` on `RoomPlayer` (your in-progress name) is what the lineup sorts by.
 
-**To Worker C:** `docs/DEMO_SCRIPT.md`, `docs/SUBMISSION.md`, `docs/MCP_HOSTS.md` still say 22 tools; it is 23 after `room_ask`. No dependency or script request.
+**To Worker C:** `docs/DEMO_SCRIPT.md`, `docs/SUBMISSION.md`, `docs/MCP_HOSTS.md` still say 22 tools; it is 25 now (`room_ask`, `room_quote_commitment`, `room_commit_points`). No dependency or script request.
 
 ## Commands and observed results (latest run)
 
 - `npx vitest run --root web`: 598 passed.
+- Server after A's points merge: 61 files, 861 passed (maxWorkers=6).
 - `npx vitest run --root server --maxWorkers=6`: 52 files, 831 passed (includes A's basketball suites).
 - `npm run typecheck` (server, widget, web): passed. `npm run build:widget -w server`: passed.
 - Chromium (Playwright, headless): homepage 5 viewports; display 6 fixture states x 960x480 / 1280x800 / 1920x1080; live football room display + Escape focus; phone 360x800 join -> auto-lineup -> live pick "✓ Touchdown accepted", no horizontal overflow; celebration timed frames (score already updated at overlay mount, ball reaches rim ~1.1 s, label ~1.1-2.0 s, removed by ~2.2 s; reduced motion 1.4 s static banner; focus unchanged; pointer-events none).

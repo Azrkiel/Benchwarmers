@@ -101,7 +101,7 @@ export function RoomPage() {
     </> : <>
       <section className="rm-personal-score" aria-label="Your score">
         <div><span>You · {view.me?.name}{me ? ` · ${ordinal(me.rank)}` : ''}</span><strong><ScoreTick value={points(me?.total ?? 0)} /></strong><span>Total pts</span></div>
-        <div><span>Lineup pts</span><b>{points(me?.fantasyPoints ?? 0)}</b></div><div><span>Pick pts</span><b>{points(me?.predictionPoints ?? 0)}</b></div><div><span>Streak</span><b>{me?.streak ?? 0}</b></div>
+        <div><span>Lineup pts</span><b>{points(me?.fantasyPoints ?? 0)}</b></div><div><span>Pick pts</span><b>{points(me?.predictionPoints ?? 0)}</b></div>{(view.me as (typeof view.me & PointsMeFields) | undefined)?.bank ? <div><span>Calls</span><b>{(me?.settledRiskNet ?? 0) > 0 ? '+' : ''}{points(me?.settledRiskNet ?? 0)}</b></div> : <div><span>Streak</span><b>{me?.streak ?? 0}</b></div>}
       </section>
       <RoomNav current={current} onChange={choose} final={final} controls="rm-view" labels={PHONE_LABELS} views={PHONE_VIEWS} className="rm-phone-nav" idPrefix="rm-tab" />
       <div id="rm-view" role="tabpanel" aria-labelledby={`rm-tab-${current}`} className="rm-view">
