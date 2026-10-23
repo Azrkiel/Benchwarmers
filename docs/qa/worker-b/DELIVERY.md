@@ -2,9 +2,24 @@
 
 Date: 2026-10-23. Branch `feature/basketball-product`, worktree `C:/Users/jiang/Benchwarmers-basketball-product`.
 Base `bc00daa` (origin/main). Merged Worker A checkpoint `d6a1098` (football adapter + additive contract) at `ba5236f`.
-Commit range: `bc00daa..b115a59` (pushed to `origin/feature/basketball-product`).
+Commit range: `bc00daa..HEAD` of `feature/basketball-product` (pushed to `origin/feature/basketball-product`).
 
-This is a delivery of B's surfaces against A's first checkpoint. **Basketball rooms are not connected yet**: A has not registered the basketball adapter, so every basketball screen shown here uses the labeled fixture (`?fixture=`) or a football room. The connected basketball scenario is still owed after A's next delivery.
+Update (same day): A's `fdfea9c` (playable basketball replay + durable receipts) is merged at `32190ea`, and the connected basketball scenario below now runs against a real `harbor-vs-summit` room. Earlier captures in this folder that show a "Fixture" badge remain layout evidence only.
+
+## Connected basketball scenario (real room, no fixtures)
+
+Script: `docs/qa/worker-b/connected/connected-qa.cjs` (Playwright, headless Chromium; dev server `PORT=3011 AI_MODE=fallback ASSISTANT_MODE=offline`, Vite on 5211). Observed run, room `D15736`:
+
+1. Homepage -> Host a party (basketball preselected) -> room created with `gameId=harbor-vs-summit`.
+2. Maya (390x844) joins and builds a manual lineup (captain + 4 flex, $41,500 / $50,000) and saves it; Leo joins from the homepage join form (name carried over) and auto-picks.
+3. Shared display at 960x480 shows the lobby join code/QR, then live play.
+4. Host starts at 4x from the phone's host controls.
+5. Three calls answered on both phones; all six showed server receipts, e.g. "✓ Harbor Hawks accepted at 4:07:01 AM" (`c3-maya-pick-0.png`).
+6. Display celebrated baskets with captions ("Two for the Hawks.", `c4-display-celebration-0.png`); 17 distinct celebration states observed over the game.
+7. Final: API `SUM 56 HAR 57 phase final`; display score strip matches; display shows the winner (Leo, 84.4) before season standings (`c5-display-final.png`); Maya's phone moved to the Results tab (`c6-maya-final.png`).
+8. No page errors on any of the three pages.
+
+Not covered by this run: a spoken command through a real microphone, restart mid-question, 32 clients. Note for C: all QA rooms default to season `demo-season`, so repeated runs add same-named participants to that season (A's identity rules, not a UI defect).
 
 ## Task status
 
@@ -39,7 +54,7 @@ No root scripts, manifests, lockfile, deployment config, or A-owned files were e
 
 **To Worker A (exact):**
 1. Register the playback router in `routes.ts`: `router.use('/:code/playback', createPlaybackRouter(leases, (code, token) => /* true iff token is this room's host credential */))` with one shared `new PlaybackLeases()`. A read-only host check on `RoomStore` (e.g. `isHost(code, token): boolean`) is needed for the takeover path. Until then the client labels sound "This browser only".
-2. Keep `receipt` on the pick response (`RoomSnapshot.receipt`, as in your in-progress types); the client already reads it.
+2. Done on your side (`fdfea9c`): the phone uses `receipt` and `GET /receipts/:requestId`; voice and `room_predict` send stable request ids (derived when a client omits one).
 3. Basketball `recentPlays` kinds `score` / `final` drive celebrations and announcements; please keep those names.
 4. `projectedPoints` on `RoomPlayer` (your in-progress name) is what the lineup sorts by.
 
@@ -47,8 +62,8 @@ No root scripts, manifests, lockfile, deployment config, or A-owned files were e
 
 ## Commands and observed results (latest run)
 
-- `npx vitest run --root web`: 566 passed.
-- `npx vitest run --root server --maxWorkers=6`: 45 files, 780 passed.
+- `npx vitest run --root web`: 569 passed.
+- `npx vitest run --root server --maxWorkers=6`: 52 files, 829 passed (includes A's basketball suites).
 - `npm run typecheck` (server, widget, web): passed. `npm run build:widget -w server`: passed.
 - Chromium (Playwright, headless): homepage 5 viewports; display 6 fixture states x 960x480 / 1280x800 / 1920x1080; live football room display + Escape focus; phone 360x800 join -> auto-lineup -> live pick "✓ Touchdown accepted", no horizontal overflow; celebration timed frames (score already updated at overlay mount, ball reaches rim ~1.1 s, label ~1.1-2.0 s, removed by ~2.2 s; reduced motion 1.4 s static banner; focus unchanged; pointer-events none).
 
