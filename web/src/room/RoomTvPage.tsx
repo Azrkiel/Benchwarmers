@@ -1,5 +1,6 @@
-﻿import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+﻿import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { renderSVG } from 'uqr';
 import { BrandLockup } from '../brand/Brand';
 import { PlayBanner } from '../fx/fx';
 import { Face, FinalPodium, FootballField, HostControls, Leaderboard, PlayFeed, Question, RoomRules, RoomScore } from './components';
@@ -7,6 +8,11 @@ import { useRoomMoments } from './moments';
 import { useRoom } from './useRoom';
 import './room.css';
 import './broadcast.css';
+
+function JoinQr({ url }: { url: string }) {
+  const svg = useMemo(() => renderSVG(url, { border: 3, ecc: 'M', pixelSize: 1, whiteColor: '#ffffff', blackColor: '#0b0b0d' }), [url]);
+  return <span className="rm-join-qr" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg }} />;
+}
 
 const targets = 'a[href],button:not(:disabled),summary,[tabindex="0"]';
 function visible(element: HTMLElement) {
@@ -90,7 +96,7 @@ export function RoomTvPage() {
   const phase = view.room.phase;
   const ready = view.standings.filter((row) => row.roster.length === view.rules.flexSlots + 1).length;
   return <main className={`rm rm-tv is-${phase}`} ref={root} onKeyDown={navigateRemote}>
-    <div className="rm-tv-top"><header className="rm-tv-header"><BrandLockup size={34} /><div><h1>{view.room.name}</h1><span>{view.room.participantCount} {view.room.participantCount === 1 ? 'player' : 'players'} in the room</span></div><a data-tv-first className="rm-join-code" href={joinPath} aria-label={`Join on your phone: ${joinUrl}`}><span>Join on your phone</span><b>{code}</b><small>{joinUrl}</small></a></header><div className="rm-connection" aria-live="polite">{stale && <span>Reconnecting · Last update{updatedAt ? ` ${new Date(updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ' unavailable'}</span>}</div>{error && <p className="rm-error" role="alert">Could not update room. Showing the last available state. <button onClick={retry}>Retry</button></p>}<p className="rm-tv-small">For a readable shared display, use a full-size window. <Link to={joinPath}>Open phone view</Link></p></div>
+    <div className="rm-tv-top"><header className="rm-tv-header"><BrandLockup size={34} /><div><h1>{view.room.name}</h1><span>{view.room.participantCount} {view.room.participantCount === 1 ? 'player' : 'players'} in the room</span></div><a data-tv-first className="rm-join-code" href={joinPath} aria-label={`Join on your phone: ${joinUrl}`}><span>Join on your phone</span><b>{code}</b><small>{joinUrl}</small></a>{phase === 'lobby' && <JoinQr url={`${window.location.origin}${joinPath}`} />}</header><div className="rm-connection" aria-live="polite">{stale && <span>Reconnecting · Last update{updatedAt ? ` ${new Date(updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ' unavailable'}</span>}</div>{error && <p className="rm-error" role="alert">Could not update room. Showing the last available state. <button onClick={retry}>Retry</button></p>}<p className="rm-tv-small">For a readable shared display, use a full-size window. <Link to={joinPath}>Open phone view</Link></p></div>
     <div className="rm-tv-layout"><div className="rm-tv-game"><RoomScore view={view} large />{phase === 'final' ? <FinalPodium view={view} /> : phase === 'lobby' ? <section className="rm-lobby" role="region" aria-label="Prediction details" tabIndex={0}><span className="rm-eyebrow">Pregame</span><h2>Join on your phone</h2><p>{ready} of {view.room.participantCount} lineups ready</p><div className="rm-lobby-crowd">{view.standings.map((row) => <span key={row.participantId} className="rm-lobby-seat"><Face name={row.name} size={44} />{row.name}<small>{row.roster.length === view.rules.flexSlots + 1 ? 'Ready' : 'Choosing lineup'}</small></span>)}</div>{!view.standings.length && <p>No players yet</p>}</section> : <Question view={view} tv />}<PlayFeed view={view} tv /></div><aside className="rm-tv-standings"><Leaderboard view={view} tv />{phase === 'final' && <Leaderboard view={view} season tv />}</aside></div>
     <footer className="rm-tv-footer"><div className="rm-tv-tools"><details name="room-tv-tools" className="rm-tv-game-tools"><summary>Game details</summary><div className="rm-tv-tool-panel" role="region" aria-label="Expanded game details" tabIndex={0}><FootballField view={view} /><PlayFeed view={view} /></div></details><RoomRules view={view} tv />{credentials.hostToken && <details className="rm-tv-host" name="room-tv-tools"><summary>Host controls</summary><div className="rm-tv-host-panel"><HostControls view={view} busy={busy} onAction={(action, speed) => { void mutate('host', { hostToken: credentials.hostToken, action, speed }); }} /></div></details>}<Link to={joinPath}>Open phone view</Link><Link to="/">Home</Link></div><span className="rm-remote-hint" role="status">{remoteHint}</span></footer>
     <PlayBanner banner={moments.banner} />

@@ -126,7 +126,7 @@ export function Question({ view, busy = false, onPick, tv = false }: { view: Roo
       const winner = question.result?.optionId === option.id;
       const count = question.pickCounts[option.id] ?? 0;
       const share = total ? count / total : 0;
-      const content = <><span className="rm-option-top"><span>{option.label}</span><b>{winner ? '✓ Correct' : `${option.basePoints} pts`}</b></span><span className="rm-split" aria-hidden="true"><i style={{ width: `${share * 100}%` }} /></span><small>Room: {count} {count === 1 ? 'pick' : 'picks'} ({Math.round(share * 100)}%){option.probability !== undefined && <span className="rm-history-rate">Historical rate: {Math.round(option.probability * 100)}%</span>}</small>{selected && <strong className="rm-your-pick">{currentAttempt?.status === 'saving' ? 'Saving…' : currentAttempt?.status === 'failed' ? 'Your choice · Not saved' : '✓ Your pick'}</strong>}</>;
+      const content = <><span className="rm-option-top"><span className="rm-clamp" title={option.label}>{option.label}</span><b>{winner ? '✓ Correct' : `${option.basePoints} pts`}</b></span><span className="rm-split" aria-hidden="true"><i style={{ width: `${share * 100}%` }} /></span><small>Room: {count} {count === 1 ? 'pick' : 'picks'} ({Math.round(share * 100)}%){option.probability !== undefined && <span className="rm-history-rate">Historical rate: {Math.round(option.probability * 100)}%</span>}</small>{selected && <strong className="rm-your-pick">{currentAttempt?.status === 'saving' ? 'Saving…' : currentAttempt?.status === 'failed' ? 'Your choice · Not saved' : '✓ Your pick'}</strong>}</>;
       const className = `${winner ? 'is-winner' : ''}${question.result && !winner ? ' is-out' : ''}${selected ? ' is-selected' : ''}`;
       return tv ? <div key={option.id} className={`rm-option-info ${className}`}>{content}</div> : <button key={option.id} className={className} disabled={!onPick || busy || currentAttempt?.status === 'saving' || !editable} aria-pressed={selected} onClick={() => { void pick(question.id, option.id); }}>{content}</button>;
     })}</div>}
@@ -150,7 +150,7 @@ export function RoomRules({ view, tv = false }: { view: RoomView; tv?: boolean }
 function BoardRow({ row, me, tv, leader }: { row: RoomStanding; me: boolean; tv: boolean; leader: boolean }) {
   return <li data-flip-key={row.participantId} className={`rm-row${me ? ' is-me' : ''}${leader ? ' is-leader' : ''}`}>
     <span className="rm-row-rank">{row.rank}</span><Face name={row.name} size={tv ? 46 : 34} />
-    <span className="rm-row-name"><b>{row.name}{me && <span className="rm-you"> · You</span>}</b>{!tv && <small>{points(row.fantasyPoints)} lineup pts · {points(row.predictionPoints)} pick pts{row.streak > 1 ? ` · Streak ${row.streak}` : ''}</small>}</span>
+    <span className="rm-row-name"><b className="rm-clamp" title={row.name}>{row.name}{me && <span className="rm-you"> · You</span>}</b>{!tv && <small>{points(row.fantasyPoints)} lineup pts · {points(row.predictionPoints)} pick pts{row.streak > 1 ? ` · Streak ${row.streak}` : ''}</small>}</span>
     <span className="rm-row-pts"><ScoreTick value={points(row.total)} /><small> pts</small></span>
   </li>;
 }
@@ -163,7 +163,7 @@ export function Leaderboard({ view, season = false, tv = false }: { view: RoomVi
     <div className="rm-section-heading"><h2>{season ? 'Season' : view.room.phase === 'final' ? 'Tonight' : 'Standings'}</h2><span>{season ? view.season.name : `${view.room.participantCount} ${view.room.participantCount === 1 ? 'player' : 'players'}`}</span></div>
     <div className="rm-board-scroll" role="region" aria-label={season ? 'Season leaderboard' : 'Room leaderboard'} tabIndex={0}>
       <ol ref={list}>{season
-        ? view.season.standings.map((row) => <li key={row.participantId} className={`rm-row${row.participantId === view.me?.participantId ? ' is-me' : ''}`}><span className="rm-row-rank">{1 + view.season.standings.filter((other) => other.points > row.points).length}</span><Face name={row.name} size={tv ? 46 : 34} /><span className="rm-row-name"><b>{row.name}</b><small>{row.nightsWon} {row.nightsWon === 1 ? 'win' : 'wins'} · {row.nightsPlayed} {row.nightsPlayed === 1 ? 'game' : 'games'}</small></span><span className="rm-row-pts">{points(row.points)}<small> pts</small></span></li>)
+        ? view.season.standings.map((row) => <li key={row.participantId} className={`rm-row${row.participantId === view.me?.participantId ? ' is-me' : ''}`}><span className="rm-row-rank">{1 + view.season.standings.filter((other) => other.points > row.points).length}</span><Face name={row.name} size={tv ? 46 : 34} /><span className="rm-row-name"><b className="rm-clamp" title={row.name}>{row.name}</b><small>{row.nightsWon} {row.nightsWon === 1 ? 'win' : 'wins'} · {row.nightsPlayed} {row.nightsPlayed === 1 ? 'game' : 'games'}</small></span><span className="rm-row-pts">{points(row.points)}<small> pts</small></span></li>)
         : view.standings.map((row) => <BoardRow key={row.participantId} row={row} me={row.participantId === view.me?.participantId} tv={tv} leader={row.rank === 1 && row.total > 0} />)}</ol>
       {rows.length === 0 && <p className="rm-empty">{season ? 'Season totals appear after the game.' : 'No players yet. Join on your phone.'}</p>}
     </div>

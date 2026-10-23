@@ -327,4 +327,29 @@ describe('room polling', () => {
     await act(async () => {});
     expect(request).toHaveBeenLastCalledWith('/api/rooms/EFGH', expect.objectContaining({ headers: { Authorization: 'Bearer token-b' } }));
   });
+
+  it('keeps full 60-character names available on standings rows and option labels', () => {
+    const long = 'Bartholomew-Wolfeschlegelsteinhausen-Extremelylongname-X1'.padEnd(60, 'z');
+    expect(long).toHaveLength(60);
+    const view = { ...fixture, standings: [{ ...fixture.standings[0], name: long }], question: { ...fixture.question!, options: [{ id: 'TD', label: long, basePoints: 10 }] } };
+    render(<><Leaderboard view={view} /><Question view={view} /></>);
+    const titled = document.querySelectorAll(`[title="${long}"]`);
+    expect(titled).toHaveLength(2);
+    titled.forEach((node) => { expect(node.textContent).toContain(long); expect(node.classList.contains('rm-clamp')).toBe(true); });
+  });
+
+  it('shows a join QR with the full URL only in the lobby, keeping code and short URL as text', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(fixture)));
+    const { container, unmount } = showRoom(true);
+    const link = await screen.findByRole('link', { name: /Join on your phone/ });
+    expect(link.textContent).toContain('ABCD');
+    const qr = container.querySelector('.rm-join-qr');
+    expect(qr?.getAttribute('aria-hidden')).toBe('true');
+    expect(qr?.querySelector('svg')).toBeTruthy();
+    unmount();
+    vi.stubGlobal('fetch', vi.fn(async () => json({ ...fixture, room: { ...fixture.room, phase: 'final' } })));
+    const final = showRoom(true);
+    await screen.findByRole('link', { name: /Join on your phone/ });
+    expect(final.container.querySelector('.rm-join-qr')).toBeNull();
+  });
 });
