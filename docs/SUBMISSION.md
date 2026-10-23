@@ -183,7 +183,7 @@ Deadline Fri 2026-10-23 12:00 PM PT. **Aim to submit by 10:00 AM PT.**
 Before recording
 - [x] Gemini commits published on `dev`; `dev` merged to `main` (PR #1). Merge phase 6 the same way.
 - [x] Confirm the repo is public with the MIT license (GitHub repository API, 2026-10-23).
-- [ ] Fresh-clone test: README steps -> working demo in under 15 minutes (`npm ci`, `npm run typecheck && npm test`, `npm run play -w server`). Re-run the server tests if they flake.
+- [x] Fresh-clone test (2026-10-23, release `16d2aad`): clean install, typecheck, 494 web tests, 744 server tests (`--maxWorkers=6`), `npm run play -w server`, and production build all passed in under 3 minutes. Offline game finished 57-56; Big Mo was Benchwarmer of the night. See `docs/qa/widget-host.md`.
 - [ ] AWS: do the proof checklist above (or decide to ship with the honest wording).
 - [ ] Optional: try the Alexa+ Local Inspector or Private Preview if you can get access. Do not claim it otherwise.
 
