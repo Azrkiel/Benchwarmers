@@ -10,7 +10,7 @@ const DEMOS = [
   { to: '/tv/DEMO?fixture=live', title: 'TV view', sub: 'Three-player party demo' },
   { to: '/device/garcias', title: 'The Garcias', sub: 'Device simulator · Maya and Leo' },
   { to: '/device/sams-place', title: "Sam's Place", sub: 'Device simulator · Sam and Priya' },
-  { to: '/display/garcias', title: 'Smart display', sub: 'Simulated screen · add ?clean=1 to record' },
+  { to: '/display/garcias', title: 'Smart display (party demo)', sub: 'Simulated screen · add ?clean=1 to record' },
   { to: '/voice-lab', title: 'Voice setup lab', sub: 'Recognition and diagnostics' },
   { to: '/lounge/DEMO?fixture=live', title: 'Lounge layout preview', sub: 'Alternate TV layout' },
   { to: '/tv2/DEMO?fixture=live', title: 'TV layout preview', sub: 'Alternate broadcast layout' },

@@ -2,7 +2,7 @@
    compact 960x480 target instead of shrinking a TV canvas down. */
 .rd-root { min-height:100dvh; background:var(--lg-bg); }
 .rd { --rd-s:20px; --rd-q:30px; --rd-n:44px; --rd-gap:12px; --rd-pad:16px; --rd-top:52px; --rd-score:68px; --rd-foot:60px; --rd-face:32px;
-  height:100dvh; display:grid; grid-template-rows:var(--rd-top) var(--rd-score) minmax(0,1fr) var(--rd-foot); overflow:hidden; position:relative;
+  height:100dvh; container-type:size; display:grid; grid-template-rows:var(--rd-top) var(--rd-score) minmax(0,1fr) var(--rd-foot); overflow:hidden; position:relative;
   padding:0 var(--rd-pad); color:var(--lg-text); font:400 var(--rd-s)/1.25 var(--lg-sans); background:var(--lg-bg); box-sizing:border-box; }
 .rd *, .rd *::before, .rd *::after { box-sizing:border-box; }
 .rd h1, .rd h2, .rd p { margin:0; }
@@ -185,3 +185,8 @@
   .rd-ball { grid-column:1 / -1; justify-self:center; border:0; padding:0 0 6px; }
   .rd-foot { flex-wrap:wrap; padding:8px 0; }
 }
+.rd-calls { height:100%; overflow:hidden; font-size:var(--rd-s); }
+.rd-calls b { font-size:calc(var(--rd-s) * 1.1); }
+/* Embedded in the smart-display simulator: fill the simulated screen, not the browser window. */
+.rd-root.is-embedded { min-height:0; height:100%; }
+.rd-root.is-embedded .rd { height:100%; }

@@ -29,9 +29,11 @@ export function BasketballCelebration({ celebration, reducedMotion = false, coal
     </div>;
   }
   const hoop = celebration.kind === 'basket';
+  // The final's winner reveal is the moment itself: confetti only, never dimmed or covered.
+  const final = celebration.kind === 'final';
   return <div className={`bc is-${celebration.kind}`} style={style} key={celebration.id}>
-    <div className="bc-dim" aria-hidden="true" />
-    {status && <p className="bc-status" aria-hidden="true">{status}</p>}
+    {!final && <div className="bc-dim" aria-hidden="true" />}
+    {status && !final && <p className="bc-status" aria-hidden="true">{status}</p>}
     {hoop && <svg className="bc-hoop" viewBox="0 0 400 300" aria-hidden="true" focusable="false">
       <rect className="bc-board" x="130" y="30" width="140" height="90" rx="4" />
       <rect className="bc-board-box" x="175" y="62" width="50" height="38" />
@@ -40,7 +42,7 @@ export function BasketballCelebration({ celebration, reducedMotion = false, coal
       <path className="bc-rim" d="M164 120H236" />
     </svg>}
     <div className="bc-confetti" aria-hidden="true">{PIECES.map((piece, i) => <i key={i} className={`h${piece.hue}`} style={{ left: `${piece.left}%`, animationDelay: `${1100 + piece.delay}ms`, '--drift': `${piece.drift}px` } as CSSProperties} />)}</div>
-    <div className="bc-label" aria-hidden="true"><b>{celebration.title}</b>{celebration.sub && <span>{celebration.sub}</span>}{coalesced > 0 && <small>+{coalesced} more {coalesced === 1 ? 'score' : 'scores'}</small>}</div>
+    {!final && <div className="bc-label" aria-hidden="true"><b>{celebration.title}</b>{celebration.sub && <span>{celebration.sub}</span>}{coalesced > 0 && <small>+{coalesced} more {coalesced === 1 ? 'score' : 'scores'}</small>}</div>}
     <span className="bc-sr" role="status">{caption}</span>
   </div>;
 }

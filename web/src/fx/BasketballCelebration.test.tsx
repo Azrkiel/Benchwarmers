@@ -74,6 +74,15 @@ describe('celebration overlay', () => {
     expect(container.querySelectorAll('button,a,[tabindex]')).toHaveLength(0);
   });
 
+  it('never dims or covers the winner reveal at the final: confetti only', () => {
+    const { container } = render(<BasketballCelebration celebration={{ id: 'f', kind: 'final', title: 'Final', sub: 'SUM 56 · HAR 57', color: '#f51825' }} status="Call resolved" />);
+    expect(container.querySelector('.bc-dim')).toBeNull();
+    expect(container.querySelector('.bc-label')).toBeNull();
+    expect(container.querySelector('.bc-status')).toBeNull();
+    expect(container.querySelector('.bc-confetti')).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toBe('Final, SUM 56 · HAR 57');
+  });
+
   it('shows a static banner with the points in reduced motion', () => {
     const { container } = render(<BasketballCelebration celebration={celebration} reducedMotion />);
     expect(container.querySelector('.bc-static')?.textContent).toContain('+3');

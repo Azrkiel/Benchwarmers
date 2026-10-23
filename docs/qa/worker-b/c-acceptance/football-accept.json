@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "runId": "a2613582-1593-4e5b-b3cc-74db1a443927",
+  "kind": "accept",
+  "game": "football",
+  "startedAt": "2026-10-23T12:24:48.028Z",
+  "runtime": {
+    "node": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 903,
+      "detail": {
+        "isolatedData": true,
+        "port": 62915,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "room-contract",
+      "status": "passed",
+      "ms": 46,
+      "detail": {
+        "code": "5E654E",
+        "game": "football"
+      }
+    },
+    {
+      "name": "join-lineup",
+      "status": "passed",
+      "ms": 43
+    },
+    {
+      "name": "authorization",
+      "status": "passed",
+      "ms": 18
+    },
+    {
+      "name": "voice-service",
+      "status": "passed",
+      "ms": 284,
+      "detail": {
+        "toolCount": 30,
+        "realMicrophone": "unrun",
+        "transport": "Streamable HTTP"
+      }
+    },
+    {
+      "name": "pause-restart",
+      "status": "passed",
+      "ms": 1382
+    },
+    {
+      "name": "durable-receipts",
+      "status": "passed",
+      "ms": 896
+    },
+    {
+      "name": "lost-response-retry",
+      "status": "passed",
+      "ms": 46
+    },
+    {
+      "name": "request-id-conflict",
+      "status": "passed",
+      "ms": 17
+    },
+    {
+      "name": "lock-boundary",
+      "status": "passed",
+      "ms": 5025
+    },
+    {
+      "name": "final-season-restart",
+      "status": "passed",
+      "ms": 178940,
+      "detail": {
+        "score": [
+          27,
+          24
+        ],
+        "standings": 1
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "a490a04ce4f5ed33436232c0699c4297cbf57162",
+    "fingerprint": "b3f0b6dc5dc3e8aa72f57f0cc79d1359b915fb35ac537a4fcd542ac073d72973"
+  },
+  "stateDirectory": "C:\\Users\\jiang\\AppData\\Local\\Temp\\bw-c-zjURqa",
+  "completedAt": "2026-10-23T12:27:56.221Z",
+  "status": "passed"
+}

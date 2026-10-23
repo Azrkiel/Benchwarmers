@@ -1,8 +1,9 @@
 import { useRef, type KeyboardEvent } from 'react';
 
 export const ROOM_VIEWS = ['game', 'standings', 'lineups', 'results'] as const;
-export type RoomViewId = (typeof ROOM_VIEWS)[number];
-const LABEL: Record<RoomViewId, string> = { game: 'Game', standings: 'Standings', lineups: 'Lineups', results: 'Results' };
+/** 'calls' appears only when the room has player-created calls (P11.7). */
+export type RoomViewId = (typeof ROOM_VIEWS)[number] | 'calls';
+const LABEL: Record<RoomViewId, string> = { game: 'Game', standings: 'Standings', lineups: 'Lineups', results: 'Results', calls: 'Calls' };
 
 /**
  * Top-level views for the shared display. Arrow keys move between enabled tabs

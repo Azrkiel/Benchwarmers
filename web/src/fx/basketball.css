@@ -4,7 +4,7 @@
 .bc-dim { position:absolute; inset:0; background:#000; opacity:0; animation:bc-dim 2200ms linear both; }
 @keyframes bc-dim { 0% { opacity:0; } 9% { opacity:.72; } 86% { opacity:.72; } 100% { opacity:0; } }
 .bc-status { position:absolute; top:12px; left:50%; translate:-50% 0; margin:0; padding:4px 12px; border-radius:3px; background:var(--lg-raised); color:var(--lg-text); font:600 18px/1.2 var(--lg-sans); white-space:nowrap; animation:bc-fade 2200ms linear both; }
-.bc-hoop { position:absolute; left:50%; top:2%; width:min(64%, 88vh); translate:-50% 0; overflow:visible; animation:bc-fade 2200ms linear both; }
+.bc-hoop { position:absolute; left:50%; top:2%; width:min(64%, 88cqh); translate:-50% 0; overflow:visible; animation:bc-fade 2200ms linear both; }
 .bc-board { fill:#f4f4f4; opacity:.92; }
 .bc-board-box { fill:none; stroke:var(--lg-orange); stroke-width:4; }
 .bc-rim { stroke:var(--lg-orange); stroke-width:8; stroke-linecap:round; }
@@ -19,19 +19,19 @@
 .bc-confetti i { position:absolute; top:-6%; width:10px; height:16px; border-radius:2px; opacity:0; background:var(--team); animation:bc-fall 900ms ease-in both; }
 .bc-confetti i.h1 { background:#fff; }
 .bc-confetti i.h2 { background:var(--lg-orange); }
-@keyframes bc-fall { 0% { opacity:1; transform:translate(0,0) rotate(0); } 100% { opacity:0; transform:translate(var(--drift), 105vh) rotate(540deg); } }
+@keyframes bc-fall { 0% { opacity:1; transform:translate(0,0) rotate(0); } 100% { opacity:0; transform:translate(var(--drift), 105cqh) rotate(540deg); } }
 .bc-label { position:absolute; left:0; right:0; bottom:12%; display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; animation:bc-label 1100ms 1100ms var(--bw-ease-out) both; }
 .bc.is-score .bc-label, .bc.is-final .bc-label { bottom:38%; animation-delay:200ms; animation-duration:1800ms; }
-.bc-label b { font:600 clamp(48px, 13vh, 140px)/.95 var(--lg-serif); text-transform:uppercase; color:#fff; text-shadow:0 4px 0 var(--team); }
-.bc-label span { font:600 clamp(20px, 4vh, 44px)/1 var(--lg-sans); color:#fff; padding:4px 14px; background:var(--team); border-radius:3px; }
-.bc-label small { font:600 clamp(16px, 2.6vh, 28px)/1 var(--lg-sans); color:var(--lg-muted); }
+.bc-label b { font:600 clamp(48px, 13cqh, 140px)/.95 var(--lg-serif); text-transform:uppercase; color:#fff; text-shadow:0 4px 0 var(--team); }
+.bc-label span { font:600 clamp(20px, 4cqh, 44px)/1 var(--lg-sans); color:#fff; padding:4px 14px; background:var(--team); border-radius:3px; }
+.bc-label small { font:600 clamp(16px, 2.6cqh, 28px)/1 var(--lg-sans); color:var(--lg-muted); }
 @keyframes bc-label { 0% { opacity:0; translate:-40px 0; } 25% { opacity:1; translate:0 0; } 85% { opacity:1; } 100% { opacity:0; } }
 @keyframes bc-fade { 0% { opacity:0; } 8% { opacity:1; } 88% { opacity:1; } 100% { opacity:0; } }
 /* Reduced motion: a static score banner, no travel, sweep or confetti. */
 .bc-static { display:flex; align-items:flex-end; justify-content:center; padding-bottom:6%; }
 .bc-banner { display:flex; align-items:center; gap:16px; padding:10px 20px; background:var(--lg-deep); border-left:8px solid var(--team); border-radius:4px; box-shadow:0 8px 30px #000a; color:#fff; }
-.bc-banner b { font:600 clamp(28px, 7vh, 64px)/1 var(--lg-serif); text-transform:uppercase; }
-.bc-banner span { font:600 clamp(18px, 3vh, 32px)/1 var(--lg-sans); color:var(--lg-muted); }
-.bc-banner strong { font:600 clamp(28px, 6vh, 56px)/1 var(--lg-serif); color:var(--team); filter:brightness(1.4); }
+.bc-banner b { font:600 clamp(28px, 7cqh, 64px)/1 var(--lg-serif); text-transform:uppercase; }
+.bc-banner span { font:600 clamp(18px, 3cqh, 32px)/1 var(--lg-sans); color:var(--lg-muted); }
+.bc-banner strong { font:600 clamp(28px, 6cqh, 56px)/1 var(--lg-serif); color:var(--team); filter:brightness(1.4); }
 .bc-sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 @media (prefers-reduced-motion:reduce) { .bc *, .bc { animation:none!important; } .bc-dim, .bc-confetti, .bc-ball { display:none; } }

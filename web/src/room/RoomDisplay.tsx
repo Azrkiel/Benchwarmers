@@ -6,7 +6,9 @@ import { ScoreTick } from '../fx/fx';
 import { BasketballCourt } from './BasketballCourt';
 import { Face, FootballField, points } from './components';
 import { playLabel } from './moments';
-import { RoomNav, type RoomViewId } from './RoomNav';
+import { ROOM_VIEWS, RoomNav, type RoomViewId } from './RoomNav';
+import { CallsList } from './Calls';
+import type { PointsSnapshotFields } from './points/types';
 import { RoomResults } from './RoomResults';
 import { leaders, paginate, RoomStandings, StandingRow } from './RoomStandings';
 import { possessionTeamId, roomSport, sourceStatus, type RoomViewNext } from './sport';
@@ -109,11 +111,12 @@ function JoinQr({ url }: { url: string }) {
 
 function Lobby({ view, joinUrl }: { view: RoomViewNext; joinUrl: string }) {
   const ready = view.standings.filter((row) => row.roster.length === view.rules.flexSlots + 1).length;
+  const pregame = view.pregame;
   return <section className="rd-call rd-lobby" aria-label="Join">
     <span className="rd-eyebrow">Pregame</span>
     <h2>Join on your phone</h2>
     <div className="rd-lobby-join"><JoinQr url={joinUrl} /><div><b className="rd-code">{view.room.code}</b><small>{joinUrl.replace(/^https?:\/\//, '')}</small></div></div>
-    <p className="rd-call-status"><span>{ready} of {view.room.participantCount} lineups ready</span></p>
+    <p className="rd-call-status"><span>{ready} of {view.room.participantCount} lineups ready</span>{pregame && <span>Winner picks: {[view.game.away, view.game.home].map((t) => `${t.short} ${pregame.pickCounts[t.id] ?? 0}`).join(' · ')}</span>}</p>
   </section>;
 }
 
@@ -146,11 +149,13 @@ export function RoomDisplay({ view: input, layout, current, onView, joinUrl, sta
   const sourceStale = stale || sourceStatus(view) === 'stale' || sourceStatus(view) === 'unavailable';
   const latest = view.game.recentPlays.slice(-config.plays).reverse();
   const top = leaders(view.standings, config.leaders, highlightId);
+  const calls = (view as RoomViewNext & PointsSnapshotFields).calls;
+  const views: RoomViewId[] = calls?.length ? [...ROOM_VIEWS, 'calls'] : [...ROOM_VIEWS];
   const court = basketball ? <BasketballCourt view={view} compact={layout === 'compact'} /> : <FootballField view={view as RoomView} />;
   return <main className={`rd is-${layout} is-${phase}${sourceStale ? ' is-stale' : ''}`}>
     <header className="rd-top">
       <BrandLockup size={layout === 'tv' ? 36 : 26} />
-      <RoomNav current={current} onChange={onView} final={final} controls="rd-view" />
+      <RoomNav current={current} onChange={onView} final={final} controls="rd-view" views={views} />
       <span className="rd-code-chip">{fixture && <b className="rd-fixture" title="Fixture data, not a connected room">Fixture</b>}Code <b>{view.room.code}</b></span>
     </header>
     <ScoreStrip view={view} />
@@ -167,6 +172,7 @@ export function RoomDisplay({ view: input, layout, current, onView, joinUrl, sta
       </div>)}
       {current === 'standings' && <RoomStandings rows={view.standings} perPage={config.standingsPage} highlightId={highlightId} title={final ? 'Tonight' : 'Standings'} />}
       {current === 'lineups' && <Lineups view={view} perPage={config.lineupsPage} />}
+      {current === 'calls' && <CallsList calls={calls ?? []} standings={view.standings} />}
       {current === 'results' && (final ? <RoomResults view={view as RoomView} host={host} seasonRows={config.standingsPage} /> : <p className="rd-empty">Results open at the final buzzer.</p>)}
     </div>
     <footer className="rd-foot">

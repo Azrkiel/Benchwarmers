@@ -1,5 +1,9 @@
 # Benchwarmers
 
+## Basketball integration (Worker C)
+
+Independent integration tooling and handoff: [basketball demo operations](docs/BASKETBALL_DEMO.md), [C's handoff and acceptance contracts](docs/qa/worker-c/README.md), and [task/checkpoint status](docs/plans/2026-10-23-worker-c-integration.md). `npm run demo:basketball` uses isolated data and requires A's additive basketball room implementation; this main baseline still serves football rooms. `npm run qa:smoke -- --game football` validates the baseline. No fixture is counted as the connected basketball product.
+
 ## Primary demo: one big football room
 
 Run `npm run demo`, then open **http://localhost:3001**. Create a football room, invite real players from their phones using the printed LAN address and room code, and open the shared TV view. Everyone builds a shared-player lineup: one captain plus four flex athletes under $50,000. The fictional Watch Party Fantasy script includes all 25 players, linemen and specialists, mixed predictions, position weights, and saved room/season standings. Final score: 27-24. No sports feed or cloud credentials required.

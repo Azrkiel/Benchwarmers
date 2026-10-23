@@ -284,7 +284,7 @@ describe('mount through createApp', () => {
       const url = await listen(createApp({ store, roomStore }));
       await client.connect(new StreamableHTTPClientTransport(new URL(`${url}/api/mcp-widget`)));
       const { tools } = await client.listTools();
-      expect(tools).toHaveLength(23);
+      expect(tools).toHaveLength(30);
       const result = await client.callTool({ name: 'get_leaderboard', arguments: { code: 'DEMO' } });
       expect(result.isError).not.toBe(true);
       expect(result.structuredContent).toMatchObject({ view: 'tonight', code: 'DEMO' });

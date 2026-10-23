@@ -42,3 +42,19 @@ it('puts the live call first on the Game view and opens season from ?view=season
   show({ ...fixture, room: { ...fixture.room, phase: 'live' }, season: { ...fixture.season, standings: [{ participantId: 'person-1', name: 'Taylor', points: 12, fantasyPoints: 6, predictionPoints: 6, nightsPlayed: 1, nightsWon: 1 }] } }, '/room/ABCD?view=season');
   expect(await screen.findByRole('region', { name: 'Season leaderboard' })).toBeTruthy();
 });
+
+it('keeps commitment, call and pregame screens hidden until the snapshot carries them', async () => {
+  const live = { ...fixture, room: { ...fixture.room, phase: 'live' as const } };
+  show(live);
+  await screen.findByRole('heading', { name: fixture.question!.text });
+  expect(screen.queryByRole('region', { name: 'Commit points' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Make a call' })).toBeNull();
+  cleanup();
+  const bank = { grantPoints: 100, availablePoints: 100, reservedPoints: 0, settledRiskNet: 0, correctionDebt: 0 };
+  show({ ...live, me: { ...fixture.me!, bank, commitments: [] }, calls: [], pregame: { id: 'pg', status: 'locked', acceptingPicks: false, text: 'Who wins tonight?', options: [{ id: 'h', label: 'Hogs' }, { id: 'a', label: 'Owls' }], pickCounts: { h: 1 }, cutoff: 'replay_start', correctPoints: 10, resolutionRule: 'Final score decides.' } } as unknown as RoomView);
+  expect(await screen.findByRole('region', { name: 'Commit points' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Make a call' })).toBeTruthy();
+  expect(screen.getByRole('region', { name: 'Pick the winner' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('tab', { name: 'Standings' }));
+  expect(screen.getByRole('region', { name: 'Points and bank' })).toBeTruthy();
+});
