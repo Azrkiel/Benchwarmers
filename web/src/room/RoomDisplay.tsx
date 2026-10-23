@@ -172,7 +172,7 @@ export function RoomDisplay({ view: input, layout, current, onView, joinUrl, sta
       </div>)}
       {current === 'standings' && <RoomStandings rows={view.standings} perPage={config.standingsPage} highlightId={highlightId} title={final ? 'Tonight' : 'Standings'} />}
       {current === 'lineups' && <Lineups view={view} perPage={config.lineupsPage} />}
-      {current === 'calls' && <CallsList calls={calls ?? []} />}
+      {current === 'calls' && <CallsList calls={calls ?? []} standings={view.standings} />}
       {current === 'results' && (final ? <RoomResults view={view as RoomView} host={host} seasonRows={config.standingsPage} /> : <p className="rd-empty">Results open at the final buzzer.</p>)}
     </div>
     <footer className="rd-foot">

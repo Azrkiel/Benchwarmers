@@ -1,11 +1,10 @@
 import { roomRequest } from '../api';
 import type { CallDraft } from '../CreateCall';
-import type { CallTemplate, CommitAmount, CommitmentReceipt, CommitQuote } from './types';
+import type { CallCatalog, CommitAmount, CommitmentReceipt, CommitQuote } from './types';
 
 /**
- * PROPOSED endpoints from the master plan §12.1 (Phases 10, 11, 13). Worker A owns the
- * routes; these are the only places the client names them, so adopting A's final paths
- * is a one-file change. Every mutation carries the participant credential in the body,
+ * Worker A's room points and call routes (77d16d0, fc66bf6). This is the only place the
+ * client names them. Every mutation carries the participant credential in the body,
  * like the existing room mutations.
  */
 export function pointsApi(code: string, participantToken: string | undefined) {
@@ -15,10 +14,11 @@ export function pointsApi(code: string, participantToken: string | undefined) {
       roomRequest<{ quote: CommitQuote }>(`${base}/commitment-quotes`, { body: { participantToken, questionId, optionId, commitPoints } }).then((r) => r.quote),
     commit: (quote: CommitQuote, requestId: string) =>
       roomRequest<{ commitment: CommitmentReceipt }>(`${base}/commitments`, { body: { participantToken, quoteId: quote.quoteId, requestId } }).then((r) => r.commitment),
-    catalog: () => roomRequest<{ templates: CallTemplate[] }>(`${base}/call-catalog`).then((r) => r.templates),
-    quoteCall: (draft: CallDraft) =>
-      roomRequest<{ quote: CommitQuote }>(`${base}/commitment-quotes`, { body: { participantToken, templateId: draft.templateId, optionId: draft.optionId, horizonId: draft.horizonId, commitPoints: draft.amount } }).then((r) => r.quote),
-    createCall: (quote: CommitQuote, draft: CallDraft, requestId: string) =>
-      roomRequest<{ commitment: CommitmentReceipt }>(`${base}/calls`, { body: { participantToken, quoteId: quote.quoteId, templateId: draft.templateId, requestId } }).then((r) => r.commitment),
+    catalog: () => roomRequest<CallCatalog>(`${base}/call-catalog`),
+    /** The anchor comes from the catalog window the composer was opened with. */
+    quoteCall: (draft: CallDraft, anchorSequence: number) =>
+      roomRequest<{ quote: CommitQuote }>(`${base}/call-quotes`, { body: { participantToken, templateId: draft.templateId, anchorSequence, horizonGameElapsedMs: Number(draft.horizonId), optionId: draft.optionId, commitPoints: draft.amount } }).then((r) => r.quote),
+    createCall: (quote: CommitQuote, requestId: string) =>
+      roomRequest<{ commitment: CommitmentReceipt }>(`${base}/calls`, { body: { participantToken, quoteId: quote.quoteId, requestId } }).then((r) => r.commitment),
   };
 }

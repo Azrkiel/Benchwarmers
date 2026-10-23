@@ -6,7 +6,7 @@ import { CommitPoints } from './CommitPoints';
 import { CreateCall } from './CreateCall';
 import { basketballFixture } from './fixtures/basketball';
 import { PregamePick } from './PregamePick';
-import type { CallTemplate, CommitQuote } from './points/types';
+import { catalogTemplates, type CallCatalog, type CommitQuote, type RoomPlayerCall } from './points/types';
 import './room.css';
 
 /**
@@ -16,11 +16,15 @@ import './room.css';
  */
 const view = basketballFixture('open');
 const bank = { grantPoints: 100, availablePoints: 75, reservedPoints: 25, settledRiskNet: 0, correctionDebt: 0 };
-const catalog: CallTemplate[] = [
-  { id: 'next_score_team', label: 'Which team scores next', options: [{ id: 'harbor', label: 'Harbor Hawks' }, { id: 'summit', label: 'Summit Foxes' }], horizons: [{ id: 'h180', label: 'Next 3 game minutes' }], available: true },
-  { id: 'next_made_field_goal_value', label: 'Next made basket: two or three', options: [{ id: 'two', label: 'Two' }, { id: 'three', label: 'Three' }], horizons: [{ id: 'h180', label: 'Next 3 game minutes' }], available: true },
-  { id: 'team_next_possession_three', label: 'Team hits a three on its next possession', options: [{ id: 'harbor', label: 'Harbor Hawks' }], horizons: [{ id: 'poss', label: 'Next possession' }], available: false, unavailableReason: 'Needs possession-start data' },
-];
+const catalog: CallCatalog = {
+  enabled: true,
+  templates: [
+    { templateId: 'next_score_team', requiredCapabilities: [], resolver: 'next_score_team', fields: [], options: 'teams', optionIds: ['harbor', 'summit'], includesFreeThrows: true },
+    { templateId: 'next_made_field_goal_value', requiredCapabilities: [], resolver: 'next_made_field_goal_value', fields: [], options: 'two_three', optionIds: ['two', 'three'], includesFreeThrows: false },
+  ],
+  window: { questionId: 'fx', anchorSequence: 40, minimumHorizonGameElapsedMs: 1_560_000, maximumHorizonGameElapsedMs: 1_740_000, locksAt: Date.now() + 8000 },
+};
+const call: RoomPlayerCall = { ...view.question!, id: 'call-1', text: 'Which team scores next?', options: [{ id: 'harbor', label: 'Harbor Hawks', basePoints: 0 }, { id: 'summit', label: 'Summit Foxes', basePoints: 0 }], pickCounts: { harbor: 2, summit: 0 }, creatorId: view.standings[0]!.participantId, createdAt: 1, target: { templateId: 'next_score_team', anchorSequence: 40, horizonGameElapsedMs: 1_620_000, eligibleParticipantIds: [] } };
 const fakeQuote = (optionLabel: string, amount: number): CommitQuote => ({ quoteId: `fx-${amount}`, targetId: 'fx', questionId: view.question!.id, optionId: 'three', optionLabel, commitPoints: amount, totalReturnPoints: amount * 3, multiplier: 3, probabilityLabel: 'Demo reference, 33% (fixture)', firstCaller: true, expiresAt: Date.now() + 15000 });
 
 export function PointsPreview() {
@@ -28,8 +32,8 @@ export function PointsPreview() {
     <header className="rm-header"><BrandLockup size={26} /><span className="rd-fixture" style={{ background: 'var(--bw-warning)', color: '#0b0b0d', padding: '4px 8px', borderRadius: 3, fontWeight: 600 }}>FIXTURE PREVIEW</span></header>
     <PregamePick state={{ questionId: 'pg', closesAt: Date.now() + 90000, status: 'open', resolutionRule: 'The final score decides it, not a market settlement.', crowd: { home: 3, away: 1 } }} home={view.game.home} away={view.game.away} onPick={async () => undefined} />
     <CommitPoints question={view.question!} bank={bank} defaultOptionId="three" onQuote={async (_o, amount) => fakeQuote('Three', amount)} onConfirm={async () => { throw new RoomRequestError('Fixture preview: nothing is committed.', 409, 'PREVIEW'); }} />
-    <CreateCall catalog={catalog} bank={bank} onQuote={async (draft) => fakeQuote(draft.optionId ?? '', draft.amount)} onCreate={async () => { throw new RoomRequestError('Fixture preview: no call is created.', 409, 'PREVIEW'); }} />
+    <CreateCall catalog={catalogTemplates(catalog, [view.game.home, view.game.away])} bank={bank} onQuote={async (draft) => fakeQuote(draft.optionId ?? '', draft.amount)} onCreate={async () => { throw new RoomRequestError('Fixture preview: no call is created.', 409, 'PREVIEW'); }} />
     <BankPanel standing={view.standings[0]!} bank={bank} />
-    <CallsList className="rm-calls" calls={[{ id: 'c1', templateId: 'next_score_team', creatorName: 'Maya', optionLabel: 'Hawks score next', horizonLabel: 'Next 3 game minutes', followers: 2, createdAt: 1, state: 'pending' }]} />
+    <CallsList className="rm-calls" calls={[call]} standings={view.standings} />
   </main>;
 }

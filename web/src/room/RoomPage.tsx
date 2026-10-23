@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { BrandLockup } from '../brand/Brand';
-import { roomRequest, storageWarning } from './api';
+import { RoomRequestError, roomRequest, storageWarning } from './api';
 import { ScoreTick, ToastLayer } from '../fx/fx';
 import { FinalPodium, FootballField, HostControls, Leaderboard, PlayFeed, points, Question, RoomRules, RoomScore } from './components';
 import { BasketballCourt } from './BasketballCourt';
@@ -17,7 +17,7 @@ import { CommitPoints } from './CommitPoints';
 import { CreateCall } from './CreateCall';
 import { PregamePick } from './PregamePick';
 import { pointsApi } from './points/api';
-import type { CallTemplate, PointsMeFields, PointsSnapshotFields } from './points/types';
+import { catalogTemplates, type CallCatalog, type PointsMeFields, type PointsSnapshotFields } from './points/types';
 import { roomSport, sourceLabel } from './sport';
 import { useRoom } from './useRoom';
 import './room.css';
@@ -42,7 +42,7 @@ export function RoomPage() {
   const joinName = (useLocation().state as { joinName?: string } | null)?.joinName ?? '';
   const moments = useRoomMoments(view, { personal: true });
   const [tab, setTab] = useState<RoomViewId | null>(null);
-  const [catalog, setCatalog] = useState<CallTemplate[] | null>(null);
+  const [catalog, setCatalog] = useState<CallCatalog | null>(null);
   const [catalogError, setCatalogError] = useState('');
   const phase = view?.room.phase;
   // Follow the game phase (lobby -> game -> results) until the participant picks a view.
@@ -81,9 +81,11 @@ export function RoomPage() {
     receipt={mine.commitments?.find((c) => c.questionId === view.question!.id)}
     onQuote={(optionId, amount) => api.quote(view.question!.id, optionId, amount)} onConfirm={async (quote, requestId) => { const r = await api.commit(quote, requestId); refreshSoon(); return r; }} />;
   const calls = mine?.bank && extra.calls && <>
-    {catalog ? <CreateCall catalog={catalog} bank={mine.bank} onQuote={api.quoteCall} onCreate={async (quote, draft, requestId) => { const r = await api.createCall(quote, draft, requestId); refreshSoon(); return r; }} onClose={() => setCatalog(null)} />
+    {catalog ? <CreateCall catalog={catalogTemplates(catalog, [view.game.home, view.game.away], view.question?.target?.horizonGameElapsedMs)} bank={mine.bank}
+        onQuote={async (draft) => { if (!catalog.window) throw new RoomRequestError('No call window right now.', 409, 'STALE_ANCHOR'); return api.quoteCall(draft, catalog.window.anchorSequence); }}
+        onCreate={async (quote, _draft, requestId) => { const r = await api.createCall(quote, requestId); refreshSoon(); return r; }} onClose={() => setCatalog(null)} />
       : <div className="rm-commit-row"><button onClick={() => { setCatalogError(''); void api.catalog().then(setCatalog).catch(() => setCatalogError('Calls are unavailable right now.')); }}>Make a call</button>{catalogError && <span className="rm-error" role="alert">{catalogError}</span>}</div>}
-    {extra.calls.length > 0 && <CallsList calls={extra.calls} className="rm-calls" />}
+    {extra.calls.length > 0 && <CallsList calls={extra.calls} standings={view.standings} className="rm-calls" />}
   </>;
   return <main className={`rm rm-phone is-${livePhase}`}>
     <header className="rm-header"><Link to="/" aria-label="Benchwarmers home"><BrandLockup size={28} /></Link><a className="rm-tv-link" href={`/room/${encodeURIComponent(code)}/display`}>Shared screen →</a></header>

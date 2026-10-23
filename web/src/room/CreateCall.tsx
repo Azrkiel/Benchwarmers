@@ -30,11 +30,8 @@ export function parseCallPhrase(text: string, catalog: CallTemplate[]): ParsedCa
   const withAmount = (draft: Partial<CallDraft>) => ({ draft: amount ? { ...draft, amount } : draft });
   if (SUBTYPE.test(said)) return { unsupported: 'Calls about a specific shot type are not supported.', suggestions };
   const byId = (id: CallTemplate['id']) => catalog.find((t) => t.id === id);
-  if (/ next possession /.test(said)) {
-    const t = byId('team_next_possession_three');
-    if (!t?.available) return { unsupported: t?.unavailableReason ?? 'Next-possession calls are not available for this game.', suggestions };
-    return withAmount({ templateId: t.id, optionId: optionFor(t, said) });
-  }
+  // Possession-specific calls need possession-start data the game does not supply.
+  if (/ next possession /.test(said)) return { unsupported: 'Next-possession calls are not supported for this game.', suggestions };
   if (/ (next (made )?(basket|bucket|shot made|field goal)) /.test(said) || / (a|is a|be a) (two|three) /.test(said)) {
     const t = byId('next_made_field_goal_value');
     if (!t?.available) return { unsupported: 'That call is not available right now.', suggestions };
@@ -58,6 +55,10 @@ function createError(problem: unknown): { message: string; retry?: boolean } {
     QUOTE_CHANGED: 'The offer changed. Review a new offer before creating the call.',
     INSUFFICIENT_POINTS: 'Not enough available points. No call was created.',
     PICKS_LOCKED: 'That moment has passed. No call was created.',
+    STALE_ANCHOR: 'The game moved on. Reopen the composer for a fresh call window.',
+    BAD_HORIZON: 'That deadline is outside the allowed window. Choose another.',
+    FEATURE_DISABLED: 'Calls are off in this room.',
+    PROBABILITY_UNAVAILABLE: 'No offer for that call right now. Try another answer or deadline.',
   };
   return { message: (problem.code && messages[problem.code]) || problem.message || 'No call was created.' };
 }

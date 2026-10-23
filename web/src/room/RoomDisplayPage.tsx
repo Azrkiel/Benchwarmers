@@ -82,7 +82,7 @@ export function RoomDisplayScreen({ code, layout: fixedLayout, embedded = false,
   useEffect(() => { audio.setSpeaking(speech.speaking); }, [audio, speech.speaking]);
   // Only the playback leader with sound enabled speaks; every screen shows the caption.
   const { caption } = useRoomAnnouncements(view, (text) => { if (audio.canPlay()) speech.speak(text); });
-  const callNotice = useCallNotices((view as (RoomViewNext & PointsSnapshotFields) | undefined)?.calls);
+  const callNotice = useCallNotices((view as (RoomViewNext & PointsSnapshotFields) | undefined)?.calls, view?.standings);
   const [reply, setReply] = useState('');
   useEffect(() => { if (!reply) return; const timer = setTimeout(() => setReply(''), 8000); return () => clearTimeout(timer); }, [reply]);
   useEffect(() => { if (current === 'results' && view && !final) setCurrent('game'); }, [current, final, view]);
