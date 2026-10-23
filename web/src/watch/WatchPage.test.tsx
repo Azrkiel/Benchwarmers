@@ -14,22 +14,20 @@ it('accepts only supported YouTube video URLs', () => {
   expect(youtubeId('https://youtube.com.evil.test/watch?v=lsZDzZbO_aY')).toBeNull();
   expect(youtubeId('javascript:alert(1)')).toBeNull();
 });
-it('layers the clean demo over video without capturing its pointer input', () => {
+it('keeps the video clear until a bounded information panel is requested', () => {
   show();
-  const overlay = screen.getByTitle('Benchwarmers overlay');
-  expect(overlay.getAttribute('src')).toBe('/tv2/DEMO?controls=0&fixture=live&mode=live');
-  expect(overlay.getAttribute('tabindex')).toBe('-1');
-  expect(screen.getByText(/sample scores are not synced/i)).toBeTruthy();
+  expect(screen.queryByRole('region', {name:'Companion panel'})).toBeNull();
+  expect(screen.getByText('Demo replay · Not synced to video')).toBeTruthy();
 });
 it('changes panels and hides the overlay without reloading the player', () => {
   show();
   const video = screen.getByTitle('YouTube video');
+  fireEvent.click(screen.getByRole('button', { name: 'Crew panels' }));
   fireEvent.click(screen.getByRole('button', { name: 'Rosters' }));
-  expect(screen.getByTitle('Benchwarmers overlay').getAttribute('src')).toContain('mode=rosters');
-  fireEvent.keyDown(screen.getByRole('button', { name: 'Rosters' }), { key: 'Escape' });
-  expect(screen.getByTitle('Benchwarmers overlay').getAttribute('src')).toContain('mode=live');
-  fireEvent.click(screen.getByRole('button', { name: 'Show overlay' }));
-  expect(screen.getByTitle('Benchwarmers overlay').hasAttribute('hidden')).toBe(true);
+  expect(screen.getByRole('region', {name:'Companion panel'})).toBeTruthy();
+  fireEvent.keyDown(screen.getByRole('region', {name:'Companion panel'}), { key: 'Escape' });
+  expect(screen.queryByRole('region', {name:'Companion panel'})).toBeNull();
+  expect(document.activeElement).toBe(screen.getByRole('button', {name:'Rosters'}));
   expect(screen.getByTitle('YouTube video')).toBe(video);
 });
 it('rejects an unsupported source without replacing the playing video', () => {

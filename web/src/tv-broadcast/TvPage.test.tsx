@@ -33,7 +33,7 @@ describe('TvPage', () => {
     const { container } = renderAt('/tv/DEMO?fixture=live');
     const game = screen.getByRole('button', { name: 'Game' });
     fireEvent.keyDown(game, { key: 'ArrowDown' });
-    const action = screen.getByRole('button', { name: 'View live pick' });
+    const action = screen.getByRole('button', { name: 'View picks' });
     expect(document.activeElement).toBe(action);
     fireEvent.keyDown(action, { key: 'Enter' });
     expect(container.querySelector('.tv-pickbar')).toBeTruthy();
@@ -41,7 +41,7 @@ describe('TvPage', () => {
     expect(container.querySelector('.tv-pickbar')).toBeTruthy();
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(container.querySelector('.tv-pickbar')).toBeNull();
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'View live pick' }));
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'View picks' }));
     fireEvent.keyDown(document.activeElement!, { key: 'ArrowUp' });
     expect(document.activeElement).toBe(game);
   });
@@ -67,7 +67,7 @@ describe('TvPage', () => {
   it('offers a primary action appropriate to drafting and final phases', () => {
     const draft = renderAt('/tv/DEMO?fixture=drafting');
     fireEvent.click(screen.getByRole('button', { name: 'Open draft' }));
-    expect(screen.getByRole('heading', { name: 'Draft night' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Draft' })).toBeTruthy();
     draft.unmount();
     renderAt('/tv/DEMO?fixture=final');
     fireEvent.click(screen.getByRole('button', { name: 'See results' }));
@@ -76,7 +76,7 @@ describe('TvPage', () => {
 
   it('provides a game-night overview with the room and the next question', () => {
     renderAt('/tv/DEMO?fixture=live');
-    expect(screen.getByRole('region', { name: 'Around the room' })).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Standings' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Will the next score be a 3-pointer?' })).toBeTruthy();
     expect(document.documentElement.classList.contains('tv-overlay')).toBe(false);
   });
@@ -84,7 +84,7 @@ describe('TvPage', () => {
   it('preserves a transparent interactive overlay when requested', () => {
     renderAt('/tv/DEMO?fixture=live&overlay=1');
     expect(document.documentElement.classList.contains('tv-overlay')).toBe(true);
-    expect(screen.queryByRole('region', { name: 'Around the room' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Standings' })).toBeNull();
     expect(screen.getByRole('navigation', { name: 'TV views' })).toBeTruthy();
   });
 
@@ -104,7 +104,8 @@ describe('TvPage', () => {
 
   it('provides a clean broadcast mode without interactive controls or a fake game', () => {
     const { container } = renderAt('/tv/DEMO?fixture=live&controls=0');
-    expect(document.documentElement.classList.contains('tv-overlay')).toBe(true);
+    expect(document.documentElement.classList.contains('tv-overlay')).toBe(false);
+    expect(screen.getByRole('region', { name: 'Standings' })).toBeTruthy();
     expect(screen.queryByRole('navigation', { name: 'TV views' })).toBeNull();
     expect(container.querySelector('.tv-court')).toBeNull();
     expect(container.querySelector('video')).toBeNull();
@@ -126,22 +127,22 @@ describe('TvPage', () => {
     expect(container.querySelector('.tv-rosters')).toBeNull();
   });
 
-  it('returns to the game when party status changes, without opening results', () => {
+  it('preserves a manually opened roster through party phase changes', () => {
     vi.useFakeTimers();
     const { container } = renderAt('/tv/DEMO?fixture=cycle');
     act(() => { vi.advanceTimersByTime(20_000); });
     fireEvent.click(screen.getByRole('button', { name: 'Rosters' }));
     expect(container.querySelector('.tv-rosters')).toBeTruthy();
     act(() => { vi.advanceTimersByTime(20_000); });
-    expect(container.querySelector('.tv-rosters')).toBeNull();
+    expect(container.querySelector('.tv-rosters')).toBeTruthy();
     expect(container.querySelector('.tv-final')).toBeNull();
   });
 
   it('keeps draft night optional before the game starts', () => {
     const { container } = renderAt('/tv/DEMO?fixture=drafting');
-    expect(screen.queryByRole('heading', { name: 'Draft night' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Draft' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Draft' }));
-    expect(screen.getByRole('heading', { name: 'Draft night' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Draft' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Draft' }));
     expect(container.querySelector('.tv-draft')).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();
@@ -163,11 +164,14 @@ describe('TvPage', () => {
       return Promise.resolve({ ok: true, json: async () => finalFixture });
     });
     const { container } = renderAt('/tv/DEMO?mode=final');
-    await screen.findByText('Season standings unavailable. Reopen Results to try again.');
-    fireEvent.click(screen.getByRole('button', { name: 'Game' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Results' }));
+    await screen.findByText('Season standings unavailable.');
+    const retry = screen.getByRole('button', { name: 'Retry season standings' });
+    retry.focus();
+    fireEvent.click(retry);
+    expect(document.activeElement).toBe(retry);
     await waitFor(() => expect(container.querySelectorAll('.tv-season-table tbody tr')).toHaveLength(seasonFixture.rows.length));
     expect(attempts).toBe(2);
+    expect(document.activeElement).toBe(retry);
   });
 
   it('shows the benchwarmer panel and podium leader from the final fixture', () => {

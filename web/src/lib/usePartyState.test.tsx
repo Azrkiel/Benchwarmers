@@ -111,6 +111,24 @@ describe('network mode', () => {
     vi.setSystemTime(2_000_000);
   });
 
+  it('retries immediately without dropping the last game or overlapping a pending request', async () => {
+    let release!: () => void;
+    const fetcher = vi.fn(async () => json(liveFixture));
+    vi.stubGlobal('fetch', fetcher);
+    const { result } = renderHook(() => usePartyState('DEMO', { intervalMs: 60_000 }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    fetcher.mockRejectedValueOnce(new Error('Connection lost'));
+    await act(async () => { result.current.retry(); await vi.advanceTimersByTimeAsync(0); });
+    expect(result.current.error).toBe('Connection lost');
+    expect(result.current.state?.party.code).toBe(liveFixture.party.code);
+    fetcher.mockImplementationOnce(() => new Promise<Response>((resolve) => { release = () => resolve(json(liveFixture)); }));
+    await act(async () => { result.current.retry(); result.current.retry(); });
+    expect(fetcher).toHaveBeenCalledTimes(3);
+    expect(result.current.state).toBeDefined();
+    await act(async () => { release(); await vi.advanceTimersByTimeAsync(0); });
+    expect(result.current.error).toBeUndefined();
+  });
+
   it('fetches, repeats, and keeps state on error', async () => {
     const f = vi.fn(async (_url: string) => json({ ...liveFixture, serverNow: 2_000_000 }));
     vi.stubGlobal('fetch', f);

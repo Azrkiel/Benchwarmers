@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent } from 'react';
+import { useId, useState } from 'react';
 import { api } from '../lib/api';
 
 type Imported = { game: { id: string; title: string }; cached: boolean };
@@ -22,7 +22,7 @@ export function PullUpGame({ navigate = hardNavigate }: { navigate?: Navigate })
   const [error, setError] = useState('');
   const [code, setCode] = useState('');
 
-  async function submit(e: FormEvent) {
+  async function submit(e: { preventDefault(): void }) {
     e.preventDefault();
     const q = query.trim();
     if (!q || busy) return;
@@ -30,11 +30,11 @@ export function PullUpGame({ navigate = hardNavigate }: { navigate?: Navigate })
     setError('');
     setCode('');
     try {
-      setStatus('Finding the game…');
+      setStatus('Finding game…');
       const imported = await api.post<Imported>('/games/import', { query: q });
-      setStatus('Building rosters…');
+      setStatus('Preparing replay…');
       const party = await api.post<{ code: string }>('/parties', { crewId: CREW, gameId: imported.game.id });
-      setStatus('Starting your party…');
+      setStatus('Preparing replay…');
       for (const householdId of HOUSEHOLDS) await api.post(`/parties/${party.code}/join`, { householdId });
       setCode(party.code);
       setStatus(`${imported.game.title} is ready. Opening the TV…`);
@@ -42,6 +42,7 @@ export function PullUpGame({ navigate = hardNavigate }: { navigate?: Navigate })
     } catch (err) {
       setStatus('');
       setError(err instanceof Error && err.message ? err.message : 'Something went wrong. Try again.');
+    } finally {
       setBusy(false);
     }
   }
@@ -49,8 +50,8 @@ export function PullUpGame({ navigate = hardNavigate }: { navigate?: Navigate })
   return (
     <section className="hm-pull" aria-labelledby={`${inputId}-title`}>
       <div className="hm-pull-copy">
-        <h2 id={`${inputId}-title`}>Pull up a game</h2>
-        <p>Replay any finished game with the crew.</p>
+        <h2 id={`${inputId}-title`}>Replay a game</h2>
+        <p>Find a completed game to replay with the three-player party demo.</p>
       </div>
       <form className="hm-pull-form" onSubmit={submit}>
         <label htmlFor={inputId}>Which game?</label>
@@ -62,18 +63,21 @@ export function PullUpGame({ navigate = hardNavigate }: { navigate?: Navigate })
             placeholder="UVA vs FSU 2025"
             autoComplete="off"
             disabled={busy}
-            aria-describedby={`${inputId}-status`}
+            aria-describedby={`${inputId}-hint ${inputId}-status${error ? ` ${inputId}-error` : ''}`}
+            aria-invalid={!!error}
           />
           <button type="submit" disabled={busy || !query.trim()}>
-            {busy ? 'Working…' : 'Pull it up'}
+            {busy ? 'Finding game…' : 'Find game'}
           </button>
         </div>
+        <p id={`${inputId}-hint`} className="hm-pull-hint">Enter teams and year.</p>
+        {error && <p id={`${inputId}-error`} className="hm-pull-error" role="alert">{error} <button type="button" className="hm-pull-retry" disabled={busy} onClick={e => submit(e)}>Try again</button></p>}
         <div id={`${inputId}-status`} className="hm-pull-status" role="status" aria-live="polite">
-          {error ? <span className="hm-pull-error">{error}</span> : status}
+          {status}
           {code && (
             <>
               {' '}
-              <a href={`/lounge/${code}`}>Open the Lounge for {code}</a>
+              <a href={`/tv/${code}`}>Open TV view for {code}</a>
             </>
           )}
         </div>

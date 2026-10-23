@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render, renderHook, screen } from '@testing-library/react';
-import { PlayBanner, ScoreTick, useBanners, useNewIds, useRankClimbs, type Climb } from './fx';
+import { PlayBanner, ScoreTick, useBanners, useNewIds, useRankClimbs, ToastLayer, type Climb } from './fx';
 
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
@@ -37,9 +37,9 @@ describe('useBanners', () => {
     act(() => { screen.getByText('go').click(); });
     expect(screen.getByText('Touchdown')).toBeTruthy();
     expect(screen.queryByText('Field goal')).toBeNull();
-    act(() => { vi.advanceTimersByTime(2700); });
+    act(() => { vi.advanceTimersByTime(1900); });
     expect(screen.getByText('Field goal')).toBeTruthy();
-    act(() => { vi.advanceTimersByTime(2700); });
+    act(() => { vi.advanceTimersByTime(1900); });
     expect(screen.queryByRole('status')).toBeNull();
   });
 });
@@ -50,5 +50,13 @@ describe('ScoreTick', () => {
     expect(container.querySelector('.is-bumped')).toBeNull();
     rerender(<ScoreTick value={14} />);
     expect(container.querySelector('.is-bumped')?.textContent).toBe('14');
+  });
+});
+
+describe('ToastLayer', () => {
+  it('shows one recent update at a time', () => {
+    render(<ToastLayer toasts={[{ key: 1, text: 'Old change' }, { key: 2, text: 'Latest change' }]} />);
+    expect(screen.queryByText('Old change')).toBeNull();
+    expect(screen.getByText('Latest change')).toBeTruthy();
   });
 });

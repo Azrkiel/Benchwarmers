@@ -8,7 +8,7 @@ export function Leader({ row, state }: { row: StandingRow; state: PartyStateResp
   const margin = runnerUp ? row.total - runnerUp.total : undefined;
   return (
     <section className="tv-leader" data-testid="leader">
-      <div className="tv-leader-kicker">Top of the bench <span>01</span></div>
+      <div className="tv-leader-kicker">Leader <span>01</span></div>
       <div className="tv-leader-main">
         <Avatar avatar={row.avatar} name={row.name} color={color} size={64} />
         <div className="tv-leader-id">

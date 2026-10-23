@@ -48,8 +48,8 @@ export function verdictFor(ranked: Ranked[], opts: MatchOptions): Verdict {
 type Last = { kind: 'too-short' } | { kind: 'scored'; ranked: Ranked[] };
 
 const REASON_TEXT: Record<NotSureReason, string> = {
-  'below-threshold': 'The best match is below the threshold.',
-  'small-margin': 'Too close to the runner-up to tell apart.',
+  'below-threshold': "We couldn't tell who was speaking. Try again or choose your name.",
+  'small-margin': "We couldn't tell who was speaking. Try again or choose your name.",
   'too-short': 'The clip was too short. Speak for 2–3 seconds.',
   'nobody-enrolled': 'Nobody is enrolled in this household yet.',
 };
@@ -61,7 +61,7 @@ const messageOf = (e: unknown) => (e instanceof Error ? e.message : String(e));
 export function VoiceLabPage() {
   const [params] = useSearchParams();
   const forceFallback = params.get('backend') === 'mfcc';
-  const [householdId, setHouseholdId] = useState(HOUSEHOLDS[0].id);
+  const [householdId, setHouseholdId] = useState(params.get('household') ?? HOUSEHOLDS[0].id);
   const household = HOUSEHOLDS.find((h) => h.id === householdId) ?? HOUSEHOLDS[0];
   const voice = useVoiceId(household.id, { forceFallback });
   const who = useUtteranceCapture();
@@ -125,8 +125,8 @@ export function VoiceLabPage() {
     <main className="vid-root vid-page">
       <header className="vid-head">
         <a href="/" aria-label="Benchwarmers home"><BrandLockup size={26} /></a>
-        <h1>Voice ID lab</h1>
-        <p className="vid-privacy">Everything stays on this device. No audio or voiceprints are sent to the server.</p>
+        <h1>Set up voice recognition</h1>
+        <p className="vid-privacy">Voice ID audio and voiceprints stay on this device.</p>
       </header>
 
       <section className="vid-card" aria-labelledby="vid-household-title">
@@ -147,7 +147,10 @@ export function VoiceLabPage() {
       </section>
 
       <section className="vid-card" aria-labelledby="vid-engine-title">
-        <h2 id="vid-engine-title">Engine</h2>
+        <h2 id="vid-engine-title">Prepare recognition</h2>
+        <p role="status">{voice.status === 'ready' ? 'Ready to record samples' : voice.status === 'loading' ? `Preparing recognition… ${progressPct}%` : 'Voice recognition is not ready.'}</p>
+        {voice.status === 'error' ? <button type="button" className="vid-btn vid-btn-primary" onClick={() => void voice.load()}>Retry voice setup</button> : null}
+        <details><summary>Recognition details</summary>
         <dl className="vid-dl">
           <dt>Backend</dt>
           <dd>{backendLabel}</dd>
@@ -167,7 +170,7 @@ export function VoiceLabPage() {
             {voice.error}
           </p>
         )}
-        <p className="vid-note">
+        </details><p className="vid-note">
           The first load downloads about 100 MB once. The browser then caches it, so later loads are quick.
         </p>
       </section>
@@ -182,7 +185,7 @@ export function VoiceLabPage() {
           disabled={voice.status !== 'ready' || identifying}
           onClick={() => void toggleWho()}
         >
-          {who.recording ? 'Stop' : identifying ? 'Matching…' : 'Record a voice'}
+          {who.recording ? 'Stop recording' : identifying ? 'Matching…' : 'Test recognition'}
         </button>
         {who.recording && (
           <div className="vid-recording">
@@ -209,20 +212,19 @@ export function VoiceLabPage() {
           <div className="vid-result" aria-live="polite">
             {verdict.accepted ? (
               <>
-                <p className="vid-big vid-accepted">{verdict.top.memberName}</p>
-                <p>{Math.round(verdict.confidence * 100)}% confidence</p>
+                <p className="vid-big vid-accepted">Recognized {verdict.top.memberName}</p><p>Choose your name on the device if this is incorrect.</p>
               </>
             ) : (
               <>
                 <p className="vid-big vid-not-sure">Not sure</p>
-                <p>{REASON_TEXT[verdict.reason]}</p>
+                <p>{verdict.reason === 'too-short' || verdict.reason === 'nobody-enrolled' ? REASON_TEXT[verdict.reason] : "We couldn’t tell who was speaking. Try again in a quieter room or choose your name on the device."}</p>
               </>
             )}
           </div>
         )}
 
         {sortedRanked.length > 0 && (
-          <>
+          <details><summary>Similarity details</summary>
             <ol className="vid-ranked" aria-label="All members by similarity">
               {sortedRanked.map((r) => (
                 <li key={r.memberId} className="vid-rank">
@@ -235,13 +237,12 @@ export function VoiceLabPage() {
                 </li>
               ))}
             </ol>
-            <p className="vid-note">The vertical line marks the threshold.</p>
-          </>
+            <p className="vid-note">Similarity scores are not probabilities. The vertical line marks the threshold.</p>
+          </details>
         )}
       </section>
 
-      <section className="vid-card" aria-labelledby="vid-cal-title">
-        <h2 id="vid-cal-title">Calibration</h2>
+      <details className="vid-card"><summary id="vid-cal-title">Advanced calibration</summary>
         <div className="vid-slider">
           <div className="vid-slider-head">
             <label htmlFor="vid-threshold">Threshold</label>
@@ -273,9 +274,10 @@ export function VoiceLabPage() {
           />
         </div>
         <button type="button" className="vid-btn" onClick={() => voice.setMatchOptions({ ...defaults })}>
-          Reset to defaults
+          Reset calibration
         </button>
-      </section>
+      </details>
+      <a className="vid-btn vid-btn-primary vid-done-link" href={`/device/${encodeURIComponent(household.id)}`}>Done · Back to device</a>
     </main>
   );
 }

@@ -1,36 +1,40 @@
 import type { PartyStateResponse } from '@shared/types';
 import { Scoreboard } from './Scoreboard';
 import { PlayByPlay } from './PlayByPlay';
-import { Leader } from './Leader';
 import { Standings } from './Standings';
 import { PickBar } from './PickBar';
 import { Ticker } from './Ticker';
 import { GameOverview } from './GameOverview';
 import type { TvMode } from './modes';
 
-export function LiveView({ state, serverNow, showStandings = false, showPick = false, overview = false, onNavigate }: {
+export function LiveView({ state, serverNow, showStandings = false, showPick = false, overview = false, summary = true, onNavigate }: {
   state: PartyStateResponse;
   serverNow: () => number;
   showStandings?: boolean;
   showPick?: boolean;
   overview?: boolean;
+  summary?: boolean;
   onNavigate?: (mode: TvMode, originId: string) => void;
 }) {
-  const leader = [...state.standings].sort((a, b) => a.rank - b.rank)[0];
   return (
     <section className={`tv-view tv-live${showStandings ? ' is-standings-open' : ''}${showPick ? ' is-pick-open' : ''}${overview ? ' is-overview' : ''}`} aria-label={overview ? 'Game night overview' : 'Game overlay'}>
       <Scoreboard state={state} expanded={overview} />
       <PlayByPlay compact events={state.recentEvents} households={state.households}
-        homeColor={state.game.home.color} awayColor={state.game.away.color} />
-      {overview ? <GameOverview state={state} onNavigate={onNavigate} /> : null}
+        homeColor={state.game.home.color} awayColor={state.game.away.color} sport={state.game.sport} durationSec={state.game.durationSec} regulationSec={state.game.regulationSec} />
+      {overview ? <GameOverview state={state} now={serverNow()} onNavigate={onNavigate} /> : null}
       {showPick ? <PickBar state={state} serverNow={serverNow} /> : null}
       {showStandings ? (
         <aside className="tv-live-right">
-          {leader ? <Leader row={leader} state={state} /> : null}
           <Standings rows={state.standings} households={state.households} />
           <Ticker lines={state.ticker} />
         </aside>
-      ) : null}
+      ) : overview || !summary ? null : (
+        <ol className="tv-overlay-summary" aria-label="Top of the standings">
+          {[...state.standings].sort((a, b) => a.rank - b.rank).slice(0, 3).map(r => (
+            <li key={r.memberId}><span className="tv-overlay-rank">{r.rank}</span><span>{r.name}</span><b>{r.total.toFixed(1)}</b></li>
+          ))}
+        </ol>
+      )}
     </section>
   );
 }

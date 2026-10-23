@@ -11,3 +11,6 @@ it('supports a left anchor and hides when a readable panel cannot fit', () => {
   expect(panelBounds(1280,720,'left')!.x).toBe(64);
   expect(panelBounds(400,200,'right')).toBeUndefined();
 });
+it('keeps a readable side panel in a 760px player', () => {
+  expect(panelBounds(760, 428, 'right')!.width).toBeGreaterThanOrEqual(260);
+});

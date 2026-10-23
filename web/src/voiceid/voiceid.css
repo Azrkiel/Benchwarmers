@@ -6,11 +6,11 @@
   --vid-line: var(--lg-line);
   --vid-text: var(--lg-text);
   --vid-muted: var(--lg-muted);
-  --vid-accent: var(--lg-orange);
+  --vid-accent: #c8102e;
   --vid-ok: var(--lg-good);
-  --vid-warn: var(--lg-tan);
+  --vid-warn: #f5b942;
   --vid-bad: var(--lg-bad);
-  --vid-on-accent: var(--lg-ink);
+  --vid-on-accent: #fff;
   color: var(--vid-text);
   font-family: var(--lg-sans);
 }
@@ -76,7 +76,7 @@
 .vid-root .vid-card {
   background: var(--vid-panel);
   border: 1px solid var(--vid-line);
-  border-radius: 14px;
+  border-radius: 6px;
   padding: 20px;
   margin-bottom: 20px;
 }
@@ -145,7 +145,7 @@
 
 .vid-sentences li.vid-done {
   color: var(--vid-ok);
-  text-decoration: line-through;
+  text-decoration: none;
   text-decoration-thickness: 1px;
 }
 
@@ -159,7 +159,7 @@
   color: var(--vid-text);
   background: transparent;
   border: 2px solid var(--vid-line);
-  border-radius: 12px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -269,7 +269,7 @@
 .vid-result {
   margin-top: 20px;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--vid-bg);
   border: 1px solid var(--vid-line);
 }
@@ -364,7 +364,7 @@
 
 .vid-root button:focus-visible,
 .vid-root input:focus-visible {
-  outline: 3px solid var(--vid-accent);
+  outline: 3px solid #fff;
   outline-offset: 3px;
 }
 
@@ -393,5 +393,16 @@
 }
 
 /* Lounge type: serif display heads, brand lockup. */
-.vid-head h1, .vid-root h2 { font-family: var(--lg-serif); font-weight: 400; letter-spacing: -0.02em; }
+.vid-head h1, .vid-root h2 { font-family: var(--lg-serif); font-weight: 600; letter-spacing: -0.01em; }
 .vid-head .bw-brand { font-size: 26px; margin-bottom: 18px; }
+
+.vid-sample { border-left:3px solid #f51825; padding:16px; font-size:1.25rem; background:var(--lg-raised); }
+.vid-panel .vid-card { margin-top:16px; }
+.vid-seg[aria-pressed=true] { border-color:#fff;box-shadow:inset 0 -3px #f51825; }
+.vid-confirm { padding:16px; margin-top:16px; border:1px solid #ff7b86; }
+.vid-confirm .vid-btn { margin:4px; }
+.vid-page summary { cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600; }
+.vid-done-link { display:inline-flex;align-items:center;text-decoration:none;margin-top:8px; }
+.vid-privacy { color:var(--vid-muted);font-size:1rem; }
+.vid-page details:focus-visible,.vid-page summary:focus-visible,.vid-done-link:focus-visible { outline:3px solid #fff;outline-offset:3px; }
+.vid-btn-stop { background:#c8102e;border-color:#c8102e; }

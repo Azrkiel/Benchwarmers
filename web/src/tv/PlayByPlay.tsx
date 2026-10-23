@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import type { EventView, Household, Sport } from '@shared/types';
-import { POP_MS, formatPop, memberColor, newEventIds } from './pops';
+import { formatPop, memberColor } from './pops';
 
 const NEUTRAL = '#8892a6';
 
@@ -20,8 +19,6 @@ export function gameTag(t: number, sport?: Sport, durationSec = 480, regulationS
   return `Q${period} ${m}:${String(s).padStart(2, '0')}`;
 }
 
-type Pop = { key: number; text: string; color: string };
-
 export function PlayByPlay({
   events,
   households,
@@ -30,6 +27,7 @@ export function PlayByPlay({
   sport,
   durationSec,
   regulationSec,
+  compact = false,
 }: {
   events: EventView[];
   households: Household[];
@@ -38,54 +36,11 @@ export function PlayByPlay({
   sport?: Sport;
   durationSec?: number;
   regulationSec?: number;
+  compact?: boolean;
 }) {
-  const latest = events.slice(0, 3);
-  const prevRef = useRef<Set<string> | undefined>(undefined);
-  const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
-  const seqRef = useRef(0);
-  const [pops, setPops] = useState<Pop[]>([]);
-
-  // Only events new since the last poll float up; the first render seeds the ids silently.
-  useEffect(() => {
-    const ids = newEventIds(prevRef.current, events);
-    prevRef.current = new Set(events.map((e) => e.id));
-    if (ids.length === 0) return;
-    const fresh: Pop[] = [];
-    for (const e of events) {
-      if (!ids.includes(e.id)) continue;
-      for (const f of e.fantasy) {
-        seqRef.current += 1;
-        fresh.push({ key: seqRef.current, text: formatPop(f), color: memberColor(households, f.memberId) });
-      }
-    }
-    if (fresh.length === 0) return;
-    setPops((p) => [...p, ...fresh]);
-    for (const pop of fresh) {
-      const t = setTimeout(() => {
-        timersRef.current.delete(t);
-        setPops((p) => p.filter((x) => x.key !== pop.key));
-      }, POP_MS);
-      timersRef.current.add(t);
-    }
-  }, [events, households]);
-
-  useEffect(() => {
-    const timers = timersRef.current;
-    return () => {
-      timers.forEach((t) => clearTimeout(t));
-      timers.clear();
-    };
-  }, []);
-
+  const latest = events.slice(0, compact ? 1 : 3);
   return (
-    <div className="tv-pbp">
-      <div className="tv-pop-layer" aria-hidden="true">
-        {pops.map((p) => (
-          <div key={p.key} className="tv-pop-float" style={{ left: `${10 + ((p.key * 23) % 70)}%`, color: p.color }}>
-            {p.text}
-          </div>
-        ))}
-      </div>
+    <div className={`tv-pbp${compact ? ' is-compact' : ''}`} aria-label="Recent plays">
       <ol className="tv-pbp-list">
         {latest.map((e) => {
           const color = e.team === 'home' ? homeColor : e.team === 'away' ? awayColor : NEUTRAL;
@@ -94,7 +49,7 @@ export function PlayByPlay({
               <span className="tv-pbp-time">{gameTag(e.t, sport, durationSec, regulationSec)}</span>
               <span className="tv-pbp-text">{e.text}</span>
               {e.fantasy.map((f, i) => (
-                <span key={i} className="tv-chip" style={{ background: memberColor(households, f.memberId) }}>
+                <span key={i} className="tv-chip" style={{ borderColor: memberColor(households, f.memberId) }}>
                   {formatPop(f)}
                 </span>
               ))}

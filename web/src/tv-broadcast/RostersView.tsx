@@ -18,14 +18,14 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
         </span>
         <span className="tv-rosters-clock">{game.clock}</span>
       </header>
-      <div className="tv-rosters-grid">
+      <div className="tv-rosters-grid" role="region" aria-label="Party rosters" tabIndex={0} data-tv-scroll>
         {rows.map((row) => {
           const color = householdColor(households, row.householdId);
           const city = households.find((h) => h.id === row.householdId)?.city;
           return (
             <article
               key={row.memberId}
-              className="tv-roster-col"
+              className="tv-roster-col" tabIndex={0} role="region" aria-label={`${row.name} roster`} data-tv-scroll
               data-member={row.memberId}
               style={{ ['--hh' as string]: color }}
             >
@@ -46,7 +46,7 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
                 {row.roster.map((r) => {
                   const info = playerInfo(state, r.playerId);
                   const team = info?.side === 'away' ? game.away : game.home;
-                  const isWorst = worst?.memberId === row.memberId && worst.playerId === r.playerId;
+                  const isWorst = state.party.status === 'final' && worst?.memberId === row.memberId && worst.playerId === r.playerId;
                   const nick = info?.player.nickname ?? info?.player.name ?? r.playerId;
                   return (
                     <li

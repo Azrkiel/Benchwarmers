@@ -38,7 +38,7 @@ describe('FinalView', () => {
 
   it('explains a failed season request and its recovery path', () => {
     const { getByText, queryByText } = render(<FinalView state={finalFixture} serverNow={now} seasonError />);
-    expect(getByText('Season standings unavailable. Reopen Results to try again.')).toBeTruthy();
+    expect(getByText('Season standings unavailable.')).toBeTruthy();
     expect(queryByText('Season standings loading…')).toBeNull();
   });
 

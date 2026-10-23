@@ -1,23 +1,29 @@
+import { useState } from 'react';
 import type { PartyStateResponse, SeasonResponse, StandingRow } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 import { findMember, formatPoints } from './pops';
 import { playerInfo, worstPerformer } from './rosters';
 
+const RECAP_CLAMP_CHARS = 140;
+
 function PodiumBlock({ row, place, state }: { row: StandingRow; place: 1 | 2 | 3; state: PartyStateResponse }) {
   const color = householdColor(state.households, row.householdId);
   return (
     <div className={`tv-podium-block tv-podium-${place}`} data-place={place} style={{ ['--hh' as string]: color }}>
-      <div className="tv-podium-label">{place === 1 ? 'Winner' : `${place === 2 ? 'Second' : 'Third'} place`}</div>
-      <Avatar avatar={row.avatar} name={row.name} color={color} size={place === 1 ? 96 : 72} />
+      <div className="tv-podium-label">{row.rank === 1 ? (state.standings.filter(r => r.rank === 1).length > 1 ? 'Joint winner' : 'Winner') : `Rank ${row.rank}`} </div>
+      <Avatar avatar={row.avatar} name={row.name} color={color} size={place === 1 ? 72 : 56} />
       <div className="tv-podium-name">{row.name}</div>
       <div className="tv-podium-hh">{row.household}</div>
       <div className="tv-podium-total">{row.total.toFixed(1)}</div>
-      <div className="tv-podium-step"><span>{place}</span></div>
+      <div className="tv-podium-step"><span>{row.rank}</span></div>
     </div>
   );
 }
 
-export function FinalView({ state, season, seasonError = false }: { state: PartyStateResponse; serverNow: () => number; season?: SeasonResponse; seasonError?: boolean }) {
+export function FinalView({ state, season, seasonError = false, onRetrySeason }: { state: PartyStateResponse; serverNow: () => number; season?: SeasonResponse; seasonError?: boolean; onRetrySeason?: () => void }) {
+  // Once a retry is offered it stays mounted, so remote focus survives the reload.
+  const [retryShown, setRetryShown] = useState(false);
+  if (seasonError && !retryShown) setRetryShown(true);
   const { game } = state;
   const rows = [...state.standings].sort((a, b) => a.rank - b.rank);
   const [first, second, third] = rows;
@@ -25,7 +31,8 @@ export function FinalView({ state, season, seasonError = false }: { state: Party
   const homeWin = game.home.score > game.away.score;
   const awayWin = game.away.score > game.home.score;
 
-  const recap = state.recap ?? (first ? `${first.name} wins the night with ${formatPoints(first.total)} points.` : '');
+  const winners = rows.filter(r => r.rank === rows[0]?.rank);
+  const recap = state.recap ?? (first ? `${winners.map(r => r.name).join(' and ')} ${winners.length > 1 ? 'tie for first' : 'wins the night'} with ${formatPoints(first.total)} points.` : 'No results available.');
 
   let bench: { playerName: string; ownerName: string; points: number } | undefined = state.benchwarmerOfTheNight;
   if (!bench) {
@@ -47,7 +54,7 @@ export function FinalView({ state, season, seasonError = false }: { state: Party
 
   return (
     <section className="tv-view tv-final">
-      <div className="tv-final-left">
+      <div className="tv-final-left" role="region" aria-label="Final standings" tabIndex={0} data-tv-scroll>
         <header className="tv-final-head">
           <h2>Final</h2>
           <div className="tv-final-score">
@@ -79,13 +86,15 @@ export function FinalView({ state, season, seasonError = false }: { state: Party
         ) : null}
       </div>
 
-      <div className="tv-final-right">
+      <div className="tv-final-right" role="region" aria-label="Recap and season standings" tabIndex={0} data-tv-scroll>
         <section className="tv-recap">
           <h3>Recap</h3>
-          <blockquote>{recap}</blockquote>
+          {recap.length > RECAP_CLAMP_CHARS ? (
+            <details data-testid="recap-details"><summary><span className="tv-recap-text">{recap}</span><span className="tv-recap-hint">Expand or collapse full recap</span></summary></details>
+          ) : <blockquote className="tv-recap-text">{recap}</blockquote>}
         </section>
         {bench ? (
-          <section className="tv-bench-night">
+          <details className="tv-bench-note"><summary>Postgame note</summary><section className="tv-bench-night">
             <div className="tv-bench-body">
               <h3>Benchwarmer of the night</h3>
               <div className="tv-bench-line">
@@ -94,13 +103,13 @@ export function FinalView({ state, season, seasonError = false }: { state: Party
               </div>
             </div>
             <div className="tv-bench-pts">{formatPoints(bench.points)}</div>
-          </section>
+          </section></details>
         ) : null}
         <section className="tv-season">
           <h3>
             Season standings{season ? <span className="tv-muted"> · {season.crew.name}</span> : null}
           </h3>
-          {season ? (
+          {season && seasonRows.length === 0 ? <p className="tv-muted">No season results yet.</p> : season ? (
             <table className="tv-season-table">
               <thead>
                 <tr>
@@ -125,8 +134,9 @@ export function FinalView({ state, season, seasonError = false }: { state: Party
               </tbody>
             </table>
           ) : (
-            <div className="tv-season-loading" role="status">{seasonError ? 'Season standings unavailable. Reopen Results to try again.' : 'Season standings loading…'}</div>
+            <div className="tv-season-loading"><p role="status">{seasonError ? 'Season standings unavailable.' : 'Season standings loading…'}</p></div>
           )}
+          {retryShown && onRetrySeason ? <button type="button" data-tv-action className="tv-action" aria-busy={!season && !seasonError} onClick={onRetrySeason}>{season ? 'Reload season standings' : 'Retry season standings'}</button> : null}
         </section>
       </div>
     </section>
