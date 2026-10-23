@@ -29,6 +29,20 @@ it('announces the result, the basket and a lead change after resolution', () => 
   expect(texts).toContain('Three for the Hawks. Maya takes the lead.');
 });
 
+it('says "1 point" when several plays add up to one point', () => {
+  const plays = [{ id: 'p-miss', text: 'Free throw missed.', kind: 'score', quarter: 1, clock: '5:00' }, { id: 'p-make', text: 'Free throw good.', kind: 'score', quarter: 1, clock: '5:00' }];
+  const next = { ...locked, game: { ...locked.game, home: { ...locked.game.home, score: locked.game.home.score + 1 }, recentPlays: [...locked.game.recentPlays, ...plays] } } as RoomView;
+  expect(announcementsFor(locked, next).map((cue) => cue.text)).toContain('1 point for the Hawks.');
+});
+
+it('calls the latest of several baskets in one snapshot at its own value', () => {
+  const plays = [{ id: 'p-a', text: 'Three.', kind: 'score', quarter: 1, clock: '5:00', teamId: locked.game.home.id, points: 3 }, { id: 'p-b', text: 'Layup.', kind: 'score', quarter: 1, clock: '4:50', teamId: locked.game.home.id, points: 2 }];
+  const next = { ...locked, game: { ...locked.game, home: { ...locked.game.home, score: locked.game.home.score + 5 }, recentPlays: [...locked.game.recentPlays, ...plays] } } as RoomView;
+  const texts = announcementsFor(locked, next).map((cue) => cue.text);
+  expect(texts).toContain('Two for the Hawks.');
+  expect(texts.join(' ')).not.toMatch(/5 points/);
+});
+
 it('leaves possession out when it is unknown', () => {
   const unknown = { ...open, game: { ...open.game, context: { sport: 'basketball' as const, possessionTeamId: null, possessionPlayerId: null, ball: null, tracking: 'score_only' as const } } };
   expect(announcementsFor(lobby, unknown)[0]!.text).toBe('Next basket: two or three?');

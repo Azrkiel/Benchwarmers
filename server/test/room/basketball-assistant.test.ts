@@ -155,6 +155,31 @@ describe('voice on a real basketball room', () => {
     expect(answerRoom(store, code, { text: first!.label, participantToken: token }).view.me!.currentPick!.optionId).toBe(first!.id);
   });
 
+  it('sets a captain by nickname from the real catalog in the lobby', () => {
+    let now = 2_000_000;
+    const store = new RoomStore({ persist: false, now: () => now, speed: 4 });
+    const created = store.create({ gameId: 'harbor-vs-summit' });
+    const code = created.view.room.code;
+    const { participantToken } = store.join(code, { name: 'Maya' });
+    expect(answerRoom(store, code, { text: 'Build a balanced lineup for me', participantToken }).accepted).toBe(true);
+    const said = answerRoom(store, code, { text: 'Make Big Mo my captain', participantToken });
+    expect(said.accepted).toBe(true);
+    expect(said.view.me!.lineup!.captainId).toBe('har-c-34');
+  });
+
+  it('gives each scoring play its own team and value so screens never sum baskets', () => {
+    let now = 2_000_000;
+    const store = new RoomStore({ persist: false, now: () => now, speed: 4 });
+    const created = store.create({ gameId: 'harbor-vs-summit' });
+    const code = created.view.room.code;
+    store.join(code, { name: 'Maya' });
+    store.host(code, { hostToken: created.hostToken, action: 'start' });
+    for (let i = 0; i < 4000 && !store.view(code).game.recentPlays.some((p) => p.kind === 'score'); i++) { now += 250; store.tick(); }
+    const scores = store.view(code).game.recentPlays.filter((p) => p.kind === 'score');
+    expect(scores.length).toBeGreaterThan(0);
+    for (const play of scores) { expect(['harbor', 'summit']).toContain(play.teamId); expect([1, 2, 3]).toContain(play.points); }
+  });
+
   it('reports possession from the basketball context', () => {
     const { store, code } = basketball();
     const reply = answerRoom(store, code, { text: 'who has the ball?' }).reply;

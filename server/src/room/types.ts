@@ -13,7 +13,7 @@ export type RoomPhase = 'lobby'|'live'|'paused'|'final';
 export type RoomSummary = {code:string;name:string;seasonId:string;phase:RoomPhase;speed:number;participantCount:number;createdAt:number};
 export type RoomRules = {salaryCap:number;flexSlots:number;captainMultiplier:number;positionMultipliers:Record<string,number>;pickFactorCap:number};
 export type RoomLineup = {captainId:string;flexIds:string[];salaryUsed:number};
-export type RoomPlayer = {id:string;name:string;teamId:string;teamShort:string;position:string;role:string;salary:number;multiplier:number;stats:Record<string,number>;rawPoints:number;points:number;statLine:string;projectedPoints?:number;projectionSource?:'demo_projection';salaryModelVersion?:string};
+export type RoomPlayer = {id:string;name:string;nickname?:string;teamId:string;teamShort:string;position:string;role:string;salary:number;multiplier:number;stats:Record<string,number>;rawPoints:number;points:number;statLine:string;projectedPoints?:number;projectionSource?:'demo_projection';salaryModelVersion?:string};
 export type RoomPickScore = {points:number;base:number;factor:number;bonuses:string[];correct:boolean};
 export type BasketballTarget = {templateId:'next_score_team'|'next_made_field_goal_value'|'team_scores_in_window';anchorSequence:number;horizonGameElapsedMs:number;teamId?:string;eligibleParticipantIds:string[]};
 export type PickReceipt = {requestId:string;participantId:string;questionId:string;optionId:string;acceptedAt:number;acceptanceSequence:number};
@@ -27,7 +27,7 @@ type RoomTeam = {id:string;short:string;name:string;color:string;score:number};
 // All RoomStore responses use RoomSnapshot and always supply this metadata.
 export type RoomView = Partial<RoomSnapshotMetadata> & {
  room:RoomSummary;
- game:Partial<RoomGameMetadata> & {title:string;home:RoomTeam;away:RoomTeam;quarter:number;clock:string;situation:string;ballOn:number;fieldX:number;possession:string|null;driveNumber:number;driveCount:number;recentPlays:{id:string;text:string;kind:string;quarter:number;clock:string}[];isScripted:true;corrected?:boolean;resultVersion?:string};
+ game:Partial<RoomGameMetadata> & {title:string;home:RoomTeam;away:RoomTeam;quarter:number;clock:string;situation:string;ballOn:number;fieldX:number;possession:string|null;driveNumber:number;driveCount:number;recentPlays:{id:string;text:string;kind:string;quarter:number;clock:string;teamId?:string;points?:number}[];isScripted:true;corrected?:boolean;resultVersion?:string};
  rules:RoomRules;players:RoomPlayer[];standings:RoomStanding[];question?:RoomQuestion;lastQuestion?:RoomQuestion;calls?:RoomPlayerCall[];pregame?:PregameView;
  me?:{participantId:string;name:string;lineup?:RoomLineup;currentPick?:{questionId:string;optionId:string};bank?:CallBank;commitments?:CommitmentReceipt[];pregamePick?:{optionId:string;acceptedAt:number}};
  season:{id:string;name:string;standings:RoomSeasonStanding[]};

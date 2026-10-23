@@ -8,3 +8,4 @@ coverage/
 .DS_Store
 server/src/mcp/widget/dist/
 tools/odds/.cache/
+tools/video/rehearsal/

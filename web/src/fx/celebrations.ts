@@ -22,7 +22,7 @@ export function advance(queue: CelebrationQueue): CelebrationQueue {
 }
 
 type Team = { id: string; name: string; short: string; color: string; score: number };
-type Play = { id: string; kind: string };
+type Play = { id: string; kind: string; teamId?: string; points?: number };
 export type CelebrationInput = { sport: 'basketball' | 'football'; home: Team; away: Team; plays: Play[] };
 
 const SCORING = new Set(['score', 'td', 'fg']);
@@ -61,13 +61,17 @@ export function useCelebrations(input: CelebrationInput | undefined, { reducedMo
       if (homeDelta !== 0 || awayDelta !== 0) setCorrected((n) => n + 1);
       return;
     }
-    const team = homeDelta > 0 ? input.home : awayDelta > 0 ? input.away : undefined;
-    if (!team) return; // A scoring play with no score movement cannot be attributed; stay quiet.
-    const delta = team === input.home ? homeDelta : awayDelta;
+    if (homeDelta <= 0 && awayDelta <= 0) return; // A scoring play with no score movement cannot be attributed; stay quiet.
     const latest = scoring.at(-1)!;
-    const title = input.sport === 'basketball' ? (scoring.length === 1 ? BASKET[delta] ?? `${delta} points` : `${delta} points`)
+    // When one snapshot carries several baskets (a fast replay), celebrate the latest one at
+    // its own value and count the rest, rather than summing them into one impossible shot.
+    const own = latest.points && latest.teamId ? [input.home, input.away].find((t) => t.id === latest.teamId) : undefined;
+    const team = own ?? (homeDelta > 0 ? input.home : input.away);
+    const delta = own ? latest.points! : team === input.home ? homeDelta : awayDelta;
+    const title = input.sport === 'basketball' ? (own || scoring.length === 1 ? BASKET[delta] ?? `${delta} points` : `${delta} points`)
       : latest.kind === 'td' ? 'Touchdown' : latest.kind === 'fg' ? 'Field goal' : `${delta} points`;
-    setQueue((q) => enqueue(q, { id: latest.id, kind: input.sport === 'basketball' ? 'basket' : 'score', title, sub: team.name, color: team.color, points: delta }));
+    const extra = own ? scoring.length - 1 : 0;
+    setQueue((q) => { const next = enqueue(q, { id: latest.id, kind: input.sport === 'basketball' ? 'basket' : 'score', title, sub: team.name, color: team.color, points: delta }); return { ...next, coalesced: next.coalesced + extra }; });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ids, input?.home.score, input?.away.score]);
 

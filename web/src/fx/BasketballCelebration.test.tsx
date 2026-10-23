@@ -7,7 +7,7 @@ import { SharedAudio } from './audio';
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 const team = (id: string, score: number) => ({ id, name: id === 'h' ? 'Harbor Hawks' : 'Summit Foxes', short: id.toUpperCase(), color: '#123456', score });
-function input(home: number, away: number, plays: { id: string; kind: string }[]): CelebrationInput {
+function input(home: number, away: number, plays: { id: string; kind: string; teamId?: string; points?: number }[]): CelebrationInput {
   return { sport: 'basketball', home: team('h', home), away: team('a', away), plays };
 }
 const base = [{ id: 'e1', kind: 'score' }, { id: 'e2', kind: 'stat' }];
@@ -25,6 +25,13 @@ describe('celebration triggers', () => {
     rerender({ v: input(45, 39, [...base, { id: 'e3', kind: 'score' }]) });
     expect(result.current.celebration?.id).toBe('e3');
     expect(result.current.coalesced).toBe(0);
+  });
+
+  it('celebrates the latest of several baskets in one snapshot at its own value, never a summed shot', () => {
+    const { result, rerender } = renderHook(({ v }) => useCelebrations(v), { initialProps: { v: input(42, 39, base) } });
+    rerender({ v: input(47, 41, [...base, { id: 'e3', kind: 'score', teamId: 'h', points: 3 }, { id: 'e4', kind: 'score', teamId: 'a', points: 2 }, { id: 'e5', kind: 'score', teamId: 'h', points: 2 }]) });
+    expect(result.current.celebration).toMatchObject({ id: 'e5', title: 'Bucket', sub: 'Harbor Hawks', points: 2 });
+    expect(result.current.coalesced).toBe(2);
   });
 
   it('does not fire for a duplicate snapshot', () => {

@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Benchwarmers Video Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap">
+<style>
+/* Layout: a gallery of 1920x1080 stages, each scaled into a 16:9 frame; ?scene=<id> shows one stage full size for OBS and rendering.
+   Single dark look on purpose: it matches the app (web/src/brand/brand.css). */
+:root {
+  --bg: #101113; --surface: #1a1b1e; --raised: #26272a; --line: #4b4d52;
+  --text: #ffffff; --muted: #bfc2c8; --faint: #8d9098;
+  --red: #c8102e; --red-hot: #f51825; --good: #54d38a;
+  --sans: 'Barlow', 'Segoe UI', Arial, sans-serif;
+  --cond: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --ease-out: cubic-bezier(.16, 1, .3, 1); --ease-pop: cubic-bezier(.22, 1.35, .36, 1); --ease-io: cubic-bezier(.7, 0, .3, 1);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 16px/1.5 var(--sans); }
+html.alpha, html.alpha body { background: transparent; }
+
+/* ---------- Gallery ---------- */
+.page { max-width: 1240px; margin: 0 auto; padding-block: 40px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
+.head { display: grid; gap: 12px; }
+.brand { display: inline-flex; align-items: center; gap: .4em; font: 700 22px/1 var(--cond); text-transform: uppercase; letter-spacing: .02em; }
+.brand svg { width: 1.1em; height: 1.1em; color: var(--red-hot); }
+.head h1 { margin: 0; font: 700 clamp(40px, 6vw, 64px)/1 var(--cond); text-transform: uppercase; text-wrap: balance; }
+.head p { margin: 0; max-width: 64ch; color: var(--muted); font-size: 17px; }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.how div { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; min-width: 0; }
+.how b { display: block; font: 600 15px/1.2 var(--cond); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+.how span { color: var(--text); font-size: 15px; }
+code { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: .9em; background: var(--raised); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+section.group { display: grid; gap: 16px; }
+section.group > h2 { margin: 0; display: flex; align-items: baseline; gap: 12px; font: 700 28px/1 var(--cond); text-transform: uppercase; letter-spacing: .02em; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+section.group > h2 small { font: 500 15px/1 var(--sans); text-transform: none; color: var(--faint); letter-spacing: 0; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 820px) { .grid { grid-template-columns: 1fr 1fr; } }
+.card { display: grid; gap: 12px; min-width: 0; }
+.frame { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
+.frame.checker { background-color: #2a2b2f; background-image: linear-gradient(45deg, #222326 25%, transparent 25%, transparent 75%, #222326 75%), linear-gradient(45deg, #222326 25%, transparent 25%, transparent 75%, #222326 75%); background-size: 32px 32px; background-position: 0 0, 16px 16px; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.meta h3 { margin: 0; font: 700 22px/1.1 var(--cond); text-transform: uppercase; letter-spacing: .02em; flex: 1 1 auto; min-width: 0; }
+.meta .when { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.play { font: 600 15px/1 var(--sans); color: var(--text); background: var(--red); border: 1px solid #d4172f; border-radius: 6px; padding: 10px 16px; cursor: pointer; }
+.play:hover { background: #a80e27; }
+.play:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.files { margin: 0; color: var(--faint); font-size: 14px; }
+.files code { color: var(--muted); }
+.foot { color: var(--faint); font-size: 14px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+/* ---------- Solo (OBS / render) ---------- */
+html.solo, html.solo body { height: 100%; overflow: hidden; }
+html.solo .page { display: none; }
+#solo { display: none; }
+html.solo #solo { display: block; position: fixed; inset: 0; }
+#solo .frame { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: min(100vw, calc(100vh * 16 / 9)); aspect-ratio: 16 / 9; border: 0; border-radius: 0; background: transparent; }
+
+/* ---------- Stage (1920x1080 design space) ---------- */
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; transform: scale(var(--s, 1)); overflow: hidden; font-family: var(--sans); color: var(--text); }
+.s-bg { position: absolute; inset: 0; background: radial-gradient(120% 90% at 20% 50%, #1a1b1f 0%, var(--bg) 60%); }
+.s-court { position: absolute; right: -260px; top: -40px; width: 1500px; height: 1160px; color: #ffffff; opacity: .07; }
+.s-court.left { right: auto; left: -620px; transform: scaleX(-1); }
+/* End card: a to-scale half court (1 ft = 20 px) anchored right, faded out before it reaches the text. */
+.e-court { position: absolute; right: 40px; top: 40px; width: 940px; height: 1000px; color: #ffffff; opacity: .09;
+  -webkit-mask-image: linear-gradient(to right, transparent 36%, #000 64%); mask-image: linear-gradient(to right, transparent 36%, #000 64%); }
+.e-court .rim { color: var(--red); }
+.s-redline { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: var(--red); transform-origin: 0 50%; }
+
+/* Animation primitives: every animated element names its keyframes; --d is its start time. */
+.a { animation-duration: var(--t, 600ms); animation-delay: var(--d, 0ms); animation-fill-mode: both; animation-timing-function: var(--ease-out); }
+.fade-up { animation-name: fade-up; }
+.fade-right { animation-name: fade-right; }
+.fade { animation-name: fade; }
+.reveal-x { animation-name: reveal-x; --t: 700ms; }
+.grow-x { animation-name: grow-x; transform-origin: 0 50%; }
+.grow-y { animation-name: grow-y; transform-origin: 50% 100%; --t: 350ms; }
+.pop { animation-name: pop; animation-timing-function: var(--ease-pop); --t: 520ms; }
+.court-in { animation-name: court-in; --t: 2400ms; }
+.draw { stroke-dasharray: 1; animation-name: draw; --t: 500ms; animation-timing-function: var(--ease-io); }
+.out-up { animation: out-up 500ms var(--ease-io) var(--o, 4000ms) both; }
+.out-left { animation: out-left 450ms var(--ease-io) var(--o, 3500ms) both; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes fade-right { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes reveal-x { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pop { from { opacity: 0; transform: scale(.4) rotate(-8deg); } to { opacity: 1; transform: none; } }
+@keyframes court-in { from { opacity: 0; transform: scale(1.06); } to { opacity: .07; transform: none; } }
+@keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes out-up { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-36px); } }
+@keyframes out-left { from { clip-path: inset(-20px -20px -20px 0); opacity: 1; } to { clip-path: inset(-20px 100% -20px 0); opacity: .6; } }
+
+/* Title card */
+.t-wrap { position: absolute; left: 160px; top: 50%; translate: 0 -50%; display: grid; gap: 28px; justify-items: start; }
+.t-eyebrow { font: 600 30px/1 var(--cond); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+.t-lockup { display: flex; align-items: center; gap: 36px; }
+.t-mark { width: 196px; height: 172px; color: var(--red-hot); flex: none; }
+.t-mark svg, .e-mark svg, .w-mark svg { width: 100%; height: 100%; display: block; }
+.t-word { margin: 0; font: 800 228px/.86 var(--cond); text-transform: uppercase; letter-spacing: .005em; }
+.t-rule { width: 1180px; height: 8px; background: var(--red); }
+.t-tag { margin: 0; font: 600 76px/1.05 var(--sans); letter-spacing: -.01em; }
+.t-chips { display: flex; gap: 16px; margin: 4px 0 0; padding: 0; list-style: none; }
+.t-chips li { font: 600 30px/1 var(--cond); letter-spacing: .14em; text-transform: uppercase; color: var(--text); border: 2px solid var(--line); border-radius: 6px; padding: 14px 20px 12px; background: rgba(38, 39, 42, .7); }
+
+/* End card */
+.e-wrap { position: absolute; left: 160px; right: 160px; top: 50%; translate: 0 -50%; display: grid; gap: 36px; justify-items: start; }
+.e-lockup { display: flex; align-items: center; gap: 24px; }
+.e-mark { width: 112px; height: 98px; color: var(--red-hot); }
+.e-word { margin: 0; font: 800 132px/.9 var(--cond); text-transform: uppercase; }
+.e-tag { margin: 0; font: 600 68px/1.08 var(--sans); text-wrap: balance; }
+.e-rule { width: 1210px; height: 2px; background: var(--line); }
+.e-facts { display: flex; gap: 96px; }
+.e-fact { display: grid; gap: 10px; }
+.e-fact b { font: 600 26px/1 var(--cond); letter-spacing: .18em; text-transform: uppercase; color: var(--red-hot); }
+.e-fact span { font: 600 48px/1.1 var(--sans); }
+.e-note { font: 500 28px/1.3 var(--sans); color: var(--faint); }
+
+/* Diagram */
+.d-head { position: absolute; left: 120px; top: 92px; display: grid; gap: 14px; }
+.d-eyebrow { font: 700 28px/1 var(--cond); letter-spacing: .22em; text-transform: uppercase; color: var(--red-hot); }
+.d-title { margin: 0; font: 800 88px/.95 var(--cond); text-transform: uppercase; }
+.node { position: absolute; background: var(--surface); border: 2px solid var(--line); border-radius: 8px; padding: 26px 30px; display: grid; gap: 10px; align-content: start; }
+.node.key { border-color: var(--red); background: linear-gradient(180deg, #23161a, var(--surface) 55%); }
+.node.dashed { border-style: dashed; background: rgba(26, 27, 30, .6); }
+.n-label { display: flex; align-items: center; gap: 14px; font: 700 46px/1 var(--cond); text-transform: uppercase; letter-spacing: .01em; }
+.n-label svg { width: 38px; height: 38px; flex: none; color: var(--red-hot); }
+.n-line { font: 500 27px/1.3 var(--sans); color: var(--muted); }
+.n-line strong { color: var(--text); font-weight: 600; }
+.n-split { height: 2px; background: var(--line); margin-block: 10px; }
+.badge { justify-self: start; margin-top: 8px; font: 700 26px/1 var(--cond); letter-spacing: .12em; text-transform: uppercase; color: var(--bg); background: var(--good); border-radius: 4px; padding: 10px 14px 8px; }
+.d-svg { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: visible; }
+.d-svg path { fill: none; stroke: var(--muted); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.d-svg path.hot { stroke: var(--red-hot); }
+.d-svg polygon { fill: var(--muted); }
+.d-svg polygon.hot { fill: var(--red-hot); }
+.d-svg text { font: 600 26px var(--cond); letter-spacing: .1em; text-transform: uppercase; fill: var(--muted); }
+.d-svg .dash { stroke-dasharray: 10 12; }
+
+/* Lower thirds */
+.lt { position: absolute; left: 96px; bottom: 112px; display: flex; align-items: stretch; filter: drop-shadow(0 12px 30px rgba(0, 0, 0, .45)); }
+.lt-bar { width: 12px; background: var(--red); border-radius: 2px 0 0 2px; }
+.lt-plate { display: flex; align-items: center; gap: 26px; background: rgba(16, 17, 19, .94); border: 2px solid var(--line); border-left: 0; padding: 24px 44px 24px 30px; border-radius: 0 6px 6px 0; }
+.lt-avatar { width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; font: 700 46px/1 var(--cond); color: var(--bg); background: #d9c3f0; flex: none; }
+.lt-avatar.leo { background: #f3c38f; }
+.lt-text { display: grid; gap: 8px; }
+.lt-main { font: 700 62px/1 var(--cond); text-transform: uppercase; letter-spacing: .01em; white-space: nowrap; }
+.lt-sub { font: 500 32px/1.15 var(--sans); color: var(--muted); white-space: nowrap; }
+.lt-tag { align-self: start; font: 700 22px/1 var(--cond); letter-spacing: .18em; text-transform: uppercase; color: var(--red-hot); margin-bottom: 2px; }
+
+/* Transitions: skewed panels that cover the frame at the cut point */
+.w-panel { position: absolute; top: -60px; bottom: -60px; left: -420px; width: 2760px; animation-duration: var(--t); animation-fill-mode: both; animation-timing-function: linear; }
+.w-dark { background: var(--raised); animation-name: w-dark; }
+.w-red { background: var(--red); animation-name: w-red; }
+.w-logo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 28px; animation: w-logo var(--t) linear both; }
+.w-mark { width: 150px; height: 132px; color: #fff; }
+.w-word { font: 800 168px/.9 var(--cond); text-transform: uppercase; color: #fff; }
+@keyframes w-dark { 0% { transform: translateX(-125%) skewX(-14deg); animation-timing-function: var(--ease-io); } 38%, 64% { transform: translateX(0) skewX(-14deg); animation-timing-function: var(--ease-io); } 100% { transform: translateX(125%) skewX(-14deg); } }
+@keyframes w-red { 0%, 6% { transform: translateX(-125%) skewX(-14deg); animation-timing-function: var(--ease-io); } 44%, 56% { transform: translateX(0) skewX(-14deg); animation-timing-function: var(--ease-io); } 94%, 100% { transform: translateX(125%) skewX(-14deg); } }
+@keyframes w-logo { 0%, 36% { opacity: 0; transform: scale(.9); } 46% { opacity: 1; transform: scale(1); } 54% { opacity: 1; transform: scale(1.02); } 60%, 100% { opacity: 0; transform: scale(1.05); } }
+.h-panel { position: absolute; top: -60px; bottom: -60px; left: -420px; width: 2760px; background: var(--raised); border-left: 56px solid var(--red); box-shadow: -90px 0 0 -60px var(--red-hot); animation: h-panel var(--t) linear both; }
+@keyframes h-panel { 0% { transform: translateX(-125%) skewX(-18deg); animation-timing-function: var(--ease-io); } 45%, 55% { transform: translateX(0) skewX(-18deg); animation-timing-function: var(--ease-io); } 100% { transform: translateX(125%) skewX(-18deg); } }
+
+@media (prefers-reduced-motion: reduce) { .play { display: none; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="head">
+    <span class="brand"><svg viewBox="0 0 48 42" fill="none" aria-hidden="true"><path d="M7 13h34v9H7zM11 7h26v6H11z" fill="currentColor"/><path d="m13 22-4 13m26-13 4 13M17 22v12m14-12v12" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>Benchwarmers</span>
+    <h1>Video kit</h1>
+    <p>Title card, diagram, end card, lower-thirds and transitions for the demo video, in the app's own look. Every graphic is 1920×1080. Press Play to watch its animation; the frame then holds on its key moment.</p>
+  </header>
+  <div class="how" aria-label="How to use">
+    <div><b>Video editor</b><span>Use the files in <code>docs/video/renders/</code>. Cards are MP4. Overlays are WebM with transparency, plus a green-screen MP4.</span></div>
+    <div><b>OBS overlay</b><span>Add a Browser source, 1920×1080, pointing at <code>graphics.html?scene=lt-sim&amp;alpha=1</code>. Turn on “Refresh browser when scene becomes active”.</span></div>
+    <div><b>OBS transition</b><span>Add a Stinger with <code>wipe.webm</code>, transition point 500 ms, or <code>whip.webm</code> at 300 ms.</span></div>
+  </div>
+  <div id="groups"></div>
+  <p class="foot">Fictional teams and players. No Alexa or Amazon logos appear in these graphics; say “an Alexa+ add-on” in the narration only. The tool count on the diagram is the README’s 30; check it against <code>tools/list</code> in your take.</p>
+</main>
+<div id="solo"><div class="frame"></div></div>
+
+<script>
+const MARK = '<svg viewBox="0 0 48 42" fill="none" aria-hidden="true"><path d="M7 13h34v9H7zM11 7h26v6H11z" fill="currentColor"/><path d="m13 22-4 13m26-13 4 13M17 22v12m14-12v12" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>';
+const COURT = '<svg viewBox="0 0 1500 1160" fill="none" stroke="currentColor" stroke-width="6" aria-hidden="true"><rect x="3" y="3" width="1494" height="1154"/><line x1="3" y1="3" x2="3" y2="1157"/><circle cx="3" cy="580" r="180"/><rect x="1060" y="390" width="437" height="380"/><circle cx="1060" cy="580" r="180"/><path d="M1497 70 H1360 A520 520 0 0 0 1360 1090 H1497"/><circle cx="1420" cy="580" r="22"/><line x1="1460" y1="520" x2="1460" y2="640"/></svg>';
+// Half court in feet: half-court line at x=0, baseline at x=47, sidelines at y=0 and y=50.
+const HALF_COURT = '<svg class="e-court" viewBox="-0.2 -0.2 47.4 50.4" fill="none" stroke="currentColor" stroke-width="0.2" aria-hidden="true">'
+  + '<rect class="a draw" pathLength="1" style="--d:150ms;--t:1100ms" x="0" y="0" width="47" height="50"/>'
+  + '<path class="a draw" pathLength="1" style="--d:350ms;--t:900ms" d="M0 19A6 6 0 0 1 0 31"/>'
+  + '<rect class="a draw" pathLength="1" style="--d:450ms;--t:900ms" x="28" y="17" width="19" height="16"/>'
+  + '<circle class="a draw" pathLength="1" style="--d:600ms;--t:900ms" cx="28" cy="25" r="6"/>'
+  + '<path class="a draw" pathLength="1" style="--d:550ms;--t:1200ms" d="M47 3H32.8A23.75 23.75 0 0 0 32.8 47H47"/>'
+  + '<path class="a draw" pathLength="1" style="--d:800ms;--t:600ms" d="M43 21H41.75A4 4 0 0 0 41.75 29H43"/>'
+  + '<line class="a draw" pathLength="1" style="--d:900ms;--t:400ms" x1="43" y1="22" x2="43" y2="28"/>'
+  + '<circle class="rim a draw" pathLength="1" style="--d:1000ms;--t:500ms" cx="41.75" cy="25" r="0.75" stroke-width="0.3"/></svg>';
+const ICON = {
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>',
+  server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z"/></svg>'
+};
+const at = (ms) => `style="--d:${ms}ms"`;
+
+function lowerThird({ main, sub, tag, avatar, cls = '' }) {
+  return `<div class="lt out-left" style="--o:3500ms">
+    <div class="lt-bar a grow-y" ${at(0)}></div>
+    <div class="lt-plate a reveal-x" style="--d:120ms;--t:520ms">
+      ${avatar ? `<div class="lt-avatar ${cls} a pop" ${at(300)}>${avatar}</div>` : ''}
+      <div class="lt-text">
+        ${tag ? `<div class="lt-tag a fade-right" ${at(260)}>${tag}</div>` : ''}
+        <div class="lt-main a fade-right" ${at(320)}>${main}</div>
+        <div class="lt-sub a fade-right" ${at(440)}>${sub}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+const SCENES = [
+  { id: 'title', group: 'cards', name: 'Title card', dur: 4500, hold: 2400, when: '0:12 · after the cold open', files: 'title.mp4 · title.png',
+    html: () => `<div class="s-bg"><div class="s-court a court-in">${COURT}</div><div class="s-redline a grow-x" style="--d:200ms;--t:900ms"></div></div>
+      <div class="t-wrap out-up" style="--o:4000ms">
+        <div class="t-eyebrow a fade-up" ${at(150)}>Game night demo</div>
+        <div class="t-lockup"><span class="t-mark a pop" ${at(250)}>${MARK}</span><h1 class="t-word a reveal-x" ${at(420)}>Benchwarmers</h1></div>
+        <div class="t-rule a grow-x" style="--d:800ms;--t:700ms"></div>
+        <p class="t-tag a fade-up" ${at(1000)}>Game night, by voice.</p>
+        <ul class="t-chips"><li class="a fade-up" ${at(1300)}>Free to play</li><li class="a fade-up" ${at(1400)}>Fictional teams</li><li class="a fade-up" ${at(1500)}>No real money</li></ul>
+      </div>` },
+  { id: 'diagram', group: 'cards', name: 'Architecture diagram', dur: 7000, hold: 6999, when: '2:15 · under the hood', files: 'diagram.mp4 · diagram.png',
+    html: () => `<div class="s-bg"></div>
+      <div class="d-head"><div class="d-eyebrow a fade-up" ${at(0)}>Under the hood</div><h2 class="d-title a fade-up" ${at(120)}>One server runs the night</h2></div>
+      <svg class="d-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+        <path class="hot a draw" pathLength="1" d="M560 372 H722" ${at(900)}/><polygon class="hot a fade" points="736,372 718,362 718,382" style="--d:1300ms;--t:150ms"/>
+        <text class="a fade" x="574" y="350" ${at(1150)}>tools/call</text>
+        <path class="hot a draw" pathLength="1" d="M1200 372 H1322" ${at(1900)}/><polygon class="hot a fade" points="1336,372 1318,362 1318,382" style="--d:2300ms;--t:150ms"/>
+        <path class="a draw" pathLength="1" d="M560 712 H1322" style="--d:3500ms;--t:700ms"/><polygon class="a fade" points="1336,712 1318,702 1318,722" style="--d:4100ms;--t:150ms"/>
+        <text class="a fade" x="600" y="760" style="--d:3900ms">REST /api · live state</text>
+        <path class="dash a fade" d="M1200 935 H1590 V842" style="--d:4900ms;--t:500ms"/><polygon class="a fade" points="1590,828 1580,846 1600,846" style="--d:5200ms;--t:200ms"/>
+        <text class="a fade" x="1222" y="912" style="--d:5200ms">ready-made content</text>
+      </svg>
+      <div class="node a fade-up" style="left:120px;top:300px;width:440px;--d:400ms"><div class="n-label">${ICON.mic}Smart display</div><div class="n-line">Spoken or typed requests</div><div class="n-line">Bound to one person’s seat</div></div>
+      <div class="node key a fade-up" style="left:740px;top:300px;width:460px;--d:1400ms"><div class="n-label">${ICON.server}MCP server</div><div class="n-line"><strong>Self-hosted</strong> · spec 2025-11-25</div><div class="n-line">Streamable HTTP, stateless</div><div class="n-line">30 tools + MCP App board</div><span class="badge a pop" style="--d:5800ms">Replies under 500 ms</span></div>
+      <div class="node a fade-up" style="left:1340px;top:300px;width:480px;min-height:528px;--d:2400ms"><div class="n-label">${ICON.clock}Game engine</div><div class="n-line">Owns the clock, picks and scores</div><div class="n-line"><strong>No model decides a result</strong></div><div class="n-split"></div><div class="n-label" style="font-size:38px">Season store</div><div class="n-line">Standings survive restarts</div></div>
+      <div class="node a fade-up" style="left:120px;top:640px;width:440px;--d:3100ms"><div class="n-label">${ICON.phone}Phones + TV</div><div class="n-line">Lineups, picks, shared display</div></div>
+      <div class="node dashed a fade-up" style="left:740px;top:862px;width:460px;--d:4500ms"><div class="n-label" style="font-size:38px">${ICON.spark}AI worker</div><div class="n-line">Runs in the background. Works offline with no cloud keys.</div></div>` },
+  { id: 'end', group: 'cards', name: 'End card', dur: 5000, hold: 4999, when: '2:40 · close', files: 'end.mp4 · end.png',
+    html: () => `<div class="s-bg">${HALF_COURT}<div class="s-redline a grow-x" style="--d:100ms;--t:900ms"></div></div>
+      <div class="e-wrap">
+        <div class="e-lockup"><span class="e-mark a pop" ${at(100)}>${MARK}</span><h2 class="e-word a reveal-x" ${at(250)}>Benchwarmers</h2></div>
+        <p class="e-tag a fade-up" ${at(700)}>Your couch, their couch, one game night.</p>
+        <div class="e-rule a grow-x" style="--d:1100ms;--t:800ms"></div>
+        <div class="e-facts"><div class="e-fact a fade-up" ${at(1300)}><b>Code</b><span>github.com/Azrkiel/Benchwarmers</span></div><div class="e-fact a fade-up" ${at(1450)}><b>License</b><span>MIT, open source</span></div></div>
+        <div class="e-note a fade" style="--d:1800ms">Fictional teams and players. Free to play, no real money.</div>
+      </div>` },
+  { id: 'lt-sim', group: 'lower', overlay: true, name: 'Simulated smart display', dur: 4000, hold: 2000, when: 'Every smart-display shot', files: 'lt-sim.webm · lt-sim-green.mp4 · lt-sim.png',
+    html: () => lowerThird({ tag: 'On screen', main: 'Simulated smart display', sub: 'Real MCP calls to our own server' }) },
+  { id: 'lt-maya', group: 'lower', overlay: true, name: 'Maya name tag', dur: 4000, hold: 2000, when: '0:20 · host and join', files: 'lt-maya.webm · lt-maya-green.mp4 · lt-maya.png',
+    html: () => lowerThird({ avatar: 'M', main: 'Maya', sub: 'Austin · hosting the room' }) },
+  { id: 'lt-leo', group: 'lower', overlay: true, name: 'Leo name tag', dur: 4000, hold: 2000, when: '0:20 · host and join', files: 'lt-leo.webm · lt-leo-green.mp4 · lt-leo.png',
+    html: () => lowerThird({ avatar: 'L', cls: 'leo', main: 'Leo', sub: 'Seattle · joined with the code' }) },
+  { id: 'lt-sped', group: 'lower', overlay: true, name: 'Replay sped up', dur: 4000, hold: 2000, when: 'Any cut that skips game time', files: 'lt-sped.webm · lt-sped-green.mp4 · lt-sped.png',
+    html: () => lowerThird({ tag: 'Edited for time', main: 'Replay sped up', sub: 'Scripted fictional game' }) },
+  { id: 'lt-typed', group: 'lower', overlay: true, name: 'Typed input', dur: 4000, hold: 2000, when: 'Only if speech failed in the take', files: 'lt-typed.webm · lt-typed-green.mp4 · lt-typed.png',
+    html: () => lowerThird({ tag: 'Input', main: 'Typed request', sub: 'Same request, typed instead of spoken' }) },
+  { id: 'wipe', group: 'trans', overlay: true, name: 'Red wipe', dur: 1000, hold: 500, when: 'Between beats · cut at 500 ms', files: 'wipe.webm · wipe-green.mp4',
+    html: () => `<div class="w-panel w-dark" style="--t:1000ms"></div><div class="w-panel w-red" style="--t:1000ms"></div><div class="w-logo" style="--t:1000ms"><span class="w-mark">${MARK}</span><span class="w-word">Benchwarmers</span></div>` },
+  { id: 'whip', group: 'trans', overlay: true, name: 'Quick whip', dur: 600, hold: 300, when: 'Fast cuts · cut at 300 ms', files: 'whip.webm · whip-green.mp4',
+    html: () => `<div class="h-panel" style="--t:600ms"></div>` }
+];
+const GROUPS = { cards: ['Cards', 'Full-frame graphics'], lower: ['Lower-thirds', 'Transparent overlays, 4 s each'], trans: ['Transitions', 'Transparent stingers'] };
+
+function mount(frame, scene) {
+  frame.innerHTML = `<div class="stage">${scene.html()}</div>`;
+  fit(frame);
+  return frame.firstElementChild;
+}
+function fit(frame) { const st = frame.firstElementChild; if (st) st.style.setProperty('--s', frame.clientWidth / 1920); }
+function seek(stage, ms) { for (const a of stage.getAnimations({ subtree: true })) { a.pause(); a.currentTime = ms; } }
+
+const params = new URLSearchParams(location.search);
+const soloId = params.get('scene') || location.hash.slice(1);
+const solo = SCENES.find((s) => s.id === soloId);
+const ro = new ResizeObserver((entries) => entries.forEach((e) => fit(e.target)));
+
+if (solo) {
+  document.documentElement.classList.add('solo');
+  if (params.get('alpha') === '1') document.documentElement.classList.add('alpha');
+  const frame = document.querySelector('#solo .frame');
+  ro.observe(frame);
+  const stage = mount(frame, solo);
+  if (params.get('render') === '1') {
+    seek(stage, 0);
+    window.__scene = { dur: solo.dur, hold: solo.hold, seek: (ms) => seek(stage, ms) };
+  } else if (params.get('hold') === '1') {
+    seek(stage, solo.hold);
+  }
+} else {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.getElementById('groups');
+  for (const [key, [label, note]] of Object.entries(GROUPS)) {
+    const sec = document.createElement('section');
+    sec.className = 'group';
+    sec.innerHTML = `<h2>${label} <small>${note}</small></h2><div class="grid"></div>`;
+    root.append(sec);
+    for (const scene of SCENES.filter((s) => s.group === key)) {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.id = scene.id;
+      card.innerHTML = `<div class="frame${scene.overlay ? ' checker' : ''}" role="img" aria-label="${scene.name} preview"></div>
+        <div class="meta"><h3>${scene.name}</h3><span class="when">${(scene.dur / 1000).toFixed(1)} s · ${scene.when}</span><button class="play" type="button" id="play-${scene.id}">Play</button></div>
+        <p class="files">Files: <code>${scene.files}</code> · OBS: <code>?scene=${scene.id}${scene.overlay ? '&amp;alpha=1' : ''}</code></p>`;
+      sec.querySelector('.grid').append(card);
+      const frame = card.querySelector('.frame');
+      ro.observe(frame);
+      seek(mount(frame, scene), scene.hold);
+      let timer;
+      card.querySelector('.play').addEventListener('click', () => {
+        clearTimeout(timer);
+        const stage = mount(frame, scene);
+        if (reduce) { seek(stage, scene.hold); return; }
+        timer = setTimeout(() => seek(stage, scene.hold), scene.dur + 300);
+      });
+    }
+  }
+}
+</script>
+</body>
+</html>
