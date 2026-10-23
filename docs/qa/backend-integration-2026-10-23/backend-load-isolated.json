@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "runId": "29d8511f-8b1f-4186-bc03-794e732b8259",
+  "kind": "load",
+  "game": "basketball",
+  "startedAt": "2026-10-23T12:45:47.214Z",
+  "runtime": {
+    "node": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 904,
+      "detail": {
+        "isolatedData": true,
+        "port": 58127,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "load-32-clients",
+      "status": "failed",
+      "ms": 61286,
+      "message": "32 failed operations; first: The operation was aborted due to timeout\n\n32 !== 0\n"
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "cc1468b9803bd35fe1965f650b0fed465b224f9b",
+    "fingerprint": "eaa904e1ce74e42770b627e56bcfd22e255427217e66f1ea10ca87ae8b5c0d3b"
+  },
+  "stateDirectory": "C:\\Users\\jiang\\AppData\\Local\\Temp\\bw-c-S4jqyT",
+  "metrics": {
+    "clients": 32,
+    "durationMs": 60000,
+    "reads": 1600,
+    "writes": 128,
+    "minimumReadsPerClient": 50,
+    "errors": 32,
+    "p50Ms": 75.94320000000153,
+    "p95Ms": 132.3845999999976,
+    "p99Ms": 145.20829999999842,
+    "budgetP95Ms": 500
+  },
+  "completedAt": "2026-10-23T12:46:49.963Z",
+  "status": "failed"
+}

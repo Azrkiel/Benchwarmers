@@ -1,5 +1,7 @@
 # Points backend checkpoint
 
+> Current continuation: [backend completion and verification](BACKEND_COMPLETION.md) records the later ingestion, correction, SQLite/session work and combined A/B/C checks. This file preserves the original points milestone; its pending-task list below is historical.
+
 > Follow-up: [player-created calls backend](PLAYER_CALLS_BACKEND.md) implements the next Phase 11 backend slice for the two initial templates. Commitments remain disabled by default; B/C integration and connected acceptance remain pending.
 
 October 23, 2026. Continues backend `72b648f` on `feature/basketball-backend`. Scope is Worker A's P10.1–P10.5 and P10.7 service work. The user authorized further backend work and explicitly kept B-owned source outside this chat's edit scope.

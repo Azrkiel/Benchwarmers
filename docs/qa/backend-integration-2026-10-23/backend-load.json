@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "runId": "99510a0d-5a4d-4c04-962d-11b619fee251",
+  "kind": "load",
+  "game": "basketball",
+  "startedAt": "2026-10-23T12:44:05.301Z",
+  "runtime": {
+    "node": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 883,
+      "detail": {
+        "isolatedData": true,
+        "port": 61155,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "load-32-clients",
+      "status": "failed",
+      "ms": 66306,
+      "message": "32 failed operations; first: The operation was aborted due to timeout\n\n32 !== 0\n"
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "cc1468b9803bd35fe1965f650b0fed465b224f9b",
+    "fingerprint": "eaa904e1ce74e42770b627e56bcfd22e255427217e66f1ea10ca87ae8b5c0d3b"
+  },
+  "stateDirectory": "C:\\Users\\jiang\\AppData\\Local\\Temp\\bw-c-yYTvol",
+  "metrics": {
+    "clients": 32,
+    "durationMs": 60000,
+    "reads": 1440,
+    "writes": 96,
+    "minimumReadsPerClient": 45,
+    "errors": 32,
+    "p50Ms": 73.83699999999953,
+    "p95Ms": 129.70190000000002,
+    "p99Ms": 143.96270000000004,
+    "budgetP95Ms": 500
+  },
+  "completedAt": "2026-10-23T12:45:13.118Z",
+  "status": "failed"
+}

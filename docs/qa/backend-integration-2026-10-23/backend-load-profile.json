@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "runId": "b54d882f-bf47-45f3-bb9d-fffc7e560063",
+  "kind": "load",
+  "game": "basketball",
+  "startedAt": "2026-10-23T12:47:34.732Z",
+  "runtime": {
+    "node": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 1081,
+      "detail": {
+        "isolatedData": true,
+        "port": 51181,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "load-32-clients",
+      "status": "passed",
+      "ms": 60785,
+      "detail": {
+        "clients": 32,
+        "durationMs": 60000,
+        "reads": 1920,
+        "writes": 128,
+        "minimumReadsPerClient": 60,
+        "errors": 0,
+        "p50Ms": 67.99689999999828,
+        "p95Ms": 121.22710000000006,
+        "p99Ms": 134.59469999999783,
+        "budgetP95Ms": 500
+      }
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "cc1468b9803bd35fe1965f650b0fed465b224f9b",
+    "fingerprint": "eaa904e1ce74e42770b627e56bcfd22e255427217e66f1ea10ca87ae8b5c0d3b"
+  },
+  "stateDirectory": "C:\\Users\\jiang\\AppData\\Local\\Temp\\bw-c-7yTAtg",
+  "metrics": {
+    "clients": 32,
+    "durationMs": 60000,
+    "reads": 1920,
+    "writes": 128,
+    "minimumReadsPerClient": 60,
+    "errors": 0,
+    "p50Ms": 67.99689999999828,
+    "p95Ms": 121.22710000000006,
+    "p99Ms": 134.59469999999783,
+    "budgetP95Ms": 500
+  },
+  "completedAt": "2026-10-23T12:48:37.162Z",
+  "status": "passed"
+}
