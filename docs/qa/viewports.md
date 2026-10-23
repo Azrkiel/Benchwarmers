@@ -30,6 +30,8 @@ Scratchpad dir: `C:\Users\jiang\AppData\Local\Temp\claude\C--Users-jiang\d586c4c
 | Captures with clipped text (overflow hidden) | 4 of 62, all one ellipsis-truncated `.tv-note` (player blurb) on the draft board; intentional truncation |
 | Layout at 1280x720 | No TV route produced a notice or overflow. `StageNotice` triggers below 900x500 (`tv-broadcast/StageNotice.tsx:1-2`), so 1280x720 renders the full stage |
 
+**Update 2026-10-22 (fix/tv-label-size):** items 1 and 2 above are fixed. Re-measured at 1920x1080 on all `/tv`, `/tv2`, `/lounge` fixture routes and the room TV: 0 visible text elements under 24 px (was 16 of 16 captures). Phone (390 and 320 wide, room with lineup, `/device`, `/watch`, `/`, `/welcome`, `/control`): 0 under 12 px. Changes: badges, party-code label, movement glyphs, streak, `kbd` hints, lounge `small`, room TV source/phase, section-heading count and `.rm-face` initials raised to 24 px; glyph avatars floor at 24 px; room lineup salary `small` set to 14 px. The `.tv-streak` label still wraps to two lines in its 70 px box (no clipping). Script: `scratchpad/tvlabels/measure.cjs`; screenshots in the same folder. The tables below are the original snapshot.
+
 Observations worth acting on:
 
 1. At 1920x1080, secondary TV text is 19.8 to 23 px, just under the 24 px target: `.tv-source-badge` 23 px (Demo), `Party code` label 23 px, rank-movement glyphs and streak 22 px, `kbd` remote hints 21 to 22 px, lounge draft `small` 23 px, room TV `.rm-source`/`.rm-phase` 22 px and a 14 px "1 player" caption, glyph avatars 19.8 px. Main content (scores, names, questions) is at or above 24 px.

@@ -77,7 +77,7 @@
 .lg-seats.is-full .lg-seat-name small { display:block; color:var(--lg-muted); font-size:25px; margin-top:8px; }
 .lg-seat-breakdown { display:flex; justify-content:space-between; gap:16px; padding-top:14px; border-top:1px solid var(--lg-line); color:var(--lg-muted); font-size:26px; }
 .lg-footer { display:flex; align-items:center; justify-content:space-between; gap:24px; padding-top:14px; border-top:1px solid var(--lg-line); font-size:24px; color:var(--lg-muted); }
-.lg-footer kbd { border:1px solid var(--lg-line); border-radius:4px; padding:2px 6px; color:white; font:inherit; font-size:22px; }
+.lg-footer kbd { border:1px solid var(--lg-line); border-radius:4px; padding:2px 6px; color:white; font:inherit; font-size:24px; }
 .lg-picks-view { overflow:auto; padding:8px; }
 .lg-picks-view h1 { font:600 54px/1.05 var(--lg-serif); margin:22px 0; }
 .lg-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(350px,1fr)); gap:24px; }
@@ -108,7 +108,7 @@
 .lg-draft-player b { font-size:29px; }
 .lg-draft-player small { display:block; color:var(--lg-muted); font-size:25px; margin-top:6px; }
 .lg-owner { margin-left:auto; font-size:26px; text-align:right; }
-.lg-owner small { display:block; color:var(--lg-muted); font-size:23px; margin-top:6px; }
+.lg-owner small { display:block; color:var(--lg-muted); font-size:24px; margin-top:6px; }
 .lg-results { display:grid; grid-template-columns:480px minmax(0,1fr); gap:40px; min-height:0; overflow:auto; padding:8px; }
 .lg-winner { display:flex; flex-direction:column; align-items:flex-start; gap:24px; padding:28px; border-top:4px solid var(--lg-orange); border-radius:6px; background:var(--lg-surface); }
 .lg-winner h1 { font:600 64px/1 var(--lg-serif); margin:0; }
