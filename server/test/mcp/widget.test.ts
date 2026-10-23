@@ -129,6 +129,8 @@ describe('widget views from real state', () => {
     expect(html).toContain('0:30');
     expect(html).toContain('Sam: Hawks');
     expect(html).toContain('class="badge"');
+    expect(html).toMatch(/>1 pick</);
+    expect(html).not.toContain('1 picks');
     expect(html).toContain('draft ');
     expect(html).not.toContain('🔥');
     // a streak shows flames capped at 3 plus the number

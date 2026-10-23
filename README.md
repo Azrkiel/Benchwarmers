@@ -23,7 +23,7 @@ flowchart LR
   end
   subgraph Server["Node server (Express 5)"]
     ASSIST["POST /api/assistant<br/>MCP client"]
-    MCP["POST /mcp<br/>MCP server, 11 tools"]
+    MCP["POST /mcp<br/>MCP server, 22 tools"]
     REST["REST /api<br/>party state"]
     ENGINE["Game engine + JSON store"]
     AI["AI worker<br/>fallback / Gemini / Bedrock"]

@@ -44,7 +44,7 @@ Benchwarmers is a free-to-play, one-night fantasy league plus live pick'em for w
 
 ## How we built it
 
-- **MCP server** (Node 22, TypeScript strict, Express 5, official MCP TypeScript SDK). Spec **2025-11-25**, Streamable HTTP, stateless transport, bearer auth. **11 tools**: `setup_watch_party`, `join_watch_party`, `start_watch_party`, `get_game_status`, `explain_last_result`, `get_my_roster`, `draft_player`, `list_available_players`, `get_leaderboard`, `get_season_standings`, `make_pick`. Also a `watch_party_host` prompt and a `benchwarmers://rules` resource. Tools answer in under 500 ms.
+- **MCP server** (Node 22, TypeScript strict, Express 5, official MCP TypeScript SDK). Spec **2025-11-25**, Streamable HTTP, stateless transport, bearer auth. **22 tools**. Watch party (11): `setup_watch_party`, `join_watch_party`, `start_watch_party`, `get_game_status`, `explain_last_result`, `get_my_roster`, `draft_player`, `list_available_players`, `get_leaderboard`, `get_season_standings`, `make_pick`. Football rooms (11): `room_create`, `room_join`, `room_host`, `room_list`, `room_status`, `room_player_pool`, `room_set_lineup`, `room_auto_lineup`, `room_predict`, `room_leaderboard`, `room_season`. Also a `watch_party_host` prompt and two resources, `benchwarmers://rules` and `benchwarmers://room-rules`. Tools answer in under 500 ms.
 - **MCP App widget** (`@modelcontextprotocol/ext-apps`), a single-file 246 kB HTML bundle served as a `ui://` resource.
 - **Game engine.** Pure functions: server-owned clock, prop lifecycle, three resolvers, streaks, draft with auto-fill, fantasy scoring, standings and tiebreaks, season roll-up. The engine, not the model, decides who is right. State is a JSON file store, so sessions survive restarts.
 - **Amazon Bedrock** (Converse API, Claude Haiku tier) in two places. (1) A background worker writes prop wording, plain-language explanations, the end-of-night recap and scouting notes, validated with zod, with one retry and a deterministic fallback. (2) A device assistant loop (`POST /api/assistant`) does tool use against our own `/mcp` through an MCP client, at most 3 rounds. Tools never call Bedrock synchronously, which is how we keep the latency budget.
@@ -79,7 +79,7 @@ Full detail is in `docs/FRICTION_LOG.md` (and the per-tool write-up in `docs/PRO
 
 ## Accomplishments that we're proud of
 
-- A real MCP 2025-11-25 server with 11 tools, a prompt, a resource and an MCP App, passing 519 server tests and 274 web tests, and checked in three independent MCP clients.
+- A real MCP 2025-11-25 server with 22 tools, a prompt, two resources and an MCP App, passing 742 server tests and 483 web tests, and checked in three independent MCP clients.
 - A whole party that plays end to end offline in one command (`npm run play -w server` prints standings and "Benchwarmer of the night: Big Mo"), so judges need no AWS account.
 - Two households staying in sync within about 1 s (0.98 s in Checkpoint 4) with identical lock times from a server-owned clock.
 - On-device speaker recognition that removes "I'm Maya" from every request, without sending any audio off the device.
