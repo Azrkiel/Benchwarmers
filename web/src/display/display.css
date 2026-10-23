@@ -13,7 +13,7 @@
 .sd-screen { position:relative; overflow:hidden; border-radius:16px; background:radial-gradient(120% 90% at 50% 0%, #1b1c20 0%, #0b0b0d 70%); cursor:pointer; user-select:none; display:flex; flex-direction:column; }
 .sd-status { display:flex; justify-content:space-between; align-items:center; padding:22px 40px 0; color:var(--lg-faint); font:500 24px/1 var(--lg-sans); flex:none; }
 .is-large .sd-status { padding:30px 56px 0; font-size:30px; }
-.sd-party { font-family:var(--lg-serif); letter-spacing:.08em; text-transform:uppercase; }
+.sd-party { margin-left:auto; font-family:var(--lg-serif); letter-spacing:.08em; text-transform:uppercase; }
 
 .sd-idle { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding-bottom:60px; }
 .sd-clock { font:300 168px/1 var(--lg-serif); letter-spacing:.02em; }

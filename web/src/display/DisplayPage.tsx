@@ -203,7 +203,7 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
             onClick={toggleListening}
           >
             <div className="sd-status">
-              <span className="sd-time" data-testid="display-time">{clock}</span>
+              <span className="sd-time" data-testid="display-time" hidden={idle}>{clock}</span>
               {code ? <span className="sd-party">Party {code}</span> : null}
             </div>
 
