@@ -11,6 +11,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    assetsInlineLimit: 100_000_000, // fonts must be data: URLs inside the single-file HTML (sandboxed iframe)
     rollupOptions: { input: fileURLToPath(new URL('./benchwarmers.html', import.meta.url)) },
   },
 });

@@ -210,13 +210,13 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
             {idle ? (
               <div className="sd-idle" data-testid="display-idle">
                 <div className="sd-clock">{clock}</div>
-                <p className="sd-hint">Try: &ldquo;Who&rsquo;s winning?&rdquo;</p>
-                <p className="sd-hint2">Hold Space or tap the screen to talk</p>
+                <p className="sd-hint">Ask: &ldquo;Who&rsquo;s winning?&rdquo;</p>
+                <p className="sd-hint2">Hold Space or tap to talk</p>
               </div>
             ) : (
               <div className="sd-convo">
                 {caption ? <p className="sd-caption" data-testid="display-caption">{caption}</p> : null}
-                {pending ? <p className="sd-reply is-thinking" aria-live="polite">&hellip;</p> : null}
+                {pending ? <p className="sd-reply is-thinking" aria-live="polite">Sending&hellip;</p> : null}
                 {reply ? (
                   <p
                     className={`sd-reply${lastAssistant?.error ? ' is-error' : ''}${reply.length > 140 ? ' is-long' : ''}`}
@@ -275,7 +275,7 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
               type="text"
               aria-label="Type a request"
               data-testid="display-input"
-              placeholder="Type a request, or hold Space to talk"
+              placeholder="Type or hold Space to talk"
               autoComplete="off"
               readOnly={pending}
               value={draft}
