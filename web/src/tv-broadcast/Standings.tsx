@@ -21,7 +21,7 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
           <span><i className="tv-seg tv-seg-pick" />Picks</span>
         </span>
       </header>
-      <ol className="tv-standings-list" ref={listRef}>
+      <ol className="tv-standings-list" ref={listRef} tabIndex={0} aria-label="Party standings" data-tv-scroll>
         {sorted.map((r) => {
           const mv = rankMovement(r);
           return (
@@ -35,6 +35,7 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
                   <span className="tv-split-draft" style={{ width: pct(r.draftPoints) }} />
                   <span className="tv-split-pick" style={{ width: pct(r.pickPoints) }} />
                 </span>
+                <span className="tv-split-text">Draft {r.draftPoints.toFixed(1)} · Picks {r.pickPoints.toFixed(1)}</span>
               </span>
               <span className="tv-stand-total">{r.total.toFixed(1)}</span>
               <span className="tv-streak">{r.streak >= 2 ? `${r.streak} streak` : ''}</span>
@@ -42,6 +43,7 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
           );
         })}
       </ol>
+      {sorted.length === 0 ? <p className="tv-muted">No players yet.</p> : null}
     </section>
   );
 }

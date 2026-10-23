@@ -41,6 +41,7 @@ export type PartyStateResult = {
   code: string;
   serverNow: () => number;
   fixture?: FixtureMode;
+  retry: () => void;
 };
 
 const DEFAULT_CREW = 'sunday-crew';
@@ -70,6 +71,8 @@ export function usePartyState(code: string, opts: PartyStateOptions = {}): Party
   const [resolved, setResolved] = useState<string | undefined>(undefined);
 
   const serverNow = useCallback(() => Date.now() + offsetRef.current, []);
+  const retryRef = useRef<() => void>(() => undefined);
+  const retry = useCallback(() => retryRef.current(), []);
 
   // Fixture mode.
   useEffect(() => {
@@ -143,10 +146,12 @@ export function usePartyState(code: string, opts: PartyStateOptions = {}): Party
       }
     };
 
+    retryRef.current = () => { void tick(); };
     void tick();
     const id = setInterval(() => void tick(), intervalMs);
     return () => {
       cancelled = true;
+      retryRef.current = () => undefined;
       clearInterval(id);
     };
   }, [fixture, code, isLatest, crewName, intervalMs]);
@@ -157,5 +162,6 @@ export function usePartyState(code: string, opts: PartyStateOptions = {}): Party
     code: fixture ? code : isLatest ? (resolved ?? code) : code,
     serverNow,
     fixture,
+    retry,
   };
 }

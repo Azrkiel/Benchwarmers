@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { DeviceTurn } from './assistantClient';
 
 export function Transcript({
@@ -13,18 +13,21 @@ export function Transcript({
   interim: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const atEnd = useRef(true);
+  const [unread, setUnread] = useState(false);
 
   // Keep the newest turn in view.
   useEffect(() => {
     const el = ref.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (el && atEnd.current) el.scrollTop = el.scrollHeight;
+    else if (el) setUnread(true);
   }, [turns, pending, interim]);
 
   const empty = turns.length === 0 && !pending && !listening;
 
   return (
-    <div className="ds-transcript" data-testid="transcript" role="log" aria-live="polite" ref={ref}>
-      {empty ? <p className="ds-empty">Tap the mic or type a message to start.</p> : null}
+    <div className="ds-transcript" data-testid="transcript" role="log" aria-live="polite" ref={ref} onScroll={() => { const el=ref.current; if(el) { atEnd.current=el.scrollHeight-el.scrollTop-el.clientHeight<48; if(atEnd.current) setUnread(false); } }}>
+      {empty ? <p className="ds-empty">Ask about the game, or choose a suggestion.</p> : null}
       {turns.map((t) => (
         <div
           key={t.id}
@@ -43,9 +46,10 @@ export function Transcript({
       ) : null}
       {pending ? (
         <div className="ds-thinking" data-testid="thinking" role="status">
-          thinking…
+          Sending…
         </div>
       ) : null}
+      {unread ? <button type="button" className="ds-new" onClick={() => { if(ref.current) ref.current.scrollTop=ref.current.scrollHeight; atEnd.current=true; setUnread(false); }}>New messages ↓</button> : null}
     </div>
   );
 }

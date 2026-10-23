@@ -1,12 +1,19 @@
+import { useState } from 'react';
 import type { PartyStateResponse } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 import { formatPoints } from './pops';
 import { playerInfo, worstPerformer } from './rosters';
 
+export const MEMBERS_PER_PAGE = 4;
+
 export function RostersView({ state }: { state: PartyStateResponse; serverNow: () => number }) {
   const { game, households } = state;
   const rows = [...state.standings].sort((a, b) => a.rank - b.rank);
   const worst = worstPerformer(state);
+  const pageCount = Math.max(1, Math.ceil(rows.length / MEMBERS_PER_PAGE));
+  const [requested, setPage] = useState(0);
+  const page = Math.min(requested, pageCount - 1);
+  const visible = rows.slice(page * MEMBERS_PER_PAGE, (page + 1) * MEMBERS_PER_PAGE);
   return (
     <section className="tv-view tv-rosters">
       <header className="tv-rosters-head">
@@ -17,15 +24,22 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
           <span>{game.away.score} {game.away.short}</span>
         </span>
         <span className="tv-rosters-clock">{game.clock}</span>
+        {pageCount > 1 ? (
+          <nav className="tv-roster-pager" aria-label="Roster pages">
+            <button type="button" className="tv-action" data-tv-action onClick={() => setPage((page + pageCount - 1) % pageCount)}>Previous</button>
+            <span role="status">Players {page * MEMBERS_PER_PAGE + 1}-{page * MEMBERS_PER_PAGE + visible.length} of {rows.length}</span>
+            <button type="button" className="tv-action" data-tv-action onClick={() => setPage((page + 1) % pageCount)}>Next</button>
+          </nav>
+        ) : null}
       </header>
-      <div className="tv-rosters-grid">
-        {rows.map((row) => {
+      <div className="tv-rosters-grid" role="region" aria-label="Party rosters" tabIndex={0} data-tv-scroll>
+        {visible.map((row) => {
           const color = householdColor(households, row.householdId);
           const city = households.find((h) => h.id === row.householdId)?.city;
           return (
             <article
               key={row.memberId}
-              className="tv-roster-col"
+              className="tv-roster-col" tabIndex={0} role="region" aria-label={`${row.name} roster`} data-tv-scroll
               data-member={row.memberId}
               style={{ ['--hh' as string]: color }}
             >
@@ -46,7 +60,7 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
                 {row.roster.map((r) => {
                   const info = playerInfo(state, r.playerId);
                   const team = info?.side === 'away' ? game.away : game.home;
-                  const isWorst = worst?.memberId === row.memberId && worst.playerId === r.playerId;
+                  const isWorst = state.party.status === 'final' && worst?.memberId === row.memberId && worst.playerId === r.playerId;
                   const nick = info?.player.nickname ?? info?.player.name ?? r.playerId;
                   return (
                     <li
@@ -70,6 +84,7 @@ export function RostersView({ state }: { state: PartyStateResponse; serverNow: (
             </article>
           );
         })}
+        {rows.length === 0 ? <p className="tv-muted">No players yet.</p> : null}
       </div>
     </section>
   );

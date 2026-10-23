@@ -13,12 +13,12 @@ export function Scoreboard({ state }: { state: PartyStateResponse }) {
       </div>
       <div className="tv-sb-mid">
         <div className="tv-sb-scores">
-          <span className={`tv-sb-score${homeLead ? ' is-leading' : ''}`} style={{ color: home.color }}><ScoreTick value={home.score} /></span>
+          <span className={`tv-sb-score${homeLead ? ' is-leading' : ''}`}><ScoreTick value={home.score} /></span>
           <span className="tv-sb-dash">–</span>
-          <span className={`tv-sb-score${awayLead ? ' is-leading' : ''}`} style={{ color: away.color }}><ScoreTick value={away.score} /></span>
+          <span className={`tv-sb-score${awayLead ? ' is-leading' : ''}`}><ScoreTick value={away.score} /></span>
         </div>
         <div className="tv-sb-meta">
-          <span className="tv-live-pill">Live</span>
+          <span className="tv-live-pill">{state.party.status === 'live' ? 'Playing' : state.party.status === 'final' ? 'Final' : 'Pregame'}</span>
           <span className="tv-sb-clock">{clock}</span>
         </div>
       </div>

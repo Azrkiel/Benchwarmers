@@ -68,7 +68,7 @@ export function useRankClimbs(rows: { id: string; rank: number }[], onClimb: (cl
 // ---------- Play banner ----------
 
 export type Banner = { title: string; sub?: string; tone: Tone; color?: string };
-const BANNER_MS = 2600;
+const BANNER_MS = 1800;
 
 /** One banner at a time; later ones wait their turn (max 2 queued so the screen never lags the game). */
 export function useBanners() {
@@ -152,7 +152,7 @@ export function useToasts() {
 export function ToastLayer({ toasts, placement = 'bottom' }: { toasts: (Toast & { key: number })[]; placement?: 'bottom' | 'top' }) {
   return (
     <div className={`fx-toast-layer is-${placement}`} role="status" aria-live="polite">
-      {toasts.slice(-3).map((t) => (
+      {toasts.slice(-1).map((t) => (
         <div key={t.key} className={`fx-toast is-${t.tone ?? 'info'}`} style={t.color ? { '--fx-accent': t.color } as CSSProperties : undefined}>{t.text}</div>
       ))}
     </div>
@@ -172,4 +172,4 @@ export function ScoreTick({ value, className = '' }: { value: number | string; c
   return <span key={bump} className={`fx-tick${bump ? ' is-bumped' : ''}${className ? ` ${className}` : ''}`}>{value}</span>;
 }
 
-export const CONFETTI = ['#eda77b', '#e4c6a7', '#a9d3b4', '#b9b3e3', '#f3ecdf'];
+export const CONFETTI = ['#f51825', '#ffffff', '#bfc2c8'];

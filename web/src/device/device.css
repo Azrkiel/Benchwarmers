@@ -42,7 +42,7 @@ body:has(.device-stage) {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 28px;
+  border-radius: 8px;
   border: 1px solid var(--dv-line);
   background: var(--dv-panel);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(243, 236, 223, 0.04);
@@ -79,8 +79,8 @@ body:has(.device-stage) {
 .party-chip {
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid var(--dv-accent);
-  color: var(--dv-accent);
+  border: 1px solid var(--bw-link);
+  color: var(--bw-link);
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
   font-size: 0.95rem;
   letter-spacing: 0.12em;
@@ -92,7 +92,7 @@ body:has(.device-stage) {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: #3b3543;
+  background: var(--dv-panel-2);
   color: var(--dv-muted);
 }
 
@@ -117,7 +117,7 @@ body:has(.device-stage) {
 .ds-mic:focus-visible,
 .ds-input:focus-visible,
 .sp-chip:focus-visible {
-  outline: 3px solid var(--dv-accent);
+  outline: 3px solid #fff;
   outline-offset: 2px;
 }
 
@@ -169,7 +169,7 @@ body:has(.device-stage) {
 .ds-turn {
   max-width: 86%;
   padding: 12px 16px;
-  border-radius: 16px;
+  border-radius: 6px;
   font-size: 1.1rem;
   line-height: 1.4;
 }
@@ -216,7 +216,7 @@ body:has(.device-stage) {
   align-self: flex-start;
   color: var(--dv-muted);
   font-size: 0.95rem;
-  animation: ds-blink 1.2s ease-in-out infinite;
+
 }
 
 @keyframes ds-blink {
@@ -249,7 +249,7 @@ body:has(.device-stage) {
   height: 96px;
   border-radius: 50%;
   border: 2px solid var(--dv-accent);
-  background: radial-gradient(circle at 35% 30%, #3b3543, #222330);
+  background: var(--dv-panel-2);
   color: var(--dv-accent);
   font-size: 1.6rem;
   cursor: pointer;
@@ -272,7 +272,7 @@ body:has(.device-stage) {
 }
 
 .ds-mic.is-listening {
-  background: radial-gradient(circle at 35% 30%, #5a3d2e, #2b2026);
+  background: var(--bw-action, #c8102e);
 }
 
 .ds-mic.is-listening .ds-mic-ring {
@@ -309,7 +309,7 @@ body:has(.device-stage) {
   min-width: 0;
   height: 56px;
   padding: 0 18px;
-  border-radius: 14px;
+  border-radius: 4px;
   border: 1px solid var(--dv-line);
   background: var(--dv-bg);
   color: var(--dv-text);
@@ -324,10 +324,10 @@ body:has(.device-stage) {
 .ds-send {
   height: 56px;
   padding: 0 24px;
-  border-radius: 14px;
+  border-radius: 4px;
   border: 0;
-  background: var(--dv-accent);
-  color: var(--lg-ink);
+  background: var(--bw-action, #c8102e);
+  color: #fff;
   font: inherit;
   font-weight: 600;
   font-size: 1.05rem;
@@ -364,7 +364,7 @@ body:has(.device-stage) {
 
 .device-stage .sp-chip-on {
   border-color: var(--dv-accent);
-  background: #3d3140;
+  background: var(--dv-panel-2);
 }
 
 /* Widget + fallback */
@@ -373,13 +373,20 @@ body:has(.device-stage) {
   min-height: 360px;
 }
 
+/* Hidden-while-loading widget takes no room; the fallback card holds the same height. */
 .ds-widget[data-ready='false'] {
   min-height: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .ds-widget[data-ready='false'] .widget-frame {
   min-height: 0;
   height: 0;
+}
+
+.device-stage .fb-card {
+  min-height: 360px;
 }
 
 .device-stage .fb-card {
@@ -580,7 +587,62 @@ body:has(.device-stage) {
 }
 
 /* Lounge type: serif display heads. */
-.ds-household { font-family: var(--lg-serif); font-weight: 400; letter-spacing: -0.02em; }
+.ds-household { font-family: var(--lg-serif); font-weight: 600; letter-spacing: -0.01em; }
 .ds-head .bw-brand { font-size: 22px; }
 .ds-head .bw-brand { padding-right: 18px; margin-right: 4px; border-right: 1px solid var(--dv-line); }
 .party-chip { font-family: var(--lg-sans); letter-spacing: 0.12em; }
+
+.ds-identity { padding:10px 22px 0; border-top:1px solid var(--dv-line); }
+.ds-hint { margin:0; padding:8px 22px 0; color:var(--dv-muted); font-size:14px; }
+.device-bezel { box-shadow:none; }
+.ds-transcript-wrap { display:flex;flex:1;min-height:0; }
+.ds-transcript-wrap[hidden] { display:none; }
+.ds-conversation-toggle { background:transparent;color:inherit;font:600 16px var(--dv-font);border:0;border-bottom:1px solid var(--dv-line);padding:8px 22px;min-height:44px;text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer; }
+.ds-conversation-toggle::after { content:'▾'; color:var(--dv-muted); transition:transform .15s; }
+.ds-conversation-toggle[aria-expanded='true']::after { transform:rotate(180deg); }
+.ds-tv-link { color:var(--bw-link,#ff7b86);min-height:44px;display:flex;align-items:center; }
+.ds-retry { padding:0 22px;color:var(--dv-muted);font-size:14px; }
+.ds-suggestions { display:flex; flex-wrap:wrap; gap:8px; padding:12px 22px 0; }
+.ds-suggestions button,.ds-new { background:var(--dv-panel-2); color:var(--dv-text); border:1px solid var(--bw-control-line); min-height:44px; border-radius:4px; padding:8px 12px; font:600 14px var(--dv-font); cursor:pointer; }
+.ds-new { position:sticky; bottom:0; align-self:center; }
+.ds-mic { width:56px; height:56px; color:#fff; }
+.ds-mic-wrap { width:72px; }
+.ds-mic-ring { inset:-4px; }
+.device-stage :is(button,a,summary):focus-visible { outline:3px solid #fff; outline-offset:3px; }
+.ds-foot details { max-height:35vh; overflow:auto; }
+.ds-foot summary { min-height:36px; display:flex; align-items:center; color:var(--dv-muted); cursor:pointer; }
+.ds-under:empty { display:none; }
+.device-stage .sp-label { width:100%; color:var(--dv-text); opacity:1; font-weight:600; }
+@media(max-width:960px) {
+ .ds-right { order:-1; max-height:46dvh; overflow:auto; border-bottom:1px solid var(--dv-line); }
+ .ds-transcript { min-height:96px; max-height:24dvh; }
+ .ds-input-area { position:sticky; bottom:0; z-index:2; background:var(--dv-panel); padding:12px; }
+ .ds-identity { padding:8px 12px 0; }
+ .ds-suggestions,.ds-hint { padding:12px; }
+ .ds-body { display:flex; flex-direction:column; }
+ .ds-left { display:flex; flex-direction:column; }
+ .ds-suggestions { order:-1; }
+ .ds-input { height:48px; padding:0 10px; font-size:16px; }
+ .ds-send { height:48px; padding:0 16px; }
+ .ds-mic-wrap { width:72px; }
+ .ds-mic { width:44px;height:44px; }
+ .ds-mic-hint { font-size:.75rem; margin-top:4px; }
+ .ds-input-area { flex-wrap:nowrap;gap:8px; }
+ .ds-type { width:auto; }
+ .ds-head {padding:12px;}
+ .ds-household {font-size:1.2rem;}
+}
+
+/* D06: board is the primary, stable task area (left on desktop, first on phone); conversation is secondary. */
+.ds-body { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+.ds-right { order: -1; border-right: 1px solid var(--dv-line); }
+.ds-left { border-right: 0; }
+.ds-conversation-toggle { display: none; }
+.ds-transcript-wrap[hidden] { display: flex; }
+@media (max-width: 759px) {
+  .ds-conversation-toggle { display: flex; }
+  .ds-transcript-wrap[data-open='false'] { display: none; }
+}
+@media (max-width: 960px) {
+  .ds-right { border-right: 0; }
+}

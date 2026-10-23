@@ -323,7 +323,7 @@ describe('BedrockProvider text calls', () => {
     const p = new BedrockProvider(client(JSON.stringify({ notes: { 'har-pg-1': 'Fast and fun.', bogus: 'ignored' } })));
     const notes = await p.scoutingNotes(realGame);
     expect(notes['har-pg-1']).toBe('Fast and fun.');
-    expect(notes['sum-sf-8']).toContain('Frosty');
+    expect(notes['sum-sf-8']).toBe('Slow-starting wing who builds into the game.');
     expect(notes.bogus).toBeUndefined();
     expect(Object.keys(notes)).toHaveLength(16);
   });

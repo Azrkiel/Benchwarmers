@@ -3,14 +3,12 @@ import { Scoreboard } from './Scoreboard';
 import { Court } from './Court';
 import { FootballField } from './FootballField';
 import { PlayByPlay } from './PlayByPlay';
-import { Leader } from './Leader';
 import { Standings } from './Standings';
 import { PickBar } from './PickBar';
 import { Ticker } from './Ticker';
 import { MomentsHost, PlayMoments, PropMoments } from './Moments';
 
 export function LiveView({ state, serverNow, demo = false }: { state: PartyStateResponse; serverNow: () => number; demo?: boolean }) {
-  const leader = [...state.standings].sort((a, b) => a.rank - b.rank)[0];
   // Newest scoring event drives the court pulse.
   const lastScore = state.recentEvents.find((e) => e.type === 'score' && e.team);
   return (
@@ -40,7 +38,7 @@ export function LiveView({ state, serverNow, demo = false }: { state: PartyState
         <PickBar state={state} serverNow={serverNow} />
       </div>
       <aside className="tv-live-right">
-        {leader ? <Leader row={leader} state={state} /> : null}
+        
         <Standings rows={state.standings} households={state.households} />
         <Ticker lines={state.ticker} />
       </aside>

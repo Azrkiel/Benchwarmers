@@ -125,7 +125,7 @@ function fakeBridge(connect: () => Promise<void>) {
 const BOARD_URI = 'ui://benchwarmers/board.html';
 
 async function waitForParty(code: string) {
-  await waitFor(() => expect(screen.getByTestId('party-code').textContent).toBe(code));
+  await waitFor(() => expect(screen.getByTestId('party-code').textContent).toBe(`Party ${code}`));
 }
 
 function typeAndSubmit(text: string) {
@@ -170,10 +170,11 @@ describe('DeviceScreen', () => {
 
     const transcript = screen.getByTestId('transcript');
     expect(within(transcript).getByText("I'm Maya, draft Big Mo")).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByTestId('mode-badge').textContent).toBe('offline');
     expect((screen.getByLabelText('Type a message') as HTMLInputElement).value).toBe('');
 
-    fireEvent.click(screen.getByLabelText('Show agent trace'));
+    fireEvent.click(screen.getByLabelText('Tool activity'));
     expect(screen.getByText('draft_player')).toBeTruthy();
     expect(screen.getByText('Maya drafted Big Mo')).toBeTruthy();
     expect(screen.getByText('42 ms')).toBeTruthy();
@@ -190,7 +191,8 @@ describe('DeviceScreen', () => {
     await waitForParty('DEMO');
     typeAndSubmit('hi');
     await screen.findByText('Hello.');
-    fireEvent.click(screen.getByLabelText('Show agent trace'));
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    fireEvent.click(screen.getByLabelText('Tool activity'));
     expect(screen.getByText('No tool calls yet')).toBeTruthy();
   });
 
@@ -203,6 +205,7 @@ describe('DeviceScreen', () => {
     await waitForParty('DEMO');
     typeAndSubmit('hi');
     await screen.findByText('Hi there.');
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByTestId('mode-badge').textContent).toBe('gemini');
   });
 
@@ -249,8 +252,17 @@ describe('DeviceScreen', () => {
     const req = send.mock.calls[0][0];
     expect(req.text).toBe('draft Big Mo');
     expect(req.speaker).toEqual({ memberName: 'Maya', confidence: 0.84, source: 'voice-id' } satisfies SpeakerHint);
-    expect(screen.getByTestId('recognized-chip').textContent).toContain('Hi Maya');
+    expect(screen.getByTestId('speaker-current').textContent).toContain('Maya');
     await screen.findByText('Okay, Maya.');
+  });
+
+  it('offers a roster suggestion, a prompt to choose a speaker, and a mic hint', async () => {
+    stubFetch();
+    render(<DeviceScreen household="garcias" deps={{ send: vi.fn(), synth: fakeSynth(), recognizerFactory: null }} />);
+    await waitForParty('DEMO');
+    expect(screen.getByRole('button', { name: 'Show my roster' })).toBeTruthy();
+    expect(screen.getByTestId('speaker-current').textContent).toContain("Choose who’s speaking");
+    expect(screen.getByTestId('mic-hint').textContent).toBe('Talk');
   });
 
   it('speaker from screen picker: chip pick is sent with the typed turn', async () => {
@@ -260,7 +272,7 @@ describe('DeviceScreen', () => {
     await waitForParty('DEMO');
 
     fireEvent.click(screen.getByTestId('member-leo'));
-    expect(screen.getByTestId('member-leo').getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByTestId('speaker-current').textContent).toContain('Leo');
     typeAndSubmit('draft Big Mo');
 
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
@@ -283,10 +295,25 @@ describe('DeviceScreen', () => {
     const alert = await screen.findByRole('alert');
     expect(alert.textContent).toMatch(/couldn't reach the game/);
     expect(alert.textContent).toContain('boom');
+    expect((screen.getByLabelText('Type a message') as HTMLInputElement).value).toBe('first');
 
     typeAndSubmit('second');
     await screen.findByText('Back online.');
     expect(send).toHaveBeenCalledTimes(2);
+  });
+
+  it('settings is modal, closes on Escape and restores focus', async () => {
+    stubFetch();
+    render(<DeviceScreen household="garcias" deps={{ synth: fakeSynth(), recognizerFactory: null }} />);
+    await waitForParty('DEMO');
+    const trigger = screen.getByRole('button', { name: 'Settings' });
+    trigger.focus(); fireEvent.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Settings' });
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 
   it('fallback card renders from structuredContent when the widget cannot start', async () => {
@@ -353,6 +380,24 @@ describe('DeviceScreen', () => {
     });
     await waitFor(() => expect(bridge.sendToolResult).toHaveBeenCalledWith(ui.toolResult));
     await waitFor(() => expect(screen.queryByRole('region', { name: 'Party board' })).toBeNull());
+  });
+
+  it('board comes first and conversation is a collapsed-until-messages toggle', async () => {
+    stubFetch();
+    const send = vi.fn(async (_req: AssistantRequest) => response({ reply: 'Hi there.' }));
+    render(<DeviceScreen household="garcias" deps={{ send, synth: fakeSynth(), recognizerFactory: null }} />);
+    await waitForParty('DEMO');
+    const sections = screen.getAllByRole('region').map(r => r.getAttribute('aria-label'));
+    expect(sections.indexOf('Board')).toBeGreaterThanOrEqual(0);
+    const toggle = screen.getByRole('button', { name: /Conversation/ });
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(document.getElementById('device-conversation')!.getAttribute('data-open')).toBe('false');
+    typeAndSubmit('hello');
+    await screen.findByText('Hi there.');
+    expect(screen.getByRole('button', { name: /Conversation/ }).getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: /Conversation/ }));
+    expect(screen.getByRole('button', { name: /Conversation/ }).getAttribute('aria-expanded')).toBe('false');
+    expect(screen.getByTestId('chat-input')).toBeTruthy();
   });
 
   it('disables the mic and keeps typing when speech is unsupported', async () => {

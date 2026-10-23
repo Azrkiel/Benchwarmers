@@ -1,46 +1,25 @@
+import { useEffect, useRef, useState } from 'react';
 import { ROSTER_SIZE, type DraftBoardEntry, type PartyStateResponse } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 
-function memberAvatar(state: PartyStateResponse, memberId?: string): string {
-  for (const h of state.households) {
-    const m = h.members.find((x) => x.id === memberId);
-    if (m) return m.avatar;
-  }
-  return '';
-}
-
 function Card({ e, state }: { e: DraftBoardEntry; state: PartyStateResponse }) {
   const owned = !!e.ownerMemberId;
-  const color = householdColor(state.households, e.householdId);
-  return (
-    <div className={`tv-flip${owned ? ' is-drafted' : ''}`} data-testid="draft-card">
-      <div className="tv-flip-inner">
-        <div className="tv-flip-face tv-flip-front">
-          <div className="tv-card-top">
-            <span className="tv-jersey">#{e.player.number}</span>
-            <span className="tv-pos">{e.player.position} · {e.teamShort}</span>
-          </div>
-          <div className="tv-nick">{e.player.nickname ?? e.player.name}</div>
-          {e.player.nickname ? <div className="tv-pname">{e.player.name}</div> : null}
-          {e.scoutingNote ? <div className="tv-note">{e.scoutingNote}</div> : null}
-        </div>
-        <div className="tv-flip-face tv-flip-back" style={{ background: owned ? color : undefined }}>
-          {owned ? (
-            <>
-              <div className="tv-back-top">#{e.player.number} {e.player.position} · {e.teamShort}</div>
-              <div className="tv-back-nick">{e.player.nickname ?? e.player.name}</div>
-              <div className="tv-back-owner">
-                <Avatar avatar={memberAvatar(state, e.ownerMemberId)} name={e.ownerName ?? ''} color="#fff" size={44} />
-                <span className="tv-owner">{e.ownerName}</span>
-                <span className="tv-round">R{e.round}</span>
-                {e.auto ? <span className="tv-auto">auto</span> : null}
-              </div>
-            </>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
+  const prevOwner = useRef(e.ownerMemberId);
+  const [flash, setFlash] = useState(false);
+  useEffect(() => {
+    if (prevOwner.current === e.ownerMemberId) return;
+    prevOwner.current = e.ownerMemberId;
+    setFlash(true);
+    const id = setTimeout(() => setFlash(false), 1200);
+    return () => clearTimeout(id);
+  }, [e.ownerMemberId]);
+  return <article className={`tv-draft-card${owned ? ' is-drafted' : ''}${flash ? ' is-flash' : ''}`} data-testid="draft-card" style={{ ['--owner' as string]: householdColor(state.households, e.householdId) }}>
+    <div className="tv-card-top"><span className="tv-jersey">#{e.player.number}</span><span className="tv-pos">{e.player.position} · {e.teamShort}</span></div>
+    <div className="tv-nick">{e.player.nickname ?? e.player.name}</div>
+    {e.player.nickname && e.player.nickname !== e.player.name ? <div className="tv-pname">{e.player.name}</div> : null}
+    {e.scoutingNote ? <div className="tv-note">{e.scoutingNote}</div> : null}
+    <div className="tv-card-status"><span className={owned ? 'tv-owner' : 'tv-available'}>{owned ? `Drafted by ${e.ownerName}${e.round ? ` · R${e.round}` : ''}${e.auto ? ' · Auto pick' : ''}` : 'Available'}</span></div>
+  </article>;
 }
 
 export function DraftBoard({ state }: { state: PartyStateResponse; serverNow?: () => number }) {
@@ -55,12 +34,12 @@ export function DraftBoard({ state }: { state: PartyStateResponse; serverNow?: (
   return (
     <section className="tv-view tv-draft">
       <header className="tv-draft-head">
-        <h1 className="tv-title">Draft night</h1>
+        <h1 className="tv-title">Draft</h1>
         <div className="tv-sub">{state.game.title}</div>
         <div className="tv-count">{picks} of {totalSlots} picks made</div>
       </header>
       <div className="tv-clock-banner">
-        <span className="tv-clock-label">On the clock</span>
+        <span className="tv-clock-label">Still drafting</span>
         {onClock.length === 0 ? <span className="tv-clock-done">Rosters set</span> : null}
         {onClock.map((m) => (
           <span className="tv-clock-member" key={m.id} data-testid="on-clock">
@@ -75,7 +54,7 @@ export function DraftBoard({ state }: { state: PartyStateResponse; serverNow?: (
           return (
             <div className="tv-team" key={s} style={{ ['--team' as string]: t.color }}>
               <h2 className="tv-team-name">{t.name}</h2>
-              <div className="tv-grid">
+              <div className="tv-grid" tabIndex={0} role="region" aria-label={`${t.name} draft players`} data-tv-scroll>
                 {side(s).map((e) => <Card key={e.player.id} e={e} state={state} />)}
               </div>
             </div>

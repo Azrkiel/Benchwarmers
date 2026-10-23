@@ -16,12 +16,12 @@ const owned: OwnedSpec[] = [
 ];
 
 const notes: Record<string, string> = {
-  'har-c-34': 'Anchors the paint and grabs everything off the glass.',
-  'sum-pg-2': 'Fastest hands on the floor; steals turn into easy points.',
-  'sum-sf-14': 'Cold-blooded from deep, but disappears for stretches.',
-  'har-pg-1': 'Sets the tempo and racks up assists in bunches.',
-  'sum-sg-10': 'Streaky scorer who heats up without warning.',
-  'har-c-44': 'Blocks shots first, asks questions never.',
+  'har-c-34': 'Paint presence and rebounder.',
+  'sum-pg-2': 'Quick guard who creates steals.',
+  'sum-sf-14': 'Inconsistent outside scorer.',
+  'har-pg-1': 'Playmaking guard who creates assists.',
+  'sum-sg-10': 'Streaky scorer.',
+  'har-c-44': 'Shot-blocking center.',
 };
 
 export const draftingFixture: PartyStateResponse = {

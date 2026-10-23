@@ -35,7 +35,7 @@ export function nextMode(
   return prev;
 }
 
-export function useTvMode(state: PartyStateResponse | undefined, rotateMs = ROTATE_MS): TvMode {
+export function useTvMode(state: PartyStateResponse | undefined, rotateMs = Number.POSITIVE_INFINITY): TvMode {
   const [ms, setMs] = useState<ModeState>(() => ({
     mode: state ? baseModeFor(state.party.status) : 'draft',
     sig: state ? activitySignature(state) : '',

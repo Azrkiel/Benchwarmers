@@ -1,16 +1,51 @@
-/* Barlow by Jeremy Tribby, SIL Open Font License. Fonts are served locally so
-   the TV display has no third-party font dependency at runtime. */
+/* Original green Watch Party Fantasy typography, served locally.
+   Barlow + Big Shoulders Display, SIL OFL (licenses in public/fonts). */
 @font-face {
   font-family: 'Barlow';
-  src: url('/fonts/Barlow-Regular.ttf') format('truetype');
+  src: url('/fonts/barlow-latin-400-normal.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Barlow';
-  src: url('/fonts/Barlow-SemiBold.ttf') format('truetype');
+  src: url('/fonts/barlow-latin-600-normal.woff2') format('woff2');
   font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow';
+  src: url('/fonts/barlow-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow';
+  src: url('/fonts/barlow-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Big Shoulders Display';
+  src: url('/fonts/big-shoulders-display-latin-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Big Shoulders Display';
+  src: url('/fonts/big-shoulders-display-latin-800-normal.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Big Shoulders Display';
+  src: url('/fonts/big-shoulders-display-latin-900-normal.woff2') format('woff2');
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }

@@ -11,7 +11,7 @@ Orchestration + phase status: `docs/ORCHESTRATION.md`. Resume point: `docs/HANDO
   - `src/ai/` AI content (fallback JSON + Gemini + Bedrock). `src/assistant/` device assistant loop.
   - Tests: `server/test/**/*.test.ts` (vitest). `npm test -w server`, `npm run typecheck -w server`.
 - `web/` Vite + React 19 + react-router 7. Routes: `/tv/:code` (original TV, default), `/tv2/:code` (scorebook redesign, `web/src/tv-broadcast`), `/lounge/:code`, `/watch/:code`, `/control/:code`, `/welcome`, `/device/:household`, `/voice-lab`. `extension/` = YouTube overlay (MV3).
-  - Look: Lounge palette/type/logo app-wide — tokens `web/src/brand/brand.css` (`--lg-*`), logo `web/src/brand/Brand.tsx`. Use them for new UI.
+  - Look: ESPN-style (dark neutrals, red accent, Barlow/Barlow Condensed) app-wide — tokens `web/src/brand/brand.css` (`--lg-*` names kept as aliases, `--bw-*` for actions/borders), logo `web/src/brand/Brand.tsx`. Use them for new UI. Audit + plan: `docs/plans/2026-10-22-espn-uiux-audit.md`; QA records: `docs/qa/`.
   - Import contract types via `@shared/types`. Dev proxy: `/api`, `/mcp` → `http://localhost:3001`.
 - `docs/` FRICTION_LOG, PRODUCT_FEEDBACK, AWS, DEMO_SCRIPT, SUBMISSION, ORCHESTRATION, HANDOFF.
 

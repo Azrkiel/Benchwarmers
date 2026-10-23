@@ -1,11 +1,11 @@
 .fb-card {
   background: var(--lg-surface);
   color: var(--lg-text);
-  border-radius: 20px;
+  border-radius: 6px;
   padding: 20px 24px;
   font-size: 17px;
   line-height: 1.4;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  border:1px solid var(--lg-line);
 }
 .fb-head h2 { margin: 0; font-size: 1.5em; }
 .fb-sub, .fb-muted { margin: 4px 0 12px; color: var(--lg-muted); }
@@ -15,15 +15,17 @@
 .fb-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #6d6c7d; margin-right: 8px; }
 .fb-list { list-style: none; margin: 0; padding: 0; }
 .fb-list li { display: flex; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--lg-line); }
-.fb-tag { background: #3b3543; color: var(--lg-orange); border-radius: 999px; padding: 1px 10px; font-size: 0.75em; }
+.fb-tag { background:var(--lg-raised);color:var(--lg-text); border-radius: 999px; padding: 1px 10px; font-size: 0.75em; }
 .fb-table { width: 100%; border-collapse: collapse; }
 .fb-table th { text-align: left; color: var(--lg-muted); font-weight: 500; padding: 6px 8px; }
 .fb-table td { padding: 8px; border-top: 1px solid var(--lg-line); }
 .fb-mine td { background: var(--lg-raised); font-weight: 600; }
-.fb-prop { margin-top: 16px; padding: 12px 14px; background: var(--lg-deep); border-radius: 12px; }
+.fb-prop { margin-top: 16px; padding: 12px 14px; background: var(--lg-deep); border-radius: 4px; }
 .fb-empty { margin: 0; text-align: center; font-size: 1.15em; color: var(--lg-muted); padding: 24px 8px; }
 .fb-odds { margin: 6px 0 0; color: var(--lg-muted); font-size: 0.9em; }
 .fb-bonuses { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.fb-bonus { background: #3b3543; color: var(--lg-orange); border-radius: 999px; padding: 2px 12px; font-size: 0.85em; }
+.fb-bonus { background:var(--lg-raised);color:var(--lg-text); border-radius: 999px; padding: 2px 12px; font-size: 0.85em; }
 .fb-card { font-family: var(--lg-sans); }
-.fb-head h2, .fb-group h3, .fb-section { font-family: var(--lg-serif); font-weight: 400; letter-spacing: -0.01em; }
+.fb-head h2, .fb-group h3, .fb-section { font-family: var(--lg-serif); font-weight: 600; letter-spacing: -0.01em; }
+
+.fb-card{font-variant-numeric:tabular-nums;overflow-x:auto}.fb-readonly{font-size:14px;color:var(--lg-muted);margin:0 0 16px}.fb-table td:nth-last-child(-n+2),.fb-table th:nth-last-child(-n+2){text-align:right;white-space:nowrap}.fb-sub{overflow-wrap:anywhere}@media(max-width:560px){.fb-card{padding:16px}.fb-table{font-size:14px}.fb-table :is(th,td){padding:8px 4px}.fb-table :is(th,td):nth-child(3){display:none}.fb-score{font-size:1.3em}}

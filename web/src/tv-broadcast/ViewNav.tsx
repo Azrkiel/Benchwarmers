@@ -4,7 +4,7 @@ import type { TvMode } from './modes';
 export type ViewChoice = { mode: TvMode; label: string };
 
 const LEGACY_KEYS: Record<number, string> = {
-  4: 'Escape', 13: 'Enter', 37: 'ArrowLeft', 38: 'ArrowUp', 39: 'ArrowRight', 40: 'ArrowDown',
+  4: 'Escape', 461: 'Escape', 10009: 'Escape', 13: 'Enter', 37: 'ArrowLeft', 38: 'ArrowUp', 39: 'ArrowRight', 40: 'ArrowDown',
 };
 
 export function ViewNav({ views, mode, manual, onSelect, onClose, contentRef }: {
@@ -31,34 +31,52 @@ export function ViewNav({ views, mode, manual, onSelect, onClose, contentRef }: 
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
       const key = e.key && e.key !== 'Unidentified' ? e.key : LEGACY_KEYS[e.keyCode];
-      const buttons = Array.from(navRef.current?.querySelectorAll('button') ?? []);
-      const actions = Array.from(contentRef?.current?.querySelectorAll<HTMLButtonElement>('button[data-tv-action]') ?? []);
+      const buttons: HTMLElement[] = [
+        ...Array.from(navRef.current?.querySelectorAll('button') ?? []),
+        ...Array.from((navRef.current?.closest('.tv-stage') ?? navRef.current?.parentElement)?.querySelectorAll<HTMLElement>('[data-tv-menu]') ?? []),
+      ];
+      const reading = Array.from(contentRef?.current?.querySelectorAll<HTMLElement>('[data-tv-scroll]') ?? []);
+      const actions = Array.from(contentRef?.current?.querySelectorAll<HTMLElement>('[data-tv-action], summary') ?? []);
+      const readingIndex = reading.findIndex(el => el === document.activeElement);
       const focused = buttons.findIndex((b) => b === document.activeElement);
       const actionIndex = actions.findIndex((b) => b === document.activeElement);
       if (actionIndex >= 0) lastActionRef.current = actions[actionIndex]?.id;
       const menuTarget = buttons[views.findIndex((v) => v.mode === availableStop)] ?? buttons[0];
-      if (key === 'Escape' || key === 'BrowserBack' || key === 'GoBack') {
+      if (key === 'Escape' || key === 'BrowserBack' || key === 'GoBack' || key === 'XF86Back') {
         if (manual) {
           e.preventDefault();
           if (e.repeat) return;
           onClose();
           buttons[0]?.focus();
-        } else if (actionIndex >= 0) {
+        } else if (actionIndex >= 0 || readingIndex >= 0) {
           e.preventDefault();
           if (!e.repeat) menuTarget?.focus();
         }
         return;
       }
       if (key?.startsWith('Arrow')) {
+        if (focused < 0 && actionIndex < 0 && readingIndex < 0) return;
+        if (readingIndex >= 0) {
+          e.preventDefault();
+          const region = reading[readingIndex]!;
+          if (key === 'ArrowDown' || (key === 'ArrowUp' && region.scrollTop > 0)) { region.scrollTop += key === 'ArrowDown' ? 180 : -180; return; }
+          if (key === 'ArrowUp') (actions.find(b => b.id === lastActionRef.current) ?? actions[0] ?? menuTarget)?.focus();
+          else if (key === 'ArrowLeft' || key === 'ArrowRight') {
+            const next = reading[Math.max(0, Math.min(reading.length - 1, readingIndex + (key === 'ArrowLeft' ? -1 : 1)))];
+            next?.focus(); next?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+          }
+          return;
+        }
         e.preventDefault();
         if (actionIndex >= 0) {
-          if (key === 'ArrowUp') menuTarget?.focus();
+          if (key === 'ArrowDown') reading[0]?.focus();
+          else if (key === 'ArrowUp') menuTarget?.focus();
           else if (key === 'ArrowLeft') actions[Math.max(0, actionIndex - 1)]?.focus();
           else if (key === 'ArrowRight') actions[Math.min(actions.length - 1, actionIndex + 1)]?.focus();
           return;
         }
-        if (key === 'ArrowDown' && actions.length > 0 && focused >= 0) {
-          (actions.find((b) => b.id === lastActionRef.current) ?? actions[0])?.focus();
+        if (key === 'ArrowDown' && (actions.length > 0 || reading.length > 0) && focused >= 0) {
+          (actions.find((b) => b.id === lastActionRef.current) ?? actions[0] ?? reading[0])?.focus();
           return;
         }
         const selected = Math.max(0, views.findIndex((v) => v.mode === mode));

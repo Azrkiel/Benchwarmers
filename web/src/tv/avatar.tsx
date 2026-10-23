@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { Household } from '@shared/types';
 
 export function householdColor(households: Household[], householdId?: string): string {
@@ -13,8 +13,9 @@ function initials(name: string): string {
 
 export function Avatar({ avatar, name, color, size = 64 }: { avatar?: string; name: string; color?: string; size?: number }) {
   const a = avatar ?? '';
+  const [broken, setBroken] = useState(false);
   let inner: ReactNode;
-  if (a.startsWith('http') || a.startsWith('/')) inner = <img src={a} alt={name} />;
+  if ((a.startsWith('http') || a.startsWith('/')) && !broken) inner = <img src={a} alt={name} onError={() => setBroken(true)} />;
   else if (a && [...a].length <= 4) inner = <span className="tv-avatar-glyph">{a}</span>;
   else inner = <span className="tv-avatar-initials">{initials(name)}</span>;
   return (

@@ -1,6 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><title>Benchwarmers</title><link rel="stylesheet" href="popup.css"></head><body>
-<h1>Benchwarmers</h1><p>Your crew, alongside YouTube.</p>
-<form id="settings"><label for="code">Party code</label><input id="code" value="latest" maxlength="16" spellcheck="false"><p class="hint">Use latest to follow the newest Sunday Crew party.</p><button type="submit">Show on YouTube</button></form>
-<button id="hide" type="button">Hide overlay</button><p id="status" role="status"></p>
-<a href="http://127.0.0.1:5173/control/latest" target="_blank" rel="noreferrer">Open backend controls ↗</a><p class="hint">Live backend · Fictional game replay.<br>Video timing and sports data are independent.</p>
+<h1>Benchwarmers</h1><p id="status" role="status">Loading settings…</p>
+<form id="settings"><label for="party-mode">Party</label><select id="party-mode"><option value="latest">Follow latest party</option><option value="code">Use party code</option></select><div id="code-field" hidden><label for="code">Party code</label><input id="code" maxlength="16" spellcheck="false" aria-describedby="code-error"><p id="code-error" role="alert" hidden></p></div><button type="submit" id="apply">Apply and show</button></form>
+<button id="hide" type="button" hidden>Hide overlay</button>
+<a id="controls" href="http://127.0.0.1:5173/control/latest" target="_blank" rel="noreferrer">Open controls</a><p class="hint">Replay data · Not synced to video</p>
+<details><summary>Help</summary><p class="hint">Enable the overlay on a YouTube watch page, then select Crew. For video-only fullscreen, use windowed mode to see the overlay.</p></details>
 <script src="popup.js"></script></body></html>
