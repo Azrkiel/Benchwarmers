@@ -17,7 +17,7 @@ export class MarketReferenceCache {
   if(entry.status==='unavailable')return structuredClone(entry);
   const age=this.now()-entry.reference.observedAt;
   if(!Number.isFinite(age)||age<0)return unavailable('invalid_source');
-  return {...structuredClone(entry),status:age>this.maxAgeMs?'stale':'available',label:age>this.maxAgeMs?'Market reference (stale)':'Market reference',reference:{...structuredClone(entry.reference),freshnessMs:age}};
+  return {...structuredClone(entry),status:age>this.maxAgeMs?'stale':'available',label:age>this.maxAgeMs?'Market reference (stale)':'Market reference',reference:{...structuredClone(entry.reference),freshnessMs:age,stale:age>this.maxAgeMs}};
  }
  async refresh(game:MarketGameIdentity,mapping:VerifiedMarketMapping,adapter:ReadOnlyMarketAdapter):Promise<MarketReferenceView>{
   const refresh=Symbol();this.refreshes.set(game.gameId,refresh);
@@ -29,7 +29,7 @@ export class MarketReferenceCache {
    else if(!market.active||market.closed||market.archived)view=unavailable('market_closed');
    else if(!price(market.bestBid)||!price(market.bestAsk)||market.bestBid>market.bestAsk||!market.outcomes.every(o=>price(o.price))||!Number.isFinite(market.observedAt)||market.observedAt>this.now())view=unavailable('invalid_source');
    else if(market.bestAsk-market.bestBid>this.maxSpread)view=unavailable('wide_spread');
-   else view={status:'available',label:'Market reference',commitmentQuotingEnabled:false,reference:{provider:'polymarket',marketId:market.marketId,sourceUrl:`https://polymarket.com/event/${encodeURIComponent(market.slug)}`,observedAt:market.observedAt,freshnessMs:0,priceMethod:'gamma_outcome_prices',bestBid:market.bestBid,bestAsk:market.bestAsk,outcomes:market.outcomes.map(o=>({teamId:normalizeMarketLabel(o.label)===normalizeMarketLabel(mapping.homeOutcome)?game.home.id:game.away.id,...o}))}};
+   else view={status:'available',label:'Market reference',commitmentQuotingEnabled:false,reference:{source:'Polymarket',method:'Gamma outcome prices',stale:false,prices:Object.fromEntries(market.outcomes.map(o=>[normalizeMarketLabel(o.label)===normalizeMarketLabel(mapping.homeOutcome)?game.home.id:game.away.id,o.price])),provider:'polymarket',marketId:market.marketId,sourceUrl:`https://polymarket.com/event/${encodeURIComponent(market.slug)}`,observedAt:market.observedAt,freshnessMs:0,priceMethod:'gamma_outcome_prices',bestBid:market.bestBid,bestAsk:market.bestAsk,outcomes:market.outcomes.map(o=>({teamId:normalizeMarketLabel(o.label)===normalizeMarketLabel(mapping.homeOutcome)?game.home.id:game.away.id,...o}))}};
   }catch{view=unavailable('source_unavailable');}
   if(this.refreshes.get(game.gameId)!==refresh)return this.read(game.gameId,game.fictional);
   this.refreshes.delete(game.gameId);

@@ -7,12 +7,14 @@ describe('bounded read-only market reference cache',()=>{
   await cache.refresh(game,mapping,{fetchMarket:load});
   expect(cache.read(game.gameId)).toMatchObject({status:'available',commitmentQuotingEnabled:false,reference:{marketId:'123',observedAt:1000,sourceUrl:'https://polymarket.com/event/synthetic-bos-nyk',priceMethod:'gamma_outcome_prices',outcomes:[{teamId:'bos',price:0.6},{teamId:'nyk',price:0.39}]}});
   cache.read(game.gameId);expect(load).toHaveBeenCalledTimes(1);
+  expect(cache.read(game.gameId)).toMatchObject({reference:{source:'Polymarket',method:'Gamma outcome prices',stale:false,prices:{bos:0.6,nyk:0.39}}});
  });
  it('marks stale prices and hides missing, fictional and wide-spread data',async()=>{
   let now=1000;const cache=new MarketReferenceCache({now:()=>now,maxAgeMs:100});
   expect(cache.read('missing')).toMatchObject({status:'unavailable',reason:'unmapped_game'});
   await cache.refresh(game,mapping,{fetchMarket:async()=>snapshot()});now=1101;
   expect(cache.read(game.gameId)).toMatchObject({status:'stale',commitmentQuotingEnabled:false});
+  expect(cache.read(game.gameId)).toMatchObject({reference:{stale:true}});
   expect(cache.read(game.gameId,true)).toMatchObject({status:'unavailable',reason:'fictional_game',reference:null});
   now=1000;await cache.refresh(game,mapping,{fetchMarket:async()=>({...snapshot(),bestBid:0.2,bestAsk:0.8})});
   expect(cache.read(game.gameId)).toMatchObject({status:'unavailable',reason:'wide_spread',reference:null});
