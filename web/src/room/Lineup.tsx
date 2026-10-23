@@ -3,7 +3,8 @@ import type { RoomView } from '@shared/room';
 import { statLine, money, points } from './components';
 
 type Selection = { captainId: string; flexIds: string[] };
-type Player = RoomView['players'][number] & { projection?: number };
+// projectedPoints arrives with Worker A's basketball catalog (P03.1); optional until then.
+type Player = RoomView['players'][number] & { projectedPoints?: number };
 export type LineupSort = 'projection' | 'salary' | 'name';
 
 // Unsaved lobby edits survive switching room views (the editor unmounts) for the session.
@@ -14,7 +15,7 @@ const draftKey = (view: RoomView) => `${view.room.code}:${view.me?.participantId
 
 /** Stable order: the chosen key, then player id, so polls never reshuffle equal rows. */
 export function sortPlayers(players: Player[], sort: LineupSort): Player[] {
-  const key = (p: Player) => sort === 'projection' ? -(p.projection ?? -Infinity) : sort === 'salary' ? -p.salary : 0;
+  const key = (p: Player) => sort === 'projection' ? -(p.projectedPoints ?? -Infinity) : sort === 'salary' ? -p.salary : 0;
   return [...players].sort((a, b) => key(a) - key(b) || (sort === 'name' ? a.name.localeCompare(b.name) : 0) || a.id.localeCompare(b.id));
 }
 
@@ -25,7 +26,7 @@ export function Lineup({ view, busy, onSave, onAuto }: { view: RoomView; busy: b
   const selection = useRef({ captainId, flexIds });
   const setCaptain = (id: string) => { selection.current = { ...selection.current, captainId: id }; drafts.set(draftKey(view), selection.current); setCaptainState(id); };
   const setFlex = (ids: string[]) => { selection.current = { ...selection.current, flexIds: ids }; drafts.set(draftKey(view), selection.current); setFlexState(ids); };
-  const hasProjection = view.players.some((player) => typeof (player as Player).projection === 'number');
+  const hasProjection = (view.players as Player[]).some((player) => typeof player.projectedPoints === 'number');
   const [sort, setSort] = useState<LineupSort>(hasProjection ? 'projection' : 'salary');
   const [team, setTeam] = useState('all');
   const [position, setPosition] = useState('all');
@@ -100,7 +101,7 @@ export function Lineup({ view, busy, onSave, onAuto }: { view: RoomView; busy: b
     {error && <p className="rm-error" role="alert">{error}</p>}{notice && <p className="rm-lineup-notice" role="status">{notice}</p>}
     {!players.length && <div className="rm-empty"><p>No players match</p><button onClick={() => { setSearch(''); setPosition('all'); setTeam('all'); }}>Clear filters</button></div>}
     <div className="rm-players">{players.map((player) => <article key={player.id} className={`rm-player${selected.has(player.id) ? ' is-selected' : ''}`}>
-      <div className="rm-player-info"><span className="rm-player-pos">{player.position} · {player.teamShort}</span><h3>{player.name}</h3>{locked ? <><strong>{points(player.points)} pts</strong><p>{statLine(player.statLine)}</p></> : <><strong>{money(player.salary)}</strong>{typeof player.projection === 'number' && <span className="rm-projection">Proj {points(player.projection)} pts</span>}<details><summary>Player details</summary><p>{player.role}</p></details></>}</div>
+      <div className="rm-player-info"><span className="rm-player-pos">{player.position} · {player.teamShort}</span><h3>{player.name}</h3>{locked ? <><strong>{points(player.points)} pts</strong><p>{statLine(player.statLine)}</p></> : <><strong>{money(player.salary)}</strong>{typeof player.projectedPoints === 'number' && <span className="rm-projection">Proj {points(player.projectedPoints)} pts</span>}<details><summary>Player details</summary><p>{player.role}</p></details></>}</div>
       {locked ? <span className="rm-selected-label">{captainId === player.id ? 'Captain' : 'Flex'}</span> : <div className="rm-player-actions"><button aria-label={`Captain ${player.name}`} aria-pressed={captainId === player.id} disabled={busy} onClick={() => change(player.id, true)}>{captainId === player.id ? '✓ Captain' : 'Captain'}<small>{money(player.salary * view.rules.captainMultiplier)}</small></button><button aria-label={`${flexIds.includes(player.id) ? 'Remove' : 'Add'} ${player.name}`} aria-pressed={flexIds.includes(player.id)} disabled={busy} onClick={() => change(player.id, false)}>{flexIds.includes(player.id) ? '✓ Flex' : '+ Flex'}<small>{money(player.salary)}</small></button></div>}
     </article>)}</div>
     {!locked && <div className="rm-save"><div><strong>{money(view.rules.salaryCap - salary)} left</strong><span role="status">{state}</span>{actionError && <span role="status" className="rm-error">{actionError}</span>}</div><button className="rm-primary" disabled={busy || !!pending || !complete || salary > view.rules.salaryCap} onClick={() => { void submit('save'); }}>{pending === 'save' ? 'Saving…' : 'Save lineup'}</button></div>}

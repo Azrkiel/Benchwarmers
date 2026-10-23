@@ -51,6 +51,13 @@ describe('room display', () => {
     expect(screen.getByText('Showing last update · Reconnecting')).toBeTruthy();
   });
 
+  it('shows a void call as no result with its reason', () => {
+    const view = basketballFixture('locked');
+    view.question = { ...view.question!, status: 'void' as never, voidReason: 'No made basket before the horizon' } as never;
+    display(view);
+    expect(screen.getByText('No result · No made basket before the horizon · streaks kept')).toBeTruthy();
+  });
+
   it('never renders private fields even when handed a private view', () => {
     const view = { ...basketballFixture('open'), me: { participantId: 'fx-0', name: 'Maya', currentPick: { questionId: 'bball-q-004', optionId: 'three' } } } as RoomViewNext;
     (view.game as unknown as Record<string, unknown>).hostToken = 'host-secret';

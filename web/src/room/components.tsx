@@ -131,11 +131,12 @@ export function Question({ view, busy = false, onPick, tv = false, receipt, onRe
     } catch { setAttempt({ questionId, optionId, status: 'failed' }); }
   }
   return <section className={`rm-question${editable ? ' is-open' : ''}${editable && secs <= 5 ? ' is-urgent' : ''}`} aria-labelledby={tv ? undefined : 'rm-question-title'} role={tv ? 'region' : undefined} aria-label={tv ? 'Prediction details' : undefined} tabIndex={tv ? 0 : undefined}>
-    <div className="rm-section-heading"><span className="rm-eyebrow">{tv ? 'Make picks on your phone' : 'Make a pick'}</span>{question && <span className="rm-countdown">{paused ? 'Picks paused' : question.status === 'open' ? `Closes in ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}` : question.status === 'locked' ? 'Locked · Awaiting result' : 'Resolved'}</span>}</div>
+    <div className="rm-section-heading"><span className="rm-eyebrow">{tv ? 'Make picks on your phone' : 'Make a pick'}</span>{question && <span className="rm-countdown">{paused ? 'Picks paused' : question.status === 'open' ? `Closes in ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}` : question.status === 'locked' ? 'Locked · Awaiting result' : (question.status as string) === 'void' ? 'No result' : 'Resolved'}</span>}</div>
     {!tv && <span className="rm-sr" role="status" aria-label="Pick window status">{paused ? 'Picks paused' : question?.status === 'locked' ? 'Picks locked. Awaiting result.' : editable && secs <= 5 ? 'Picks close in under five seconds' : ''}</span>}
     {paused && <p className="rm-pick-state" role="status">Game paused · Picks paused</p>}
     {question?.status === 'open' && <div className="rm-timer" aria-hidden="true"><i style={{ width: `${left * 100}%` }} /></div>}
     <h2 id="rm-question-title">{question?.text ?? (view.room.phase === 'lobby' ? 'Picks open at kickoff' : view.room.phase === 'final' ? 'Game complete' : 'Waiting for the next pick')}</h2>
+    {(question?.status as string) === 'void' && <p className="rm-pick-state" role="status">No result{(question as { voidReason?: string }).voidReason ? ` · ${(question as { voidReason?: string }).voidReason}` : ''}. No points, streak kept.</p>}
     {question && <div className="rm-options">{question.options.map((option) => {
       const confirmed = view.me?.currentPick?.questionId === question.id && view.me.currentPick.optionId === option.id;
       const attempted = currentAttempt?.optionId === option.id;

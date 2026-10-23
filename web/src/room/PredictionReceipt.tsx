@@ -9,13 +9,14 @@ import { RoomRequestError } from './api';
 export type ReceiptStatus = 'sending' | 'accepted' | 'rejected' | 'unknown' | 'checking';
 export type PickReceipt = { questionId: string; optionId: string; label: string; requestId: string; status: ReceiptStatus; message?: string; acceptedAt?: number };
 
-type ServerReceipt = { requestId: string; questionId: string; optionId: string; status: string; acceptedAt?: number };
+type ServerReceipt = { requestId: string; questionId: string; optionId: string; acceptedAt?: number; acceptanceSequence?: number };
 const newRequestId = () => (globalThis.crypto?.randomUUID?.() ?? `req-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
 /** True when this snapshot shows the participant's saved pick as the given answer. */
 export function confirms(view: RoomView | undefined, questionId: string, optionId: string): boolean {
   const receipt = (view as (RoomView & { receipt?: ServerReceipt }) | undefined)?.receipt;
-  if (receipt) return receipt.status === 'accepted' && receipt.questionId === questionId && receipt.optionId === optionId;
+  // A server receipt only exists for an accepted pick (Worker A's PickReceipt).
+  if (receipt && receipt.questionId === questionId) return receipt.optionId === optionId;
   return view?.me?.currentPick?.questionId === questionId && view.me.currentPick.optionId === optionId;
 }
 

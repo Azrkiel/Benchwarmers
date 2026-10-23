@@ -27,9 +27,9 @@ const ROSTER: [string, string, string, 'harbor' | 'summit', number][] = [
 // Plan §3.2 salary model: roundTo500(clamp(3500, 11500, projection * 350)).
 const salaryFor = (projection: number) => Math.round(Math.max(3500, Math.min(11500, projection * 350)) / 500) * 500;
 
-export const FIXTURE_PLAYERS: (RoomPlayer & { projection: number })[] = ROSTER.map(([id, name, position, teamId, projection], i) => ({
+export const FIXTURE_PLAYERS: (RoomPlayer & { projectedPoints?: number; projectionSource?: 'demo_projection' })[] = ROSTER.map(([id, name, position, teamId, projection], i) => ({
   id, name, position, teamId, teamShort: teamId === 'harbor' ? 'HAR' : 'SUM', role: 'Fictional player', salary: salaryFor(projection),
-  multiplier: 1, stats: {}, rawPoints: 0, points: i < 6 ? 4 + i * 1.5 : 0, statLine: i < 6 ? '4 PTS · 2 REB' : 'No stats yet', projection,
+  multiplier: 1, stats: {}, rawPoints: 0, points: i < 6 ? 4 + i * 1.5 : 0, statLine: i < 6 ? '4 PTS · 2 REB' : 'No stats yet', projectedPoints: projection, projectionSource: 'demo_projection',
 }));
 
 const NAMES = ['Maya', 'Leo', 'Sam', 'Priya', 'Jordan', 'Alexandria Montgomery-Whitfield', 'Chris', 'Dana', 'Eli', 'Fran', 'Gus', 'Hana', 'Ivan', 'Jules', 'Kip', 'Lena'];

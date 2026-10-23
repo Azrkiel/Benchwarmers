@@ -83,7 +83,7 @@ function FeaturedCall({ view, remaining }: { view: RoomViewNext; remaining: numb
   const statusText = paused ? 'Paused · Calls on hold'
     : status === 'open' ? `Closes in ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`
     : status === 'locked' ? 'Locked · Waiting for the play'
-    : status === 'void' ? 'No result · Nobody scores points'
+    : status === 'void' ? `No result${(shown as { voidReason?: string }).voidReason ? ` · ${(shown as { voidReason?: string }).voidReason}` : ''} · streaks kept`
     : 'Result';
   return <section className={`rd-call is-${status}${status === 'open' && secs <= 3 && !paused ? ' is-urgent' : ''}`} aria-label="Featured call">
     <span className="rd-eyebrow">Featured call</span>
