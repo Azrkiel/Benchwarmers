@@ -34,10 +34,13 @@ export function announcementsFor(prev: RoomView | undefined, next: RoomView): An
   const homeDelta = next.game.home.score - prev.game.home.score;
   const awayDelta = next.game.away.score - prev.game.away.score;
   if (scored.length && (homeDelta > 0 || awayDelta > 0)) {
-    const team = homeDelta > 0 ? next.game.home : next.game.away;
-    const delta = homeDelta > 0 ? homeDelta : awayDelta;
+    // Several baskets in one snapshot (a fast replay): call the latest at its own value.
+    const latest = scored.at(-1)!;
+    const own = latest.points && latest.teamId ? [next.game.home, next.game.away].find((t) => t.id === latest.teamId) : undefined;
+    const team = own ?? (homeDelta > 0 ? next.game.home : next.game.away);
+    const delta = own ? latest.points! : homeDelta > 0 ? homeDelta : awayDelta;
     const short = team.name.split(' ').at(-1);
-    const what = next.game.sport === 'basketball' && scored.length === 1 ? BASKET[delta] ?? points(delta) : scored.at(-1)!.kind === 'td' ? 'Touchdown' : scored.at(-1)!.kind === 'fg' ? 'Field goal' : points(delta);
+    const what = next.game.sport === 'basketball' && (own || scored.length === 1) ? BASKET[delta] ?? points(delta) : latest.kind === 'td' ? 'Touchdown' : latest.kind === 'fg' ? 'Field goal' : points(delta);
     const leaderBefore = prev.standings.filter((r) => r.rank === 1).map((r) => r.participantId).join();
     const leaders = next.standings.filter((r) => r.rank === 1);
     const lead = leaders.length === 1 && leaders[0]!.participantId !== leaderBefore && leaders[0]!.total > 0 ? ` ${leaders[0]!.name} takes the lead.` : '';

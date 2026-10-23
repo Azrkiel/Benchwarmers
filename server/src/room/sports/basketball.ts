@@ -61,6 +61,7 @@ export const basketball: RoomSportAdapter<Beat> = {
       title: source.title, home: team(source.home), away: team(source.away), ...clock,
       situation: phase === 'lobby' ? 'Waiting for tip-off' : phase === 'final' ? 'Final' : beat?.text ?? '',
       ballOn: 0, fieldX: 0, possession, driveNumber: 0, driveCount: 0,
-      recentPlays: beats.slice(0, beatIndex + 1).filter(b => b.event).slice(-12).map(b => ({ id: b.id, text: b.text, kind: b.event!.kind, ...clockAt(b.gameElapsedMs) })), isScripted: true };
+      recentPlays: beats.slice(0, beatIndex + 1).filter(b => b.event).slice(-12).map(b => ({ id: b.id, text: b.text, kind: b.event!.kind, ...clockAt(b.gameElapsedMs),
+        ...(b.event!.kind === 'score' && b.event!.teamId && b.event!.scoreValue ? { teamId: b.event!.teamId, points: b.event!.scoreValue } : {}) })), isScripted: true };
   },
 };

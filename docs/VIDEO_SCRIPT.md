@@ -163,13 +163,13 @@ Everything is in `docs/video/`. Open `graphics.html` in a browser to preview eac
 ## Before you record
 
 - [ ] Fresh room for every take. Never reset a shared production room. (`npm run demo` locally, or `https://benchwarmers.fly.dev`.)
-- [ ] Set the replay speed from the host phone (**Host controls** → Replay speed). Measured on 2026-10-23: at **4x the whole game runs about 60 s** from tip-off to "Final", and each call stays open only the 8-second minimum. **2x** (about 2 minutes) gives you a calmer call window; 4x fits the beat without cuts. Keep the full raw capture, and caption any cut "Replay sped up".
+- [ ] Set the replay speed from the host phone (**Host controls** → Replay speed). Measured on 2026-10-23: at **4x the whole game runs about 60 s** from tip-off to "Final", and each call stays open only the 8-second minimum. **2x** (about 2 minutes) gives you a calmer call window; 4x fits the beat without cuts. **1x** (about 2.5 minutes) gives every basket its own call-out and celebration; at 2–4x the display's 1-second refresh can catch several baskets at once, shown as the latest basket plus "+N more". Keep the full raw capture, and caption any cut "Replay sped up".
 - [ ] Click **Enable sound** on the shared display before the take so it calls out the plays, and check OBS is capturing desktop audio.
 - [ ] Open the shared display on the production or LAN address so the lobby QR works from a real phone. Scan it once with the phone you'll use on camera.
 - [ ] Read the **live** tool count from `tools/list` in your take. Say that number. `docs/img/inspector-tools.png` is an older 22-tool build, so don't show it as current.
 - [ ] Rehearse each phrase once. `Build a balanced lineup for me` and `Make Big Mo my captain` are covered on the real basketball catalog by `server/test/room/basketball-assistant.test.ts`. Say a pick only while the call is open; otherwise you'll hear "That call closed".
 - [ ] If speech fails, type the phrase and caption it **"typed"**. Don't imply the voice was recognized when it wasn't.
-- [ ] **Known open issue:** the last-score animation can cover the winner card on the first final (`docs/qa/worker-c/INTEGRATION_FINDINGS.md`). Wait for the animation to clear before you cut to the final card, or check the fix first. In both automated rehearsals on 2026-10-23 the winner card was clear at the moment "Final" appeared and 6 s later, but check your own take.
+- [ ] **Known open issue:** the last-score animation can cover the winner card on the first final (`docs/qa/worker-c/INTEGRATION_FINDINGS.md`). Wait for the animation to clear before you cut to the final card, or check the fix first. On 2026-10-23 at 4x the winner card was clear when "Final" appeared. At 1x the game-winning dunk's animation fades over the card for about half a second; cut just past it (the demo cut does).
 
 ## Rehearse the take
 
