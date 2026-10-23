@@ -32,11 +32,12 @@ The compact smart-display simulator uses actual MCP Streamable HTTP through the 
 
 The documented hosted demo is https://benchwarmers.fly.dev. If it is unavailable, use the local instructions below. Hosted availability was not independently confirmed during this documentation update because the cloud environment blocked the outbound check.
 
-1. Choose **Host a party**, select basketball or football, and create a room.
-2. Join as a player and save one captain plus four flex athletes within the salary cap. To test another player, use a separate browser profile, private window, or device and enter the room code.
-3. Select **Open shared screen**. From the host controls, choose **Start game**; use up to 4× replay speed for a shorter test.
-4. Answer a prediction while its question window is open. Check that the accepted pick, scores, and standings update, then view the final and season results.
-5. Select **Open simulated smart display** to test the MCP-backed assistant. Try typing “what's the score?” and inspect the tool trace. Speech is optional: grant microphone permission if using it, or continue with typed input.
+1. Choose **Host a party**, select basketball or football, and create a room. Note the room code.
+2. Join as a player in that browser and save one captain plus four flex athletes within the salary cap. To test another player, use a separate browser profile, private window, or device and enter the room code.
+3. **Open the simulated smart display as part of the main test.** On the room's player page, expand **Host controls** and select **Open simulated smart display**. Open it in another tab in the same browser profile where you joined, so it retains access to your seat. You can also open `https://benchwarmers.fly.dev/display/room/YOUR_ROOM_CODE`, replacing `YOUR_ROOM_CODE` with the code from step 1. For local testing, use `http://localhost:3001/display/room/YOUR_ROOM_CODE`.
+4. In the simulator, type **“what's the score?”** in **Ask the display** and select **Send**. Select **MCP calls** to inspect the actual `room_ask` call and response. Keep this display open throughout the game. Speech is optional: grant microphone permission if using it, or continue with typed input.
+5. Return to the host's player tab, expand **Host controls**, and select **Start game**. Use up to 4× replay speed for a shorter test. You can also select **Open shared screen** for the larger game view.
+6. Submit a prediction while its question window is open. To make a prediction through the simulator, select your own seat in its actor selector; guest mode supports public score and standings questions. Check that accepted picks, scores, and standings update across the room and display, then view the final and season results.
 
 Room and participant credentials are created automatically and stored by the browser. Keep the host session open to retain its controls; no shared judge login is needed. Create a fresh room for each independent test.
 
