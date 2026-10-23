@@ -107,6 +107,7 @@ Everything is in `docs/video/`. Open `graphics.html` in a browser to preview eac
 
 | Where in the script | File | How to use it |
 |---|---|---|
+| 0:00–0:12 cold open, and B-roll for "the game is on" | `game.mp4` (32 s: Q1 of Harbor Hawks vs. Summit Foxes at 4×, ending 13–13) | Open on 6–8 s of it (the "BUCKET!" at about 12 s works well), then cut to the shared display. Source: `docs/video/game.html` |
 | 0:12–0:20 title card | `title.mp4` (4.5 s; animates in, holds, then the text lifts out) | Put it on its own track. Start the VO line as the tagline lands, about 1 s in |
 | 0:20 Maya and Leo on their phones | `lt-maya`, `lt-leo` (4 s each) | Overlay them as each phone first appears |
 | Every Scene B shot | `lt-sim` | Overlay it the first time the smart display appears. Once is enough |
@@ -116,6 +117,8 @@ Everything is in `docs/video/`. Open `graphics.html` in a browser to preview eac
 | 2:40–2:50 close | `end.mp4` (5 s) | Hold it to the end |
 | Between beats | `wipe` (1 s, cut at 0.5 s) | Use it at 0:20, 0:45, 1:50 and 2:15. Don't use it on every cut |
 | Fast cuts inside a beat | `whip` (0.6 s, cut at 0.3 s) | Smart display → shared display, for example |
+
+**Gameplay footage.** Use `game.mp4`, not footage from a commercial game. The rules forbid third-party copyrighted footage, and re-editing someone else's game doesn't change who owns it. `game.mp4` is drawn from scratch, and its plays, scores and ticker come from `server/src/game/games/harbor-vs-summit.json`. That file is the household `DEMO` game. A room replay can score differently, so don't cut it right against a room score on screen. Use it as atmosphere, not as the source of a specific result.
 
 **Formats.** Each overlay comes in three versions:
 - `.webm` keeps transparency. It works in OBS, DaVinci Resolve, Premiere and Shotcut.

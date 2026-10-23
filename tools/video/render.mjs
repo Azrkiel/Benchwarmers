@@ -1,5 +1,5 @@
-// usage: node tools/video/render.mjs [sceneId ...]
-// Renders docs/video/graphics.html frame by frame into docs/video/renders/:
+// usage: node tools/video/render.mjs [--page=game.html] [sceneId ...]
+// Renders docs/video/graphics.html (or another page in docs/video/ that defines SCENES and window.__scene) frame by frame into docs/video/renders/:
 //   cards    -> <id>.mp4 (H.264) + <id>.png (key frame)
 //   overlays -> <id>.webm (VP9 with transparency, for OBS and editors that read alpha)
 //               <id>-green.mp4 (green screen, for editors that only chroma-key) + <id>.png (transparent key frame)
@@ -13,7 +13,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const FPS = 30;
 const dir = fileURLToPath(new URL('../../docs/video/', import.meta.url));
-const pageUrl = pathToFileURL(path.join(dir, 'graphics.html')).href;
+const args = process.argv.slice(2);
+const pageFile = (args.find((a) => a.startsWith('--page=')) ?? '--page=graphics.html').slice(7);
+const pageUrl = pathToFileURL(path.join(dir, pageFile)).href;
 const outDir = path.join(dir, 'renders');
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -22,7 +24,7 @@ const ffmpeg = (...args) => execFileSync('ffmpeg', ['-hide_banner', '-loglevel',
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 await page.goto(pageUrl);
-const only = new Set(process.argv.slice(2));
+const only = new Set(args.filter((a) => !a.startsWith('--')));
 const scenes = (await page.evaluate(() => SCENES.map(({ id, overlay, dur, hold }) => ({ id, overlay: !!overlay, dur, hold }))))
   .filter((s) => !only.size || only.has(s.id));
 
@@ -33,6 +35,7 @@ for (const scene of scenes) {
     await Promise.all(['800 100px "Barlow Condensed"', '700 100px "Barlow Condensed"', '600 100px "Barlow Condensed"', '600 40px Barlow', '500 40px Barlow'].map((f) => document.fonts.load(f)));
     await document.fonts.ready;
   });
+  await page.waitForFunction(() => window.__scene);
   const count = Math.round((scene.dur / 1000) * FPS);
   for (let i = 0; i < count; i++) {
     await page.evaluate((ms) => window.__scene.seek(ms), (i * 1000) / FPS);
