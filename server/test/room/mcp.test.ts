@@ -25,4 +25,10 @@ it('exposes room tools through the existing MCP endpoint and plays a real room f
   await call('room_predict',{code,participantToken:p.participantToken,questionId:s.question.id,optionId:'TD'});
   const publicState=await call('room_status',{code});expect(publicState.room.participantCount).toBe(1);expect(JSON.stringify(publicState)).not.toContain(p.participantToken);
   const denied=await client.callTool({name:'room_host',arguments:{code,hostToken:'wrong',action:'pause'}});expect(denied.isError).toBe(true);
+  // Spoken requests go through the same typed commands and say whether anything was accepted.
+  const rank=await client.callTool({name:'room_ask',arguments:{code,participantToken:p.participantToken,text:"what's my rank?"}});
+  expect((rank.content as {text:string}[])[0]!.text).toMatch(/^Sam, you are number 1 of 1/);
+  const hostless=await call('room_ask',{code,text:'pause the replay'});
+  expect(hostless).toMatchObject({accepted:false,reply:'Only the host can pause the replay.'});
+  expect(JSON.stringify(hostless)).not.toContain(p.participantToken);
 });
