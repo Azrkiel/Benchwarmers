@@ -42,7 +42,7 @@ export function ViewNav({ views, mode, manual, onSelect, onClose, contentRef }: 
       const actionIndex = actions.findIndex((b) => b === document.activeElement);
       if (actionIndex >= 0) lastActionRef.current = actions[actionIndex]?.id;
       const menuTarget = buttons[views.findIndex((v) => v.mode === availableStop)] ?? buttons[0];
-      if (key === 'Escape' || key === 'BrowserBack' || key === 'GoBack' || key === 'XF86Back') {
+      if (key === 'Escape' || key === 'Backspace' || key === 'BrowserBack' || key === 'GoBack' || key === 'XF86Back') {
         if (manual) {
           e.preventDefault();
           if (e.repeat) return;

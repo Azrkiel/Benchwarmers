@@ -224,6 +224,11 @@ describe('football rooms', () => {
     fireEvent.keyDown(hostSummary, { key: 'Escape' });
     expect(details.open).toBe(false);
     expect(document.activeElement).toBe(hostSummary);
+
+    fireEvent.click(hostSummary);
+    expect(details.open).toBe(true);
+    fireEvent.keyDown(hostSummary, { key: 'Backspace' });
+    expect(details.open).toBe(false);
   });
 
   it('leaves typed voice commands available when speech recognition is unsupported', async () => {

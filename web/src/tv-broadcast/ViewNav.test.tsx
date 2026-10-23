@@ -38,6 +38,13 @@ describe('TV remote navigation', () => {
     expect(select).toHaveBeenCalledExactlyOnceWith('rosters');
   });
 
+  it('treats Backspace as Back for laptop keyboards', () => {
+    const close = vi.fn();
+    render(<ViewNav views={views} mode="rosters" onSelect={vi.fn()} onClose={close} manual />);
+    expect(fireEvent.keyDown(window, { key: 'Backspace' })).toBe(false);
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   it('handles Back only when returning from manual viewing', () => {
     const auto = vi.fn();
     const props = { views, mode: 'rosters' as const, onSelect: vi.fn(), onClose: auto };
