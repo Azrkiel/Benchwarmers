@@ -1,5 +1,7 @@
 # ESPN UI/UX audit: QA records
 
+Current Worker C integration records are indexed in [worker-c/README.md](worker-c/README.md). The historical UI audit below covers its stated 2026-10-22 snapshot and is not basketball release evidence.
+
 Snapshot taken 2026-10-22 against the Vite dev server (`http://127.0.0.1:5197`, API proxied to :3001) while other agents were concurrently changing `web/src/device`, `web/src/tv-broadcast` and `web/src/room`. Re-run the scripts (kept outside the repo, in the session scratchpad `...\scratchpad\qa\`) before relying on any single number. No app source was changed. Physical-TV and screen-reader testing were NOT performed and remain manual.
 
 | Record | Plan rows | Summary |

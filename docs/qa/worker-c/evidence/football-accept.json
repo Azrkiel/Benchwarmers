@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "runId": "e37607da-5e47-4a24-abcd-eea00b62ed11",
+  "kind": "accept",
+  "game": "football",
+  "startedAt": "2026-10-23T10:57:11.130Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 1141,
+      "detail": {
+        "isolatedData": true,
+        "port": 45369,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "room-contract",
+      "status": "passed",
+      "ms": 54,
+      "detail": {
+        "code": "F94E01",
+        "game": "football"
+      }
+    },
+    {
+      "name": "join-lineup",
+      "status": "passed",
+      "ms": 29
+    },
+    {
+      "name": "authorization",
+      "status": "passed",
+      "ms": 17
+    },
+    {
+      "name": "voice-service",
+      "status": "passed",
+      "ms": 247,
+      "detail": {
+        "toolCount": 22,
+        "realMicrophone": "unrun",
+        "transport": "Streamable HTTP"
+      }
+    },
+    {
+      "name": "pause-restart",
+      "status": "passed",
+      "ms": 1956
+    },
+    {
+      "name": "durable-receipts",
+      "status": "blocked",
+      "ms": 9,
+      "message": "Pick response has no durable receipt; A must supply receipt/lookup contract."
+    },
+    {
+      "name": "lock-boundary",
+      "status": "passed",
+      "ms": 5137
+    },
+    {
+      "name": "final-season-restart",
+      "status": "passed",
+      "ms": 178939,
+      "detail": {
+        "score": [
+          27,
+          24
+        ],
+        "standings": 1
+      }
+    },
+    {
+      "name": "request-id-conflict",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    },
+    {
+      "name": "lost-response-retry",
+      "status": "unrun",
+      "message": "A prerequisite did not complete."
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "bc00daa710df77d88c50f986d2661fbec78748ed",
+    "fingerprint": "320d912370130511d40bd66a92ba958ae7e849573c01c489e1caf3a4f45f954a"
+  },
+  "stateDirectory": "/tmp/bw-c-mWLKps",
+  "completedAt": "2026-10-23T11:00:18.938Z",
+  "status": "blocked"
+}

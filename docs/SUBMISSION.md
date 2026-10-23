@@ -1,5 +1,7 @@
 # Benchwarmers: Devpost submission draft
 
+**C's current claim boundary:** this is a draft, not a submission or release approval. The isolated main baseline has working football rooms and legacy basketball parties; connected additive basketball rooms are not validated in C's checkout. See [C's actual results](qa/worker-c/RESULTS.md), [hardware limits](qa/worker-c/HARDWARE.md) and [tracking NO-GO](qa/worker-c/TRACKING.md). A simulated display is not a verified Echo/Alexa installation. Typed commands and mocked speech do not establish real microphone recognition. Bedrock/provider access, continuous ball tracking, wider-service storage and production rollback are not verified here. Describe only what the exact recorded candidate demonstrates and obtain the current MCP tool count from tools/list; historical counts below are not universal.
+
 Copy each section into the matching Devpost field. Items marked **TODO (human)** need a person. Items marked **UNVERIFIED** were never tested on the real thing; keep that wording (or cut the claim) when pasting.
 
 Hackathon: Build, Ship, Shape. Deadline **Fri 2026-10-23 12:00 PM PT**. Submit by **10:00 AM PT**.
@@ -35,10 +37,10 @@ Benchwarmers is a free-to-play, one-night fantasy league plus live pick'em for w
 
 - **Mini draft.** Before tip-off, each person drafts 3 players by voice ("Who's available at center?", "Draft Big Mo"). If someone else already took the player, the assistant offers alternatives. Drafted players score from game events.
 - **Live pick'em.** During the game, short predictions open and lock on a shared clock (over/under, who scores first, and so on). People answer by voice. Night score = draft points + pick points.
-- **Household-aware.** Several people share one speaker. Each has their own picks and streaks. With voice ID, the device can tell who is talking without being told.
+- **Household-aware.** Each person has their own picks and streaks. Explicit speaker selection is available. Experimental browser voice ID is implemented, but real-microphone recognition accuracy and shared-speaker behavior remain unverified.
 - **Watch parties across cities.** Two households (we demo Austin and Seattle) join one party and see each other's picks on a shared leaderboard.
 - **Remembers you.** Streaks and season standings persist, so "How am I doing this season?" still works after the server restarts.
-- **Agentic.** "Set up a watch party with the Sunday crew" runs several tool calls: create the party, add the crew, schedule props.
+- **Tool routing.** "Set up a watch party with the Sunday crew" routes to the MCP server. The offline router uses a single tool call per utterance; show the actual trace rather than claiming a multi-step model plan. Cloud model tool use is wired but has not been exercised live in C's checks.
 - **Visual.** An MCP App widget (draft board, tonight leaderboard, season table) renders in the conversation view of a screen device.
 - **Big-screen view.** A TV page (`/tv/:code`) shows the draft board, live standings with rank animations, rosters and a final podium with a recap.
 
@@ -57,8 +59,8 @@ Verified numbers (2026-10-23 checks; older timing measurements from `docs/HANDOF
 
 | Check | Result |
 | --- | --- |
-| Server tests | 744 passing |
-| Web tests | 494 passing |
+| Server tests (C's main baseline) | 743 passed, 1 skipped |
+| Web tests (C's main baseline) | 500 passed |
 | MCP tools | 22 |
 | MCP protocol negotiated | 2025-11-25 (Inspector, ext-apps basic-host, and a cloudflared tunnel initialize) |
 | Voice ID embed time | 0.9-2.1 s per clip (was 7.4 s before tuning) |

@@ -18,11 +18,24 @@
     "build": "npm run build -w server --if-present && npm run build -w web",
     "demo": "node scripts/demo.mjs",
     "demo:reset": "node scripts/demo-reset.mjs",
+    "demo:basketball": "node scripts/basketball.mjs start",
+    "demo:basketball:reset": "node scripts/basketball.mjs reset",
+    "demo:basketball:control": "node scripts/basketball.mjs control",
+    "qa:smoke": "node scripts/basketball.mjs smoke",
+    "qa:basketball": "node scripts/basketball.mjs accept",
+    "qa:browser": "node scripts/basketball.mjs browser",
+    "qa:backup": "node scripts/basketball.mjs backup",
+    "qa:load": "node scripts/basketball.mjs load",
+    "qa:hardware": "node scripts/basketball.mjs inventory",
+    "qa:tracking": "node scripts/basketball.mjs tracking",
+    "qa:release": "node scripts/basketball.mjs release",
+    "test:integration-tools": "node --test scripts/basketball/*.test.mjs",
     "build:extension": "node extension/build.mjs",
     "typecheck:extension": "tsc --noEmit -p extension/tsconfig.json"
   },
   "devDependencies": {
     "concurrently": "^9.2.0",
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "playwright": "1.56.1"
   }
 }

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "runId": "25b4b675-bd16-4ccf-8196-6d73ffbd56fd",
+  "kind": "backup",
+  "game": "football",
+  "startedAt": "2026-10-23T10:57:11.107Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "startup",
+      "status": "passed",
+      "ms": 1345,
+      "detail": {
+        "isolatedData": true,
+        "port": 42413,
+        "assets": "reused at caller request"
+      }
+    },
+    {
+      "name": "backup-roundtrip",
+      "status": "passed",
+      "ms": 1856,
+      "detail": {
+        "adapter": "json-files",
+        "files": [
+          {
+            "name": "store.json",
+            "bytes": 8236,
+            "sha256": "ef71c6bbd8fcfc2c2edee9f275d139b0edabd283f0d2efcf2655a534013167b2"
+          },
+          {
+            "name": "rooms.json",
+            "bytes": 1654,
+            "sha256": "f85db7386eed1102a6f6c0c1ac0dcfa0912ce10a2e22331a9b13ce7f09c0c95a"
+          }
+        ],
+        "scope": "paused room, seat credentials, lineup, standings, season; not database or completed-game settlement"
+      }
+    },
+    {
+      "name": "restore-overwrite-rejected",
+      "status": "passed",
+      "ms": 9
+    },
+    {
+      "name": "backup-corruption-rejected",
+      "status": "passed",
+      "ms": 64
+    }
+  ],
+  "limitations": [],
+  "source": {
+    "head": "bc00daa710df77d88c50f986d2661fbec78748ed",
+    "fingerprint": "320d912370130511d40bd66a92ba958ae7e849573c01c489e1caf3a4f45f954a"
+  },
+  "stateDirectory": "/tmp/bw-c-Yt3EWE",
+  "completedAt": "2026-10-23T10:57:15.004Z",
+  "status": "passed"
+}
