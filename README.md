@@ -1,208 +1,351 @@
 # Benchwarmers
 
-[Friction log and hackathon feedback](FRICTION_LOG.md) · [Testing instructions](docs/TESTING.md)
+**Draft your squad. Call the next play. Prove you know ball.**
 
-## Combined basketball and football app
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js 22+](https://img.shields.io/badge/Node.js-22%2B-339933.svg)](https://nodejs.org/)
+[![MCP](https://img.shields.io/badge/Built_with-MCP-111111.svg)](https://modelcontextprotocol.io/)
 
-Run `npm run demo`, open the homepage, and choose **Host a party**. Basketball is the form's default; football remains selectable. Both are fictional scripted replays. Calls, point commitments, pregame picks and live-provider features remain disabled in ordinary startup.
+[Open the demo](https://benchwarmers.fly.dev) · [Run locally](#quick-start) · [Try the smart display](#simulated-smart-display) · [Judge testing guide](docs/TESTING.md)
 
-For an isolated basketball rehearsal with private data and explicit room controls, run `npm run demo:basketball` on port 3037.
+## About
 
-## Room play
+Benchwarmers turns watching sports with friends into a shared game night. Create a room, build a fantasy lineup, make timed predictions, and follow the standings together—from the same couch or different cities.
 
-Run `npm run demo`, then open **http://localhost:3001**. Create a basketball or football room, invite players through the printed LAN address and room code, and open the shared display. Everyone selects one captain plus four flex athletes under the salary cap shown for that game. The server controls picks, replay, scoring and saved season standings. No sports feed or cloud credentials are required.
+Built for the **main Alexa+ hackathon track**, the project includes a **simulated smart display backed by real MCP calls**. The standard demo uses fictional basketball and football replays. No account, paid subscription, API key, or Echo device is required.
 
-Step-by-step testing: [docs/TESTING.md](docs/TESTING.md). Football room details: [docs/ROOM_DEMO.md](docs/ROOM_DEMO.md). Phones use `/room/:code`; the combined shared display uses `/room/:code/display`. The older `/room/:code/tv` and household-based views remain available.
+**License: [MIT](LICENSE)** · Copyright © 2026 Kevin Jiang. The project code is open source; third-party assets and data retain their own [attributions](#credits-and-attribution).
 
-A one-night fantasy draft plus live pick'em for watching sports with friends, played by voice. It is built as an Alexa+ add-on for a hackathon (main Alexa+ track).
+![Benchwarmers simulated smart display showing a basketball room and the actual MCP tool trace](docs/img/smart-display.png)
 
-Households in different cities join one watch party. Each person drafts three players, then answers short live questions ("Who scores first?") as a simulated game plays out. Points feed a per-night leaderboard and a season table. It is free to play: no real money, no wagers, no real teams or leagues (the demo game is Harbor Hawks vs. Summit Foxes).
+*A connected demo session: shared game state on the display, inspectable MCP calls alongside it. Create your own room to try it.*
 
-![MCP App widget, draft board](docs/img/basic-host-draft-1280.png)
+<details>
+<summary><strong>On this page</strong></summary>
+
+- [Features](#features)
+- [Quick start](#quick-start)
+- [Play a game](#play-a-game)
+- [Simulated smart display](#simulated-smart-display)
+- [Architecture](#architecture)
+- [Development](#development)
+- [Configuration](#configuration)
+- [FAQ](#faq)
+- [Documentation](#documentation)
+- [Credits and attribution](#credits-and-attribution)
+
+</details>
+
+## Features
+
+| Feature | What you can do |
+| --- | --- |
+| **Room-based multiplayer** | Host a party and invite friends with a room code. |
+| **Fantasy lineups** | Choose one captain and four flex athletes within the salary cap. |
+| **Timed predictions** | Call the next play before the server closes the question window. |
+| **Shared game display** | Follow the score, current question, play feed, and room standings together. |
+| **Simulated smart display** | Ask about the game and inspect the MCP tools behind each response. |
+| **Saved seasons** | Return to persisted room history and season standings. |
+| **Replay controls** | Start, pause, resume, and choose 1–4× speed from the host's browser. |
+| **Optional AI** | Enable Gemini for generated content and the household assistant; use fallback/offline defaults without model credentials. |
+
+## Quick start
+
+Requires **Node.js 22+**, **npm**, and **Git**. A recent desktop Chrome browser is recommended for the simulator and optional speech controls.
+
+```sh
+git clone https://github.com/Azrkiel/Benchwarmers.git
+cd Benchwarmers
+npm ci
+npm run demo
+```
+
+Open `http://localhost:3001` in your browser. The demo command builds the MCP widget and web interface, then serves the app and API together. Stop it with **Ctrl+C**.
+
+No `.env` file is needed for the default demo. Existing shell settings take precedence, so use `AI_MODE=fallback` and `ASSISTANT_MODE=offline` if you have previously configured another mode.
+
+<details>
+<summary><strong>CPU-only Linux: installation fails while downloading optional GPU binaries</strong></summary>
+
+ONNX Runtime can attempt an additional GPU download during installation. Its supported override retains the bundled CPU runtime and skips those extra binaries:
+
+```sh
+ONNXRUNTIME_NODE_INSTALL=skip npm ci
+npm run demo
+```
+
+This preserves TLS and package-integrity verification. GPU inference is not required for the standard demo.
+
+</details>
+
+<details>
+<summary><strong>Change the port or replay speed</strong></summary>
+
+Bash / Git Bash:
+
+```sh
+PORT=3031 ROOM_SPEED=4 npm run demo
+```
+
+PowerShell:
+
+```powershell
+$env:PORT = '3031'
+$env:ROOM_SPEED = '4'
+npm run demo
+```
+
+Open the selected port in your browser. The host can also change replay speed during the game.
+
+</details>
+
+## Play a game
+
+1. **Host:** choose **Host a party**, select basketball or football, and create a room.
+2. **Join:** enter your name, select a captain and four flex players, and save your lineup.
+3. **Invite:** share the room code. Use separate browser profiles, private windows, or devices for additional players. On local Wi-Fi, use the LAN address printed by the demo command.
+4. **Open the simulator:** follow the [smart-display walkthrough](#simulated-smart-display) in another tab of your host browser.
+5. **Start:** return to your player tab, expand **Host controls**, and select **Start game**. Select **Open shared screen** for a larger game view.
+6. **Play:** submit predictions while their windows are open, watch the standings update, and review the final and season results.
+
+The server controls deadlines and scoring. Room credentials are saved automatically in your browser. Keep the host session to retain host controls, and create a fresh room for each independent test.
+
+## Simulated smart display
+
+**Make this part of your first walkthrough:** it connects the game-night experience to the project's MCP integration.
+
+1. On your room's player page, expand **Host controls**.
+2. Select **Open simulated smart display**, opening it in a new tab in the **same browser profile** where you joined.
+3. In **Ask the display**, type **“What's the score?”** and select **Send**.
+4. Select **MCP calls** to inspect the actual `room_ask` request and response.
+5. Choose your seat in **Speaking as** when making player-specific requests. Guest mode supports public score and standings questions.
+
+| Screen | Path on your running app |
+| --- | --- |
+| Player page | `/room/YOUR_ROOM_CODE` |
+| Simulated smart display | `/display/room/YOUR_ROOM_CODE` |
+| Shared game screen | `/room/YOUR_ROOM_CODE/display` |
+
+For the hosted demo, append `/display/room/YOUR_ROOM_CODE` to the demo address. Replace `YOUR_ROOM_CODE` with the code from your own room. For a local demo, use the same path on your local server.
+
+Try **“Who has the ball?”**, **“What's my rank?”**, or **“Show standings.”** Typed input is enough to test the flow; microphone access is optional. No manual MCP bearer setup is needed in the simulator.
+
+See the [complete judge testing guide](docs/TESTING.md) for credentials, local setup, and the evaluation walkthrough.
+
+<details>
+<summary><strong>Explore the MCP App widget</strong></summary>
+
+The household experience also includes an MCP App widget for drafting, picks, and season standings. These captures show the widget inside an MCP host.
+
+[![MCP App draft board](docs/img/basic-host-draft-1280.png)](docs/img/basic-host-draft-1280.png)
+
+| Predictions | Season standings |
+| --- | --- |
+| [![MCP App predictions](docs/img/basic-host-tonight-800.png)](docs/img/basic-host-tonight-1280.png) | [![MCP App season standings](docs/img/basic-host-season-800.png)](docs/img/basic-host-season-1280.png) |
+
+Select an image to open the full-size capture. [MCP host setup →](docs/MCP_HOSTS.md)
+
+</details>
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  subgraph Browser
-    DEV["Device simulator<br/>/device/:household"]
-    VID["Voice ID worker<br/>WavLM, on device"]
-    TV["TV view<br/>/tv/:code"]
-  end
-  subgraph Server["Node server (Express 5)"]
-    ASSIST["POST /api/assistant<br/>MCP client"]
-    MCP["POST /mcp<br/>MCP server, 30 tools"]
-    REST["REST /api<br/>party state"]
-    ENGINE["Game engine + JSON store"]
-    AI["AI worker<br/>fallback / Gemini"]
-  end
-  WIDGET["MCP App widget<br/>(in an MCP host)"]
-  VID -- SpeakerHint only --> DEV
-  DEV -- utterance + SpeakerHint --> ASSIST
-  ASSIST -- tool calls --> MCP
-  WIDGET <-- tools/call, ui:// resource --> MCP
-  MCP --> ENGINE
-  REST --> ENGINE
-  TV -- polls --> REST
-  AI -- background content --> ENGINE
+    Phone["Player browser"] --> REST["Express REST API"]
+    Shared["Shared game display"] --> REST
+    Smart["Simulated smart display"] --> MCP["MCP tools / Streamable HTTP"]
+    Widget["MCP App widget"] <--> MCP
+    REST --> Game["Authoritative game engine"]
+    MCP --> Game
+    Game <--> Store["JSON storage / optional SQLite profile"]
+    Gemini["Gemini · optional"] --> Worker["Background content worker"]
+    Worker --> Game
 ```
 
-- The device page simulates an Alexa+ device. It posts the utterance to `/api/assistant`, which acts as an MCP client against the server's own `/mcp` endpoint. The assistant is `offline` (rule-based) or `gemini`, with the same tools in every mode.
-- The widget in `/device/:household` and `/display/:household` uses the public same-origin demo host at `/api/mcp-widget`. It forwards to the authenticated MCP handler with the server's token; no `VITE_MCP_TOKEN` or browser bearer is needed. External hosts still use `/mcp` with bearer auth. Browser requests with a foreign or opaque Origin are rejected; football room actions still require their room credentials.
-- The TV view is a big-screen display that polls the REST state. It does not use MCP.
-- AI content (question text, recaps, explanations, scouting notes) is generated by a background worker, not inside a tool call. Tools answer from the engine and store.
-- Voice ID runs in the browser: WavLM embeddings in a worker, with an MFCC fallback. Audio and embeddings stay on the device; only a `SpeakerHint` goes to the server. See [docs/VOICE_ID.md](docs/VOICE_ID.md).
+- **One source of truth:** the server validates lineups, prediction cutoffs, accepted actions, scores, and season results.
+- **Real MCP transport:** the simulator uses the same-origin `/api/mcp-widget` gateway. External MCP hosts connect to authenticated `/mcp`.
+- **Predictable gameplay:** the game engine determines results. Optional model generation provides wording and content; MCP tools read stored state.
+- **Credential-free defaults:** committed content and the offline assistant keep the core scripted workflow usable without model access.
 
-### MCP surface
+| Layer | Technologies |
+| --- | --- |
+| Interface | React, TypeScript, Vite, CSS |
+| Service | Node.js, Express, Zod |
+| Assistant and widgets | MCP TypeScript SDK, MCP Apps, optional Gemini |
+| Persistence | JSON by default; optional SQLite profile |
+| Experimental voice ID | Transformers.js, WavLM, ONNX Runtime, MFCC fallback |
+| Verification | Vitest, Playwright, real HTTP/MCP smoke checks |
 
-Protocol `2025-11-25` over Streamable HTTP, stateless (a fresh server per request), at `/mcp`. Auth is a static bearer token (`Authorization: Bearer <MCP_TOKEN>`).
+## Development
 
-Tools (30): 11 household tools and 19 room tools. Room tools cover creation, joining, host controls, status, players, lineups, predictions, standings, `room_ask`, commitment review/acceptance, call review/creation and pregame picks/reference. Tool availability does not enable a gated feature; the authoritative room service enforces its settings.
+Install dependencies with `npm ci`, then build the widget before starting the watch processes:
 
-Five household tools (`list_available_players`, `draft_player`, `make_pick`, `get_leaderboard`, `get_season_standings`) render the MCP App widget at `ui://benchwarmers/board.html`. The combined room surface also provides a public-state room board through `room_status` and `room_ask` at `ui://benchwarmers/room-board.html`.
-
-Prompt: `watch_party_host`. Resources: `benchwarmers://rules`, `benchwarmers://room-rules` and the board's `ui://` HTML.
-
-## Quick start
-
-Requires Node >= 22 and npm.
-
-```bash
-npm ci
-npm run demo
+```sh
+npm run build:widget -w server
+npm run dev
 ```
 
-`npm run demo` builds the MCP widget and web interface, then serves the app and API together on port 3001. Ctrl+C stops the server. Room replay speed defaults to 1x; the host can select 1-4x. `npm run dev` still starts Vite and the server separately for development.
+Vite serves the interface on port **5173** and proxies API/MCP requests to the server on **3001**. The service and web interface both reload during development.
 
-| URL | What |
-|---|---|
-| http://localhost:3001/ | Create or join a basketball or football room |
-| http://localhost:3001/room/CODE/display | Combined shared display |
-| http://localhost:3001/room/CODE/tv | Shared screen for your room code |
-| http://localhost:3001/tv/DEMO | Legacy TV view for the seeded `DEMO` party |
-| http://localhost:3001/device/garcias | Legacy device simulator, The Garcias (Maya, Leo) |
-| http://localhost:3001/device/sams-place | Legacy device simulator, Sam's Place (Sam, Priya) |
-| http://localhost:3001/display/garcias | Simulated smart display; add `?size=large` or `?clean=1` |
-| http://localhost:5173/voice-lab | Voice ID lab in `npm run dev` (Vite isolation headers required) |
-| http://localhost:3001/mcp | MCP endpoint (bearer required) |
-| http://localhost:3001/healthz | Health check |
+| Command | Purpose |
+| --- | --- |
+| `npm run demo` | Build and run the combined app on port 3001. |
+| `npm run dev` | Run the service and Vite in watch mode. |
+| `npm test` | Run the server and web test suites. |
+| `npm run typecheck` | Check server, widget, and web types. |
+| `npm run build:widget -w server` | Build the single-file MCP widget. |
+| `npm run build` | Build the web application. |
+| `npm run qa:smoke` | Check room play, authorization, typed assistant/MCP, and persistence across restart on an isolated server. |
+| `npm run qa:browser` | Run connected Playwright browser acceptance. |
+| `npm run test:integration-tools` | Test the integration tooling. |
+| `npm run demo:basketball` | Start an isolated basketball rehearsal on port 3037. |
 
-`npm run demo:reset` restores the `DEMO` party and season stats to seed (`POST /api/parties/DEMO/reset`).
+Browser acceptance needs Chromium: use `npx playwright install chromium` or set `CHROMIUM_PATH` to a trusted installed executable. Get current test totals from the runner output.
 
-Demo overrides: `PORT` (default 3001), `ROOM_SPEED` (1-4, default 1), `ROOM_DATA_FILE` (default `data/rooms.json` relative to server workspace). `SPEED` controls legacy household replays. Variables already in the shell win over the root `.env`.
+<details>
+<summary><strong>Connect MCP Inspector or another MCP host</strong></summary>
 
-Platform notes:
-- Windows: use Git Bash or PowerShell. PowerShell: `$env:ROOM_SPEED = "4"; npm run demo`. Git Bash: `ROOM_SPEED=4 npm run demo`. The npm scripts avoid bash-only syntax.
-- macOS / Linux: the Bash form works as written.
-- `npm run dev` starts server and web in watch mode without building the widget first.
+Start the local demo, then run:
 
-### Demo mode
+```sh
+npx @modelcontextprotocol/inspector
+```
 
-The demo defaults need no network or cloud credentials: `AI_MODE=fallback` uses committed content and `ASSISTANT_MODE=offline` uses a rule-based router. Create another room to play another saved night. `npm run demo:reset` affects only the legacy `DEMO` household party, not room history.
+Choose **Streamable HTTP**, enter `http://localhost:3001/mcp`, and add this header in **Server Settings → Custom Headers** for the unmodified local defaults:
+
+```text
+Authorization: Bearer dev-token-change-me
+```
+
+A custom `MCP_TOKEN` replaces that local default. It is not a credential for the hosted service. The integrated server exposes 30 tools; use `tools/list` to inspect the running candidate. Protocol: `2025-11-25`.
+
+The surface includes room creation, joining, lineups, predictions, standings, `room_status`, and `room_ask`, plus household tools. Additional gated tools do not enable their features in ordinary startup. Resources include `benchwarmers://rules`, `benchwarmers://room-rules`, and the widgets' `ui://` HTML.
+
+[Host examples and authentication details →](docs/MCP_HOSTS.md)
+
+</details>
+
+<details>
+<summary><strong>Repository map and additional routes</strong></summary>
+
+```text
+server/          Game engine, REST API, MCP tools, widget, storage, assistants
+web/             Player interface, shared displays, simulator, voice lab
+scripts/         Demo launchers and integration checks
+extension/       Optional YouTube overlay browser extension
+tools/odds/      Historical football drive-percentage aggregation
+docs/            Testing, configuration, integration guides, and feedback
+docs/img/        Public screenshots
+FRICTION_LOG.md  Current developer-experience feedback
+LICENSE          MIT license
+```
+
+The older household workflow remains available at `/tv/DEMO`, `/device/garcias`, `/device/sams-place`, and `/display/garcias`. Its three-player drafts are separate from room play's captain-plus-four lineup. `npm run demo:reset` resets only the legacy `DEMO` household party and season data.
+
+Use `/voice-lab` with the Vite development server for experimental voice-ID enrollment and calibration. The optional YouTube overlay has its own [setup guide](extension/README.md).
+
+</details>
 
 ## Configuration
 
-Copy `.env.example` to `.env` in the repo root; the server loads it at startup.
+Configuration is optional for the standard demo. To customize it, create a root `.env` from [`.env.example`](.env.example) if one does not already exist. The server loads it at startup; exported shell variables win. Restart after editing.
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `PORT` | `3001` | Server port |
-| `SPEED` | `4` | Game seconds per real second |
-| `MCP_TOKEN` | `dev-token-change-me` | Bearer token MCP clients must send |
-| `DATA_FILE` | `data/store.json` | JSON store path (relative to the working directory) |
-| `ROOM_DATA_FILE` | `data/rooms.json` | Separate saved rooms and seasons |
-| `ROOM_SPEED` | `1` | Initial room replay speed, 1-4 |
-| `AI_MODE` | `fallback` | Content source: `fallback` or `gemini` |
-| `ASSISTANT_MODE` | `offline` | Device assistant: `offline` or `gemini` |
-| `GEMINI_API_KEY` | empty | One Gemini key |
-| `GEMINI_API_KEYS` | empty | Comma-separated key pool; takes precedence over `GEMINI_API_KEY` |
-| `GEMINI_MODEL_ID` | `gemini-3.8-flash` | Gemini model |
-| `GEMINI_KEY_COOLDOWN_MS` | `60000` | Shared cooldown after a quota, server or network failure |
-| `GEMINI_TIMEOUT_MS` | `60000` | Overall deadline for one model request, including key failover |
-| `ALLOWED_HOSTS` | unset | Optional comma-separated Host header allowlist for `/mcp` (not in `.env.example`). Unset means no host check. If you set it, include your tunnel hostname. |
-| `BW_API_URL` | `http://localhost:3001` | Where the Vite development server proxies `/api`, `/mcp` and `/healthz` |
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `PORT` | `3001` | Server port. |
+| `ROOM_SPEED` | `1` | Initial room replay speed, from 1–4×. |
+| `ROOM_DATA_FILE` | `data/rooms.json` | Saved room/season JSON path, relative to the server workspace. |
+| `DATA_FILE` | `data/store.json` | Saved legacy household state, relative to the server workspace. |
+| `AI_MODE` | `fallback` | Background content: `fallback` or `gemini`. |
+| `ASSISTANT_MODE` | `offline` | Household assistant: `offline` or `gemini`. |
+| `MCP_TOKEN` | `dev-token-change-me` | Bearer credential for external MCP clients. |
+| `BW_API_URL` | `http://localhost:3001` | API target used by the Vite proxy. |
 
-Optional log switches: `AI_LOG=0` and `ASSISTANT_LOG=0` silence AI and assistant logging.
+<details>
+<summary><strong>Gemini, logging, and advanced settings</strong></summary>
 
-## Connecting MCP hosts
+Gemini is opt-in. Set the relevant mode to `gemini` and provide server-side credentials. Full setup, key failover, and model configuration are covered in the [Gemini guide](docs/GEMINI.md).
 
-Start the server, then use any of these. Step-by-step instructions, patches and more screenshots are in [docs/MCP_HOSTS.md](docs/MCP_HOSTS.md).
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | Unset | A single server-side key. |
+| `GEMINI_API_KEYS` | Unset | Comma-separated pool; takes precedence over the single key. |
+| `GEMINI_MODEL_ID` | `gemini-3.8-flash` | Model identifier. |
+| `GEMINI_KEY_COOLDOWN_MS` | `60000` | Cooldown after quota, server, or network failures. |
+| `GEMINI_TIMEOUT_MS` | `60000` | Total deadline for a model request, including failover. |
+| `SPEED` | Demo launcher: `4` | Legacy household replay multiplier. |
+| `ALLOWED_HOSTS` | Unset | Optional MCP Host allowlist; include the actual hostnames used by clients. |
+| `AI_LOG`, `ASSISTANT_LOG` | On | Set to `0` to silence the corresponding logs. |
 
-- MCP Inspector: `npx @modelcontextprotocol/inspector`, add a Streamable HTTP server at `http://localhost:3001/mcp`, and set the `Authorization: Bearer dev-token-change-me` header under Server Settings. Tools load on connect; there should be 22.
-- ext-apps basic-host (`@modelcontextprotocol/ext-apps` v2.0.3): renders the widget. It needs a small local patch to send the bearer header; see the doc.
-- Public tunnel: `cloudflared tunnel --url http://localhost:3001`, then use the `trycloudflare.com` URL plus `/mcp` with the bearer header. Without the bearer the server returns 401.
+Keep `.env` private. Model keys stay on the server and must not use a `VITE_` prefix.
 
-![MCP Inspector tool list](docs/img/inspector-tools.png)
+</details>
 
-| Tonight (live picks) | Season standings |
-|---|---|
-| ![Tonight tab](docs/img/basic-host-tonight-1280.png) | ![Season tab](docs/img/basic-host-season-1280.png) |
+## FAQ
 
-## Second game: football, drive odds and pick bonuses
+<details>
+<summary><strong>Does this run on an actual Alexa or Echo device?</strong></summary>
 
-A second replay game, **Riverton Otters at Ironwood Forge** (`riverton-vs-ironwood`), is a fictional football game. Say "set up a watch party for the football game with the Sunday Crew". `DEMO` stays the basketball game. Its live questions are drive questions ("Will the Otters score on this drive?"). Each carries a historical percentage from a table of 64,085 real drives (nflverse play-by-play 2015–2025, CC-BY 4.0), bucketed by starting field position and clock. The table is built by `tools/odds/build_drive_odds.py`; see [tools/odds/README.md](tools/odds/README.md). Percentages are precomputed into the replay data, so no tool computes them live.
+The current experience is a browser-based Alexa+ simulation backed by real MCP calls. Physical Echo execution and a native Alexa+ host have not been verified. Typed simulator interactions are part of the tested workflow; speech controls depend on browser support and microphone permission.
 
-Correct picks in both games earn points multipliers on top of the streak multiplier:
+</details>
 
-| Bonus | When | Multiplier |
-|---|---|---|
-| Early call / Quick call | picked in the first 25% / 60% of the open window | ×1.25 / ×1.10 |
-| Lone call / Against the room | only picker of that option (3+ pickers) / under half the pickers (2+) | ×1.5 / ×1.2 |
-| Bold call (football drive questions) | `0.5 / p` of the option picked, clamped to 0.5–2 | up to ×2 |
+<details>
+<summary><strong>Can friends join from different devices?</strong></summary>
 
-The combined multiplier is capped at ×5 (50 points per pick). Full rules: `benchwarmers://rules`.
+Yes. Use the hosted demo, or share the local server's printed LAN address with devices on the same Wi-Fi. Each person joins with the room code. Local browser credentials preserve their seat. A separate browser profile or private window lets you test another player on one computer.
 
-## Pull up a real game
+Keep the simulator in the same profile as its player to make private actions available. Guest mode can still ask public score and standings questions.
 
-Type a matchup on the home page ("UVA vs FSU 2025") and the server replays that real, finished football game for the crew. Committed demo games and seed data stay fictional; only this runtime importer touches real teams.
+</details>
 
-How it works: `POST /api/games/import { "query": "UVA vs FSU 2025" }` resolves two teams (abbreviation, school, nickname or a few aliases such as UVA) and a season, or takes an ESPN event id or game URL. It reads the team schedule and picks the most recent completed meeting, fetches the play-by-play summary and rosters, converts it to a replayable `Game` (`server/src/live/convert.ts`), builds about eight drive props from the real drives, and registers it. Scores come from the real score changes, so the replay ends on the real final, including overtime ("OT", "2OT" on the clock). Every import is cached in `server/data/imported-games/` (gitignored) and reloaded at startup, so parties survive restarts and a repeat import needs no network. `GET /api/games` lists committed and imported games; voice users can name an imported game by its title.
+<details>
+<summary><strong>Can I replay a real game?</strong></summary>
 
-Data source: ESPN's public, keyless JSON (site.api.espn.com), college football first, then the NFL.
+The optional importer accepts a completed football matchup, ESPN event ID, or game URL. It converts the public ESPN summary into a replay and caches imports in ignored `server/data/imported-games/`.
 
-Limits: finished games only (live in-progress games are not streamed yet); ESPN's endpoints are unofficial and may change or rate-limit; play text is parsed, so a few names ESPN spells differently in the box score and the play text get no fantasy credit (the play still shows); props are drive questions only.
+Example API request: `POST /api/games/import` with `{"query":"UVA vs FSU 2025"}`. `GET /api/games` lists available replays.
 
-## TV view
+This requires network access to ESPN's unofficial API, which may change or rate-limit. It supports completed-game replays, not a live sports feed. The committed demo games remain fictional.
 
-`/tv/:code` is a big-screen display of a party. It shows the draft, live questions and results, rosters and final standings by polling the REST state; `/tv/latest` follows the newest party. Its look is being redesigned separately, so see the running app rather than screenshots.
+Football prediction percentages use derived historical drive statistics. [Data source, method, and attribution →](tools/odds/README.md)
 
-## Voice ID
+</details>
 
-The device page can tell household members apart by voice, so nobody has to say "I'm Maya". Enrollment, matching and thresholds all run in the browser (WavLM x-vector in a worker, MFCC fallback). The server receives only a `SpeakerHint`. Details, measurements and limits: [docs/VOICE_ID.md](docs/VOICE_ID.md). Try it at `/voice-lab`.
+<details>
+<summary><strong>What are the current limitations?</strong></summary>
 
-## AI modes
+- Experimental voice ID has synthetic-voice measurements, not verified real-person accuracy. Model downloads and browser speech services may require network access.
+- Threaded voice inference needs isolation headers, supplied by the Vite development/preview servers; other hosting must configure them separately.
+- External MCP authentication uses a static bearer token. Room credentials and the optional session boundary are described in the [security guide](docs/ROOM_SECURITY.md).
+- Calls, point commitments, pregame picks, and live-provider features are disabled in ordinary startup. The standard game uses in-game points only.
 
-- `fallback` / `offline` (default): committed content and a rule-based router. No network, no credentials.
-- `gemini`: Google Gemini for content and/or the assistant, with key-pool failover. Keys stay server-side. Setup: [docs/GEMINI.md](docs/GEMINI.md).
+Known tooling issues and actionable feedback are collected in the [friction log](FRICTION_LOG.md).
 
-If a model call fails, the assistant falls back to the offline router and content falls back to the committed set.
+</details>
 
-## Tests
+## Documentation
 
-```bash
-npm test                  # server (672 tests), then web (278 tests)
-npm run typecheck
-npm run play -w server    # scripted full party, prints standings
-npm run play -w server -- --game riverton-vs-ironwood   # same, football
-```
+| Guide | Start here for |
+| --- | --- |
+| [Testing instructions](docs/TESTING.md) | The judge walkthrough, smart display, and local credentials. |
+| [Room gameplay](docs/ROOM_DEMO.md) | Football rooms, invitations, predictions, and saved seasons. |
+| [MCP host integration](docs/MCP_HOSTS.md) | Inspector, external widget hosts, and tunnels. |
+| [Gemini configuration](docs/GEMINI.md) | Optional model access, deadlines, and key failover. |
+| [Voice ID](docs/VOICE_ID.md) | Local embeddings, calibration, privacy, and limitations. |
+| [Room security](docs/ROOM_SECURITY.md) | Credentials and the optional HTTPS session boundary. |
+| [Friction log](FRICTION_LOG.md) | Developer-experience findings and improvement suggestions. |
+| [Product feedback](docs/PRODUCT_FEEDBACK.md) | Tool-by-tool feedback from development. |
 
-Counts come from the last recorded run. The server suite was occasionally flaky on one machine with antivirus loopback interception; re-run if it stalls.
+Questions or contributions? [Open an issue](https://github.com/Azrkiel/Benchwarmers/issues) or submit a pull request. Include reproduction steps and run the relevant tests, type checks, and builds for code changes.
 
-## Known gaps
+## Credits and attribution
 
-- Alexa+ Private Preview onboarding is not done. The device is a browser simulation, and the widget has never been opened in a real Alexa+ host.
-- Auth is a single static bearer token. There is no OAuth/OIDC.
-- Node >= 22 is required.
-- Voice ID has not been tried with a real microphone or real people.
-- COOP/COEP headers (for threaded WASM) are set only by the Vite dev and preview servers.
-- The original `/tv` view and the new `/room/:code/tv` view support football; `/tv2` remains the separate scorebook design.
+Benchwarmers code is available under the [MIT license](LICENSE). Third-party assets and data retain their respective terms:
 
-## Repository layout
+- **Fonts:** Barlow, Barlow Condensed, and Big Shoulders Display; license files are included in [web/public/fonts](web/public/fonts).
+- **Audio:** see the included [sound attribution](web/public/audio/ATTRIBUTION.md).
+- **Historical football statistics:** derived nflverse data, CC BY 4.0; [method and attribution](tools/odds/README.md).
+- **Experimental speaker model:** Microsoft WavLM / UniSpeech, ONNX conversion by Xenova; [model sources and licensing notes](docs/VOICE_ID.md#license).
 
-- `server/` Express 5 + TypeScript: engine, store, REST, MCP, widget, AI, assistant
-- `web/` Vite + React 19: TV view, device page, voice lab
-- `docs/` testing, MCP host checks, voice ID, Gemini, room security, friction log archive
-
-## License
-
-[MIT](LICENSE). Repository: https://github.com/Azrkiel/Benchwarmers
+[Back to top ↑](#benchwarmers)
