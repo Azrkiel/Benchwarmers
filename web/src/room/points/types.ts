@@ -1,55 +1,20 @@
 /**
- * PROPOSED client contract for committed points, player calls and pregame picks
- * (master plan §3.4-3.5, Phases 10, 11, 13). Worker A owns the real types; these mirror
- * the plan so the UI can be built and reviewed first. Every field is additive and the
+ * Client contract for committed points (Worker A's exports, below) plus PROPOSED types
+ * for player calls and pregame picks (master plan Phases 11, 13) that A has not shipped. Every field is additive and the
  * screens stay hidden until a room snapshot carries them. Requested from A in
  * docs/qa/worker-b/CONTRACT_REQUESTS.md. Values are game points (half-point precision).
  */
 export type CommitAmount = 10 | 25 | 50;
 export const COMMIT_AMOUNTS: CommitAmount[] = [10, 25, 50];
 
-/** A reviewable offer. Creating it changes no balance. */
-export type CommitQuote = {
-  quoteId: string;
-  targetId: string;
-  questionId: string;
-  optionId: string;
-  optionLabel: string;
-  commitPoints: number;
-  /** Includes the committed amount: a win credits exactly this. */
-  totalReturnPoints: number;
-  /** Capped total-return multiplier, already rounded down as the server quotes it. */
-  multiplier: number;
-  /** Plain label of the declared probability source, e.g. "Demo reference, 38%". */
-  probabilityLabel: string;
-  firstCaller: boolean;
-  expiresAt: number;
-};
-
-export type CommitmentState = 'pending' | 'won' | 'lost' | 'void';
-/** Accepted, immutable commitment. */
-export type CommitmentReceipt = {
-  callId: string;
-  requestId: string;
-  quoteId: string;
-  questionId: string;
-  optionId: string;
-  optionLabel: string;
-  commitPoints: number;
-  totalReturnPoints: number;
-  acceptedAt: number;
-  acceptedSequence: number;
-  state: CommitmentState;
-};
-
-/** Per-participant bank and standings split (§3.5). The 100-point grant never counts toward standings. */
-export type BankSummary = {
-  grantPoints: number;
-  availablePoints: number;
-  reservedPoints: number;
-  settledRiskNet: number;
-  correctionDebt: number;
-};
+/* Phase 10 types come from Worker A's exported contract (server/src/shared/points.ts, 77d16d0). */
+import type { CallBank, CommitmentQuote, CommitmentReceipt as ServerCommitmentReceipt } from '@shared/room';
+export type BankSummary = CallBank;
+export type CommitmentReceipt = ServerCommitmentReceipt;
+export type CommitmentState = CommitmentReceipt['state'];
+/** A reviewable offer; A's provenance fields are optional so older fixtures still render. */
+export type CommitQuote = Omit<CommitmentQuote, 'targetVersion' | 'maximumLossPoints' | 'probabilityVersion' | 'probabilitySource'>
+  & Partial<Pick<CommitmentQuote, 'targetVersion' | 'maximumLossPoints' | 'probabilityVersion' | 'probabilitySource'>>;
 
 /** Supported player-call templates (Phase 11 catalog), as served by A's catalog read. */
 export type CallTemplate = {

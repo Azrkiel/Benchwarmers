@@ -180,7 +180,52 @@ describe('commitment phrases', () => {
     const before = r.store.view(r.code).version;
     const label = r.store.view(r.code).question!.options[0]!.label;
     const result = answerRoom(r.store, r.code, { text: `put 25 points on ${label}`, participantToken: r.token });
-    expect(result).toMatchObject({ accepted: false, reply: 'Committing points is not available in this room yet. Nothing was changed.' });
+    expect(result).toMatchObject({ accepted: false, reply: 'Committing points is not available in this room. Nothing was changed.' });
     expect(r.store.view(r.code).version).toBe(before);
+  });
+});
+
+describe('voice commitments in a points-enabled room', () => {
+  const PROBS = [['next_score_team', 'harbor', 0.5], ['next_score_team', 'summit', 0.5], ['next_made_field_goal_value', 'two', 0.6], ['next_made_field_goal_value', 'three', 0.4], ['team_scores_in_window', 'yes', 0.5], ['team_scores_in_window', 'no', 0.5]] as const;
+  function pointsRoom() {
+    let now = 5_000_000;
+    const store = new RoomStore({ persist: false, now: () => now, speed: 4, enableCommitments: true,
+      probabilities: PROBS.map(([templateId, optionId, p]) => ({ gameId: 'harbor-vs-summit', templateId, optionId, estimate: { p, version: 'test-v1', label: 'Authored test probability', source: 'demo_projection', observedAt: 0, validUntil: 100_000_000 } })) });
+    const created = store.create({ gameId: 'harbor-vs-summit' });
+    const code = created.view.room.code;
+    const seat = store.join(code, { name: 'Maya' });
+    store.autoLineup(code, { participantToken: seat.participantToken });
+    store.host(code, { hostToken: created.hostToken, action: 'start' });
+    for (let i = 0; i < 4000 && store.view(code).question?.status !== 'open'; i++) { now += 250; store.tick(); }
+    return { store, code, token: seat.participantToken };
+  }
+
+  it('reads the exact offer, commits only on "confirm", and a repeated confirm does not spend twice', () => {
+    const { store, code, token } = pointsRoom();
+    const q = store.view(code, token).question!;
+    const option = q.options[0]!;
+    const before = store.view(code, token).me!.bank!;
+    const offer = answerRoom(store, code, { text: `put 25 points on ${option.label}`, participantToken: token });
+    expect(offer.accepted).toBe(false);
+    expect(offer.reply.startsWith(`Offer: commit 25 points on ${option.label}. `)).toBe(true);
+    expect(offer.reply).toMatch(/If correct, [\d.]+ points come back in total\. If wrong, you lose 25\. Say “confirm” within \d+ seconds to commit\. Nothing is committed yet\.$/);
+    expect(store.view(code, token).me!.bank!.availablePoints).toBe(before.availablePoints);
+    const yes = answerRoom(store, code, { text: 'yes', participantToken: token });
+    expect(store.view(code, token).me!.bank!.availablePoints).toBe(before.availablePoints);
+    expect(yes.reply).not.toMatch(/^Committed/);
+    const confirmed = answerRoom(store, code, { text: 'confirm', participantToken: token });
+    expect(confirmed).toMatchObject({ accepted: true });
+    expect(confirmed.reply).toMatch(/^Committed 25 points on /);
+    const after = store.view(code, token).me!;
+    expect(after.bank!.availablePoints).toBe(before.availablePoints - 25);
+    expect(after.commitments).toHaveLength(1);
+    const again = answerRoom(store, code, { text: 'confirm', participantToken: token });
+    expect(again.reply).toMatch(/^Committed 25 points/);
+    expect(store.view(code, token).me!.bank!.availablePoints).toBe(before.availablePoints - 25);
+  });
+
+  it('says there is no offer waiting instead of committing on a bare confirm', () => {
+    const { store, code, token } = pointsRoom();
+    expect(answerRoom(store, code, { text: 'confirm', participantToken: token }).reply).toBe('There is no offer waiting. Ask for one first, for example “put 25 points on the Hawks”.');
   });
 });

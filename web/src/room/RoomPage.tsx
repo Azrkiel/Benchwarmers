@@ -74,6 +74,7 @@ export function RoomPage() {
   const mine = view.me as (typeof view.me & PointsMeFields) | undefined;
   const api = pointsApi(code, credentials.participantToken);
   const refreshSoon = () => { void refresh().catch(() => undefined); };
+  const committedHere = !!(view.question && mine?.commitments?.some((c) => c.questionId === view.question!.id));
   const pregame = extra.pregame && <PregamePick state={extra.pregame} home={view.game.home} away={view.game.away} serverOffsetMs={view.serverNow ? view.serverNow - Date.now() : 0}
     onPick={joined ? async (side) => { await send('picks', { participantToken: credentials.participantToken, questionId: extra.pregame!.questionId, optionId: side, requestId: globalThis.crypto?.randomUUID?.() ?? `pregame-${Date.now()}` }); } : undefined} />;
   const commit = mine?.bank && view.question && <CommitPoints key={view.question.id} question={view.question} bank={mine.bank} defaultOptionId={view.me?.currentPick?.questionId === view.question.id ? view.me.currentPick.optionId : undefined}
@@ -106,7 +107,8 @@ export function RoomPage() {
       <div id="rm-view" role="tabpanel" aria-labelledby={`rm-tab-${current}`} className="rm-view">
         {current === 'game' && <>
           {last && <div className={`rm-pick-recap${last.correct ? '' : ' is-miss'}`}>{last.correct ? `Correct · +${points(last.points)} pts` : 'Incorrect · +0 pts'}{last.correct && last.bonuses.length > 0 && <details><summary>Bonus details</summary><span>{last.bonuses.map((bonus) => bonus.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())).join(' · ')}</span></details>}</div>}
-          {final ? <FinalPodium view={view} /> : <Question view={view} busy={busy} receipt={receipt} onPick={(questionId, optionId) => submit(questionId, optionId, label(questionId, optionId)).then(() => undefined)} onRetry={(previous) => { void submit(previous.questionId, previous.optionId, previous.label, previous); }} />}
+          {final ? <FinalPodium view={view} /> : <Question view={view} busy={busy} receipt={receipt} onPick={committedHere ? undefined : (questionId, optionId) => submit(questionId, optionId, label(questionId, optionId)).then(() => undefined)} onRetry={(previous) => { void submit(previous.questionId, previous.optionId, previous.label, previous); }} />}
+          {committedHere && <p className="rm-muted">Your pick on this call is fixed by your commitment.</p>}
           {!final && commit}
           {livePhase !== 'lobby' && !final && calls}
           {livePhase !== 'lobby' && pregame}

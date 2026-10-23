@@ -7,15 +7,21 @@ const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
 const newRequestId = () => (globalThis.crypto?.randomUUID?.() ?? `commit-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
 /** The exact sentence the participant agrees to. */
-export function offerSentence(quote: Pick<CommitQuote, 'commitPoints' | 'totalReturnPoints'>): string {
+export function offerSentence(quote: Pick<CommitQuote, 'commitPoints' | 'totalReturnPoints' | 'maximumLossPoints'>): string {
   const net = quote.totalReturnPoints - quote.commitPoints;
-  return `Commit ${fmt(quote.commitPoints)} points. If correct: ${fmt(quote.totalReturnPoints)} returned total (+${fmt(net)} net). If wrong: lose ${fmt(quote.commitPoints)}.`;
+  // A crowd discount can push the return below the stake, so the net is shown with its sign.
+  const signedNet = `${net >= 0 ? '+' : '−'}${fmt(Math.abs(net))}`;
+  return `Commit ${fmt(quote.commitPoints)} points. If correct: ${fmt(quote.totalReturnPoints)} returned total (${signedNet} net). If wrong: lose ${fmt(quote.maximumLossPoints ?? quote.commitPoints)}.`;
 }
 
 function commitError(problem: unknown): { message: string; requote?: boolean; retry?: boolean } {
   if (!(problem instanceof RoomRequestError)) return { message: 'Not confirmed yet. Retry sends the same request, so it cannot commit twice.', retry: true };
   switch (problem.code) {
-    case 'QUOTE_EXPIRED': case 'QUOTE_CHANGED': return { message: 'The offer changed. Review the new offer before committing.', requote: true };
+    case 'QUOTE_EXPIRED': case 'QUOTE_CHANGED': case 'BAD_QUOTE': return { message: 'The offer changed. Review the new offer before committing.', requote: true };
+    case 'FEATURE_DISABLED': return { message: 'Point commitments are off in this room. Free picks still count.' };
+    case 'PROBABILITY_UNAVAILABLE': return { message: 'No offer for that answer right now (no reference probability). Free picks still count.' };
+    case 'NOT_ELIGIBLE': return { message: 'You joined after this call opened. Wait for the next one.' };
+    case 'TARGET_UNSUPPORTED': return { message: 'This call does not take commitments. Free picks still count.' };
     case 'INSUFFICIENT_POINTS': return { message: 'Not enough available points. Nothing was committed.' };
     case 'PICKS_LOCKED': return { message: 'The call closed. Nothing was committed.' };
     case 'CALL_ALREADY_COMMITTED': return { message: 'You already committed on this call.' };

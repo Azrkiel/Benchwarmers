@@ -117,6 +117,21 @@ export function pickRequestId(prefix: 'voice' | 'mcp', participantId: string, qu
   return `${prefix}-${digest}`;
 }
 
+function commitRefusal(err: RoomError): string {
+  switch (err.code) {
+    case 'NO_PENDING_CONFIRMATION': return 'There is no offer waiting. Ask for one first, for example “put 25 points on the Hawks”.';
+    case 'QUOTE_EXPIRED': case 'QUOTE_CHANGED': case 'BAD_QUOTE': return 'That offer is no longer valid. Nothing was committed. Ask again for a new offer.';
+    case 'INSUFFICIENT_POINTS': return 'You do not have enough available points. Nothing was committed.';
+    case 'PICKS_LOCKED': return 'That call closed. Nothing was committed.';
+    case 'CALL_ALREADY_COMMITTED': return 'You already committed on this call.';
+    case 'PROBABILITY_UNAVAILABLE': return 'There is no offer for that answer right now. Your free pick still counts.';
+    case 'FEATURE_DISABLED': return 'Committing points is not available in this room. Nothing was changed.';
+    case 'NOT_ELIGIBLE': return 'You joined after this call opened. Wait for the next one.';
+    case 'SOURCE_STALE': return 'Game data is catching up, so commitments are paused. Nothing was committed.';
+    default: return `${err.message} Nothing was committed.`;
+  }
+}
+
 const HOST_VERB = { start: 'start the game', pause: 'pause the replay', resume: 'resume the replay', set_speed: 'change the replay speed' } as const;
 
 function scoreLine(view: RoomView): string {
@@ -163,10 +178,32 @@ export function executeCommand(store: RoomStore, code: string, command: RoomComm
   const needSeat = () => done('Choose who you are first. Nothing was changed.', { accepted: false });
   switch (command.kind) {
     case 'clarify': return done(command.reply, { accepted: false });
-    case 'commit':
-    case 'commit_confirm':
-      // Until the room offers quoted commitments, say so and change nothing (no free pick either).
-      return done('Committing points is not available in this room yet. Nothing was changed.', { accepted: false });
+    case 'commit': {
+      if (!token || !view.me) return needSeat();
+      // Rooms without a bank do not offer commitments; never fall back to a free pick.
+      if (!view.me.bank) return done('Committing points is not available in this room. Nothing was changed.', { accepted: false });
+      const q = view.question;
+      if (!q || q.status !== 'open' || (command.questionId && q.id !== command.questionId)) return done('There is no open call to commit on. Nothing was changed.', { accepted: false });
+      if (!command.optionId) return done(`Which answer? Say for example “put 25 points on ${q.options[0]?.label ?? 'an answer'}”.`, { accepted: false });
+      if (command.amount !== 10 && command.amount !== 25 && command.amount !== 50) return done('You can commit 10, 25 or 50 points.', { accepted: false });
+      try {
+        const { quote } = store.quoteCommitmentForVoice(code, { participantToken: token, questionId: q.id, optionId: command.optionId, commitPoints: command.amount });
+        const secs = Math.max(1, Math.floor((quote.expiresAt - (view.serverNow ?? Date.now())) / 1000));
+        // The exact stake, total return and maximum loss are read before any confirmation.
+        return done(`Offer: commit ${quote.commitPoints} points on ${quote.optionLabel}. If correct, ${quote.totalReturnPoints} points come back in total. If wrong, you lose ${quote.maximumLossPoints}. Say “confirm” within ${secs} seconds to commit. Nothing is committed yet.`, { accepted: false });
+      } catch (err) { if (err instanceof RoomError && err.status < 500) return done(commitRefusal(err), { accepted: false }); throw err; }
+    }
+    case 'commit_confirm': {
+      if (!token || !view.me) return needSeat();
+      if (!view.me.bank) return done('Committing points is not available in this room. Nothing was changed.', { accepted: false });
+      // One commitment per participant per call, so this id is stable for a repeated "confirm".
+      const requestId = `voice-confirm-${createHash('sha256').update(`${view.me.participantId}:${view.question?.id ?? 'none'}`).digest('hex').slice(0, 40)}`;
+      try {
+        const { commitment } = store.confirmPendingCommitment(code, { participantToken: token, requestId });
+        view = store.view(code, token);
+        return done(`Committed ${commitment.commitPoints} points on ${commitment.optionLabel}. If correct, ${commitment.totalReturnPoints} come back. This cannot be changed.`, { accepted: true });
+      } catch (err) { if (err instanceof RoomError && err.status < 500) return done(commitRefusal(err), { accepted: false }); throw err; }
+    }
     case 'read': return done(read(view, command.topic));
     case 'navigate':
       if (command.view === 'season' && view.room.phase !== 'final') return done('Season standings open after the final.');
