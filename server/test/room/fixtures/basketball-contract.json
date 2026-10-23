@@ -1,0 +1,2431 @@
+{
+  "lobby": {
+    "version": 1,
+    "serverNow": 1000,
+    "rulesVersion": "basketball-v1",
+    "room": {
+      "code": "868D88",
+      "name": "Basketball Watch Party",
+      "seasonId": "demo-season",
+      "phase": "lobby",
+      "speed": 4,
+      "participantCount": 0,
+      "createdAt": 1000
+    },
+    "game": {
+      "gameId": "harbor-vs-summit",
+      "sport": "basketball",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "basketball",
+        "possessionTeamId": null,
+        "possessionPlayerId": null,
+        "ball": null,
+        "tracking": "team_possession"
+      },
+      "title": "Harbor Hawks vs. Summit Foxes",
+      "home": {
+        "id": "harbor",
+        "short": "HAR",
+        "name": "Harbor Hawks",
+        "color": "#1F7AE0",
+        "score": 0
+      },
+      "away": {
+        "id": "summit",
+        "short": "SUM",
+        "name": "Summit Foxes",
+        "color": "#E8642C",
+        "score": 0
+      },
+      "quarter": 1,
+      "clock": "12:00",
+      "situation": "Waiting for tip-off",
+      "ballOn": 0,
+      "fieldX": 0,
+      "possession": null,
+      "driveNumber": 0,
+      "driveCount": 0,
+      "recentPlays": [],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "positionMultipliers": {
+        "PG": 1,
+        "SG": 1,
+        "SF": 1,
+        "PF": 1,
+        "C": 1
+      },
+      "pickFactorCap": 5
+    },
+    "players": [
+      {
+        "id": "har-pg-1",
+        "name": "Jalen Reyes",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11000,
+        "projectedPoints": 32,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sg-7",
+        "name": "Tommy Okafor",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10500,
+        "projectedPoints": 30,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sf-11",
+        "name": "Andre Lindqvist",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 25,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-pf-21",
+        "name": "Marcus Bell",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8500,
+        "projectedPoints": 24,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-c-34",
+        "name": "Moses Adeyemi",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-pg-5",
+        "name": "Danny Cho",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 7000,
+        "projectedPoints": 20,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sf-23",
+        "name": "Luis Navarro",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 6500,
+        "projectedPoints": 18,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-c-44",
+        "name": "Grant Whitfield",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 5500,
+        "projectedPoints": 15,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pg-2",
+        "name": "Kai Thompson",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11500,
+        "projectedPoints": 33,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sg-10",
+        "name": "Rafael Duarte",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10000,
+        "projectedPoints": 28,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sf-14",
+        "name": "Owen Mercer",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 26,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pf-32",
+        "name": "DeShawn Pike",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8000,
+        "projectedPoints": 23,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-c-50",
+        "name": "Viktor Halvorsen",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sg-4",
+        "name": "Eli Brooks",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 6500,
+        "projectedPoints": 19,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pf-15",
+        "name": "Nate Kimura",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 6000,
+        "projectedPoints": 17,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sf-8",
+        "name": "Caleb Frost",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 5500,
+        "projectedPoints": 16,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      }
+    ],
+    "standings": [],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": []
+    }
+  },
+  "open": {
+    "version": 5,
+    "serverNow": 101000,
+    "rulesVersion": "basketball-v1",
+    "room": {
+      "code": "868D88",
+      "name": "Basketball Watch Party",
+      "seasonId": "demo-season",
+      "phase": "live",
+      "speed": 4,
+      "participantCount": 1,
+      "createdAt": 1000
+    },
+    "game": {
+      "gameId": "harbor-vs-summit",
+      "sport": "basketball",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "basketball",
+        "possessionTeamId": "summit",
+        "possessionPlayerId": null,
+        "ball": null,
+        "tracking": "team_possession"
+      },
+      "title": "Harbor Hawks vs. Summit Foxes",
+      "home": {
+        "id": "harbor",
+        "short": "HAR",
+        "name": "Harbor Hawks",
+        "color": "#1F7AE0",
+        "score": 0
+      },
+      "away": {
+        "id": "summit",
+        "short": "SUM",
+        "name": "Summit Foxes",
+        "color": "#E8642C",
+        "score": 0
+      },
+      "quarter": 1,
+      "clock": "11:30",
+      "situation": "Prediction opportunity before the next action.",
+      "ballOn": 0,
+      "fieldX": 0,
+      "possession": "summit",
+      "driveNumber": 0,
+      "driveCount": 0,
+      "recentPlays": [
+        {
+          "id": "legacy-001",
+          "text": "Tip-off won by the Hawks. Here we go.",
+          "kind": "possession",
+          "quarter": 1,
+          "clock": "11:36"
+        },
+        {
+          "id": "possession-1",
+          "text": "Scripted possession: summit.",
+          "kind": "possession",
+          "quarter": 1,
+          "clock": "11:30"
+        }
+      ],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "positionMultipliers": {
+        "PG": 1,
+        "SG": 1,
+        "SF": 1,
+        "PF": 1,
+        "C": 1
+      },
+      "pickFactorCap": 5
+    },
+    "players": [
+      {
+        "id": "har-pg-1",
+        "name": "Jalen Reyes",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11000,
+        "projectedPoints": 32,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sg-7",
+        "name": "Tommy Okafor",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10500,
+        "projectedPoints": 30,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sf-11",
+        "name": "Andre Lindqvist",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 25,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-pf-21",
+        "name": "Marcus Bell",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8500,
+        "projectedPoints": 24,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-c-34",
+        "name": "Moses Adeyemi",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-pg-5",
+        "name": "Danny Cho",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 7000,
+        "projectedPoints": 20,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sf-23",
+        "name": "Luis Navarro",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 6500,
+        "projectedPoints": 18,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-c-44",
+        "name": "Grant Whitfield",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 5500,
+        "projectedPoints": 15,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pg-2",
+        "name": "Kai Thompson",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11500,
+        "projectedPoints": 33,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sg-10",
+        "name": "Rafael Duarte",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10000,
+        "projectedPoints": 28,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sf-14",
+        "name": "Owen Mercer",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 26,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pf-32",
+        "name": "DeShawn Pike",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8000,
+        "projectedPoints": 23,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-c-50",
+        "name": "Viktor Halvorsen",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sg-4",
+        "name": "Eli Brooks",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 6500,
+        "projectedPoints": 19,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pf-15",
+        "name": "Nate Kimura",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 6000,
+        "projectedPoints": 17,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sf-8",
+        "name": "Caleb Frost",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 5500,
+        "projectedPoints": 16,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      }
+    ],
+    "standings": [
+      {
+        "participantId": "c644d01d-7f27-483e-8ff8-7304c538f26f",
+        "name": "Fixture Fan",
+        "rank": 1,
+        "total": 0,
+        "fantasyPoints": 0,
+        "predictionPoints": 0,
+        "streak": 0,
+        "roster": [
+          {
+            "playerId": "sum-pf-32",
+            "captain": true,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1.5,
+            "points": 0
+          },
+          {
+            "playerId": "har-c-34",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          },
+          {
+            "playerId": "har-pg-1",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          },
+          {
+            "playerId": "har-sg-7",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          },
+          {
+            "playerId": "sum-sf-14",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          }
+        ]
+      }
+    ],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": []
+    },
+    "question": {
+      "id": "basketball-q1",
+      "kind": "next_score_team",
+      "text": "Which team scores next?",
+      "opensAt": 101000,
+      "locksAt": 109000,
+      "remainingMs": 8000,
+      "options": [
+        {
+          "id": "harbor",
+          "label": "Harbor Hawks",
+          "basePoints": 10
+        },
+        {
+          "id": "summit",
+          "label": "Summit Foxes",
+          "basePoints": 10
+        }
+      ],
+      "pickCounts": {
+        "harbor": 0,
+        "summit": 0
+      },
+      "status": "open",
+      "target": {
+        "templateId": "next_score_team",
+        "anchorSequence": 2,
+        "horizonGameElapsedMs": 360000,
+        "eligibleParticipantIds": [
+          "c644d01d-7f27-483e-8ff8-7304c538f26f"
+        ]
+      }
+    }
+  },
+  "locked": {
+    "version": 38,
+    "serverNow": 109000,
+    "rulesVersion": "basketball-v1",
+    "room": {
+      "code": "868D88",
+      "name": "Basketball Watch Party",
+      "seasonId": "demo-season",
+      "phase": "live",
+      "speed": 4,
+      "participantCount": 1,
+      "createdAt": 1000
+    },
+    "game": {
+      "gameId": "harbor-vs-summit",
+      "sport": "basketball",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "basketball",
+        "possessionTeamId": "summit",
+        "possessionPlayerId": null,
+        "ball": null,
+        "tracking": "team_possession"
+      },
+      "title": "Harbor Hawks vs. Summit Foxes",
+      "home": {
+        "id": "harbor",
+        "short": "HAR",
+        "name": "Harbor Hawks",
+        "color": "#1F7AE0",
+        "score": 0
+      },
+      "away": {
+        "id": "summit",
+        "short": "SUM",
+        "name": "Summit Foxes",
+        "color": "#E8642C",
+        "score": 0
+      },
+      "quarter": 1,
+      "clock": "11:06",
+      "situation": "Quick Kai misses a two-point jumper.",
+      "ballOn": 0,
+      "fieldX": 0,
+      "possession": "summit",
+      "driveNumber": 0,
+      "driveCount": 0,
+      "recentPlays": [
+        {
+          "id": "legacy-001",
+          "text": "Tip-off won by the Hawks. Here we go.",
+          "kind": "possession",
+          "quarter": 1,
+          "clock": "11:36"
+        },
+        {
+          "id": "possession-1",
+          "text": "Scripted possession: summit.",
+          "kind": "possession",
+          "quarter": 1,
+          "clock": "11:30"
+        },
+        {
+          "id": "authored-missed-two",
+          "text": "Quick Kai misses a two-point jumper.",
+          "kind": "shot_attempt",
+          "quarter": 1,
+          "clock": "11:06"
+        }
+      ],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "positionMultipliers": {
+        "PG": 1,
+        "SG": 1,
+        "SF": 1,
+        "PF": 1,
+        "C": 1
+      },
+      "pickFactorCap": 5
+    },
+    "players": [
+      {
+        "id": "har-pg-1",
+        "name": "Jalen Reyes",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11000,
+        "projectedPoints": 32,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sg-7",
+        "name": "Tommy Okafor",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10500,
+        "projectedPoints": 30,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sf-11",
+        "name": "Andre Lindqvist",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 25,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-pf-21",
+        "name": "Marcus Bell",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8500,
+        "projectedPoints": 24,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-c-34",
+        "name": "Moses Adeyemi",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-pg-5",
+        "name": "Danny Cho",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 7000,
+        "projectedPoints": 20,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sf-23",
+        "name": "Luis Navarro",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 6500,
+        "projectedPoints": 18,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-c-44",
+        "name": "Grant Whitfield",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 5500,
+        "projectedPoints": 15,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pg-2",
+        "name": "Kai Thompson",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11500,
+        "projectedPoints": 33,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sg-10",
+        "name": "Rafael Duarte",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10000,
+        "projectedPoints": 28,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sf-14",
+        "name": "Owen Mercer",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 26,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pf-32",
+        "name": "DeShawn Pike",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8000,
+        "projectedPoints": 23,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-c-50",
+        "name": "Viktor Halvorsen",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sg-4",
+        "name": "Eli Brooks",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 6500,
+        "projectedPoints": 19,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pf-15",
+        "name": "Nate Kimura",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 6000,
+        "projectedPoints": 17,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sf-8",
+        "name": "Caleb Frost",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 5500,
+        "projectedPoints": 16,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      }
+    ],
+    "standings": [
+      {
+        "participantId": "c644d01d-7f27-483e-8ff8-7304c538f26f",
+        "name": "Fixture Fan",
+        "rank": 1,
+        "total": 0,
+        "fantasyPoints": 0,
+        "predictionPoints": 0,
+        "streak": 0,
+        "roster": [
+          {
+            "playerId": "sum-pf-32",
+            "captain": true,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1.5,
+            "points": 0
+          },
+          {
+            "playerId": "har-c-34",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          },
+          {
+            "playerId": "har-pg-1",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          },
+          {
+            "playerId": "har-sg-7",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          },
+          {
+            "playerId": "sum-sf-14",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          }
+        ]
+      }
+    ],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": []
+    },
+    "question": {
+      "id": "basketball-q1",
+      "kind": "next_score_team",
+      "text": "Which team scores next?",
+      "opensAt": 101000,
+      "locksAt": 109000,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "harbor",
+          "label": "Harbor Hawks",
+          "basePoints": 10
+        },
+        {
+          "id": "summit",
+          "label": "Summit Foxes",
+          "basePoints": 10
+        }
+      ],
+      "pickCounts": {
+        "harbor": 1,
+        "summit": 0
+      },
+      "status": "locked",
+      "target": {
+        "templateId": "next_score_team",
+        "anchorSequence": 2,
+        "horizonGameElapsedMs": 360000,
+        "eligibleParticipantIds": [
+          "c644d01d-7f27-483e-8ff8-7304c538f26f"
+        ]
+      }
+    }
+  },
+  "resolved": {
+    "version": 45,
+    "serverNow": 110750,
+    "rulesVersion": "basketball-v1",
+    "room": {
+      "code": "868D88",
+      "name": "Basketball Watch Party",
+      "seasonId": "demo-season",
+      "phase": "live",
+      "speed": 4,
+      "participantCount": 1,
+      "createdAt": 1000
+    },
+    "game": {
+      "gameId": "harbor-vs-summit",
+      "sport": "basketball",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "basketball",
+        "possessionTeamId": "summit",
+        "possessionPlayerId": null,
+        "ball": null,
+        "tracking": "team_possession"
+      },
+      "title": "Harbor Hawks vs. Summit Foxes",
+      "home": {
+        "id": "harbor",
+        "short": "HAR",
+        "name": "Harbor Hawks",
+        "color": "#1F7AE0",
+        "score": 2
+      },
+      "away": {
+        "id": "summit",
+        "short": "SUM",
+        "name": "Summit Foxes",
+        "color": "#E8642C",
+        "score": 0
+      },
+      "quarter": 1,
+      "clock": "7:18",
+      "situation": "Jet Reyes floats in a layup off a Dime Cho pass. First points of the night.",
+      "ballOn": 0,
+      "fieldX": 0,
+      "possession": "summit",
+      "driveNumber": 0,
+      "driveCount": 0,
+      "recentPlays": [
+        {
+          "id": "legacy-001",
+          "text": "Tip-off won by the Hawks. Here we go.",
+          "kind": "possession",
+          "quarter": 1,
+          "clock": "11:36"
+        },
+        {
+          "id": "possession-1",
+          "text": "Scripted possession: summit.",
+          "kind": "possession",
+          "quarter": 1,
+          "clock": "11:30"
+        },
+        {
+          "id": "authored-missed-two",
+          "text": "Quick Kai misses a two-point jumper.",
+          "kind": "shot_attempt",
+          "quarter": 1,
+          "clock": "11:06"
+        },
+        {
+          "id": "authored-rebound",
+          "text": "Jet Reyes secures the rebound.",
+          "kind": "stat",
+          "quarter": 1,
+          "clock": "11:00"
+        },
+        {
+          "id": "authored-missed-three",
+          "text": "Jet Reyes attempts a three; Tower blocks it.",
+          "kind": "shot_attempt",
+          "quarter": 1,
+          "clock": "10:54"
+        },
+        {
+          "id": "authored-block",
+          "text": "Tower receives the block credit.",
+          "kind": "stat",
+          "quarter": 1,
+          "clock": "10:48"
+        },
+        {
+          "id": "legacy-002",
+          "text": "Doorbell Bell grabs the rebound.",
+          "kind": "stat",
+          "quarter": 1,
+          "clock": "10:18"
+        },
+        {
+          "id": "legacy-003",
+          "text": "Quick Kai picks the pocket. Steal!",
+          "kind": "stat",
+          "quarter": 1,
+          "clock": "9:30"
+        },
+        {
+          "id": "legacy-004",
+          "text": "Dime Cho throws it away. Turnover.",
+          "kind": "stat",
+          "quarter": 1,
+          "clock": "8:42"
+        },
+        {
+          "id": "legacy-005",
+          "text": "Jet Reyes floats in a layup off a Dime Cho pass. First points of the night.",
+          "kind": "score",
+          "quarter": 1,
+          "clock": "7:18"
+        }
+      ],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "positionMultipliers": {
+        "PG": 1,
+        "SG": 1,
+        "SF": 1,
+        "PF": 1,
+        "C": 1
+      },
+      "pickFactorCap": 5
+    },
+    "players": [
+      {
+        "id": "har-pg-1",
+        "name": "Jalen Reyes",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11000,
+        "projectedPoints": 32,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "reb": 1,
+          "pts2": 1
+        },
+        "rawPoints": 3.2,
+        "points": 3.2,
+        "statLine": "1 reb / 1 pts2"
+      },
+      {
+        "id": "har-sg-7",
+        "name": "Tommy Okafor",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10500,
+        "projectedPoints": 30,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-sf-11",
+        "name": "Andre Lindqvist",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 25,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-pf-21",
+        "name": "Marcus Bell",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8500,
+        "projectedPoints": 24,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "reb": 1
+        },
+        "rawPoints": 1.2,
+        "points": 1.2,
+        "statLine": "1 reb"
+      },
+      {
+        "id": "har-c-34",
+        "name": "Moses Adeyemi",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-pg-5",
+        "name": "Danny Cho",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 7000,
+        "projectedPoints": 20,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "tov": 1
+        },
+        "rawPoints": -1,
+        "points": -1,
+        "statLine": "1 tov"
+      },
+      {
+        "id": "har-sf-23",
+        "name": "Luis Navarro",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 6500,
+        "projectedPoints": 18,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "har-c-44",
+        "name": "Grant Whitfield",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 5500,
+        "projectedPoints": 15,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pg-2",
+        "name": "Kai Thompson",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11500,
+        "projectedPoints": 33,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "stl": 1
+        },
+        "rawPoints": 3,
+        "points": 3,
+        "statLine": "1 stl"
+      },
+      {
+        "id": "sum-sg-10",
+        "name": "Rafael Duarte",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10000,
+        "projectedPoints": 28,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sf-14",
+        "name": "Owen Mercer",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 26,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pf-32",
+        "name": "DeShawn Pike",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8000,
+        "projectedPoints": 23,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-c-50",
+        "name": "Viktor Halvorsen",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "blk": 1
+        },
+        "rawPoints": 3,
+        "points": 3,
+        "statLine": "1 blk"
+      },
+      {
+        "id": "sum-sg-4",
+        "name": "Eli Brooks",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 6500,
+        "projectedPoints": 19,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-pf-15",
+        "name": "Nate Kimura",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 6000,
+        "projectedPoints": 17,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      },
+      {
+        "id": "sum-sf-8",
+        "name": "Caleb Frost",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 5500,
+        "projectedPoints": 16,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {},
+        "rawPoints": 0,
+        "points": 0,
+        "statLine": "No stats yet"
+      }
+    ],
+    "standings": [
+      {
+        "participantId": "c644d01d-7f27-483e-8ff8-7304c538f26f",
+        "name": "Fixture Fan",
+        "rank": 1,
+        "total": 15.7,
+        "fantasyPoints": 3.2,
+        "predictionPoints": 12.5,
+        "streak": 1,
+        "roster": [
+          {
+            "playerId": "sum-pf-32",
+            "captain": true,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1.5,
+            "points": 0
+          },
+          {
+            "playerId": "har-c-34",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          },
+          {
+            "playerId": "har-pg-1",
+            "captain": false,
+            "rawPoints": 3.2,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 3.2
+          },
+          {
+            "playerId": "har-sg-7",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          },
+          {
+            "playerId": "sum-sf-14",
+            "captain": false,
+            "rawPoints": 0,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 0
+          }
+        ],
+        "lastPickScore": {
+          "correct": true,
+          "base": 10,
+          "factor": 1.25,
+          "points": 12.5,
+          "bonuses": [
+            "early_call"
+          ]
+        }
+      }
+    ],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": []
+    },
+    "question": {
+      "id": "basketball-q1",
+      "kind": "next_score_team",
+      "text": "Which team scores next?",
+      "opensAt": 101000,
+      "locksAt": 109000,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "harbor",
+          "label": "Harbor Hawks",
+          "basePoints": 10
+        },
+        {
+          "id": "summit",
+          "label": "Summit Foxes",
+          "basePoints": 10
+        }
+      ],
+      "pickCounts": {
+        "harbor": 1,
+        "summit": 0
+      },
+      "status": "resolved",
+      "target": {
+        "templateId": "next_score_team",
+        "anchorSequence": 2,
+        "horizonGameElapsedMs": 360000,
+        "eligibleParticipantIds": [
+          "c644d01d-7f27-483e-8ff8-7304c538f26f"
+        ]
+      },
+      "result": {
+        "optionId": "harbor",
+        "explanation": "Jet Reyes floats in a layup off a Dime Cho pass. First points of the night."
+      }
+    },
+    "lastQuestion": {
+      "id": "basketball-q1",
+      "kind": "next_score_team",
+      "text": "Which team scores next?",
+      "opensAt": 101000,
+      "locksAt": 109000,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "harbor",
+          "label": "Harbor Hawks",
+          "basePoints": 10
+        },
+        {
+          "id": "summit",
+          "label": "Summit Foxes",
+          "basePoints": 10
+        }
+      ],
+      "pickCounts": {
+        "harbor": 1,
+        "summit": 0
+      },
+      "status": "resolved",
+      "target": {
+        "templateId": "next_score_team",
+        "anchorSequence": 2,
+        "horizonGameElapsedMs": 360000,
+        "eligibleParticipantIds": [
+          "c644d01d-7f27-483e-8ff8-7304c538f26f"
+        ]
+      },
+      "result": {
+        "optionId": "harbor",
+        "explanation": "Jet Reyes floats in a layup off a Dime Cho pass. First points of the night."
+      }
+    }
+  },
+  "final": {
+    "version": 244,
+    "serverNow": 160500,
+    "rulesVersion": "basketball-v1",
+    "room": {
+      "code": "868D88",
+      "name": "Basketball Watch Party",
+      "seasonId": "demo-season",
+      "phase": "final",
+      "speed": 4,
+      "participantCount": 1,
+      "createdAt": 1000
+    },
+    "game": {
+      "gameId": "harbor-vs-summit",
+      "sport": "basketball",
+      "sourceMode": "scripted",
+      "sourceStatus": "healthy",
+      "context": {
+        "sport": "basketball",
+        "possessionTeamId": null,
+        "possessionPlayerId": null,
+        "ball": null,
+        "tracking": "team_possession"
+      },
+      "title": "Harbor Hawks vs. Summit Foxes",
+      "home": {
+        "id": "harbor",
+        "short": "HAR",
+        "name": "Harbor Hawks",
+        "color": "#1F7AE0",
+        "score": 57
+      },
+      "away": {
+        "id": "summit",
+        "short": "SUM",
+        "name": "Summit Foxes",
+        "color": "#E8642C",
+        "score": 56
+      },
+      "quarter": 4,
+      "clock": "0:00",
+      "situation": "Final",
+      "ballOn": 0,
+      "fieldX": 0,
+      "possession": null,
+      "driveNumber": 0,
+      "driveCount": 0,
+      "recentPlays": [
+        {
+          "id": "legacy-058-assist",
+          "text": "Assist credit.",
+          "kind": "stat",
+          "quarter": 4,
+          "clock": "4:24"
+        },
+        {
+          "id": "legacy-059",
+          "text": "Lefty Navarro cuts for a layup.",
+          "kind": "score",
+          "quarter": 4,
+          "clock": "3:42"
+        },
+        {
+          "id": "legacy-059-assist",
+          "text": "Assist credit.",
+          "kind": "stat",
+          "quarter": 4,
+          "clock": "3:42"
+        },
+        {
+          "id": "legacy-060",
+          "text": "Quick Kai nails a three to put the Foxes ahead, 54-53.",
+          "kind": "score",
+          "quarter": 4,
+          "clock": "2:54"
+        },
+        {
+          "id": "legacy-060-assist",
+          "text": "Assist credit.",
+          "kind": "stat",
+          "quarter": 4,
+          "clock": "2:54"
+        },
+        {
+          "id": "legacy-061",
+          "text": "The Viking puts the Hawks back in front.",
+          "kind": "score",
+          "quarter": 4,
+          "clock": "2:12"
+        },
+        {
+          "id": "legacy-061-assist",
+          "text": "Assist credit.",
+          "kind": "stat",
+          "quarter": 4,
+          "clock": "2:12"
+        },
+        {
+          "id": "legacy-062",
+          "text": "Ice Mercer puts the Foxes ahead again, 56-55.",
+          "kind": "score",
+          "quarter": 4,
+          "clock": "1:24"
+        },
+        {
+          "id": "legacy-062-assist",
+          "text": "Assist credit.",
+          "kind": "stat",
+          "quarter": 4,
+          "clock": "1:24"
+        },
+        {
+          "id": "legacy-063",
+          "text": "Doorbell Bell dunks to put the Hawks ahead!",
+          "kind": "score",
+          "quarter": 4,
+          "clock": "0:42"
+        },
+        {
+          "id": "legacy-063-assist",
+          "text": "Assist credit.",
+          "kind": "stat",
+          "quarter": 4,
+          "clock": "0:42"
+        },
+        {
+          "id": "legacy-064",
+          "text": "Final: Hawks 57, Foxes 56",
+          "kind": "final",
+          "quarter": 4,
+          "clock": "0:00"
+        }
+      ],
+      "isScripted": true
+    },
+    "rules": {
+      "salaryCap": 50000,
+      "flexSlots": 4,
+      "captainMultiplier": 1.5,
+      "positionMultipliers": {
+        "PG": 1,
+        "SG": 1,
+        "SF": 1,
+        "PF": 1,
+        "C": 1
+      },
+      "pickFactorCap": 5
+    },
+    "players": [
+      {
+        "id": "har-pg-1",
+        "name": "Jalen Reyes",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11000,
+        "projectedPoints": 32,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "reb": 1,
+          "pts2": 3,
+          "ast": 8,
+          "pts3": 1
+        },
+        "rawPoints": 22.2,
+        "points": 22.2,
+        "statLine": "1 reb / 3 pts2 / 8 ast / 1 pts3"
+      },
+      {
+        "id": "har-sg-7",
+        "name": "Tommy Okafor",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10500,
+        "projectedPoints": 30,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts3": 8,
+          "ast": 2
+        },
+        "rawPoints": 27,
+        "points": 27,
+        "statLine": "8 pts3 / 2 ast"
+      },
+      {
+        "id": "har-sf-11",
+        "name": "Andre Lindqvist",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 25,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts2": 2,
+          "ast": 2,
+          "ft": 1
+        },
+        "rawPoints": 8,
+        "points": 8,
+        "statLine": "2 pts2 / 2 ast / 1 ft"
+      },
+      {
+        "id": "har-pf-21",
+        "name": "Marcus Bell",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8500,
+        "projectedPoints": 24,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "reb": 1,
+          "pts2": 3
+        },
+        "rawPoints": 7.2,
+        "points": 7.2,
+        "statLine": "1 reb / 3 pts2"
+      },
+      {
+        "id": "har-c-34",
+        "name": "Moses Adeyemi",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "reb": 1,
+          "pts2": 1,
+          "tov": 1
+        },
+        "rawPoints": 2.2,
+        "points": 2.2,
+        "statLine": "1 reb / 1 pts2 / 1 tov"
+      },
+      {
+        "id": "har-pg-5",
+        "name": "Danny Cho",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "PG",
+        "role": "PG",
+        "salary": 7000,
+        "projectedPoints": 20,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "tov": 1,
+          "ast": 9,
+          "pts3": 1
+        },
+        "rawPoints": 15.5,
+        "points": 15.5,
+        "statLine": "1 tov / 9 ast / 1 pts3"
+      },
+      {
+        "id": "har-sf-23",
+        "name": "Luis Navarro",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "SF",
+        "role": "SF",
+        "salary": 6500,
+        "projectedPoints": 18,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts2": 2
+        },
+        "rawPoints": 4,
+        "points": 4,
+        "statLine": "2 pts2"
+      },
+      {
+        "id": "har-c-44",
+        "name": "Grant Whitfield",
+        "teamId": "harbor",
+        "teamShort": "harbor",
+        "position": "C",
+        "role": "C",
+        "salary": 5500,
+        "projectedPoints": 15,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts2": 2
+        },
+        "rawPoints": 4,
+        "points": 4,
+        "statLine": "2 pts2"
+      },
+      {
+        "id": "sum-pg-2",
+        "name": "Kai Thompson",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PG",
+        "role": "PG",
+        "salary": 11500,
+        "projectedPoints": 33,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "stl": 2,
+          "pts3": 3,
+          "ast": 17,
+          "pts2": 4
+        },
+        "rawPoints": 48.5,
+        "points": 48.5,
+        "statLine": "2 stl / 3 pts3 / 17 ast / 4 pts2"
+      },
+      {
+        "id": "sum-sg-10",
+        "name": "Rafael Duarte",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 10000,
+        "projectedPoints": 28,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "ast": 3,
+          "pts2": 3
+        },
+        "rawPoints": 10.5,
+        "points": 10.5,
+        "statLine": "3 ast / 3 pts2"
+      },
+      {
+        "id": "sum-sf-14",
+        "name": "Owen Mercer",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 9000,
+        "projectedPoints": 26,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts2": 2,
+          "pts3": 2
+        },
+        "rawPoints": 10,
+        "points": 10,
+        "statLine": "2 pts2 / 2 pts3"
+      },
+      {
+        "id": "sum-pf-32",
+        "name": "DeShawn Pike",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 8000,
+        "projectedPoints": 23,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts2": 3,
+          "ft": 1
+        },
+        "rawPoints": 7,
+        "points": 7,
+        "statLine": "3 pts2 / 1 ft"
+      },
+      {
+        "id": "sum-c-50",
+        "name": "Viktor Halvorsen",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "C",
+        "role": "C",
+        "salary": 7500,
+        "projectedPoints": 22,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "blk": 1,
+          "pts2": 2
+        },
+        "rawPoints": 7,
+        "points": 7,
+        "statLine": "1 blk / 2 pts2"
+      },
+      {
+        "id": "sum-sg-4",
+        "name": "Eli Brooks",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SG",
+        "role": "SG",
+        "salary": 6500,
+        "projectedPoints": 19,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts3": 2
+        },
+        "rawPoints": 6,
+        "points": 6,
+        "statLine": "2 pts3"
+      },
+      {
+        "id": "sum-pf-15",
+        "name": "Nate Kimura",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "PF",
+        "role": "PF",
+        "salary": 6000,
+        "projectedPoints": 17,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts2": 1
+        },
+        "rawPoints": 2,
+        "points": 2,
+        "statLine": "1 pts2"
+      },
+      {
+        "id": "sum-sf-8",
+        "name": "Caleb Frost",
+        "teamId": "summit",
+        "teamShort": "summit",
+        "position": "SF",
+        "role": "SF",
+        "salary": 5500,
+        "projectedPoints": 16,
+        "projectionSource": "demo_projection",
+        "salaryModelVersion": "demo-projection-350-v1",
+        "multiplier": 1,
+        "stats": {
+          "pts2": 2
+        },
+        "rawPoints": 4,
+        "points": 4,
+        "statLine": "2 pts2"
+      }
+    ],
+    "standings": [
+      {
+        "participantId": "c644d01d-7f27-483e-8ff8-7304c538f26f",
+        "name": "Fixture Fan",
+        "rank": 1,
+        "total": 84.4,
+        "fantasyPoints": 71.9,
+        "predictionPoints": 12.5,
+        "streak": 0,
+        "roster": [
+          {
+            "playerId": "sum-pf-32",
+            "captain": true,
+            "rawPoints": 7,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1.5,
+            "points": 10.5
+          },
+          {
+            "playerId": "har-c-34",
+            "captain": false,
+            "rawPoints": 2.2,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 2.2
+          },
+          {
+            "playerId": "har-pg-1",
+            "captain": false,
+            "rawPoints": 22.2,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 22.2
+          },
+          {
+            "playerId": "har-sg-7",
+            "captain": false,
+            "rawPoints": 27,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 27
+          },
+          {
+            "playerId": "sum-sf-14",
+            "captain": false,
+            "rawPoints": 10,
+            "positionMultiplier": 1,
+            "captainMultiplier": 1,
+            "points": 10
+          }
+        ],
+        "lastPickScore": {
+          "correct": true,
+          "base": 10,
+          "factor": 1.25,
+          "points": 12.5,
+          "bonuses": [
+            "early_call"
+          ]
+        }
+      }
+    ],
+    "season": {
+      "id": "demo-season",
+      "name": "Demo season",
+      "standings": [
+        {
+          "participantId": "c644d01d-7f27-483e-8ff8-7304c538f26f",
+          "name": "Fixture Fan",
+          "points": 84.4,
+          "fantasyPoints": 71.9,
+          "predictionPoints": 12.5,
+          "nightsPlayed": 1,
+          "nightsWon": 1
+        }
+      ]
+    },
+    "question": {
+      "id": "basketball-q4",
+      "kind": "next_made_field_goal_value",
+      "text": "Next made basket: two or three?",
+      "opensAt": 145750,
+      "locksAt": 153750,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "two",
+          "label": "Two",
+          "basePoints": 10
+        },
+        {
+          "id": "three",
+          "label": "Three",
+          "basePoints": 10
+        }
+      ],
+      "pickCounts": {
+        "two": 0,
+        "three": 0
+      },
+      "status": "resolved",
+      "target": {
+        "templateId": "next_made_field_goal_value",
+        "anchorSequence": 88,
+        "horizonGameElapsedMs": 2520000,
+        "eligibleParticipantIds": [
+          "c644d01d-7f27-483e-8ff8-7304c538f26f"
+        ]
+      },
+      "result": {
+        "optionId": "two",
+        "explanation": "Jet Reyes scores to start the fourth."
+      }
+    },
+    "lastQuestion": {
+      "id": "basketball-q4",
+      "kind": "next_made_field_goal_value",
+      "text": "Next made basket: two or three?",
+      "opensAt": 145750,
+      "locksAt": 153750,
+      "remainingMs": 0,
+      "options": [
+        {
+          "id": "two",
+          "label": "Two",
+          "basePoints": 10
+        },
+        {
+          "id": "three",
+          "label": "Three",
+          "basePoints": 10
+        }
+      ],
+      "pickCounts": {
+        "two": 0,
+        "three": 0
+      },
+      "status": "resolved",
+      "target": {
+        "templateId": "next_made_field_goal_value",
+        "anchorSequence": 88,
+        "horizonGameElapsedMs": 2520000,
+        "eligibleParticipantIds": [
+          "c644d01d-7f27-483e-8ff8-7304c538f26f"
+        ]
+      },
+      "result": {
+        "optionId": "two",
+        "explanation": "Jet Reyes scores to start the fourth."
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # Backend contract checkpoint: football adapter and durable room state
 
+> Resumed October 23, 2026: basketball creation, replay, catalog, prediction targets and durable pick receipts are now implemented. See [the current basketball checkpoint](BASKETBALL_BACKEND.md). The original delivery notes below remain historical evidence; their basketball/receipt gates are superseded by that checkpoint.
+
 Date: October 23, 2026. Assignment: Worker A. Branch: `feature/basketball-backend`.
 Base: `bc00daa710df77d88c50f986d2661fbec78748ed` (`origin/main`, refreshed before work).
 Workspace: `C:/Users/jiang/Benchwarmers-basketball-backend`.

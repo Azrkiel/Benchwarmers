@@ -14,11 +14,13 @@ const lineup = z.object({ captainId: id, flexIds: z.array(id).length(4), salaryU
 const pickScore = z.object({ points: nonnegative, base: nonnegative, factor: nonnegative, bonuses: z.array(z.string()), correct: z.boolean() });
 const identity = z.object({ id, name: id, token: id });
 const participant = identity.extend({ baseline: stats, lineup: lineup.optional(), predictionPoints: nonnegative, streak: nonnegative.int(), lastPickScore: pickScore.optional() });
+const target = z.object({templateId:z.enum(['next_score_team','next_made_field_goal_value','team_scores_in_window']),anchorSequence:nonnegative.int(),horizonGameElapsedMs:nonnegative,teamId:id.optional(),eligibleParticipantIds:z.array(id)});
+const receipt = z.object({requestId:id,participantId:id,questionId:id,optionId:id,acceptedAt:finite,acceptanceSequence:nonnegative.int().positive()});
 const question = z.object({
   view: z.object({ id, kind: id, text: id, opensAt: finite, locksAt: finite, remainingMs: nonnegative,
     options: z.array(z.object({ id, label: id, basePoints: nonnegative, probability: finite.min(0).max(1).optional() })).min(2),
-    pickCounts: z.record(id, nonnegative.int()), status: z.enum(['open', 'locked', 'resolved']),
-    result: z.object({ optionId: id, explanation: z.string() }).optional() }),
+    pickCounts: z.record(id, nonnegative.int()), status: z.enum(['open', 'locked', 'resolved', 'void']),
+    result: z.object({ optionId: id, explanation: z.string() }).optional(),voidReason:id.optional(),target:target.optional() }),
   picks: z.record(id, z.object({ optionId: id, elapsedFraction: finite.min(0).max(1) })),
 });
 const legacyRoom = z.object({
@@ -28,7 +30,7 @@ const legacyRoom = z.object({
   participants: z.array(participant), beatIndex: finite.int().min(-1), elapsedMs: nonnegative, durationMs: nonnegative,
   windowElapsedMs: nonnegative, lastTickAt: finite, stats, question: question.optional(), lastQuestion: question.optional(), recorded: z.boolean(),
 });
-const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1) });
+const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional() });
 const season = z.object({ id, name: id, identities: z.array(identity), standings: z.array(z.object({
   participantId: id, name: id, points: finite, fantasyPoints: finite, predictionPoints: finite,
   nightsPlayed: nonnegative.int(), nightsWon: nonnegative.int(),
@@ -66,6 +68,9 @@ export function validateSavedRooms(input: unknown): SavedRooms {
     if (r.recorded !== (r.phase === 'final')) invalid('terminal season marker');
     unique(r.participants.map(p => p.id), 'participant');
     unique(r.participants.map(p => p.name.toLowerCase()), 'participant name');
+    unique((r.pickReceipts??[]).map(receipt=>JSON.stringify([receipt.participantId,receipt.requestId])), 'pick receipt request');
+    let previousAcceptance=0;
+    for(const receipt of r.pickReceipts??[]){if(!r.participants.some(p=>p.id===receipt.participantId)||receipt.acceptanceSequence<=previousAcceptance)invalid('pick receipt references or ordering');previousAcceptance=receipt.acceptanceSequence;}
     for (const p of r.participants) {
       if (!s.identities.some(i => i.id === p.id && i.token === p.token && i.name === p.name)) invalid('participant identity');
       if (p.lineup) {
@@ -80,9 +85,11 @@ export function validateSavedRooms(input: unknown): SavedRooms {
       if (!q) continue;
       unique(q.view.options.map(o => o.id), 'question option');
       if ((q.view.status === 'resolved') !== Boolean(q.view.result)) invalid('question result status');
+      if ((q.view.status === 'void') !== Boolean(q.view.voidReason)) invalid('question void status');
+      if(q.view.target){unique(q.view.target.eligibleParticipantIds,'eligible participant');if(q.view.target.eligibleParticipantIds.some(id=>!r.participants.some(p=>p.id===id)))invalid('target eligibility');}
       if (q.view.result && !q.view.options.some(o => o.id === q.view.result!.optionId)) invalid('question result option');
       for (const [participantId, pick] of Object.entries(q.picks)) {
-        if (!r.participants.some(p => p.id === participantId) || !q.view.options.some(o => o.id === pick.optionId)) invalid('question pick');
+        if (!r.participants.some(p => p.id === participantId) || !q.view.options.some(o => o.id === pick.optionId) || (q.view.target&&!q.view.target.eligibleParticipantIds.includes(participantId))) invalid('question pick');
       }
     }
   }

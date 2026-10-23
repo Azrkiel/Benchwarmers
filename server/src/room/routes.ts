@@ -8,7 +8,7 @@ export const createRoomSchema=z.object({name:z.string().trim().min(1).max(80).op
 export const joinRoomSchema=z.object({name:z.string().trim().min(1).max(24),participantToken:token.optional()});
 export const lineupSchema=z.object({participantToken:token,captainId:z.string().min(1).max(100),flexIds:z.array(z.string().min(1).max(100)).length(4)});
 export const autoLineupSchema=z.object({participantToken:token,style:z.enum(['balanced','stars','value']).optional()});
-export const pickSchema=z.object({participantToken:token,questionId:z.string().min(1).max(100),optionId:z.string().min(1).max(50)});
+export const pickSchema=z.object({participantToken:token,questionId:z.string().min(1).max(100),optionId:z.string().min(1).max(50),requestId:z.string().regex(/^[A-Za-z0-9_-]{1,128}$/).optional()});
 export const hostSchema=z.object({hostToken:token,action:z.enum(['start','pause','resume','set_speed']),speed:z.number().int().min(1).max(4).optional()});
 export const utteranceSchema=z.object({text:z.string().trim().min(1).max(500),participantToken:token.optional(),hostToken:token.optional()});
 
@@ -21,6 +21,11 @@ export function createRoomRouter(store:RoomStore):express.Router {
     const auth=req.headers.authorization;
     if(auth && !/^Bearer\s+\S+$/i.test(auth))throw new RoomError(401,'UNAUTHORIZED','Use your saved room participant credential.');
     res.json(store.view(req.params.code,auth?.replace(/^Bearer\s+/i,'')));
+  });
+  router.get('/:code/receipts/:requestId',(req,res)=>{
+    const auth=req.headers.authorization;
+    if(!auth||!/^Bearer\s+\S+$/i.test(auth))throw new RoomError(401,'UNAUTHORIZED','Use your saved room participant credential.');
+    res.json(store.receipt(req.params.code,auth.replace(/^Bearer\s+/i,''),req.params.requestId));
   });
   router.post('/:code/join',(req,res)=>res.status(201).json(store.join(req.params.code,joinRoomSchema.parse(req.body))));
   router.post('/:code/lineup',(req,res)=>res.json(store.setLineup(req.params.code,lineupSchema.parse(req.body))));
