@@ -155,7 +155,18 @@
 .tv-recovery { display:flex; gap:20px; }
 .tv-reconnecting { position:absolute; right:110px; bottom:110px; z-index:50; display:flex; align-items:center; flex-wrap:wrap; gap:20px; padding:20px; max-width:1350px; background:var(--panel-2); border:1px solid var(--bad); font-size:26px; }
 .tv-small-screen { display:none; }
-@media (max-width:767px) { .tv-viewport .tv-stage { visibility:hidden; } .tv-small-screen { display:flex; flex-direction:column; align-items:flex-start; gap:20px; padding:32px 24px; font-size:18px; } .tv-small-screen h1 { font:600 40px/1 Barlow Condensed,Arial,sans-serif; margin:0; } .tv-small-screen p { color:var(--muted); margin:0; } .tv-small-screen a { font-size:18px; } }
+.is-too-small .tv-stage { visibility:hidden; }
+.is-too-small .tv-small-screen { display:flex; flex-direction:column; align-items:flex-start; gap:20px; padding:32px 24px; font-size:18px; position:relative; z-index:100; }
+.tv-small-screen h1 { font:600 40px/1 Barlow Condensed,Arial,sans-serif; margin:0; } .tv-small-screen p { color:var(--muted); margin:0; } .tv-small-screen a { font-size:18px; }
+.tv-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.tv-draft-card.is-flash { animation:tv-owner-flash 1.2s ease-out; }
+@keyframes tv-owner-flash { 0% { background:var(--owner); box-shadow:0 0 0 3px var(--owner); } 100% { background:var(--panel); box-shadow:0 0 0 0 transparent; } }
+.tv-roster-pager { display:flex; align-items:center; gap:16px; margin-left:auto; font-size:24px; }
+.tv-recap summary { list-style:none; cursor:pointer; } .tv-recap summary::-webkit-details-marker { display:none; }
+.tv-recap-text { margin:0; font-size:28px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.tv-recap details[open] .tv-recap-text { display:block; -webkit-line-clamp:unset; overflow:visible; }
+.tv-recap-hint { display:block; margin-top:8px; color:var(--muted); font-size:22px; }
+.tv-podium-block { padding:16px 12px; gap:8px; } .tv-podium-name { font-size:32px; } .tv-podium-total { font-size:48px; }
 html.tv-kiosk,html.tv-kiosk body { cursor:none; }
 @media (prefers-reduced-motion:reduce) { .tv-viewport *,.tv-viewport *::before,.tv-viewport *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
 .tv-bonus { display:flex; align-items:center; gap:10px; font-size:23px; color:var(--muted); }

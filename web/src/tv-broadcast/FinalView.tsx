@@ -4,12 +4,14 @@ import { Avatar, householdColor } from './avatar';
 import { findMember, formatPoints } from './pops';
 import { playerInfo, worstPerformer } from './rosters';
 
+const RECAP_CLAMP_CHARS = 140;
+
 function PodiumBlock({ row, place, state }: { row: StandingRow; place: 1 | 2 | 3; state: PartyStateResponse }) {
   const color = householdColor(state.households, row.householdId);
   return (
     <div className={`tv-podium-block tv-podium-${place}`} data-place={place} style={{ ['--hh' as string]: color }}>
       <div className="tv-podium-label">{row.rank === 1 ? (state.standings.filter(r => r.rank === 1).length > 1 ? 'Joint winner' : 'Winner') : `Rank ${row.rank}`} </div>
-      <Avatar avatar={row.avatar} name={row.name} color={color} size={place === 1 ? 96 : 72} />
+      <Avatar avatar={row.avatar} name={row.name} color={color} size={place === 1 ? 72 : 56} />
       <div className="tv-podium-name">{row.name}</div>
       <div className="tv-podium-hh">{row.household}</div>
       <div className="tv-podium-total">{row.total.toFixed(1)}</div>
@@ -87,7 +89,9 @@ export function FinalView({ state, season, seasonError = false, onRetrySeason }:
       <div className="tv-final-right" role="region" aria-label="Recap and season standings" tabIndex={0} data-tv-scroll>
         <section className="tv-recap">
           <h3>Recap</h3>
-          <blockquote>{recap}</blockquote>
+          {recap.length > RECAP_CLAMP_CHARS ? (
+            <details data-testid="recap-details"><summary><span className="tv-recap-text">{recap}</span><span className="tv-recap-hint">Expand or collapse full recap</span></summary></details>
+          ) : <blockquote className="tv-recap-text">{recap}</blockquote>}
         </section>
         {bench ? (
           <details className="tv-bench-note"><summary>Postgame note</summary><section className="tv-bench-night">

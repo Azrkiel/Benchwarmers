@@ -1,9 +1,19 @@
+import { useEffect, useRef, useState } from 'react';
 import { ROSTER_SIZE, type DraftBoardEntry, type PartyStateResponse } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 
 function Card({ e, state }: { e: DraftBoardEntry; state: PartyStateResponse }) {
   const owned = !!e.ownerMemberId;
-  return <article className={`tv-draft-card${owned ? ' is-drafted' : ''}`} data-testid="draft-card" style={{ ['--owner' as string]: householdColor(state.households, e.householdId) }}>
+  const prevOwner = useRef(e.ownerMemberId);
+  const [flash, setFlash] = useState(false);
+  useEffect(() => {
+    if (prevOwner.current === e.ownerMemberId) return;
+    prevOwner.current = e.ownerMemberId;
+    setFlash(true);
+    const id = setTimeout(() => setFlash(false), 1200);
+    return () => clearTimeout(id);
+  }, [e.ownerMemberId]);
+  return <article className={`tv-draft-card${owned ? ' is-drafted' : ''}${flash ? ' is-flash' : ''}`} data-testid="draft-card" style={{ ['--owner' as string]: householdColor(state.households, e.householdId) }}>
     <div className="tv-card-top"><span className="tv-jersey">#{e.player.number}</span><span className="tv-pos">{e.player.position} · {e.teamShort}</span></div>
     <div className="tv-nick">{e.player.nickname ?? e.player.name}</div>
     {e.player.nickname && e.player.nickname !== e.player.name ? <div className="tv-pname">{e.player.name}</div> : null}

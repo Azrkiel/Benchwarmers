@@ -7,7 +7,7 @@ export function Leader({ row, state }: { row: StandingRow; state: PartyStateResp
   const color = householdColor(state.households, row.householdId);
   return (
     <section className="tv-leader" data-testid="leader">
-      <div className="tv-leader-kicker">👑 Top of the bench</div>
+      <div className="tv-leader-kicker">Leader</div>
       <div className="tv-leader-main">
         <Avatar avatar={row.avatar} name={row.name} color={color} size={96} />
         <div className="tv-leader-id">

@@ -5,6 +5,8 @@ import { api } from '../lib/api';
 import { seasonFixture } from '../lib/fixtures';
 import { parseFixtureMode, usePartyState } from '../lib/usePartyState';
 import { Stage } from './Stage';
+import { ReconnectBanner } from '../tv-broadcast/ReconnectBanner';
+import { ResultAnnouncement } from '../tv-broadcast/ResultAnnouncement';
 import { DraftBoard } from './DraftBoard';
 import { LiveView } from './LiveView';
 import { RostersView } from './RostersView';
@@ -75,6 +77,7 @@ export function TvPage() {
 
   return (
     <Stage overlay={overlay}>
+      <ResultAnnouncement state={state} />
       {!state ? (
         <div className="tv-connecting" role="status">
           <BrandLockup size={96} />
@@ -106,7 +109,7 @@ export function TvPage() {
             <span className="tv-footer-crew"><span className="tv-status-dot" aria-hidden="true" />{state.party.crewName}<span className="tv-footer-note">{fixture || ['harbor-vs-summit', 'riverton-vs-ironwood'].includes(state.game.id) ? 'Demo' : 'Replay'}</span></span>
             <Link className="tv-home" data-tv-menu to="/">Home</Link><span className="tv-remote-hint"><kbd>↑↓</kbd><kbd>←→</kbd> Navigate <kbd>OK</kbd> Open <kbd>↩</kbd> {manualMode ? 'Back to game' : 'Back'}</span>
           </footer> : null}
-          {error ? <div className="tv-reconnecting" role="status">Connection interrupted · Showing the last update <button autoFocus className="tv-action" onClick={retry}>Retry</button><Link className="tv-action" to="/">Edit code</Link></div> : null}
+          <ReconnectBanner state={state} error={error} retry={retry} />
         </>
       )}
     </Stage>

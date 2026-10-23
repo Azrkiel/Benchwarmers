@@ -5,6 +5,8 @@ import { api } from '../lib/api';
 import { seasonFixture } from '../lib/fixtures';
 import { parseFixtureMode, usePartyState } from '../lib/usePartyState';
 import { Stage } from './Stage';
+import { ReconnectBanner } from '../tv-broadcast/ReconnectBanner';
+import { ResultAnnouncement } from '../tv-broadcast/ResultAnnouncement';
 import { DraftBoard } from './DraftBoard';
 import { LiveView } from './LiveView';
 import { RostersView } from './RostersView';
@@ -57,6 +59,7 @@ export function TvPage() {
 
   return (
     <Stage>
+      <ResultAnnouncement state={state} />
       {!state ? (
         <div className="tv-connecting" role="status">
           <BrandLockup size={96} />
@@ -79,7 +82,7 @@ export function TvPage() {
             {mode === 'rosters' ? <RostersView state={state} serverNow={serverNow} /> : null}
             {mode === 'final' ? <FinalView state={state} serverNow={serverNow} season={fixture ? seasonFixture : season} seasonError={seasonError} onRetrySeason={() => setSeasonAttempt(n => n + 1)} /> : null}
           </div>
-          {error ? <div className="tv-reconnecting" role="status">Connection interrupted · Showing the last update <button autoFocus className="tv-action" onClick={retry}>Retry</button><Link className="tv-action" to="/">Edit code</Link></div> : null}
+          <ReconnectBanner state={state} error={error} retry={retry} />
         </>
       )}
     </Stage>
