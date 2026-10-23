@@ -87,6 +87,7 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
 
   const [draft, setDraft] = useState('');
   const sending = useRef(false);
+  const spaceHeld = useRef(false);
   const [widgetStatus, setWidgetStatus] = useState<WidgetStatus>('loading');
   const [widgetStructured, setWidgetStructured] = useState<Record<string, unknown> | undefined>(undefined);
   useEffect(() => {
@@ -109,11 +110,11 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
 
   const { listening, start, stop } = speechInput;
   const pending = assistant.pending;
-  const beginListening = useCallback(() => {
+  const beginListening = useCallback((continuous = false) => {
     if (listening || pending) return;
     speech.cancel();
     void speaker.begin();
-    start();
+    start({ continuous });
   }, [listening, pending, speech, speaker, start]);
   const toggleListening = () => (listening ? stop() : beginListening());
 
@@ -122,18 +123,28 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
     const down = (e: KeyboardEvent) => {
       if (e.code !== 'Space' || isTyping(e.target)) return;
       e.preventDefault();
-      if (!e.repeat) beginListening();
+      if (e.repeat || spaceHeld.current) return;
+      spaceHeld.current = true;
+      beginListening(true);
     };
     const up = (e: KeyboardEvent) => {
-      if (e.code !== 'Space' || isTyping(e.target)) return;
+      if (e.code !== 'Space' || !spaceHeld.current) return;
       e.preventDefault();
-      if (listening) stop();
+      spaceHeld.current = false;
+      stop();
+    };
+    const blur = () => {
+      if (!spaceHeld.current) return;
+      spaceHeld.current = false;
+      stop();
     };
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
+    window.addEventListener('blur', blur);
     return () => {
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', blur);
     };
   }, [beginListening, listening, stop]);
 
@@ -248,6 +259,7 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
               </div>
             ) : null}
 
+            {note ? <p className="sd-note" role={speechInput.error ? 'alert' : 'status'}>{note}</p> : null}
             <div className="sd-lightbar" aria-hidden="true" data-testid="display-lightbar" data-active={listening ? 'true' : 'false'} />
           </div>
         </div>
@@ -283,7 +295,6 @@ export function DisplayScreen({ household, deps = {} }: { household: string; dep
             />
             <button type="submit" disabled={!draft.trim() || pending}>Send</button>
           </form>
-          {note ? <p className="sd-note">{note}</p> : null}
         </footer>
       )}
     </div>
