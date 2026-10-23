@@ -79,8 +79,8 @@ body:has(.device-stage) {
 .party-chip {
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid var(--dv-accent);
-  color: var(--dv-accent);
+  border: 1px solid var(--bw-link);
+  color: var(--bw-link);
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
   font-size: 0.95rem;
   letter-spacing: 0.12em;
@@ -597,11 +597,13 @@ body:has(.device-stage) {
 .device-bezel { box-shadow:none; }
 .ds-transcript-wrap { display:flex;flex:1;min-height:0; }
 .ds-transcript-wrap[hidden] { display:none; }
-.ds-conversation-toggle { background:transparent;color:var(--dv-muted);font:600 14px var(--dv-font);border:0;border-bottom:1px solid var(--dv-line);padding:8px 22px;min-height:44px;text-align:left;cursor:pointer; }
+.ds-conversation-toggle { background:transparent;color:inherit;font:600 16px var(--dv-font);border:0;border-bottom:1px solid var(--dv-line);padding:8px 22px;min-height:44px;text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer; }
+.ds-conversation-toggle::after { content:'▾'; color:var(--dv-muted); transition:transform .15s; }
+.ds-conversation-toggle[aria-expanded='true']::after { transform:rotate(180deg); }
 .ds-tv-link { color:var(--bw-link,#ff7b86);min-height:44px;display:flex;align-items:center; }
 .ds-retry { padding:0 22px;color:var(--dv-muted);font-size:14px; }
 .ds-suggestions { display:flex; flex-wrap:wrap; gap:8px; padding:12px 22px 0; }
-.ds-suggestions button,.ds-new { background:var(--dv-panel-2); color:var(--dv-text); border:1px solid var(--dv-line); min-height:44px; border-radius:4px; padding:8px 12px; font:600 14px var(--dv-font); cursor:pointer; }
+.ds-suggestions button,.ds-new { background:var(--dv-panel-2); color:var(--dv-text); border:1px solid var(--bw-control-line); min-height:44px; border-radius:4px; padding:8px 12px; font:600 14px var(--dv-font); cursor:pointer; }
 .ds-new { position:sticky; bottom:0; align-self:center; }
 .ds-mic { width:56px; height:56px; color:#fff; }
 .ds-mic-wrap { width:72px; }
@@ -624,9 +626,23 @@ body:has(.device-stage) {
  .ds-send { height:48px; padding:0 16px; }
  .ds-mic-wrap { width:72px; }
  .ds-mic { width:44px;height:44px; }
- .ds-mic-hint { font-size:.7rem; margin-top:4px; }
+ .ds-mic-hint { font-size:.75rem; margin-top:4px; }
  .ds-input-area { flex-wrap:nowrap;gap:8px; }
  .ds-type { width:auto; }
  .ds-head {padding:12px;}
  .ds-household {font-size:1.2rem;}
+}
+
+/* D06: board is the primary, stable task area (left on desktop, first on phone); conversation is secondary. */
+.ds-body { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+.ds-right { order: -1; border-right: 1px solid var(--dv-line); }
+.ds-left { border-right: 0; }
+.ds-conversation-toggle { display: none; }
+.ds-transcript-wrap[hidden] { display: flex; }
+@media (max-width: 759px) {
+  .ds-conversation-toggle { display: flex; }
+  .ds-transcript-wrap[data-open='false'] { display: none; }
+}
+@media (max-width: 960px) {
+  .ds-right { border-right: 0; }
 }

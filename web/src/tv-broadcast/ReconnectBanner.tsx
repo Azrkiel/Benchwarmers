@@ -19,9 +19,10 @@ export function ReconnectBanner({ state, error, retry }: { state: unknown; error
   const age = useStaleAge(state, error);
   if (!error) return null;
   return (
-    <div className="tv-reconnecting" role="status">
-      Connection interrupted · Showing update from {formatCountdown(age)} ago
-      <button autoFocus className="tv-action" data-tv-action onClick={retry}>Retry</button>
+    <div className="tv-reconnecting">
+      {/* Announce the interruption once; the ticking age stays outside the live region. */}
+      <span role="status">Connection interrupted</span> · Showing update from {formatCountdown(age)} ago
+      <button className="tv-action" data-tv-action onClick={retry}>Retry</button>
       <Link className="tv-action" to="/">Edit code</Link>
     </div>
   );

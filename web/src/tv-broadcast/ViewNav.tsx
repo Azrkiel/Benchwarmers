@@ -4,7 +4,7 @@ import type { TvMode } from './modes';
 export type ViewChoice = { mode: TvMode; label: string };
 
 const LEGACY_KEYS: Record<number, string> = {
-  4: 'Escape', 13: 'Enter', 37: 'ArrowLeft', 38: 'ArrowUp', 39: 'ArrowRight', 40: 'ArrowDown',
+  4: 'Escape', 461: 'Escape', 10009: 'Escape', 13: 'Enter', 37: 'ArrowLeft', 38: 'ArrowUp', 39: 'ArrowRight', 40: 'ArrowDown',
 };
 
 export function ViewNav({ views, mode, manual, onSelect, onClose, contentRef }: {
@@ -33,7 +33,7 @@ export function ViewNav({ views, mode, manual, onSelect, onClose, contentRef }: 
       const key = e.key && e.key !== 'Unidentified' ? e.key : LEGACY_KEYS[e.keyCode];
       const buttons: HTMLElement[] = [
         ...Array.from(navRef.current?.querySelectorAll('button') ?? []),
-        ...Array.from(navRef.current?.parentElement?.querySelectorAll<HTMLElement>('[data-tv-menu]') ?? []),
+        ...Array.from((navRef.current?.closest('.tv-stage') ?? navRef.current?.parentElement)?.querySelectorAll<HTMLElement>('[data-tv-menu]') ?? []),
       ];
       const reading = Array.from(contentRef?.current?.querySelectorAll<HTMLElement>('[data-tv-scroll]') ?? []);
       const actions = Array.from(contentRef?.current?.querySelectorAll<HTMLElement>('[data-tv-action], summary') ?? []);
@@ -42,7 +42,7 @@ export function ViewNav({ views, mode, manual, onSelect, onClose, contentRef }: 
       const actionIndex = actions.findIndex((b) => b === document.activeElement);
       if (actionIndex >= 0) lastActionRef.current = actions[actionIndex]?.id;
       const menuTarget = buttons[views.findIndex((v) => v.mode === availableStop)] ?? buttons[0];
-      if (key === 'Escape' || key === 'BrowserBack' || key === 'GoBack') {
+      if (key === 'Escape' || key === 'BrowserBack' || key === 'GoBack' || key === 'XF86Back') {
         if (manual) {
           e.preventDefault();
           if (e.repeat) return;

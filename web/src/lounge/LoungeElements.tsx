@@ -28,7 +28,7 @@ export function MemberFace({ row }: { row: Pick<StandingRow, 'name' | 'avatar'> 
 export function Seats({ state, onMember, full = false }: { state: PartyStateResponse; onMember: (id: string) => void; full?: boolean }) {
   const rows = [...state.standings].sort((a, b) => a.rank - b.rank);
   return <section className={`lg-seats${full ? ' is-full' : ''}`} aria-labelledby="lg-seats-title">
-    <header><h2 id="lg-seats-title">Standings</h2><span>{rows.length} players · View roster</span></header>
+    <header><h2 id="lg-seats-title">Standings</h2><span>{rows.length} {rows.length === 1 ? 'player' : 'players'} · View roster</span></header>
     {rows.length ? <div className="lg-seat-grid">{rows.map((row, index) => <button className="lg-seat lg-focus" type="button" key={row.memberId} id={`lg-seat-${row.memberId}`} data-lg-row={String(1 + Math.floor(index / (full ? 2 : 4)))} onClick={() => onMember(row.memberId)} aria-label={`${row.name}, ${row.total.toFixed(1)} points, view roster`}>
       <span className="lg-seat-top"><MemberFace row={row} /><span className="lg-seat-name">{row.name}<small>{row.household}</small></span><span className="lg-seat-arrow"><LoungeIcon name="arrow" /></span></span>
       <span className="lg-seat-bottom"><span>Rank {row.rank}{row.rank === 1 ? ' · Leader' : ''}</span><b>{row.total.toFixed(1)}<small> pts</small></b></span>

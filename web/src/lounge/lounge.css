@@ -127,7 +127,7 @@
 .lg-empty { padding:24px; color:var(--lg-muted); }
 .lg-empty h3 { font:600 42px/1 var(--lg-serif); color:white; margin:0 0 16px; }
 .lg-empty p { margin:0; }
-.lg-modal-backdrop { position:absolute; inset:0; z-index:20; display:grid; place-items:center; background:#000c; }
+.lg-modal-backdrop { position:absolute; inset:0; z-index:40; display:grid; place-items:center; background:#000c; }
 .lg-roster-dialog { position:relative; display:flex; flex-direction:column; gap:24px; width:1120px; max-height:864px; padding:36px; background:var(--lg-surface); border:1px solid var(--lg-line); border-radius:8px; }
 .lg-close { position:absolute; top:26px; right:26px; display:grid; place-items:center; width:60px; height:60px; border:1px solid var(--lg-line); border-radius:4px; background:var(--lg-raised); color:white; cursor:pointer; }
 .lg-close > svg { width:30px; height:30px; }

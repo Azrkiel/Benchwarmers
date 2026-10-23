@@ -62,9 +62,12 @@ describe('T20 reconnect banner', () => {
     const state = {};
     const r = render(<MemoryRouter><ReconnectBanner state={state} error={undefined} retry={() => {}} /></MemoryRouter>);
     r.rerender(<MemoryRouter><ReconnectBanner state={state} error="x" retry={() => {}} /></MemoryRouter>);
-    expect(screen.getByRole('status').textContent).toContain('Showing update from 0:00 ago');
+    const banner = r.container.querySelector('.tv-reconnecting')!;
+    expect(banner.textContent).toContain('Showing update from 0:00 ago');
     act(() => { vi.advanceTimersByTime(42_000); });
-    expect(screen.getByRole('status').textContent).toContain('Showing update from 0:42 ago');
+    expect(banner.textContent).toContain('Showing update from 0:42 ago');
+    // Only the interruption itself is announced; the ticking age stays out of the live region.
+    expect(screen.getByRole('status').textContent).toBe('Connection interrupted');
   });
 });
 

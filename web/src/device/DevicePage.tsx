@@ -53,7 +53,7 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
   const sending = useRef(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showTrace, setShowTrace] = useState(false);
-  const [conversationOpen, setConversationOpen] = useState(() => window.innerWidth >= 960);
+  const [conversationPref, setConversationPref] = useState<boolean | undefined>(undefined);
   const [widgetStatus, setWidgetStatus] = useState<WidgetStatus>('loading');
   const [widgetStructured, setWidgetStructured] = useState<Record<string, unknown> | undefined>(undefined);
 
@@ -98,6 +98,8 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
     sending.current = false;
   };
 
+  // Phones: conversation is collapsed until there are messages, unless the user chose.
+  const conversationOpen = conversationPref ?? assistant.turns.length > 0;
   const code = partyCode ?? state?.party.code;
   const mode = assistant.lastResponse?.mode;
   const structured = widgetStructured ?? assistant.structured;
@@ -135,8 +137,8 @@ export function DeviceScreen({ household, deps = {} }: { household: string; deps
           <section className="ds-left" aria-label="Conversation">
             <div className="ds-suggestions" aria-label="Suggested messages">{["Who's available?", 'Show standings', 'Show season standings', 'Show my roster'].map(text => <button key={text} type="button" disabled={assistant.pending} onClick={() => { setDraft(text); input.current?.focus(); }}>{text}</button>)}</div>
             {code ? null : <p className="ds-hint" data-testid="party-hint">No party yet. Say or type &ldquo;Set up a party&rdquo; to create one, or open a party link to join.</p>}
-            <button className="ds-conversation-toggle" type="button" aria-expanded={conversationOpen} aria-controls="device-conversation" onClick={() => setConversationOpen(value => !value)}>Conversation {assistant.turns.length ? `(${assistant.turns.length})` : ''}</button>
-            <div className="ds-transcript-wrap" id="device-conversation" hidden={!conversationOpen}><Transcript
+            <button className="ds-conversation-toggle" type="button" aria-expanded={conversationOpen} aria-controls="device-conversation" onClick={() => setConversationPref(!conversationOpen)}>Conversation {assistant.turns.length ? `(${assistant.turns.length})` : ''}</button>
+            <div className="ds-transcript-wrap" id="device-conversation" data-open={conversationOpen ? "true" : "false"}><Transcript
               turns={assistant.turns}
               pending={assistant.pending}
               listening={speechInput.listening}

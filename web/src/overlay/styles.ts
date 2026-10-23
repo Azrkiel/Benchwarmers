@@ -1,7 +1,7 @@
 export const overlayStyles = `
 .bw-layer { position:absolute; inset:0; pointer-events:none; color:#ffffff; font:18px/1.35 'Segoe UI',Arial,sans-serif; font-variant-numeric:tabular-nums; color-scheme:dark; }
 .bw-layer * { box-sizing:border-box; }
-.bw-layer button { pointer-events:auto; font:600 18px/1.2 'Segoe UI',Arial,sans-serif; color:#ffffff; background:#26272a; border:1px solid #4b4d52; border-radius:5px; padding:10px 14px; cursor:pointer; }
+.bw-layer button { pointer-events:auto; font:600 18px/1.2 'Segoe UI',Arial,sans-serif; color:#ffffff; background:#26272a; border:1px solid #73767d; border-radius:5px; padding:10px 14px; cursor:pointer; }
 .bw-layer button:hover { border-color:#ffffff; }
 .bw-layer button:focus-visible { outline:3px solid #fff; outline-offset:3px; box-shadow:0 0 0 5px #101113; }
 .bw-launcher { position:absolute; background:#101113f5!important; box-shadow:0 2px 12px #0008; }

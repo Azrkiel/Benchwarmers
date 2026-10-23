@@ -6,7 +6,7 @@
 .rm h1,.rm h2,.rm-landing h2 { font-family:var(--lg-serif); font-weight:600; line-height:1.08; letter-spacing:0; }
 .rm h1 { font-size:36px; }.rm h2 { font-size:28px; }.rm h3 { font-size:20px; }
 .rm a { color:var(--bw-link,#ff7b86); }
-.rm button,.rm input,.rm select,.rm-landing button,.rm-landing input,.rm-landing select { font:600 16px/1.3 var(--lg-sans); border:1px solid var(--lg-line); border-radius:4px; min-height:48px; padding:12px 16px; background:var(--lg-deep); color:var(--lg-text); }
+.rm button,.rm input,.rm select,.rm-landing button,.rm-landing input,.rm-landing select { font:600 16px/1.3 var(--lg-sans); border:1px solid var(--bw-control-line); border-radius:4px; min-height:48px; padding:12px 16px; background:var(--lg-deep); color:var(--lg-text); }
 .rm button,.rm-landing button { cursor:pointer; transition:background 140ms ease,border-color 140ms ease; }
 .rm button:hover:not(:disabled),.rm-landing button:hover:not(:disabled) { background:var(--lg-raised); border-color:var(--lg-muted); }
 .rm button:disabled,.rm-landing button:disabled { color:var(--lg-muted); background:var(--lg-raised); cursor:default; opacity:1; }
@@ -46,7 +46,7 @@
 .rm-section-heading>span:last-child:not(.rm-eyebrow) { color:var(--lg-muted); font-size:14px; }
 .rm-question h2 { font-size:32px; max-width:850px; }.rm-phone-prompt { color:var(--lg-muted); }
 .rm-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:20px 0 12px; }
-.rm-options>button,.rm-option-info { display:grid; gap:8px; text-align:left; min-height:100px; padding:16px; border:1px solid var(--lg-line); border-radius:4px; background:var(--lg-deep); }
+.rm-options>button,.rm-option-info { display:grid; gap:8px; text-align:left; min-height:100px; padding:16px; border:1px solid var(--bw-control-line); border-radius:4px; background:var(--lg-deep); }
 .rm-options>button:disabled { color:var(--lg-text); background:var(--lg-deep); }
 .rm-option-top { display:flex; justify-content:space-between; gap:12px; align-items:baseline; font-size:20px; font-weight:600; }.rm-option-top>b { font-size:14px; color:var(--lg-muted); white-space:nowrap; }
 .rm-options small { font-size:14px; color:var(--lg-muted); font-weight:400; }.rm-history-rate { display:block; }.rm-your-pick { font-size:16px; color:#fff; }
@@ -82,3 +82,16 @@
 @media(prefers-reduced-motion:reduce) { .rm *,.rm-landing * { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
 .rm-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
 .rm-save span.rm-error { color:var(--bw-link,#ff7b86); }
+/* A04: 44px minimum touch targets on the phone room page. */
+.rm-room-code>button { min-height:44px; min-width:44px; }
+.rm-header>a,.rm-loading a,.rm-banner a,.rm-pick-failure a { display:inline-flex; align-items:center; min-height:44px; min-width:44px; }
+.rm-player-actions>button,.rm-speeds>button,.rm-lineup-slot>button,.rm-assistant button { min-height:48px; min-width:44px; }
+.rm-options>button { min-height:100px; min-width:44px; }
+/* A05: wrap/truncate rules. Names and option labels: wrap anywhere, 2 lines, ellipsis. Room code never wraps. Question text wraps fully. */
+.rm-clamp { overflow-wrap:anywhere; word-break:normal; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; min-width:0; }
+.rm-room-code>button,.rm-join-code>b,.rm-lobby-code { white-space:nowrap; }
+.rm-question h2,#rm-question-title { overflow-wrap:anywhere; hyphens:auto; max-width:100%; }
+.rm-option-top>span:first-child { min-width:0; }
+.rm-player-info>h3,.rm-lineup-slot b { overflow-wrap:anywhere; }
+
+.rm-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }

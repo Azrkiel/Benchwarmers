@@ -43,6 +43,7 @@ export function Standings({ rows, households }: { rows: StandingRow[]; household
           );
         })}
       </ol>
+      {sorted.length === 0 ? <p className="tv-muted">No players yet.</p> : null}
     </section>
   );
 }

@@ -1,6 +1,6 @@
 .sp-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 10px 16px; color: var(--lg-text); }
 .sp-label { font-size: 1rem; opacity: 0.7; margin-right: 4px; }
-.sp-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 4px; border: 2px solid var(--lg-line); background: var(--lg-surface); color: inherit; font-size: 1.1rem; cursor: pointer; }
+.sp-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 4px; border: 2px solid var(--bw-control-line); background: var(--lg-surface); color: inherit; font-size: 1.1rem; cursor: pointer; }
 .sp-chip-on { border-color: var(--lg-orange); background: var(--lg-raised); }
 .sp-avatar { font-size: 1.5rem; }
 .sp-recognized { cursor: default; border-color: var(--lg-good); background: #26352f; }
