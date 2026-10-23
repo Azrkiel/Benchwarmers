@@ -115,6 +115,71 @@ describe('DisplayScreen', () => {
     expect(rec.stop).toHaveBeenCalled();
   });
 
+  it('keeps listening through final phrases while Space is held and sends once on release', async () => {
+    stubFetch();
+    const rec = makeRecognizer();
+    // Model the browser's single-utterance auto-end, which must be disabled for holding Space.
+    const emitPhrase = () => {
+      rec.onresult?.({ resultIndex: 0, results: [Object.assign([{ transcript: "Who's winning?" }], { isFinal: true })] });
+      if (!rec.continuous) rec.onend?.();
+    };
+    vi.mocked(rec.stop).mockImplementation(() => rec.onend?.());
+    const send = vi.fn(async (_r: AssistantRequest) => ok());
+    renderAt('/display/garcias', {
+      send, recognizerFactory: () => rec,
+      capture: { start: vi.fn(async () => undefined), stop: vi.fn(async () => null), recording: false, level: 0 },
+    });
+    fireEvent.keyDown(window, { code: 'Space' });
+    act(emitPhrase);
+    expect(screen.getByTestId('display-lightbar').getAttribute('data-active')).toBe('true');
+    expect(send).not.toHaveBeenCalled();
+    fireEvent.keyDown(window, { code: 'Space', repeat: true });
+    expect(rec.start).toHaveBeenCalledTimes(1);
+    fireEvent.keyUp(window, { code: 'Space' });
+    await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    expect(send.mock.calls[0][0]).toMatchObject({ text: "Who's winning?" });
+    expect(screen.getByTestId('display-lightbar').getAttribute('data-active')).toBe('false');
+  });
+
+  it('stops a held-Space recording when the window loses focus', () => {
+    stubFetch();
+    const rec = makeRecognizer();
+    renderAt('/display/garcias', {
+      recognizerFactory: () => rec,
+      capture: { start: vi.fn(async () => undefined), stop: vi.fn(async () => null), recording: false, level: 0 },
+    });
+    fireEvent.keyDown(window, { code: 'Space' });
+    fireEvent.blur(window);
+    expect(rec.stop).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops on a quick press/release even before listening has rerendered', () => {
+    stubFetch();
+    const rec = makeRecognizer();
+    renderAt('/display/garcias', {
+      recognizerFactory: () => rec,
+      capture: { start: vi.fn(async () => undefined), stop: vi.fn(async () => null), recording: false, level: 0 },
+    });
+    act(() => {
+      fireEvent.keyDown(window, { code: 'Space' });
+      fireEvent.keyUp(window, { code: 'Space' });
+    });
+    expect(rec.stop).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows speech errors on the screen even in clean mode', () => {
+    stubFetch();
+    const rec = makeRecognizer();
+    renderAt('/display/garcias?clean=1', {
+      recognizerFactory: () => rec,
+      capture: { start: vi.fn(async () => undefined), stop: vi.fn(async () => null), recording: false, level: 0 },
+    });
+    fireEvent.keyDown(window, { code: 'Space' });
+    act(() => { rec.onerror?.({ error: 'not-allowed' }); rec.onend?.(); });
+    expect(screen.getByRole('alert').textContent).toContain('Microphone blocked');
+    expect(screen.getByTestId('display-screen').contains(screen.getByRole('alert'))).toBe(true);
+  });
+
   it('fitBox letterboxes', () => {
     const f = fitBox(1536, 754, 1336, 856);
     expect(f.scale).toBeCloseTo(754 / 856, 5);

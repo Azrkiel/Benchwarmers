@@ -18,7 +18,7 @@ export interface UseSpeechInput {
   listening: boolean;
   interim: string;
   error?: string;
-  start(): void;
+  start(options?: { continuous?: boolean }): void;
   stop(): void;
 }
 
@@ -38,7 +38,7 @@ export function useSpeechInput(opts: UseSpeechInputOpts): UseSpeechInput {
   factoryRef.current = factory;
   const activeRef = useRef<RecognizerLike | null>(null);
 
-  const start = useCallback(() => {
+  const start = useCallback((options?: { continuous?: boolean }) => {
     const make = factoryRef.current;
     if (!make) {
       setError(UNSUPPORTED);
@@ -49,23 +49,23 @@ export function useSpeechInput(opts: UseSpeechInputOpts): UseSpeechInput {
     const rec = make();
     rec.lang = optsRef.current.lang ?? 'en-US';
     rec.interimResults = true;
-    rec.continuous = false;
+    rec.continuous = options?.continuous ?? false;
 
     let finalText = '';
     let finished = false;
 
     rec.onresult = (ev) => {
       if (activeRef.current !== rec) return;
-      let fin = '';
-      let part = '';
+      const fin: string[] = [];
+      const part: string[] = [];
       for (let i = 0; i < ev.results.length; i++) {
         const r = ev.results[i];
         const t = r[0]?.transcript ?? '';
-        if (r.isFinal) fin += t;
-        else part += t;
+        if (r.isFinal) fin.push(t);
+        else part.push(t);
       }
-      finalText = fin;
-      setInterim(fin + part);
+      finalText = fin.join(' ');
+      setInterim([...fin, ...part].join(' '));
     };
     rec.onerror = (ev) => {
       if (activeRef.current !== rec) return;
@@ -88,11 +88,14 @@ export function useSpeechInput(opts: UseSpeechInputOpts): UseSpeechInput {
     setListening(true);
     try {
       rec.start();
-    } catch {
-      // InvalidStateError: already started. Keep state consistent.
+    } catch (err) {
       activeRef.current = null;
       finished = true;
       setListening(false);
+      setError(typeof err === 'object' && err !== null && 'name' in err && err.name === 'NotAllowedError'
+        ? describeSpeechError('not-allowed')
+        : "Voice input couldn't start. Try again or type instead.");
+      optsRef.current.onEnd?.('');
     }
   }, []);
 
