@@ -17,8 +17,15 @@ import type { PregamePickInput } from '../shared/pregame.js';
 import { createPregame, PREGAME_RULE } from './pregame/model.js';
 import { unavailablePregameReference } from '../markets/policy.js';
 import { resolveGameWinner } from './predictions/game-winner.js';
+import { StorageConflict, type RoomRepository } from './storage/repository.js';
+import type { MarketReferenceView } from '../markets/types.js';
+import type { SecurityTelemetry,SecurityMetric,SecurityGauge } from './security/index.js';
+import {initializeCorrections,recordResolvedQuestion,captureSeasonContribution,reconcileFinal} from './corrections/service.js';
+import type {BasketballEvent} from './basketball/events.js';
 
 export type RoomProbability={gameId:string;templateId:string;optionId:string;anchorSequence?:number;horizonGameElapsedMs?:number;estimate:ProbabilityEstimate};
+export type RoomStoreOptions={dataFile?:string;persist?:boolean;now?:()=>number;speed?:number;enableCommitments?:boolean;enablePregame?:boolean;enableCorrections?:boolean;probabilities?:readonly RoomProbability[];repository?:RoomRepository;
+ limits?:{maxRooms?:number;maxParticipantsPerRoom?:number;maxDiscoveryRooms?:number};marketReference?:{read(gameId:string,fictional?:boolean):MarketReferenceView};telemetry?:SecurityTelemetry};
 
 export class RoomError extends Error {
  constructor(readonly status:number,readonly code:string,message:string){super(message);this.name='RoomError';}
@@ -39,11 +46,22 @@ export class RoomStore {
  private readonly enableCommitments:boolean;
  private readonly enablePregame:boolean;
  private readonly probabilities:readonly RoomProbability[];
- constructor(options:{dataFile?:string;persist?:boolean;now?:()=>number;speed?:number;enableCommitments?:boolean;enablePregame?:boolean;probabilities?:readonly RoomProbability[]}={}){
+ private readonly repository?:RoomRepository;
+ private transactionDepth=0;
+ private readonly limits:{maxRooms:number;maxParticipantsPerRoom:number;maxDiscoveryRooms:number};
+ private readonly marketReference?:RoomStoreOptions['marketReference'];
+ private readonly telemetry?:SecurityTelemetry;
+ private readonly enableCorrections:boolean;
+ constructor(options:RoomStoreOptions={}){
   this.dataFile=options.dataFile??'data/rooms.json';this.persist=options.persist??true;this.now=options.now??Date.now;this.defaultSpeed=this.validSpeed(options.speed??1);
   this.enableCommitments=options.enableCommitments??false;this.probabilities=clone(options.probabilities??[]);
   this.enablePregame=options.enablePregame??false;
-  const saved=this.persist?loadSavedRooms(this.dataFile):undefined;
+  this.repository=options.repository;
+  this.marketReference=options.marketReference;this.telemetry=options.telemetry;
+  this.enableCorrections=options.enableCorrections??false;
+  this.limits={maxRooms:100,maxParticipantsPerRoom:64,maxDiscoveryRooms:20,...options.limits};
+  if(Object.values(this.limits).some(value=>!Number.isSafeInteger(value)||value<1))throw new Error('Room limits must be positive safe integers.');
+  const saved=this.persist?(this.repository?this.repository.load():loadSavedRooms(this.dataFile)):undefined;
   if(saved){
    this.rooms=saved.rooms;this.seasons=saved.seasons;
    // Restore the last durable replay position. Offline time never skips questions.
@@ -54,8 +72,15 @@ export class RoomStore {
   }
  }
  private validSpeed(speed:number):number {if(![1,2,3,4].includes(speed))fail(400,'BAD_SPEED','Speed must be 1, 2, 3, or 4.');return speed;}
+ private observe(name:SecurityMetric):void {try{this.telemetry?.record(name);}catch{/* Metrics cannot alter durable mutation semantics. */}}
+ private observeGauge(name:SecurityGauge,value:number):void {try{this.telemetry?.gauge(name,value);}catch{/* Best-effort aggregate only. */}}
+ private syncStorage():void {
+  if(!this.persist||!this.repository||this.transactionDepth)return;
+  const saved=this.repository.load();if(saved){this.rooms=saved.rooms;this.seasons=saved.seasons;}
+ }
  /** Stage private copies, persist before publishing, and render the result after versioning. */
  private transact<T>(work:()=>()=>T):T {
+  this.syncStorage();this.transactionDepth++;
   const previousRooms=this.rooms,previousSeasons=this.seasons;
   this.rooms=clone(previousRooms);this.seasons=clone(previousSeasons);
   let result:()=>T;
@@ -69,22 +94,30 @@ export class RoomStore {
    }
    if(changed){
     const saved=validateSavedRooms({version:2,rooms:this.rooms,seasons:this.seasons});
-    if(this.persist){try{writeSavedRooms(this.dataFile,saved);}catch{fail(503,'ROOM_SAVE_FAILED','Could not save the room. No changes were accepted; retry the request.');}}
+    if(this.persist){try{if(this.repository)this.repository.save(saved);else writeSavedRooms(this.dataFile,saved);}catch(error){if(error instanceof StorageConflict)throw error;this.observe('save_error');fail(503,'ROOM_SAVE_FAILED','Could not save the room. No changes were accepted; retry the request.');}}
+    this.observe('accepted');this.observeGauge('active_rooms',this.rooms.filter(room=>room.phase!=='final').length);
+    for(const room of this.rooms)for(const call of room.points?.calls??[]){const old=previousRooms.find(previous=>previous.code===room.code)?.points?.calls.find(previous=>previous.callId===call.callId);if(call.outcomeRevision>(old?.outcomeRevision??0))this.observe(old?.outcomeRevision?'correction':'settlement');}
    }
-  } catch(error){this.rooms=previousRooms;this.seasons=previousSeasons;if(error instanceof PointsError)throw new RoomError(error.status,error.code,error.message);throw error;}
+  } catch(error){this.rooms=previousRooms;this.seasons=previousSeasons;this.observe('rejected');if(error instanceof StorageConflict)throw new RoomError(409,'ROOM_VERSION_CONFLICT','Another writer changed the room. Retry the same request.');if(error instanceof PointsError)throw new RoomError(error.status,error.code,error.message);throw error;}finally{this.transactionDepth--;}
   return result();
  }
  private adapter(r:Room){return getRoomSportAdapter(r.gameId)!;}
- private room(code:string):Room {const r=this.rooms.find(r=>r.code===String(code).trim().toUpperCase());if(!r)return fail(404,'ROOM_NOT_FOUND','Room not found. Check the join code.');return r;}
+ private room(code:string):Room {this.syncStorage();const r=this.rooms.find(r=>r.code===String(code).trim().toUpperCase());if(!r)return fail(404,'ROOM_NOT_FOUND','Room not found. Check the join code.');return r;}
  private participant(room:Room,token:string):Participant {const p=room.participants.find(p=>token&&p.token===token);if(!p)return fail(401,'BAD_CREDENTIAL','A valid participant credential is required.');return p;}
  private season(room:Room):Season{return this.seasons.find(s=>s.id===room.seasonId)!;}
  private summary(r:Room):RoomSummary{return {code:r.code,name:r.name,seasonId:r.seasonId,phase:r.phase,speed:r.speed,participantCount:r.participants.length,createdAt:r.createdAt};}
  /** Read-only lookups for auxiliary services; neither advances replay nor writes storage. */
  roomSummary(code:string):RoomSummary {return this.summary(this.room(code));}
  isHost(code:string,token:string):boolean {const r=this.room(code);return Boolean(token)&&token===r.hostToken;}
+ credentialActor(code:string,role:string,token?:string):{actorId:string}|undefined {
+  const room=this.room(code);if(!token)return;
+  if(role==='host')return token===room.hostToken?{actorId:`host:${room.code}`}:undefined;
+  if(role==='participant'){const participant=room.participants.find(participant=>participant.token===token);return participant?{actorId:participant.id}:undefined;}
+ }
  create(input:{name?:string;seasonId?:string;speed?:number;gameId?:string}={}):{view:RoomSnapshot;hostToken:string}{
   const adapter=getRoomSportAdapter(input.gameId);if(!adapter)return fail(400,'GAME_NOT_SUPPORTED','Choose a supported room game.');
   return this.transact(()=>{
+  if(this.rooms.length>=this.limits.maxRooms)fail(409,'ROOM_CAPACITY','Room storage capacity reached.');
   const speed=this.validSpeed(input.speed??this.defaultSpeed);
   const seasonId=input.seasonId?.trim()||'demo-season';
   if(seasonId.length>80)fail(400,'BAD_SEASON','Season ID must be at most 80 characters.');
@@ -93,10 +126,11 @@ export class RoomStore {
   const r:Room={code,name:input.name?.trim().slice(0,60)||adapter.defaultRoomName,seasonId,hostToken:secret(),createdAt:this.now(),gameId:adapter.gameId,rulesVersion:adapter.rulesVersion,version:1,phase:'lobby',speed,rules:clone(adapter.rules),participants:[],beatIndex:-1,elapsedMs:0,durationMs:0,windowElapsedMs:0,lastTickAt:this.now(),stats:{},recorded:false};
   if(this.enableCommitments&&adapter.sport==='basketball')r.points=createPointsState();
   if(this.enablePregame&&adapter.sport==='basketball')r.pregame=createPregame();
+  if(this.enableCorrections&&adapter.sport==='basketball')initializeCorrections(r);
   this.rooms.push(r);return ()=>({view:this.snapshot(r),hostToken:r.hostToken});
   });
  }
- list():RoomSummary[]{this.tick();return this.rooms.map(r=>this.summary(r)).reverse();}
+ list():RoomSummary[]{this.tick();return this.rooms.map(r=>this.summary(r)).reverse().slice(0,this.limits.maxDiscoveryRooms);}
  join(code:string,input:{name:string;participantToken?:string}):{view:RoomSnapshot;participantId:string;participantToken:string}{
   this.tick();return this.transact(()=>{const r=this.room(code);const name=String(input.name??'').trim().slice(0,24);if(!name)fail(400,'BAD_NAME','Pick a display name to join.');
   const season=this.season(r);
@@ -104,10 +138,12 @@ export class RoomStore {
   if(input.participantToken){identity=season.identities.find(i=>i.token===input.participantToken);if(!identity)fail(401,'BAD_CREDENTIAL','That participant credential is not valid for this season.');}
   let p=identity?r.participants.find(p=>p.id===identity!.id):undefined;
   if(!p){
+   if(r.participants.length>=this.limits.maxParticipantsPerRoom)fail(409,'ROOM_CAPACITY','This room has reached its participant limit.');
    if(r.phase==='final')fail(409,'ROOM_FINAL','This game has finished. Join a new room.');
    if(r.participants.some(p=>p.name.toLowerCase()===(identity?.name??name).toLowerCase()))fail(409,'NAME_TAKEN','That name is already in this room. Use your saved credential to rejoin or choose another name.');
    if(!identity){identity={id:randomUUID(),name,token:secret()};season.identities.push(identity);}
    p={id:identity.id,name:identity.name,token:identity.token,baseline:clone(r.stats),predictionPoints:0,streak:0};
+   if(r.correctionState)p.joinedSequence=(this.adapter(r).beats[r.beatIndex] as {sequence?:number}|undefined)?.sequence??0;
    if(r.phase!=='lobby')p.lineup=this.buildAutoLineup(r,'balanced');r.participants.push(p);
    if(r.points)r.points=grantBank(r.points,p.id,this.now());
   }
@@ -145,7 +181,7 @@ export class RoomStore {
   const receipt=r.pickReceipts?.find(receipt=>receipt.participantId===p.id&&receipt.requestId===requestId);
   if(!receipt)return fail(404,'RECEIPT_NOT_FOUND','No accepted pick was found for that request ID.');return clone(receipt);
  }
- pregameReference(code:string) {return unavailablePregameReference(this.adapter(this.room(code)).fictional===true);}
+ pregameReference(code:string):MarketReferenceView {const room=this.room(code),fictional=this.adapter(room).fictional===true;return fictional?unavailablePregameReference(true):this.marketReference?.read(room.gameId,false)??unavailablePregameReference(false);}
  pickPregame(code:string,input:PregamePickInput):RoomSnapshot {
   this.tick();return this.transact(()=>{
    const r=this.room(code),p=this.participant(r,input.participantToken);
@@ -302,6 +338,7 @@ export class RoomStore {
   for(const call of r.playerCalls??[]){if(call.windowQuestionId===q.id&&call.view.status==='open'){call.view.remainingMs=remaining;call.view.locksAt=q.locksAt;}}
  }
  tick():void {
+  this.syncStorage();
   const now=this.now();
   if(!this.rooms.some(r=>r.phase==='live'&&now>r.lastTickAt))return;
   this.transact(()=>{
@@ -348,7 +385,7 @@ export class RoomStore {
  }
  private resolveQuestion(r:Room,result:QuestionResolution):void {
   const q=r.question;if(!q)return;
-  if('voidReason' in result){q.view.status='void';q.view.remainingMs=0;q.view.voidReason=result.voidReason;if(r.points)r.points=settleTarget(r.points,q.view.id,{revision:1,voidReason:result.voidReason},this.now());r.lastQuestion=clone(q);return;}
+  if('voidReason' in result){q.view.status='void';q.view.remainingMs=0;q.view.voidReason=result.voidReason;if(r.points)r.points=settleTarget(r.points,q.view.id,{revision:1,voidReason:result.voidReason},this.now());r.lastQuestion=clone(q);recordResolvedQuestion(r,q);return;}
   const {optionId}=result;
   const picks=Object.values(q.picks);
   for(const p of r.participants){if(q.view.target&&!q.view.target.eligibleParticipantIds.includes(p.id))continue;const pick=q.picks[p.id];if(!pick){p.streak=0;continue;}const option=q.view.options.find(o=>o.id===pick.optionId)!;
@@ -357,7 +394,7 @@ export class RoomStore {
    if(r.points)r.points=rewardFreePick(r.points,p.id,q.view.id,score.points,this.now());
   }
   if(r.points)r.points=settleTarget(r.points,q.view.id,{revision:1,optionId:result.optionId},this.now());
-  q.view.status='resolved';q.view.remainingMs=0;q.view.result=result;r.lastQuestion=clone(q);
+  q.view.status='resolved';q.view.remainingMs=0;q.view.result=result;r.lastQuestion=clone(q);recordResolvedQuestion(r,q);
  }
  private standings(r:Room):RoomStanding[]{
   const rows=r.participants.map(p=>{
@@ -372,9 +409,20 @@ export class RoomStore {
  }
  private recordSeason(r:Room):void {
   if(r.recorded)return;const season=this.season(r);const rows=this.standings(r);
+  captureSeasonContribution(r,this.adapter(r));
   for(const row of rows){let total=season.standings.find(s=>s.participantId===row.participantId);if(!total){total={participantId:row.participantId,name:row.name,points:0,fantasyPoints:0,predictionPoints:0,nightsPlayed:0,nightsWon:0};season.standings.push(total);}
    total.points=round(total.points+row.total);total.fantasyPoints=round(total.fantasyPoints+row.fantasyPoints);total.predictionPoints+=row.predictionPoints;total.nightsPlayed++;if(row.rank===1)total.nightsWon++;
   }r.recorded=true;
+ }
+ /** Trusted ingestion boundary only. No participant/host correction endpoint exists. */
+ reconcileBasketballFinal(code:string,input:{events:readonly BasketballEvent[];resultVersion:string}):RoomSnapshot {
+  return this.transact(()=>{
+   const room=this.room(code),season=this.season(room),result=reconcileFinal(room,season,input.events,input.resultVersion,this.adapter(room),this.now());
+   if(!result.changed)return ()=>this.snapshot(room);
+   this.rooms[this.rooms.findIndex(value=>value.code===room.code)]=result.room;
+   this.seasons[this.seasons.findIndex(value=>value.id===season.id)]=result.season;
+   return ()=>this.snapshot(result.room);
+  });
  }
  private questionView(q:QuestionState):RoomQuestion {
   const view=clone(q.view);view.pickCounts=Object.fromEntries(view.options.map(o=>[o.id,Object.values(q.picks).filter(p=>p.optionId===o.id).length]));return view;
@@ -384,6 +432,7 @@ export class RoomStore {
   const view:RoomSnapshot={version:r.version,serverNow:this.now(),rulesVersion:r.rulesVersion,room:this.summary(r),game:adapter.projectGame(r.beatIndex,r.phase),rules:clone(r.rules),
    players:adapter.players.map(player=>{const stats=clone(r.stats[player.id]??{});const rawPoints=adapter.rawPoints(stats,player.role);return {id:player.id,name:player.name,teamId:player.team,teamShort:player.team,position:player.pos,role:player.role,salary:player.salary,...(player.projectedPoints!==undefined?{projectedPoints:player.projectedPoints,projectionSource:player.projectionSource,salaryModelVersion:player.salaryModelVersion}:{}),multiplier:r.rules.positionMultipliers[player.pos]??1,stats,rawPoints:round(rawPoints),points:round(rawPoints*(r.rules.positionMultipliers[player.pos]??1)),statLine:statLine(stats)};}),standings:this.standings(r),season:{id:r.seasonId,name:this.season(r).name,standings:clone(this.season(r).standings).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name))}};
   if(r.question)view.question=this.questionView(r.question);if(r.lastQuestion)view.lastQuestion=this.questionView(r.lastQuestion);
+  if(r.correctionState?.score){view.game.home.score=r.correctionState.score[view.game.home.id];view.game.away.score=r.correctionState.score[view.game.away.id];view.game.corrected=true;view.game.resultVersion=r.correctionState.applied.at(-1)?.resultVersion;view.game.situation='Final (corrected result)';view.game.recentPlays=[];}
   if(r.pregame){const pregame=r.pregame,game=view.game;view.pregame={id:pregame.id,status:pregame.status,acceptingPicks:this.enablePregame&&r.phase==='lobby'&&pregame.status==='open',text:'Who wins the game?',options:[game.home,game.away].map(team=>({id:team.id,label:team.name})),pickCounts:Object.fromEntries([game.home.id,game.away.id].map(id=>[id,Object.values(pregame.picks).filter(pick=>pick.optionId===id).length])),cutoff:pregame.cutoff,correctPoints:pregame.correctPoints,resolutionRule:PREGAME_RULE,...(pregame.lockedAt!==undefined?{lockedAt:pregame.lockedAt}:{}),...(pregame.result?{result:clone(pregame.result)}:{}),...(pregame.voidReason?{voidReason:pregame.voidReason}:{})};}
   if(r.points)view.calls=(r.playerCalls??[]).map(call=>{
    const result=clone(call.view);result.pickCounts=Object.fromEntries(result.options.map(option=>[option.id,r.points!.calls.filter(accepted=>accepted.targetId===result.id&&accepted.optionId===option.id).length]));return {...result,creatorId:call.creatorId,createdAt:call.createdAt};

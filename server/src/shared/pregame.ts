@@ -5,4 +5,4 @@ export type PregameView={
   cutoff:'replay_start';lockedAt?:number;correctPoints:10;resolutionRule:string;
   result?:{optionId:string;explanation:string};voidReason?:string;
 };
-export type PregameReference={status:'unavailable';reason:'fictional_game'|'unmapped_game';label:string;reference:null;commitmentQuotingEnabled:false};
+export type PregameReference=import('../markets/types.js').MarketReferenceView;

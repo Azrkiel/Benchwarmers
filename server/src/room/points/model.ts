@@ -18,7 +18,7 @@ export const storedCallSchema=z.object({
   probabilityLabel:id,probabilitySource:id,firstCaller:z.boolean(),sameAccepted:unitsSchema,
   eligibleCount:unitsSchema,outcomeRevision:unitsSchema,settledReturnUnits:unitsSchema,outcomeKey:z.string(),
 }).strict();
-export const entrySchema=z.object({id,participantId:id,callId:id.optional(),units:unitsSchema,direction:z.enum(['credit','debit']),reason:z.enum(['grant','free_pick_reward','commit_hold','commit_return','commit_refund','correction']),createdAt:time}).strict();
+export const entrySchema=z.object({id,participantId:id,callId:id.optional(),questionId:id.optional(),resultVersion:id.optional(),units:unitsSchema,direction:z.enum(['credit','debit']),reason:z.enum(['grant','free_pick_reward','free_pick_correction','commit_hold','commit_return','commit_refund','correction']),createdAt:time}).strict();
 export const pointsStateSchema=z.object({version:z.literal(1),entries:z.array(entrySchema),quotes:z.array(storedQuoteSchema),calls:z.array(storedCallSchema),pending:z.array(z.object({participantId:id,quoteId:id,expiresAt:time}).strict())}).strict();
 export type PointsState=z.infer<typeof pointsStateSchema>;
 export type StoredQuote=z.infer<typeof storedQuoteSchema>;

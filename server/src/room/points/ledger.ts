@@ -15,7 +15,7 @@ export function createPointsState():PointsState {return {version:1,entries:[],qu
 export function postEntry(state:PointsState,entry:PointsEntry):void {
   if(!Number.isSafeInteger(entry.units)||entry.units<0)throw new PointsError(400,'INVALID_POINTS','Invalid ledger units.');
   const previous=state.entries.find(old=>old.id===entry.id);
-  if(previous){if(previous.participantId!==entry.participantId||previous.units!==entry.units||previous.direction!==entry.direction||previous.reason!==entry.reason||previous.callId!==entry.callId)throw new PointsError(409,'IDEMPOTENCY_CONFLICT','Ledger posting conflict.');return;}
+  if(previous){if(previous.participantId!==entry.participantId||previous.units!==entry.units||previous.direction!==entry.direction||previous.reason!==entry.reason||previous.callId!==entry.callId||previous.questionId!==entry.questionId||previous.resultVersion!==entry.resultVersion)throw new PointsError(409,'IDEMPOTENCY_CONFLICT','Ledger posting conflict.');return;}
   const previousBalance=state.entries.filter(old=>old.participantId===entry.participantId).reduce((sum,old)=>sum+BigInt(old.units)*(old.direction==='credit'?1n:-1n),0n);
   safeInteger(previousBalance+BigInt(entry.units)*(entry.direction==='credit'?1n:-1n));
   state.entries.push(entry);
@@ -29,6 +29,18 @@ export function rewardFreePick(previous:PointsState,participantId:string,questio
   const state=structuredClone(previous);
   postEntry(state,{id:`reward:${JSON.stringify([participantId,questionId])}`,participantId,units:pointsToUnits(points),direction:'credit',reason:'free_pick_reward',createdAt:now});
   return state;
+}
+/** Preserve original rewards; append only the signed change to each target's earned total. */
+export function correctFreePick(previous:PointsState,participantId:string,questionId:string,points:number,resultVersion:string,now:number):PointsState {
+  const state=structuredClone(previous),wanted=pointsToUnits(points),originalId=`reward:${JSON.stringify([participantId,questionId])}`;
+  const posted=state.entries.filter(entry=>entry.participantId===participantId&&(entry.id===originalId||(entry.reason==='free_pick_correction'&&entry.questionId===questionId))).reduce((sum,entry)=>sum+BigInt(entry.units)*(entry.direction==='credit'?1n:-1n),0n);
+  const delta=safeInteger(BigInt(wanted)-posted);
+  if(delta!==0)postEntry(state,{id:`free-correction:${JSON.stringify([participantId,questionId,resultVersion])}`,participantId,questionId,resultVersion,units:Math.abs(delta),direction:delta>0?'credit':'debit',reason:'free_pick_correction',createdAt:now});
+  return state;
+}
+export function freeRewardUnits(state:PointsState,participantId:string,questionId?:string):number {
+  const originalId=questionId===undefined?undefined:`reward:${JSON.stringify([participantId,questionId])}`;
+  return safeInteger(state.entries.filter(entry=>entry.participantId===participantId&&((entry.reason==='free_pick_reward'&&(originalId===undefined||entry.id===originalId))||(entry.reason==='free_pick_correction'&&(questionId===undefined||entry.questionId===questionId)))).reduce((sum,entry)=>sum+BigInt(entry.units)*(entry.direction==='credit'?1n:-1n),0n));
 }
 export function bankFor(state:PointsState,participantId:string):CallBank {
   const entries=state.entries.filter(entry=>entry.participantId===participantId);
@@ -74,6 +86,8 @@ export function validatePointsState(input:unknown):PointsState {
   for(const entry of state.entries){
     if(entry.reason==='grant'&&(entry.units!==200||entry.direction!=='credit'||entry.callId))invalid('grant');
     if(entry.reason==='free_pick_reward'&&(entry.direction!=='credit'||entry.callId))invalid('free reward');
+    if(entry.reason==='free_pick_correction'&&(entry.callId||!entry.questionId||!entry.resultVersion||!/^[a-f0-9]{64}$/.test(entry.resultVersion)))invalid('free correction reference');
+    if(entry.reason!=='free_pick_correction'&&(entry.questionId!==undefined||entry.resultVersion!==undefined))invalid('unexpected free correction metadata');
     if(['commit_return','commit_refund'].includes(entry.reason)&&entry.direction!=='credit')invalid('return direction');
     if(['commit_hold','commit_return','commit_refund','correction'].includes(entry.reason)&&(!entry.callId||!state.calls.some(call=>call.callId===entry.callId&&call.participantId===entry.participantId)))invalid('entry call reference');
   }
@@ -81,7 +95,7 @@ export function validatePointsState(input:unknown):PointsState {
   for(const actor of actors){
     const entries=state.entries.filter(entry=>entry.participantId===actor),bank=bankFor(state,actor);
     if(entries.filter(entry=>entry.reason==='grant').length!==1)invalid('initial grant');
-    const rewards=safeInteger(entries.filter(entry=>entry.reason==='free_pick_reward').reduce((sum,entry)=>sum+BigInt(entry.units),0n))/2;
+    const rewards=freeRewardUnits(state,actor)/2;if(rewards<0)invalid('negative earned rewards');
     const signed=entries.reduce((sum,entry)=>sum+BigInt(entry.units)*(entry.direction==='credit'?1n:-1n),0n);
     const expected=200n+BigInt(pointsToUnits(rewards))+BigInt(Math.round(bank.settledRiskNet*2))-BigInt(pointsToUnits(bank.reservedPoints));
     if(signed!==expected)invalid('balance equation');

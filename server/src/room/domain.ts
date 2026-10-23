@@ -2,11 +2,12 @@ import type { RoomLineup, RoomPhase, RoomPickScore, RoomQuestion, RoomRules, Roo
 import type { PointsState } from './points/model.js';
 import type { PlayerCall } from './calls/model.js';
 import type { PregameState } from './pregame/model.js';
+import type { CorrectionState } from './corrections/model.js';
 
 /** Private durable state. Never serialize these objects into a public response. */
 export type Stats = Record<string, Record<string, number>>;
 export type Identity = { id: string; name: string; token: string };
-export type Participant = Identity & { baseline: Stats; lineup?: RoomLineup; predictionPoints: number; streak: number; lastPickScore?: RoomPickScore };
+export type Participant = Identity & { baseline: Stats; lineup?: RoomLineup; predictionPoints: number; streak: number; lastPickScore?: RoomPickScore; joinedSequence?:number };
 export type QuestionState = { view: RoomQuestion; picks: Record<string, { optionId: string; elapsedFraction: number }> };
 export type Room = {
   code: string; name: string; seasonId: string; hostToken: string; createdAt: number;
@@ -18,6 +19,7 @@ export type Room = {
   points?: PointsState;
   playerCalls?: PlayerCall[];
   pregame?: PregameState;
+  correctionState?:CorrectionState;
 };
 export type Season = { id: string; name: string; identities: Identity[]; standings: RoomSeasonStanding[] };
 export type SavedRooms = { version: 2; rooms: Room[]; seasons: Season[] };

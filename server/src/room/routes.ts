@@ -4,6 +4,7 @@ import { RoomError, type RoomStore } from './store.js';
 import { answerRoom } from './assistant.js';
 import { createPlaybackRouter, PlaybackLeases } from './playback.js';
 import { PointsError } from './points/model.js';
+import {createRoomSecurity,type RoomSecurityOptions,type RoomActor} from './security/index.js';
 
 const token=z.string().min(1).max(200);
 export const createRoomSchema=z.object({name:z.string().trim().min(1).max(80).optional(),seasonId:z.string().trim().regex(/^[a-zA-Z0-9-]{1,64}$/).optional(),speed:z.number().int().min(1).max(4).optional(),gameId:z.string().min(1).max(100).optional()});
@@ -19,9 +20,42 @@ export const commitmentConfirmSchema=commitmentAcceptSchema.omit({quoteId:true})
 export const playerCallQuoteSchema=z.object({participantToken:token,templateId:z.enum(['next_score_team','next_made_field_goal_value']),anchorSequence:z.number().int().nonnegative().safe(),horizonGameElapsedMs:z.number().int().nonnegative().safe(),optionId:z.string().min(1).max(50),commitPoints:z.union([z.literal(10),z.literal(25),z.literal(50)])}).strict();
 export const pregamePickSchema=z.object({participantToken:token,requestId:z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),optionId:z.string().min(1).max(50)}).strict();
 
-export function createRoomRouter(store:RoomStore):express.Router {
+export type RoomRouterOptions={security?:Omit<RoomSecurityOptions,'validateCredential'>&{allowLegacyCredentials?:boolean}};
+export function createRoomRouter(store:RoomStore,options:RoomRouterOptions={}):express.Router {
   const router=express.Router();
   router.use(express.json({limit:'16kb'}));
+  if(options.security){
+    const security=createRoomSecurity({...options.security,validateCredential:({roomCode,role,credential})=>store.credentialActor(roomCode,role,credential)});
+    router.use(security.router);
+    router.use('/:code',(req,res,next)=>{
+      security.requestLimits(req,res,()=>{
+        const path=req.path;
+        const host=path==='/host'||path.startsWith('/playback');
+        const privateRead=path.startsWith('/receipts/')||path.startsWith('/commitment-receipts/');
+        const mutation=!['GET','HEAD','OPTIONS'].includes(req.method);
+        const required=host?'host':privateRead||(mutation&&path!=='/assistant')?'participant':undefined;
+        security.authorize(required)(req,res,()=>{
+          const actor=res.locals.roomActor as RoomActor|undefined;
+          if(!actor&&options.security?.enabled&&options.security.allowLegacyCredentials===false&&(privateRead||mutation&&path!=='/join'||req.headers.authorization)){
+            next(new RoomError(401,'SESSION_REQUIRED','Exchange your credential for a room session before continuing.'));return;
+          }
+          if(actor){
+            const body=req.body as Record<string,unknown>|undefined;
+            const key=actor.role==='host'?'hostToken':'participantToken';
+            const otherKey=actor.role==='host'?'participantToken':'hostToken';
+            const auth=req.headers.authorization;
+            if((body?.[key]!==undefined&&body[key]!==actor.credential)||body?.[otherKey]!==undefined||(auth!==undefined&&auth!==`Bearer ${actor.credential}`)){
+              next(new RoomError(403,'SCOPE_REQUIRED','The submitted credential conflicts with the active room session.'));return;
+            }
+            if(mutation&&actor.credential){req.body??={};req.body[key]=actor.credential;}
+            if(actor.role==='participant'&&actor.credential)req.headers.authorization=`Bearer ${actor.credential}`;
+            else delete req.headers.authorization;
+          }
+          next();
+        });
+      });
+    });
+  }
   router.get('/',(_req,res)=>res.json({rooms:store.list()}));
   router.post('/',(req,res)=>res.status(201).json(store.create(createRoomSchema.parse(req.body??{}))));
   const playback=createPlaybackRouter(new PlaybackLeases(),(code,token)=>store.isHost(code,token));

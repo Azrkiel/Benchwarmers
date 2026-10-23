@@ -26,6 +26,10 @@ export function publicCommitment(call:StoredCall):CommitmentReceipt {
   return {callId,requestId,quoteId,questionId,optionId,optionLabel,commitPoints,totalReturnPoints,acceptedAt,acceptedSequence,state};
 }
 export function quoteCommitment(previous:PointsState,context:QuoteContext,commitPoints:number,quoteId:string):{state:PointsState;quote:CommitmentQuote}{
+  // Accepted offers are permanent receipt evidence; only expired unaccepted previews retire.
+  const accepted=new Set(previous.calls.map(call=>call.quoteId));
+  const outstanding=previous.quotes.filter(quote=>quote.expiresAt>context.now&&!accepted.has(quote.quoteId));
+  if(outstanding.length>=256||outstanding.filter(quote=>quote.participantId===context.participantId).length>=20)throw new PointsError(429,'QUOTE_LIMIT_REACHED','Too many outstanding previews. Wait for an offer to expire.');
   if(![10,25,50].includes(commitPoints))throw new PointsError(400,'BAD_COMMIT_AMOUNT','Commit 10, 25 or 50 points.');
   if(previous.calls.some(call=>call.targetId===context.targetId&&call.participantId===context.participantId))fail('CALL_ALREADY_COMMITTED','This target already has your immutable commitment.');
   const terms=pricing(previous,context);
@@ -33,7 +37,7 @@ export function quoteCommitment(previous:PointsState,context:QuoteContext,commit
   if(previous.quotes.some(quote=>quote.quoteId===quoteId))fail('IDEMPOTENCY_CONFLICT','Quote ID already exists.');
   const commitUnits=pointsToUnits(commitPoints),totalReturnUnits=safeInteger(BigInt(commitUnits)*BigInt(terms.multiplierHundredths)/100n);
   const quote:StoredQuote={quoteId,participantId:context.participantId,targetId:context.targetId,questionId:context.targetId,optionId:context.optionId,optionLabel:context.optionLabel,commitPoints,totalReturnPoints:totalReturnUnits/2,multiplier:terms.multiplierHundredths/100,probabilityLabel:terms.probability.label,firstCaller:terms.firstCaller,expiresAt:Math.min(context.now+15000,context.locksAt,terms.probability.validUntil),commitUnits,totalReturnUnits,multiplierHundredths:terms.multiplierHundredths,targetVersion:context.targetVersion,probabilityVersion:terms.probability.version,probabilitySource:terms.probability.source,probabilityP:terms.probability.p,pricingVersion:terms.pricingVersion,eligibleCount:terms.eligibleCount,sameAccepted:terms.sameAccepted};
-  const state=structuredClone(previous);state.quotes.push(quote);
+  const state=structuredClone(previous);state.quotes=state.quotes.filter(quote=>accepted.has(quote.quoteId)||quote.expiresAt>context.now);state.pending=state.pending.filter(pending=>pending.expiresAt>context.now);state.quotes.push(quote);
   return {state,quote:publicQuote(quote)};
 }
 export function acceptCommitment(previous:PointsState,input:{participantId:string;quoteId:string;requestId:string;callId:string;context:QuoteContext}):{state:PointsState;commitment:CommitmentReceipt}{

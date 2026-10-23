@@ -5,7 +5,7 @@ import type { NormalizedProviderEvent, ProviderMapping } from './provider.js';
 // Transport adapters must translate their own payload into this internal envelope and
 // assign receivedAt from the server clock. This is not a vendor's wire schema.
 const envelopeSchema=basketballEventSchema.omit({id:true}).extend({
-  provider:z.string().min(1),eventId:z.string().min(1),revision:z.number().int().positive().safe(),sequence:z.number().int().positive().safe(),
+  rawPayloadRef:z.string().regex(/^sha256:[a-f0-9]{64}$/).optional(),provider:z.string().min(1),eventId:z.string().min(1),revision:z.number().int().positive().safe(),sequence:z.number().int().positive().safe(),
 }).strict();
 export function normalizeProviderEvent(input:unknown,mapping:ProviderMapping):NormalizedProviderEvent {
   const parsed=envelopeSchema.parse(input);
@@ -15,8 +15,8 @@ export function normalizeProviderEvent(input:unknown,mapping:ProviderMapping):No
     if(!Object.hasOwn(ids,id))throw new Error('Unmapped basketball entity.');
     return ids[id];
   };
-  const {provider,eventId,...fields}=parsed;
+  const {provider,eventId,rawPayloadRef,...fields}=parsed;
   const event=validateBasketballEvent({...fields,id:JSON.stringify([provider,eventId]),gameId:mapping.catalog.gameId,
     teamId:mapId(parsed.teamId,mapping.teams),playerId:mapId(parsed.playerId,mapping.players)},mapping.catalog);
-  return {provider,providerEventId:eventId,revision:parsed.revision,event};
+  return {provider,providerEventId:eventId,revision:parsed.revision,...(rawPayloadRef?{rawPayloadRef}:{}),event};
 }

@@ -15,8 +15,10 @@ import { loadConfig } from './config.js';
 import { existsSync } from 'node:fs';
 import { RoomStore } from './room/store.js';
 import { createRoomRouter } from './room/routes.js';
+import type {RoomRouterOptions} from './room/routes.js';
+import {createRoomRuntime} from './room/runtime.js';
 
-export function createApp(opts: { store: Store; importer?: GameImporter; roomStore?: RoomStore; webDir?: string }): express.Express {
+export function createApp(opts: { store: Store; importer?: GameImporter; roomStore?: RoomStore; webDir?: string;roomSecurity?:RoomRouterOptions['security'] }): express.Express {
   const { store } = opts;
   const app = express();
   app.use(cors());
@@ -29,7 +31,7 @@ export function createApp(opts: { store: Store; importer?: GameImporter; roomSto
   // /api/assistant must mount BEFORE the /api router, or its catch-all 404 shadows it.
   app.use(createAssistantRouter({ token: process.env.MCP_TOKEN ?? 'dev-token-change-me' }));
 
-  if(opts.roomStore) app.use('/api/rooms', createRoomRouter(opts.roomStore));
+  if(opts.roomStore) app.use('/api/rooms', createRoomRouter(opts.roomStore,{security:opts.roomSecurity}));
   app.use('/api', createApiRouter(store, { importer: opts.importer }));
   if(opts.webDir && existsSync(path.join(opts.webDir,'index.html'))){
     // Same isolation headers Vite dev sets (threaded WASM for voice ID). /watch embeds YouTube, which COEP blocks.
@@ -61,12 +63,13 @@ function warmScoutingNotes(provider: AiContentProvider, store: Store, game: Game
 export async function main(): Promise<void> {
   loadConfig();
   const store = new Store(); // DATA_FILE / SPEED env respected by Store defaults
-  const roomStore = new RoomStore({dataFile:process.env.ROOM_DATA_FILE??'data/rooms.json',speed:Number(process.env.ROOM_SPEED)||1});
+  const roomRuntime=await createRoomRuntime();
+  const roomStore = roomRuntime.store;
   const provider = createAiProvider();
   const warmNotes = (game: Game) => warmScoutingNotes(provider, store, game);
   const restored = loadImportedGames();
   if (restored) console.log(`Restored ${restored} imported game(s)`);
-  const app = createApp({ store, roomStore, webDir:fileURLToPath(new URL('../../web/dist',import.meta.url)), importer: (q) => importGame(q, { onNewGame: warmNotes }) });
+  const app = createApp({ store, roomStore, roomSecurity:roomRuntime.security, webDir:fileURLToPath(new URL('../../web/dist',import.meta.url)), importer: (q) => importGame(q, { onNewGame: warmNotes }) });
   const port = Number(process.env.PORT) || 3001;
   const server = app.listen(port, () => {
     console.log(`Benchwarmers server listening on http://localhost:${port}`);
@@ -90,7 +93,7 @@ export async function main(): Promise<void> {
   const shutdown = () => {
     clearInterval(timer);
     worker.stop();
-    server.close(() => process.exit(0));
+    server.close(() => {roomRuntime.close();process.exit(0);});
   };
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);

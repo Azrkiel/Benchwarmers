@@ -9,7 +9,7 @@ export interface BasketballProvider {
   readonly capabilities:ProviderCapabilities;
   discover(signal:AbortSignal):Promise<ProviderGame[]>;
   snapshot(providerGameId:string,signal:AbortSignal):Promise<ProviderSnapshot>;
-  poll(providerGameId:string,cursor:string,signal:AbortSignal):Promise<{cursor:string;events:unknown[];heartbeatAt:number}>;
+  poll(providerGameId:string,cursor:string,signal:AbortSignal):Promise<{cursor:string;events:unknown[];heartbeatAt:number;authoritative?:boolean}>;
 }
 export type ProviderMapping={provider:string;gameId:string;catalog:BasketballCatalog;teams:Readonly<Record<string,string>>;players:Readonly<Record<string,string>>};
-export type NormalizedProviderEvent={provider:string;providerEventId:string;revision:number;event:BasketballEvent};
+export type NormalizedProviderEvent={provider:string;providerEventId:string;revision:number;rawPayloadRef?:string;event:BasketballEvent};

@@ -6,11 +6,13 @@ import type { SavedRooms } from './domain.js';
 import { FOOTBALL_GAME_ID, getRoomSportAdapter } from './sports/index.js';
 import { FOOTBALL_RULES_VERSION } from './sports/football.js';
 import { pointsStateSchema } from './points/model.js';
-import { pointsToUnits, validatePointsState } from './points/ledger.js';
+import { pointsToUnits, validatePointsState,freeRewardUnits } from './points/ledger.js';
 import { playerCallSchema } from './calls/model.js';
 import type { PlayerCallDraft } from './calls/model.js';
 import { canonicalTargetKey, canonicalTargetId } from './calls/catalog.js';
 import { pregameSchema } from './pregame/model.js';
+import { basketballEventSchema } from './basketball/events.js';
+import { validateCorrectionState } from './corrections/service.js';
 
 const finite = z.number().finite();
 const nonnegative = finite.nonnegative();
@@ -19,7 +21,7 @@ const stats = z.record(id, z.record(id, finite));
 const lineup = z.object({ captainId: id, flexIds: z.array(id).length(4), salaryUsed: nonnegative.int() });
 const pickScore = z.object({ points: nonnegative, base: nonnegative, factor: nonnegative, bonuses: z.array(z.string()), correct: z.boolean() });
 const identity = z.object({ id, name: id, token: id });
-const participant = identity.extend({ baseline: stats, lineup: lineup.optional(), predictionPoints: nonnegative, streak: nonnegative.int(), lastPickScore: pickScore.optional() });
+const participant = identity.extend({ baseline: stats, lineup: lineup.optional(), predictionPoints: nonnegative, streak: nonnegative.int(), lastPickScore: pickScore.optional(),joinedSequence:nonnegative.int().optional() });
 const target = z.object({templateId:z.enum(['next_score_team','next_made_field_goal_value','team_scores_in_window']),anchorSequence:nonnegative.int(),horizonGameElapsedMs:nonnegative,teamId:id.optional(),eligibleParticipantIds:z.array(id)});
 const receipt = z.object({requestId:id,participantId:id,questionId:id,optionId:id,acceptedAt:finite,acceptanceSequence:nonnegative.int().positive()});
 const question = z.object({
@@ -36,7 +38,10 @@ const legacyRoom = z.object({
   participants: z.array(participant), beatIndex: finite.int().min(-1), elapsedMs: nonnegative, durationMs: nonnegative,
   windowElapsedMs: nonnegative, lastTickAt: finite, stats, question: question.optional(), lastQuestion: question.optional(), recorded: z.boolean(),
 });
-const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional(), points:pointsStateSchema.optional(), playerCalls:z.array(playerCallSchema).optional(), pregame:pregameSchema.optional() });
+const contributionRow=z.object({participantId:id,name:id,points:finite,fantasyPoints:finite,predictionPoints:nonnegative,nightsPlayed:z.literal(1),nightsWon:z.union([z.literal(0),z.literal(1)])}).strict();
+const hash=z.string().regex(/^[a-f0-9]{64}$/);
+const correctionState=z.object({version:z.literal(1),revision:nonnegative.int().positive(),questions:z.array(z.object({question:question.extend({view:question.shape.view.strict()}).strict(),revision:nonnegative.int().positive(),correctionKey:id}).strict()).max(10000),seasonContribution:z.object({resultVersion:z.union([z.literal('original'),hash]),rows:z.array(contributionRow)}).strict().optional(),applied:z.array(z.object({resultVersion:hash,payloadHash:hash}).strict()).max(1000),score:z.record(id,nonnegative.int()).optional(),events:z.array(basketballEventSchema).max(100000).optional()}).strict();
+const room = legacyRoom.extend({ gameId: id, rulesVersion: id, version: nonnegative.int().min(1), pickReceipts:z.array(receipt).optional(), points:pointsStateSchema.optional(), playerCalls:z.array(playerCallSchema).optional(), pregame:pregameSchema.optional(),correctionState:correctionState.optional() });
 const season = z.object({ id, name: id, identities: z.array(identity), standings: z.array(z.object({
   participantId: id, name: id, points: finite, fantasyPoints: finite, predictionPoints: finite,
   nightsPlayed: nonnegative.int(), nightsWon: nonnegative.int(),
@@ -79,6 +84,7 @@ export function validateSavedRooms(input: unknown): SavedRooms {
     for(const receipt of r.pickReceipts??[]){if(!r.participants.some(p=>p.id===receipt.participantId)||receipt.acceptanceSequence<=previousAcceptance)invalid('pick receipt references or ordering');previousAcceptance=receipt.acceptanceSequence;}
     if(r.pregame){
       const pregame=r.pregame,game=adapter.projectGame(r.beatIndex,r.phase),teamIds=[game.home.id,game.away.id];
+      if(r.correctionState?.score){game.home.score=r.correctionState.score[game.home.id];game.away.score=r.correctionState.score[game.away.id];}
       if(adapter.sport!=='basketball'||(r.phase==='lobby')!==(pregame.status==='open')||(r.phase==='final')!==(pregame.status==='resolved'||pregame.status==='void'))invalid('pregame phase');
       if((pregame.status==='open')!==(pregame.lockedAt===undefined))invalid('pregame cutoff');
       if((pregame.status==='resolved')!==!!pregame.result||(pregame.status==='void')!==!!pregame.voidReason)invalid('pregame outcome');
@@ -93,16 +99,20 @@ export function validateSavedRooms(input: unknown): SavedRooms {
         if(correct&&p.predictionPoints<pregame.correctPoints)invalid('pregame reward');
         if(r.points){
           const reward=r.points.entries.find(entry=>entry.id===`reward:${JSON.stringify([p.id,pregame.id])}`);
-          if(correct?(!reward||reward.units!==pregame.correctPoints*2||reward.reason!=='free_pick_reward'||reward.participantId!==p.id):!!reward)invalid('pregame reward ledger');
+          if(r.correctionState?.applied.length){if(freeRewardUnits(r.points,p.id,pregame.id)!==(correct?pregame.correctPoints*2:0))invalid('corrected pregame reward ledger');}
+          else if(correct?(!reward||reward.units!==pregame.correctPoints*2||reward.reason!=='free_pick_reward'||reward.participantId!==p.id):!!reward)invalid('pregame reward ledger');
         }
       }
     }
     if(r.points){
       validatePointsState(r.points);
+      for(const entry of r.points.entries.filter(entry=>entry.reason==='free_pick_correction')){
+        if(!r.correctionState?.applied.some(applied=>applied.resultVersion===entry.resultVersion)||(entry.questionId!==r.pregame?.id&&!r.correctionState.questions.some(item=>item.question.view.id===entry.questionId)))invalid('correction posting reference');
+      }
       for(const record of [...r.points.entries,...r.points.calls,...r.points.quotes,...r.points.pending])if(!r.participants.some(p=>p.id===record.participantId))invalid('points participant reference');
       for(const p of r.participants){
         if(!r.points.entries.some(entry=>entry.participantId===p.id&&entry.reason==='grant'))invalid('missing participant bank');
-        const rewards=r.points.entries.filter(entry=>entry.participantId===p.id&&entry.reason==='free_pick_reward').reduce((sum,entry)=>sum+BigInt(entry.units),0n);
+        const rewards=BigInt(freeRewardUnits(r.points,p.id));
         if(rewards!==BigInt(pointsToUnits(p.predictionPoints)))invalid('free reward ledger');
       }
     }
@@ -151,7 +161,7 @@ export function validateSavedRooms(input: unknown): SavedRooms {
         if (p.lineup.salaryUsed !== cost || cost > r.rules.salaryCap) invalid('lineup salary');
       }
     }
-    for (const q of [r.question, r.lastQuestion,...(r.playerCalls??[]).map(call=>({view:call.view,picks:{}}))]) {
+    for (const q of [r.question, r.lastQuestion,...(r.correctionState?.questions??[]).map(item=>item.question),...(r.playerCalls??[]).map(call=>({view:call.view,picks:{}}))]) {
       if (!q) continue;
       unique(q.view.options.map(o => o.id), 'question option');
       if ((q.view.status === 'resolved') !== Boolean(q.view.result)) invalid('question result status');
@@ -162,6 +172,7 @@ export function validateSavedRooms(input: unknown): SavedRooms {
         if (!r.participants.some(p => p.id === participantId) || !q.view.options.some(o => o.id === pick.optionId) || (q.view.target&&!q.view.target.eligibleParticipantIds.includes(participantId))) invalid('question pick');
       }
     }
+    validateCorrectionState(r,adapter);
   }
   return saved;
 }

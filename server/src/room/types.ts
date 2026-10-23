@@ -27,7 +27,7 @@ type RoomTeam = {id:string;short:string;name:string;color:string;score:number};
 // All RoomStore responses use RoomSnapshot and always supply this metadata.
 export type RoomView = Partial<RoomSnapshotMetadata> & {
  room:RoomSummary;
- game:Partial<RoomGameMetadata> & {title:string;home:RoomTeam;away:RoomTeam;quarter:number;clock:string;situation:string;ballOn:number;fieldX:number;possession:string|null;driveNumber:number;driveCount:number;recentPlays:{id:string;text:string;kind:string;quarter:number;clock:string}[];isScripted:true};
+ game:Partial<RoomGameMetadata> & {title:string;home:RoomTeam;away:RoomTeam;quarter:number;clock:string;situation:string;ballOn:number;fieldX:number;possession:string|null;driveNumber:number;driveCount:number;recentPlays:{id:string;text:string;kind:string;quarter:number;clock:string}[];isScripted:true;corrected?:boolean;resultVersion?:string};
  rules:RoomRules;players:RoomPlayer[];standings:RoomStanding[];question?:RoomQuestion;lastQuestion?:RoomQuestion;calls?:RoomPlayerCall[];pregame?:PregameView;
  me?:{participantId:string;name:string;lineup?:RoomLineup;currentPick?:{questionId:string;optionId:string};bank?:CallBank;commitments?:CommitmentReceipt[];pregamePick?:{optionId:string;acceptedAt:number}};
  season:{id:string;name:string;standings:RoomSeasonStanding[]};
