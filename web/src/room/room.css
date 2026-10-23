@@ -112,3 +112,41 @@
 .rm-receipt.is-accepted { border-left-color:var(--lg-good); }
 .rm-receipt.is-rejected, .rm-receipt.is-unknown { border-left-color:var(--lg-bad); }
 .rm-breakdown { display:block; color:var(--lg-muted); font-size:14px; margin-top:4px; }
+/* Committed points, calls, pregame (Phases 10, 11, 13) */
+.rm-commit, .rm-create-call, .rm-bank, .rm-pregame, .rm-calls { border:1px solid var(--lg-line); border-radius:6px; background:var(--lg-surface); padding:16px; display:flex; flex-direction:column; gap:10px; }
+.rm-commit h3, .rm-create-call h3, .rm-bank h3 { font-size:18px; margin:0; }
+.rm-commit-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; color:var(--lg-muted); }
+.rm-commit-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.rm-commit-row button { flex:1 1 auto; min-width:88px; }
+.rm-commit-review { border-left:4px solid var(--lg-orange); padding:10px 12px; background:var(--lg-deep); border-radius:4px; display:flex; flex-direction:column; gap:6px; }
+.rm-commit-offer { font-size:18px; font-weight:600; line-height:1.35; }
+.rm-commit.is-committed { border-left:4px solid var(--lg-good); }
+.rm-commit small { color:var(--lg-muted); }
+.rm-create-call fieldset { border:0; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+.rm-create-call legend { font-size:14px; font-weight:600; color:var(--lg-muted); margin-bottom:4px; }
+.rm-create-call fieldset label { display:flex; align-items:center; gap:8px; min-height:44px; color:var(--lg-text); font-size:16px; }
+.rm-create-call fieldset label.is-unavailable { color:var(--lg-faint); }
+.rm-call-hint { background:var(--lg-deep); border-radius:4px; padding:8px 12px; }
+.rm-call-hint ul { margin:6px 0 0; padding-left:20px; color:var(--lg-muted); }
+.rm-sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+.rm-bank { flex-direction:row; flex-wrap:wrap; gap:16px 24px; }
+.rm-bank-col { flex:1 1 220px; display:flex; flex-direction:column; gap:6px; }
+.rm-bank dl { margin:0; display:flex; flex-direction:column; gap:4px; }
+.rm-bank dl div { display:flex; justify-content:space-between; gap:12px; }
+.rm-bank dt { color:var(--lg-muted); }
+.rm-bank dd { margin:0; font-weight:600; font-variant-numeric:tabular-nums; }
+.rm-bank-sum { border-top:1px solid var(--lg-line); padding-top:4px; }
+.rm-bank-debt dd { color:var(--bw-warning); }
+.rm-pregame-sides { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.rm-pregame-side { border:2px solid var(--lg-line); border-left-width:6px; border-radius:4px; padding:10px; display:flex; flex-direction:column; gap:6px; }
+.rm-pregame-side.is-mine { box-shadow:inset 0 0 0 2px var(--lg-text); }
+.rm-pregame-side.is-winner strong { color:var(--lg-good); }
+.rm-pregame-side dl { margin:0; display:flex; flex-direction:column; gap:2px; font-size:14px; }
+.rm-pregame-side dl div { display:flex; justify-content:space-between; gap:8px; }
+.rm-pregame-side dt { color:var(--lg-muted); }
+.rm-pregame-side dd { margin:0; font-weight:600; }
+.rm-calls ul, .rd-calls ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+.rm-calls li, .rd-calls li { display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; padding:6px 0; border-bottom:1px solid var(--lg-line); }
+.rm-calls em, .rd-calls em { margin-left:auto; font-style:normal; color:var(--lg-muted); }
+.rm-calls small, .rd-calls small { color:var(--lg-muted); }
+.rm .rm-create-call input[type=radio] { flex:none; width:20px; height:20px; min-height:0; padding:0; margin:0; accent-color:var(--lg-orange); }

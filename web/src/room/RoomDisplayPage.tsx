@@ -9,6 +9,8 @@ import { usePlaybackLease } from '../fx/playbackLease';
 import { useSpeechOutput } from '../device/useSpeechOutput';
 import { DisplayVoice } from './DisplayVoice';
 import { useRoomAnnouncements } from './useRoomAnnouncements';
+import { useCallNotices } from './Calls';
+import type { PointsSnapshotFields } from './points/types';
 import { basketballFixture, FIXTURE_STATES, type FixtureState } from './fixtures/basketball';
 import { layoutFor, RoomDisplay, type DisplayLayout } from './RoomDisplay';
 import { ROOM_VIEWS, type RoomViewId } from './RoomNav';
@@ -56,7 +58,7 @@ export function RoomDisplayPage() {
   const override = params.get('layout') as DisplayLayout | null;
   const layout = override && LAYOUTS.includes(override) ? override : layoutFor(w, h);
   const requested = params.get('view') as RoomViewId | null;
-  const [current, setCurrent] = useState<RoomViewId>(requested && ROOM_VIEWS.includes(requested) ? requested : 'game');
+  const [current, setCurrent] = useState<RoomViewId>(requested && (ROOM_VIEWS as readonly string[]).includes(requested) ? requested : 'game');
   const root = useRef<HTMLDivElement>(null);
   const final = view?.room.phase === 'final';
   const [reducedMotion] = useState(prefersReducedMotion);
@@ -70,6 +72,7 @@ export function RoomDisplayPage() {
   useEffect(() => { audio.setSpeaking(speech.speaking); }, [audio, speech.speaking]);
   // Only the playback leader with sound enabled speaks; every screen shows the caption.
   const { caption } = useRoomAnnouncements(view, (text) => { if (audio.canPlay()) speech.speak(text); });
+  const callNotice = useCallNotices((view as (RoomViewNext & PointsSnapshotFields) | undefined)?.calls);
   const [reply, setReply] = useState('');
   useEffect(() => { if (!reply) return; const timer = setTimeout(() => setReply(''), 8000); return () => clearTimeout(timer); }, [reply]);
   useEffect(() => { if (current === 'results' && view && !final) setCurrent('game'); }, [current, final, view]);
@@ -91,7 +94,7 @@ export function RoomDisplayPage() {
   const joinUrl = `${window.location.origin}/room/${encodeURIComponent(view.room.code)}`;
   return <div ref={root} onKeyDown={onKeyDown} className="rd-root">
     <RoomDisplay view={view} layout={layout} current={current} onView={change} joinUrl={joinUrl} stale={!fixture && room.stale} host={!!room.credentials.hostToken} fixture={!!fixture}
-      caption={reply || caption}
+      caption={reply || callNotice || caption}
       voice={<>{correction && <span className="rd-correction" role="status">Score corrected</span>}
         {!fixture && <DisplayVoice audio={audio} speak={speech.speak} cancelSpeech={speech.cancel} onReply={setReply} onCommand={async (text) => {
           const result = await room.mutate('assistant', { text, hostToken: room.credentials.hostToken }, true);

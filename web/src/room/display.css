@@ -185,3 +185,5 @@
   .rd-ball { grid-column:1 / -1; justify-self:center; border:0; padding:0 0 6px; }
   .rd-foot { flex-wrap:wrap; padding:8px 0; }
 }
+.rd-calls { height:100%; overflow:hidden; font-size:var(--rd-s); }
+.rd-calls b { font-size:calc(var(--rd-s) * 1.1); }

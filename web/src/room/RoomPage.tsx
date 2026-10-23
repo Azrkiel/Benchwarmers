@@ -11,6 +11,13 @@ import { Lineup } from './Lineup';
 import { RoomAssistant } from './RoomAssistant';
 import { RoomNav, type RoomViewId } from './RoomNav';
 import { usePickReceipt } from './PredictionReceipt';
+import { BankPanel } from './BankPanel';
+import { CallsList } from './Calls';
+import { CommitPoints } from './CommitPoints';
+import { CreateCall } from './CreateCall';
+import { PregamePick } from './PregamePick';
+import { pointsApi } from './points/api';
+import type { CallTemplate, PointsMeFields, PointsSnapshotFields } from './points/types';
 import { roomSport, sourceLabel } from './sport';
 import { useRoom } from './useRoom';
 import './room.css';
@@ -35,6 +42,8 @@ export function RoomPage() {
   const joinName = (useLocation().state as { joinName?: string } | null)?.joinName ?? '';
   const moments = useRoomMoments(view, { personal: true });
   const [tab, setTab] = useState<RoomViewId | null>(null);
+  const [catalog, setCatalog] = useState<CallTemplate[] | null>(null);
+  const [catalogError, setCatalogError] = useState('');
   const phase = view?.room.phase;
   // Follow the game phase (lobby -> game -> results) until the participant picks a view.
   const [phaseSeen, setPhaseSeen] = useState(phase);
@@ -59,6 +68,21 @@ export function RoomPage() {
   const last = me?.lastPickScore;
   const label = (questionId: string, optionId: string) => view.question?.id === questionId ? view.question.options.find((option) => option.id === optionId)?.label ?? optionId : optionId;
   const court = roomSport(view) === 'basketball' ? <BasketballCourt view={view} /> : <FootballField view={view} />;
+  // Points features render only when the snapshot carries them (Worker A's Phases 10, 11, 13).
+  const extra = view as typeof view & PointsSnapshotFields;
+  const mine = view.me as (typeof view.me & PointsMeFields) | undefined;
+  const api = pointsApi(code, credentials.participantToken);
+  const refreshSoon = () => { void refresh().catch(() => undefined); };
+  const pregame = extra.pregame && <PregamePick state={extra.pregame} home={view.game.home} away={view.game.away} serverOffsetMs={view.serverNow ? view.serverNow - Date.now() : 0}
+    onPick={joined ? async (side) => { await send('picks', { participantToken: credentials.participantToken, questionId: extra.pregame!.questionId, optionId: side, requestId: globalThis.crypto?.randomUUID?.() ?? `pregame-${Date.now()}` }); } : undefined} />;
+  const commit = mine?.bank && view.question && <CommitPoints key={view.question.id} question={view.question} bank={mine.bank} defaultOptionId={view.me?.currentPick?.questionId === view.question.id ? view.me.currentPick.optionId : undefined}
+    receipt={mine.commitments?.find((c) => c.questionId === view.question!.id)}
+    onQuote={(optionId, amount) => api.quote(view.question!.id, optionId, amount)} onConfirm={async (quote, requestId) => { const r = await api.commit(quote, requestId); refreshSoon(); return r; }} />;
+  const calls = mine?.bank && extra.calls && <>
+    {catalog ? <CreateCall catalog={catalog} bank={mine.bank} onQuote={api.quoteCall} onCreate={async (quote, draft, requestId) => { const r = await api.createCall(quote, draft, requestId); refreshSoon(); return r; }} onClose={() => setCatalog(null)} />
+      : <div className="rm-commit-row"><button onClick={() => { setCatalogError(''); void api.catalog().then(setCatalog).catch(() => setCatalogError('Calls are unavailable right now.')); }}>Make a call</button>{catalogError && <span className="rm-error" role="alert">{catalogError}</span>}</div>}
+    {extra.calls.length > 0 && <CallsList calls={extra.calls} className="rm-calls" />}
+  </>;
   return <main className={`rm rm-phone is-${livePhase}`}>
     <header className="rm-header"><Link to="/" aria-label="Benchwarmers home"><BrandLockup size={28} /></Link><a className="rm-tv-link" href={`/room/${encodeURIComponent(code)}/display`}>Shared screen →</a></header>
     <div className="rm-room-heading"><h1>{view.room.name}</h1><div className="rm-room-code"><span>Room code · {view.room.participantCount} {view.room.participantCount === 1 ? 'player' : 'players'}</span><button aria-label={`Copy room code ${code}`} onClick={async () => { try { await navigator.clipboard.writeText(code); setCopyStatus('Code copied'); } catch { setCopyStatus(`Share code ${code}`); } }}>{code} <span>Copy</span></button><small role="status">{copyStatus}</small></div></div>
@@ -82,12 +106,15 @@ export function RoomPage() {
         {current === 'game' && <>
           {last && <div className={`rm-pick-recap${last.correct ? '' : ' is-miss'}`}>{last.correct ? `Correct · +${points(last.points)} pts` : 'Incorrect · +0 pts'}{last.correct && last.bonuses.length > 0 && <details><summary>Bonus details</summary><span>{last.bonuses.map((bonus) => bonus.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())).join(' · ')}</span></details>}</div>}
           {final ? <FinalPodium view={view} /> : <Question view={view} busy={busy} receipt={receipt} onPick={(questionId, optionId) => submit(questionId, optionId, label(questionId, optionId)).then(() => undefined)} onRetry={(previous) => { void submit(previous.questionId, previous.optionId, previous.label, previous); }} />}
+          {!final && commit}
+          {livePhase !== 'lobby' && !final && calls}
+          {livePhase !== 'lobby' && pregame}
           <details className="rm-game-details"><summary>Game details</summary>{court}{livePhase !== 'lobby' && <PlayFeed view={view} />}</details>
           {host}
           <RoomRules view={view} />
         </>}
-        {current === 'lineups' && <>{lineup}{livePhase === 'lobby' && host}</>}
-        {current === 'standings' && <><Leaderboard view={view} />{(final || view.season.standings.length > 0) && <Leaderboard view={view} season />}</>}
+        {current === 'lineups' && <>{livePhase === 'lobby' && pregame}{lineup}{livePhase === 'lobby' && host}</>}
+        {current === 'standings' && <>{mine?.bank && me && <BankPanel standing={me} bank={mine.bank} />}<Leaderboard view={view} />{(final || view.season.standings.length > 0) && <Leaderboard view={view} season />}</>}
         {current === 'results' && final && <><FinalPodium view={view} /><details className="rm-pick-review"><summary>Previous pick</summary><Question view={view} /></details><Leaderboard view={view} season /></>}
       </div>
       <RoomAssistant busy={busy} onNavigate={(target) => choose(target === 'season' || target === 'standings' ? 'standings' : target === 'lineups' ? 'lineups' : 'game')} onCommand={async (text) => {
