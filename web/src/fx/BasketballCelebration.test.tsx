@@ -27,6 +27,16 @@ describe('celebration triggers', () => {
     expect(result.current.coalesced).toBe(0);
   });
 
+  it('shows the final at once when it lands during the last basket, so the winner card is never dimmed', () => {
+    const { result, rerender } = renderHook(({ v }) => useCelebrations(v), { initialProps: { v: input(55, 56, base) } });
+    rerender({ v: input(57, 56, [...base, { id: 'e3', kind: 'score' }]) });
+    expect(result.current.celebration?.kind).toBe('basket');
+    rerender({ v: input(57, 56, [...base, { id: 'e3', kind: 'score' }, { id: 'e4', kind: 'final' }]) });
+    expect(result.current.celebration).toMatchObject({ id: 'e4', kind: 'final' });
+    render(<BasketballCelebration celebration={result.current.celebration} />);
+    expect(document.querySelector('.bc-dim')).toBeNull();
+  });
+
   it('does not fire for a duplicate snapshot', () => {
     const { result, rerender } = renderHook(({ v }) => useCelebrations(v), { initialProps: { v: input(42, 39, base) } });
     rerender({ v: input(42, 39, [...base]) });
@@ -52,15 +62,14 @@ describe('celebration triggers', () => {
 
 describe('celebration queue', () => {
   const c = (id: string, kind: 'basket' | 'final' = 'basket') => ({ id, kind, title: id, color: '#000' });
-  it('keeps one main effect, coalesces ordinary scores and lets the final wait', () => {
+  it('keeps one main effect, coalesces ordinary scores, and lets the final take over at once', () => {
     let q = enqueue(EMPTY_QUEUE, c('a'));
     q = enqueue(q, c('b'));
     q = enqueue(q, c('c'));
     expect(q).toMatchObject({ current: { id: 'a' }, pending: null, coalesced: 2 });
     q = enqueue(q, c('final', 'final'));
-    expect(q.pending?.id).toBe('final');
-    q = advance(q);
     expect(q).toMatchObject({ current: { id: 'final' }, pending: null, coalesced: 0 });
+    expect(enqueue(q, c('late')).current?.id).toBe('final');
     expect(advance(q).current).toBeNull();
   });
 });
