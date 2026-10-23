@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { PartyStateResponse, SeasonResponse, StandingRow } from '@shared/types';
 import { Avatar, householdColor } from './avatar';
 import { findMember, formatPoints } from './pops';
@@ -18,6 +19,9 @@ function PodiumBlock({ row, place, state }: { row: StandingRow; place: 1 | 2 | 3
 }
 
 export function FinalView({ state, season, seasonError = false, onRetrySeason }: { state: PartyStateResponse; serverNow: () => number; season?: SeasonResponse; seasonError?: boolean; onRetrySeason?: () => void }) {
+  // Once a retry is offered it stays mounted, so remote focus survives the reload.
+  const [retryShown, setRetryShown] = useState(false);
+  if (seasonError && !retryShown) setRetryShown(true);
   const { game } = state;
   const rows = [...state.standings].sort((a, b) => a.rank - b.rank);
   const [first, second, third] = rows;
@@ -126,8 +130,9 @@ export function FinalView({ state, season, seasonError = false, onRetrySeason }:
               </tbody>
             </table>
           ) : (
-            <div className="tv-season-loading"><p role="status">{seasonError ? 'Season standings unavailable.' : 'Season standings loading…'}</p>{seasonError && onRetrySeason ? <button type="button" data-tv-action className="tv-action" onClick={onRetrySeason}>Retry season standings</button> : null}</div>
+            <div className="tv-season-loading"><p role="status">{seasonError ? 'Season standings unavailable.' : 'Season standings loading…'}</p></div>
           )}
+          {retryShown && onRetrySeason ? <button type="button" data-tv-action className="tv-action" aria-busy={!season && !seasonError} onClick={onRetrySeason}>{season ? 'Reload season standings' : 'Retry season standings'}</button> : null}
         </section>
       </div>
     </section>

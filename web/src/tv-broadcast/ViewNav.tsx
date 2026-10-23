@@ -31,7 +31,10 @@ export function ViewNav({ views, mode, manual, onSelect, onClose, contentRef }: 
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
       const key = e.key && e.key !== 'Unidentified' ? e.key : LEGACY_KEYS[e.keyCode];
-      const buttons = Array.from(navRef.current?.querySelectorAll('button') ?? []);
+      const buttons: HTMLElement[] = [
+        ...Array.from(navRef.current?.querySelectorAll('button') ?? []),
+        ...Array.from(navRef.current?.parentElement?.querySelectorAll<HTMLElement>('[data-tv-menu]') ?? []),
+      ];
       const reading = Array.from(contentRef?.current?.querySelectorAll<HTMLElement>('[data-tv-scroll]') ?? []);
       const actions = Array.from(contentRef?.current?.querySelectorAll<HTMLElement>('[data-tv-action], summary') ?? []);
       const readingIndex = reading.findIndex(el => el === document.activeElement);

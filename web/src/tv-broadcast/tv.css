@@ -51,6 +51,12 @@
 .tv-broadcast .tv-pickbar { position:absolute; inset:215px 8px 8px; }
 .tv-broadcast .tv-live-right { position:absolute; inset:215px 8px 8px; background:var(--bg); display:flex; flex-direction:column; }
 .tv-broadcast .tv-standings { flex:1; }
+.tv-broadcast .tv-overlay-summary { position:absolute; right:8px; top:126px; margin:0; padding:8px 16px; list-style:none; background:var(--panel); display:flex; flex-direction:column; gap:4px; font-size:25px; min-width:320px; }
+.tv-broadcast .tv-overlay-summary li { display:flex; align-items:baseline; gap:12px; }
+.tv-broadcast .tv-overlay-summary b { margin-left:auto; font:600 28px/1 var(--display); }
+.tv-broadcast .tv-overlay-rank { color:var(--muted); min-width:1ch; }
+.tv-broadcast .is-overview .tv-overlay-summary { top:308px; }
+.tv-broadcast.is-overlay .tv-overlay-summary { top:auto; bottom:126px; }
 .tv-broadcast .tv-connecting { grid-row:1/-1; align-self:center; justify-self:center; }
 /* Transparency only follows explicit overlay=1. Chrome hiding retains the full display. */
 html.tv-overlay,html.tv-overlay body,html.tv-overlay #root { background:transparent; }

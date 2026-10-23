@@ -70,8 +70,8 @@ export function TvPage() {
             <span>Party {state.party.code}</span>
             <span className="tv-source-badge">{fixture || ['harbor-vs-summit', 'riverton-vs-ironwood'].includes(state.game.id) ? 'Demo' : 'Replay'}</span>
             <ViewNav views={views} mode={mode} manual={manualMode !== undefined} contentRef={contentRef} onSelect={next => setManualMode(next as TvMode)} onClose={() => setManualMode(undefined)} />
-            <label className="tv-rotation"><input type="checkbox" checked={rotating} onChange={e => { setRotating(e.target.checked); setManualMode(undefined); }} />Auto rotate</label>
-            <Link className="tv-home" to="/">Home</Link>
+            <label className="tv-rotation"><input type="checkbox" data-tv-menu checked={rotating} onChange={e => { setRotating(e.target.checked); setManualMode(undefined); }} />Auto rotate</label>
+            <Link className="tv-home" data-tv-menu to="/">Home</Link>
           </div>
           <div ref={contentRef} className="tv-body" key={mode}>
             {mode === 'draft' ? <DraftBoard state={state} serverNow={serverNow} /> : null}

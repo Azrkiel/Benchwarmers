@@ -24,11 +24,16 @@ export function LiveView({ state, serverNow, showStandings = false, showPick = f
       {showPick ? <PickBar state={state} serverNow={serverNow} /> : null}
       {showStandings ? (
         <aside className="tv-live-right">
-          
           <Standings rows={state.standings} households={state.households} />
           <Ticker lines={state.ticker} />
         </aside>
-      ) : null}
+      ) : (
+        <ol className="tv-overlay-summary" aria-label="Top of the standings">
+          {[...state.standings].sort((a, b) => a.rank - b.rank).slice(0, 3).map(r => (
+            <li key={r.memberId}><span className="tv-overlay-rank">{r.rank}</span><span>{r.name}</span><b>{r.total.toFixed(1)}</b></li>
+          ))}
+        </ol>
+      )}
     </section>
   );
 }
