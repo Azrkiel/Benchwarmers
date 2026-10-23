@@ -12,7 +12,7 @@ npx @modelcontextprotocol/inspector
 Add server -> Streamable HTTP -> `http://localhost:3001/mcp`; add the bearer header under Server Settings > Custom Headers
 (not in the Add dialog). Tools load automatically on connect (no "List Tools" button in 2.x).
 
-![Inspector tool list, 11 tools](img/inspector-tools.png)
+![Inspector tool list, 22 tools](img/inspector-tools.png)
 
 CLI mode (used for the Checkpoint 2 flow; full output in [img/inspector-flow.txt](img/inspector-flow.txt)):
 ```
@@ -50,7 +50,7 @@ Views: draft = `list_available_players`/`draft_player`; tonight = `get_leaderboa
 | Tonight | ![](img/basic-host-tonight-800.png) | ![](img/basic-host-tonight-1280.png) |
 | Season | ![](img/basic-host-season-800.png) | ![](img/basic-host-season-1280.png) |
 
-Observations: single column at 800 (widget about 760 px wide), two columns at 1280. The breakpoint is `min-width:1000px` on the
+Re-shot 2026-10-22 (ESPN dark look, basic-host + Inspector 2.11.0 Apps tab). Observations: single column at 800 (widget about 760 px wide), two columns at 1280. The breakpoint is `min-width:1000px` on the
 widget's own width, so it switches correctly between the two host sizes. No widget console errors. The only logs are
 `404 /favicon.ico` and `405 GET /mcp` (the host probes for a standalone SSE stream; our stateless server doesn't offer one; harmless).
 
