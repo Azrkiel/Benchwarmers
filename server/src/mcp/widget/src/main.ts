@@ -1,6 +1,8 @@
 import { App } from '@modelcontextprotocol/ext-apps';
 import './styles.css';
 import { formatCountdown, renderApp, type Model, type View } from './render.ts';
+import { renderRoomBoard, roomViewOf } from './roomBoard.ts';
+import type { RoomView } from '../../../shared/room.js';
 
 const appEl = document.getElementById('app')!;
 const toastEl = document.getElementById('toast')!;
@@ -8,6 +10,8 @@ const toastEl = document.getElementById('toast')!;
 const TOOL_FOR_VIEW: Record<View, string> = { draft: 'list_available_players', tonight: 'get_leaderboard', season: 'get_season_standings' };
 
 const model: Model = { view: 'draft', now: Date.now() };
+// Set once a room tool result arrives; the board then renders room state, never the household fixture.
+let room: RoomView | undefined;
 try {
   model.selectedMember = localStorage.getItem('bw-member') || undefined;
 } catch {
@@ -27,7 +31,7 @@ function render() {
   const focused = document.activeElement as HTMLElement | null;
   const focusKey = focused && appEl.contains(focused) && focused.dataset.action ? actionKey(focused) : undefined;
   model.now = Date.now();
-  appEl.innerHTML = renderApp(model);
+  appEl.innerHTML = room ? renderRoomBoard(room, { pending: model.pending, error: model.error }) : renderApp(model);
   const controls = [...appEl.querySelectorAll<HTMLButtonElement>('[data-action]')];
   if (model.pending) controls.forEach(el => {
     el.setAttribute('aria-disabled','true');
@@ -49,6 +53,8 @@ function handleResult(res: ToolResult) {
   }
   const sc = res.structuredContent;
   if (!sc) return;
+  const roomView = roomViewOf(sc);
+  if (roomView) { room = roomView; model.error = undefined; render(); return; }
   if (sc.view === 'draft' || sc.view === 'tonight' || sc.view === 'season') model.view = sc.view;
   if (sc.code) model.code = sc.code;
   if (sc.state) {
@@ -88,6 +94,9 @@ appEl.addEventListener('click', (ev) => {
     case 'retry':
       if (lastCall) void call(lastCall.name, lastCall.args);
       else void app.connect().then(() => { model.error = undefined; render(); }).catch(() => { model.error = 'Could not connect to the game. Retry to reconnect.'; render(); });
+      break;
+    case 'room-refresh':
+      if (room) void call('room_status', { code: room.room.code });
       break;
     case 'tab':
       void call(TOOL_FOR_VIEW[d.view as View], code);
