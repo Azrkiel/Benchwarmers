@@ -11,6 +11,7 @@ import { createApp } from '../../src/index.js';
 import { mountMcp } from '../../src/mcp/http.js';
 import { BOARD_URI } from '../../src/mcp/server.js';
 import { Store } from '../../src/game/store.js';
+import { RoomStore } from '../../src/room/store.js';
 
 const TOKEN = 'test-token';
 const INIT = {
@@ -273,6 +274,63 @@ describe('prompts, rules and UI resource', () => {
 });
 
 describe('mount through createApp', () => {
+  it('lets the browser host load the real board and tools without publishing MCP_TOKEN', async () => {
+    const saved = process.env.MCP_TOKEN;
+    process.env.MCP_TOKEN = 'production-only-secret';
+    const client = new Client({ name: 'browser-host-test', version: '1.0.0' });
+    try {
+      const roomStore = new RoomStore({ persist: false });
+      const room = roomStore.create();
+      const url = await listen(createApp({ store, roomStore }));
+      await client.connect(new StreamableHTTPClientTransport(new URL(`${url}/api/mcp-widget`)));
+      const { tools } = await client.listTools();
+      expect(tools).toHaveLength(22);
+      const result = await client.callTool({ name: 'get_leaderboard', arguments: { code: 'DEMO' } });
+      expect(result.isError).not.toBe(true);
+      expect(result.structuredContent).toMatchObject({ view: 'tonight', code: 'DEMO' });
+      const denied = await client.callTool({ name: 'room_host', arguments: { code: room.view.room.code, action: 'start', hostToken: 'wrong' } });
+      expect(denied.isError).toBe(true);
+      expect(denied.structuredContent).toMatchObject({ errorCode: 'BAD_HOST_CREDENTIAL' });
+      const resource = await client.readResource({ uri: BOARD_URI });
+      expect(resource.contents[0]).toMatchObject({ mimeType: RESOURCE_MIME_TYPE });
+      expect(JSON.stringify({ tools, result, resource })).not.toContain('production-only-secret');
+      expect((await rawPost(url, {}, INIT)).status).toBe(401);
+      expect((await rawPost(url, { authorization: 'Bearer dev-token-change-me' }, INIT)).status).toBe(401);
+    } finally {
+      await client.close();
+      if (saved === undefined) delete process.env.MCP_TOKEN;
+      else process.env.MCP_TOKEN = saved;
+    }
+  });
+
+  it('keeps browser forwarding same-origin and preserves MCP request errors', async () => {
+    const url = await listen(createApp({ store }));
+    const endpoint = `${url}/api/mcp-widget`;
+    const post = (origin: string, body: string) => fetch(endpoint, {
+      method: 'POST',
+      headers: { origin, 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+      body,
+    });
+    expect((await post('https://foreign.example', JSON.stringify(INIT))).status).toBe(403);
+    expect((await post('null', JSON.stringify(INIT))).status).toBe(403);
+    expect((await post(url.replace('http:', 'https:'), JSON.stringify(INIT))).status).toBe(403);
+    expect((await post(url, JSON.stringify(INIT))).status).toBe(200);
+    const proxiedHttps = await fetch(endpoint, {
+      method: 'POST',
+      headers: { origin: url.replace('http:', 'https:'), 'x-forwarded-proto': 'https', 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+      body: JSON.stringify(INIT),
+    });
+    expect(proxiedHttps.status).toBe(200);
+    const malformed = await post(url, '{not json');
+    expect(malformed.status).toBe(400);
+    expect(await malformed.json()).toMatchObject({ error: { code: -32700 } });
+    for (const method of ['GET', 'DELETE']) {
+      const res = await fetch(endpoint, { method });
+      expect(res.status).toBe(405);
+      expect(res.headers.get('allow')).toBe('POST');
+    }
+  });
+
   it('serves /mcp from the real app with MCP_TOKEN and keeps /healthz working', async () => {
     const saved = process.env.MCP_TOKEN;
     process.env.MCP_TOKEN = 'app-token';

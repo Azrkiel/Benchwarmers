@@ -1,0 +1,37 @@
+{
+  "base": "https://benchwarmers.fly.dev",
+  "route": "/display/garcias",
+  "mode": "before",
+  "requests": [
+    {
+      "url": "https://benchwarmers.fly.dev/mcp",
+      "method": "POST",
+      "hasAuthorization": true
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://benchwarmers.fly.dev/mcp",
+      "status": 401
+    }
+  ],
+  "layout": {
+    "widgetSlots": 2,
+    "conversation": {
+      "top": 106.93457794189453,
+      "bottom": 207.36944580078125,
+      "height": 100.43486785888672
+    },
+    "fallback": {
+      "top": 465.87164306640625,
+      "bottom": 748.1868896484375,
+      "height": 282.31524658203125
+    },
+    "screen": {
+      "top": 67.81307983398438,
+      "bottom": 748.1868591308594,
+      "height": 680.373779296875
+    }
+  },
+  "errors": []
+}

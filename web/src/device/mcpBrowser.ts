@@ -20,11 +20,7 @@ export type DeviceMcp = {
 };
 
 export function createBrowserMcp(opts: { url?: string; token?: string } = {}): DeviceMcp {
-  const url = opts.url ?? new URL('/mcp', window.location.origin).toString();
-  // Demo-only: this ships the bearer token in the browser bundle (VITE_MCP_TOKEN).
-  // A real host keeps the token server-side and proxies MCP calls itself.
-  const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-  const token = opts.token ?? env?.VITE_MCP_TOKEN ?? 'dev-token-change-me';
+  const url = opts.url ?? new URL('/api/mcp-widget', window.location.origin).toString();
   let connecting: Promise<Client> | undefined;
 
   function connect(): Promise<Client> {
@@ -32,7 +28,7 @@ export function createBrowserMcp(opts: { url?: string; token?: string } = {}): D
       const attempt = (async () => {
         const client = new Client({ name: 'benchwarmers-device', version: '0.1.0' });
         const transport = new StreamableHTTPClientTransport(new URL(url), {
-          requestInit: { headers: { Authorization: `Bearer ${token}` } },
+          requestInit: opts.token ? { headers: { Authorization: `Bearer ${opts.token}` } } : undefined,
         });
         try {
           await client.connect(transport);
