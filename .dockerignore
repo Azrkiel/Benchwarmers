@@ -5,7 +5,6 @@
 !.env.example
 **/data
 .git
-design-archives
 docs/img
 extension/dist
 tools/odds/.cache

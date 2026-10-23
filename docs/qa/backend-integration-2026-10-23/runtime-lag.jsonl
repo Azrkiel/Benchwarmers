@@ -1,9 +1,0 @@
-{"pid":17680,"at":1792759841662,"operation":"started"}
-{"pid":38876,"at":1792759841793,"operation":"started"}
-{"pid":25060,"at":1792759842074,"operation":"started"}
-{"pid":33212,"at":1792759842346,"operation":"started"}
-{"pid":38876,"at":1792760080147,"operation":"event-loop-delay","ms":211096.9508}
-{"pid":38876,"at":1792760080395,"operation":"writeFileSync","ms":247.37129999999888}
-{"pid":25060,"at":1792760080413,"operation":"event-loop-delay","ms":222195.3478}
-{"pid":33212,"at":1792760080463,"operation":"event-loop-delay","ms":211896.2783}
-{"pid":25060,"at":1792760083057,"operation":"event-loop-delay","ms":632.5985999999975}

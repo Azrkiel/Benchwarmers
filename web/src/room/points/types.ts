@@ -1,8 +1,7 @@
 /**
- * Client contract for committed points (Worker A's exports, below) plus PROPOSED types
- * for player calls and pregame picks (master plan Phases 11, 13) that A has not shipped. Every field is additive and the
- * screens stay hidden until a room snapshot carries them. Requested from A in
- * docs/qa/worker-b/CONTRACT_REQUESTS.md. Values are game points (half-point precision).
+ * Client contract for committed points plus types for player calls and pregame picks.
+ * Every field is additive and the screens stay hidden until a room snapshot carries them.
+ * Values are game points (half-point precision).
  */
 export type CommitAmount = 10 | 25 | 50;
 export const COMMIT_AMOUNTS: CommitAmount[] = [10, 25, 50];

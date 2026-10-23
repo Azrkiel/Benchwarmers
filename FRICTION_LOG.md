@@ -66,7 +66,7 @@ The MCP server, widget, and credential-free demo gave us a workable foundation. 
 
 **Feedback:** Publish the package location, access prerequisites, supported Node version, and a fallback path directly in Getting Started.
 
-**Status:** Access unresolved in the recorded work. [Original lookup](docs/FRICTION_LOG.md), [submission scope](docs/SUBMISSION.md).
+**Status:** Access unresolved in the recorded work. [Original lookup](docs/FRICTION_LOG.md).
 
 ### F03 — Live model setup failed in two different layers
 
@@ -136,15 +136,15 @@ Recorded October 23 browser QA captured the last scoring animation and dimming l
 
 **Status:** Open in the cited candidate's evidence; no new visual pass is claimed by this documentation update. The next check is the genuine first final frame at 1920×1080 after a presentation fix. Inspecting a later clear frame would miss the original problem.
 
-**Lesson:** Add visual acceptance for key transitions, especially the result viewers need to read. [Reproduction and candidate](docs/qa/worker-c/INTEGRATION_FINDINGS.md#open-for-b-final-scoring-animation-obscures-winner-card) · [captured frame](docs/qa/worker-c/integrated-2026-10-23/screens/08-final-display.png).
+**Lesson:** Add visual acceptance for key transitions, especially the result viewers need to read.
 
 ### F07 — Documentation made the current workflow harder to identify
 
 Legacy household instructions, newer room flows, old tool counts, and historical test totals appeared across several documents. The friction log itself was buried under `docs/` without a prominent README link.
 
-**What changed:** This root-level document is linked from the README, recording guide, submission draft, and agent conventions. The original dated notes remain intact as an archive. Historical counts elsewhere still need to be read in their original context.
+**What changed:** This root-level document is linked from the README. The original dated notes remain intact as an archive. Historical counts elsewhere still need to be read in their original context.
 
-**Lesson:** Keep a clear current entry point, label older scenarios, and quote tool/test counts from the candidate actually being demonstrated. [Quick start](README.md#quick-start) · [recording guide](docs/DEMO_SCRIPT.md).
+**Lesson:** Keep a clear current entry point, label older scenarios, and quote tool/test counts from the candidate actually being demonstrated. [Quick start](README.md#quick-start).
 
 ## F08 — What we can demonstrate, and what still needs testing
 
@@ -152,7 +152,7 @@ The recorded work demonstrates MCP calls, widget rendering in tested hosts, scri
 
 Physical Alexa/Echo execution and real-person microphone accuracy remain unverified in this evidence. Typed simulator turns, synthetic voices, and mocked provider tests should be described by their actual input and execution mode. The final-screen visual issue above remains a separate recording check.
 
-See [submission scope](docs/SUBMISSION.md) and [recording preparation](docs/DEMO_SCRIPT.md) for the demonstrated workflow.
+See [testing instructions](docs/TESTING.md) for the demonstrated workflow.
 
 ## Adding future feedback
 
